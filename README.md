@@ -45,6 +45,6 @@ Smart Table Data Extraction Tool originally designed to streamline the clinical 
 This is a complex software, and we will implement the suggested functionality incrementally, as we use it.
 
 - We will start with re-flowing UI, Redux, User management, and DB (1 month)
-- New modules implementation: Tables management, Classifier management, Ontology management (1 month)
-- Unpivotr, Metamap, Software Repacking, Usage stats module (2-3 weeks)
--
+- New modules implementation: Tables management, Classifier management, Ontology management, Search (1.5 months)
+- Unpivotr, Metamap, Software Repacking, Usage stats module (2 weeks)
+- 
