@@ -4,7 +4,7 @@ Smart Table Data Extraction Tool originally designed to streamline the clinical 
 # Development checkpoints
 - [ ] Interface Redesign
   - [ ] Data flow diagram to inform implementation
-  - [ ] Redux implementation
+  - [X] Redux implementation
   - [ ] Add User Management UI elements
   - [ ] Add Admin page
     - [ ] User Management
@@ -19,16 +19,16 @@ Smart Table Data Extraction Tool originally designed to streamline the clinical 
     - [ ] Find tables containing terms
     - [ ] Tables for UID
   - [ ] Add Table Uploading page (Single and Batch)
-  - [ ] Annotations:
-    - [ ] Allow data manipulation after rendering (Potential work around spreading of labels.)
+  - [X] Annotations:
+    - [X] Allow data manipulation after rendering (Potential work around spreading of labels.)
     - [ ] Show original image of the table, (pre-OCR), so users can fix issues easily
   - [ ] Exporting functionality
     - [ ] CSV
     - [ ] XML? (Optional)
     - [ ] Excel? (Optional)
 - [ ] Server Code
-  - [ ] Modularise code
-  - [ ] Reduce redundancy, and simplify code
+  - [X] Modularise code
+  - [X] Reduce redundancy, and simplify code
   - [ ] Reduce external dependencies (DB, Plumber, python)
     - [ ] Change to MongoDB or SQLite
     - [ ] MetaMap, can we get around this?
