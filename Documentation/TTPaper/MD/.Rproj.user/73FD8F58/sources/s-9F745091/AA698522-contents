@@ -1,0 +1,15 @@
+library(tidyverse)
+library(readr)
+prediction_data <- read_csv("~/ihw/prediction_data.csv")
+colnames(prediction_data)[0:19] %>% dput
+
+prediction_data <- prediction_data %>% select("docid", "page", "clean_concept", "onlyNumbers", 
+                           "pos_start", "pos_middle", "pos_end", "inRow", "inCol", "is_bold", 
+                           "is_italic", "is_indent", "is_empty_row", "is_empty_row_p", "cuis", 
+                           "semanticTypes", "label")
+
+
+write_csv(prediction_data, "~/ihw/prediction_data_simple.csv")
+
+
+

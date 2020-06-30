@@ -1,0 +1,14 @@
+{
+  "system_path": "/whatever/somewhere/tableAnnotatorfolder/",
+  "port": 6541,
+  "port_ui": 7531,
+  "host": "my.hosting.site",
+  "db" : {
+      "user": "postgres_user",
+      "password": "user_password",
+      "host": "postgres_database_host",
+      "port": 5432,
+      "database": "annotator_database_name"
+    },
+  "hashSecret": "this is the hashing secret used to encrypt passwords"
+}

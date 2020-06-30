@@ -1,0 +1,69 @@
+\begin{table}
+	\centering
+	\begin{tabular}{|c|c|c|c|c|c|}
+
+\hline
+\multirow{2}{*}{\textbf{Features} }	& \multicolumn{5}{c|}{\textbf{Metrics Averaged Over All Target Labels (Macro\_avg)}} \\
+\cline{2-6}
+ &		\textbf{Classifier} & \textbf{Precision} &  \textbf{Recall} & \textbf{F1-Score} & \textbf{Accuracy (12k)}\\
+		\hline 
+		\hline 
+		
+\multirow{5}{*}{ \textit{Basic} } & MLP & \textbf{0.46} & \textbf{0.23} & \textbf{0.19} & \textbf{0.59} \\ 
+	\cline{2-6}
+		& MultinomialNB & 0.22 & 0.22 & 0.17 & 0.57 \\ 
+	\cline{2-6}
+		& LogReg & 0.21 & 0.22 & 0.18 & \textbf{0.59} \\
+	\cline{2-6}
+		& RandomForest & 0.39 & \textbf{0.23} & \textbf{0.19} & \textbf{0.59} \\ 
+	\cline{2-6}
+		& AdaBoost & 0.14 & 0.21 & 0.17 & 0.58 \\
+
+		
+		\hline
+		\hline
+
+\multirow{5}{*}{ \textit{UMLS-SemTypes}  } & MLP & 0.52 & 0.42 & 0.45 & 0.64 \\
+	\cline{2-6}
+	& MultinomialNB & 0.34 & 0.29 & 0.28 & 0.60 \\
+	\cline{2-6}
+	& LogReg & 0.42 & 0.29 & 0.29 & 0.62 \\
+	\cline{2-6}
+	& RandomForest & \textbf{0.56} & \textbf{0.43} & \textbf{0.46} & \textbf{0.65} \\
+	\cline{2-6}
+	& AdaBoost & 0.33 & 0.23 & 0.22 & 0.57 \\
+	
+	\hline
+	\hline
+
+\multirow{5}{*}{ \textit{UMLS-CUIs}  } & MLP & 0.61 & \textbf{0.51} & \textbf{0.53} & \textbf{0.67} \\  
+\cline{2-6}
+& MultinomialNB & 0.42 & 0.35 & 0.36 & 0.62 \\
+\cline{2-6}
+& LogReg & 0.59 & 0.39 & 0.42 & 0.66 \\
+\cline{2-6}
+& RandomForest & \textbf{0.65} & \textbf{0.51} & 0.52 & \textbf{0.67} \\
+\cline{2-6}
+& AdaBoost & 0.23 & 0.24 & 0.20 & 0.59 \\
+
+		
+\hline
+\hline
+
+\multirow{5}{*}{ \textit{UMLS-Full}  } & MLP & \textbf{0.59} & 0.52 & \textbf{0.54} & \textbf{0.67} \\
+\cline{2-6}
+& MultinomialNB & 0.42 & 0.36 & 0.36 & 0.62 \\
+\cline{2-6}
+& LogReg & 0.58 & 0.39 & 0.42 & 0.66 \\
+\cline{2-6}
+& RandomForest & \textbf{0.59} & 0.50 & 0.53 & \textbf{0.67} \\
+\cline{2-6}
+& AdaBoost & 0.23 & 0.26 & 0.21 & 0.59 \\
+\hline
+
+\hline
+
+		
+	\end{tabular} 
+	\caption{\label{tab:Sum-all} Summary statistics for all feature sets and classifiers  }
+\end{table}

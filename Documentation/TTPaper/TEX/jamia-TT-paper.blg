@@ -1,0 +1,60 @@
+This is BibTeX, Version 0.99d (TeX Live 2019)
+Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
+The top-level auxiliary file: jamia-TT-paper.aux
+The style file: vancouver.bst
+Reallocated glb_str_ptr (elt_size=4) to 20 items from 10.
+Reallocated global_strs (elt_size=20001) to 20 items from 10.
+Reallocated glb_str_end (elt_size=4) to 20 items from 10.
+Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
+Database file #1: literature.bib
+Warning--empty author and editor in systematicReviewTools
+Warning--missing publisher in systematicReviewTools
+Warning--empty author and editor in unpivotr
+Warning--missing publisher in unpivotr
+Warning--empty author and editor in databaker
+Warning--missing publisher in databaker
+Warning--empty pages in gurulingappa2016semi
+Warning--empty author and editor in semtypes
+Warning--missing publisher in semtypes
+You've used 18 entries,
+            3170 wiz_defined-function locations,
+            772 strings with 9009 characters,
+and the built_in function-call counts, 29223 in all, are:
+= -- 3617
+> -- 232
+< -- 3
++ -- 128
+- -- 58
+* -- 2408
+:= -- 3166
+add.period$ -- 66
+call.type$ -- 18
+change.case$ -- 10
+chr.to.int$ -- 0
+cite$ -- 27
+duplicate$ -- 2389
+empty$ -- 2821
+format.name$ -- 72
+if$ -- 6871
+int.to.chr$ -- 0
+int.to.str$ -- 18
+missing$ -- 182
+newline$ -- 95
+num.names$ -- 18
+pop$ -- 342
+preamble$ -- 1
+purify$ -- 0
+quote$ -- 0
+skip$ -- 348
+stack$ -- 0
+substring$ -- 5516
+swap$ -- 433
+text.length$ -- 3
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 0
+warning$ -- 9
+while$ -- 149
+width$ -- 20
+write$ -- 203
+(There were 9 warnings)

@@ -1,0 +1,9 @@
+{
+    "path" : "~/ihw/tableAnnotator/tools/IHW_table_classifier/TTPaper/MD",
+    "sortOrder" : [
+        {
+            "ascending" : true,
+            "columnIndex" : 2
+        }
+    ]
+}

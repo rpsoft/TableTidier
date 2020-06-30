@@ -102,3 +102,15 @@ dist
 
 # TernJS port file
 .tern-port
+
+Classifier/trained/
+
+temp/
+
+Server/COVID_TABLES/
+
+Server/HTML_TABLES/
+
+Server/HTML_TABLES_DELETED/
+
+Server/HTML_TABLES_OVERRIDE/

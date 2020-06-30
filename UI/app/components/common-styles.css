@@ -1,0 +1,21 @@
+.cui_selected:hover {
+  color: #e025b7;
+  font-weight: "bold"
+}
+
+.deleteButton {
+  cursor:pointer;
+  height:20px;
+  margin-right: 5px;
+}
+
+.deleteButton:hover {
+  color: red;
+}
+
+
+.delete:hover {
+  color: red;
+  font-weight: bold;
+  cursor: pointer;
+}

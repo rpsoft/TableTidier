@@ -1,0 +1,14 @@
+Execute as: 
+
+node evaluate.js first_batch_results.csv auto_predictions_v1.csv
+
+
+first csv file contains the manual annotations
+
+second one the automatic annotations by our software
+
+Result is a similarity metric:
+- 1 if both annotations are a perfect match
+- 0 if they are totally different
+
+The similarity is given as a normalised edit distance. edit steps / max edits

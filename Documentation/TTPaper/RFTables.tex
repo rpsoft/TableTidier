@@ -1,0 +1,97 @@
+\begin{table}
+	\centering
+	\setlength{\tabcolsep}{0.5em} % for the horizontal padding
+	{\renewcommand{\arraystretch}{1.2}% for the vertical padding
+	\begin{tabular}{c|c|c|c|c}
+		%	\hline 
+		\cellcolor{black!50} & \textbf{Basic} & \textbf{UMLS-SemTypes}  & \textbf{UMLS-CUIs}  & \textbf{UMLS-Full} \\ 
+		\hline 
+		\textbf{Basic} &  \cellcolor{black!50} & $1.47^{-61}$ & $9.91^{-77}$ & $7.67^{-90}$ \\ 
+		\hline 
+		\textbf{UMLS-SemTypes} & $1.47^{-61}$ & \cellcolor{black!50} & $6.25^{-6}$ & $3.25^{-11}$ \\ 
+		\hline 
+		\textbf{UMLS-CUIs} & $9.91^{-77}$ & $6.25^{-6}$ & \cellcolor{black!50} & $0.01$ \\ 
+		\hline 
+		\textbf{UMLS-Full} & $7.67^{-90}$ & $3.25^{-11}$ & $0.01$ & \cellcolor{black!50} \\ 
+		%	\hline 
+	\end{tabular}
+	}
+	
+	\caption{ \label{tab:stat-diff} Paired T-Test p-values comparing RandomForest classification runs }
+\end{table}
+
+
+\begin{table}
+	\centering
+	\begin{tabular}{c|c|c|c|c}
+
+		
+		&\textbf{Precision} &  \textbf{Recall} & \textbf{F1-Score} & \textbf{Samples} \\
+		\hline 
+		\hline 
+		arms & 0.53 & 0.81 & 0.64 & 1217 \\
+		\hline
+		characteristic\_level & 0.60 & 0.95 & 0.73 & 6466 \\
+		\hline
+		characteristic\_name & 0.37 & 0.01 & 0.01 & 2636 \\
+		\hline
+		measures & 0.72 & 0.04 & 0.08 & 754 \\
+		\hline
+		other & 0.73 & 0.05 & 0.09 & 167 \\
+		\hline
+		outcomes & 0.12 & 0.00 & 0.00 & 895 \\
+		\hline
+		p-interaction & 0.00 & 0.00 & 0.00 & 10 \\
+		\hline
+		time/period & 0.00 & 0.00 & 0.00 & 74 \\
+		\hline
+		\hline
+		
+		macro\_avg & 0.39 & 0.23 & 0.19 & \multirow{2}{*}{12219.00}  \\
+		\cline{1-4}
+		weighted\_avg & 0.52 & 0.59 & 0.46 & \\
+		\hline
+		\hline	
+		accuracy&\multicolumn{4}{c}{0.58} \\ 
+		\hline
+	\end{tabular} 
+	\caption{\label{tab:RF-basic} RandomForest classifier results, basic features (No UMLS)  }
+\end{table}
+
+
+\begin{table}
+	\centering
+	\begin{tabular}{c|c|c|c|c}
+		
+		&\textbf{Precision} &  \textbf{Recall} & \textbf{F1-Score} & \textbf{Samples} \\
+		\hline 
+		\hline 
+		
+		arms & 0.82 & 0.85 & 0.83 & 1217 \\
+		\hline
+		characteristic\_level & 0.68 & 0.86 & 0.76 & 6466 \\
+		\hline
+		characteristic\_name & 0.46 & 0.22 & 0.30 & 2636 \\
+		\hline
+		measures & 0.72 & 0.62 & 0.66 & 754 \\
+		\hline
+		other & 0.60 & 0.32 & 0.42 & 167 \\
+		\hline
+		outcomes & 0.68 & 0.53 & 0.60 & 895 \\
+		\hline
+		p-interaction & 0.20 & 0.10 & 0.13 & 10 \\
+		\hline
+		time/period & 0.55 & 0.57 & 0.56 & 74 \\
+		\hline
+		\hline
+		macro\_avg & 0.59 & 0.51 & 0.53 & \multirow{2}{*}{12219}  \\
+		\cline{1-4}
+		weighted\_avg & 0.65 & 0.67 & 0.64 & \\
+		\hline
+		\hline	
+		accuracy & \multicolumn{4}{c}{0.66} \\ 
+		\hline
+	\end{tabular} 
+	\caption{\label{tab:RF-all} RandomForest classifier results with Full UMLS features enabled }
+\end{table}
+

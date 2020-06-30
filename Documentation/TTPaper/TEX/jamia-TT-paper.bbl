@@ -1,0 +1,114 @@
+\begin{thebibliography}{10}
+
+\bibitem{Murad125}
+Murad MH, Asi N, Alsawas M, Alahdab F.
+\newblock New evidence pyramid.
+\newblock BMJ Evidence-Based Medicine. 2016;21(4):125--127.
+\newblock Available from: \url{https://ebm.bmj.com/content/21/4/125}.
+
+\bibitem{higgins2011cochrane}
+Higgins JP, Green S.
+\newblock Cochrane handbook for systematic reviews of interventions. vol.~4.
+\newblock John Wiley \& Sons; 2011.
+
+\bibitem{systematicReviewTools}
+Marshall C, Sutton A. Systematic Review Tools; 2020 (accessed February 9,
+  2020).
+\newblock \url{http://systematicreviewtools.com/index.php}.
+
+\bibitem{jonnalagadda2015automating}
+Jonnalagadda SR, Goyal P, Huffman MD.
+\newblock Automating data extraction in systematic reviews: a systematic
+  review.
+\newblock Systematic reviews. 2015;4(1):78.
+
+\bibitem{10.1093/ije/dyv306}
+Millard LA, Flach PA, Higgins JP.
+\newblock {Machine learning to assist risk-of-bias assessments in systematic
+  reviews}.
+\newblock International Journal of Epidemiology. 2015 12;45(1):266--277.
+\newblock Available from: \url{https://doi.org/10.1093/ije/dyv306}.
+
+\bibitem{Tsafnat2014}
+Tsafnat G, Glasziou P, Choong MK, Dunn A, Galgani F, Coiera E.
+\newblock Systematic review automation technologies.
+\newblock Systematic Reviews. 2014 Jul;3(1):74.
+\newblock Available from: \url{https://doi.org/10.1186/2046-4053-3-74}.
+
+\bibitem{unpivotr}
+Garmonsway D. Unpivotr: Unpivot Complex and Irregular Data Layouts; 2019
+  (accessed February 9, 2020).
+\newblock \url{https://github.com/nacnudus/unpivotr}.
+
+\bibitem{databaker}
+Company TSC. Databaker; 2018 (accessed February 9, 2020).
+\newblock \url{https://github.com/sensiblecodeio/databaker}.
+
+\bibitem{bian2011consort}
+Bian Zx, Shang Hc.
+\newblock CONSORT 2010 statement: updated guidelines for reporting parallel
+  group randomized trials.
+\newblock Annals of internal medicine. 2011;154(4):290--291.
+
+\bibitem{phillippo_dias_elsada_ades_welton_2019}
+Phillippo DM, Dias S, Elsada A, Ades AE, Welton NJ.
+\newblock Population Adjustment Methods for Indirect Comparisons: A Review of
+  National Institute for Health and Care Excellence Technology Appraisals.
+\newblock International Journal of Technology Assessment in Health Care.
+  2019;35(3):221–228.
+
+\bibitem{shah2015short}
+Shah AS, Lee KK, McAllister DA, Hunter A, Nair H, Whiteley W, et~al.
+\newblock Short term exposure to air pollution and stroke: systematic review
+  and meta-analysis.
+\newblock bmj. 2015;350:h1295.
+
+\bibitem{umlsPRFretrieval}
+{Zhang} Y, {Srimani} PK, {Wang} JZ.
+\newblock Combining MeSH Thesaurus with UMLS in pseudo relevance feedback to
+  improve biomedical information retrieval.
+\newblock In: 2016 IEEE International Conference on Knowledge Engineering and
+  Applications (ICKEA); 2016. p. 67--71.
+
+\bibitem{gurulingappa2016semi}
+Gurulingappa H, Toldo L, Schepers C, Bauer A, Megaro G.
+\newblock Semi-Supervised Information Retrieval System for Clinical Decision
+  Support.
+\newblock In: TREC; 2016. .
+
+\bibitem{Hanlon2019}
+Hanlon P, Hannigan L, Rodriguez-Perez J, Fischbacher C, Welton NJ, Dias S,
+  et~al.
+\newblock Representation of people with comorbidity and multimorbidity in
+  clinical trials of novel drug therapies: an individual-level participant data
+  analysis.
+\newblock BMC Medicine. 2019 Nov;17(1):201.
+\newblock Available from: \url{https://doi.org/10.1186/s12916-019-1427-1}.
+
+\bibitem{10.1093/nar/gkh061}
+Bodenreider O.
+\newblock {The Unified Medical Language System (UMLS): integrating biomedical
+  terminology}.
+\newblock Nucleic Acids Research. 2004 01;32(suppl\_1):D267--D270.
+\newblock Available from: \url{https://doi.org/10.1093/nar/gkh061}.
+
+\bibitem{10.1136/jamia.2009.002733}
+Aronson AR, Lang FM.
+\newblock {An overview of MetaMap: historical perspective and recent advances}.
+\newblock Journal of the American Medical Informatics Association. 2010
+  05;17(3):229--236.
+\newblock Available from: \url{https://doi.org/10.1136/jamia.2009.002733}.
+
+\bibitem{semtypes}
+NLM. NLM: Semantic Types; 2016 (accessed February 9, 2020).
+\newblock
+  \url{https://www.nlm.nih.gov/research/umls/META3_current_semantic_types.html}.
+
+\bibitem{urbano2019statistical}
+Urbano J, Lima H, Hanjalic A.
+\newblock Statistical Significance Testing in Information Retrieval: An
+  Empirical Analysis of Type I, Type II and Type III Errors.
+\newblock In: Proceedings of the 42nd International ACM SIGIR Conference on
+  Research and Development in Information Retrieval; 2019. p. 505--514.
+
+\end{thebibliography}

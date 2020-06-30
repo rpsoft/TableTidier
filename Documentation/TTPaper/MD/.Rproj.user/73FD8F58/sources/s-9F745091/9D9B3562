@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1590613137214.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "9D9B3562",
+    "lastKnownWriteTime" : 1590614390,
+    "last_content_update" : 1590614390126,
+    "path" : "~/ihw/tableAnnotator/tools/IHW_table_classifier/TTPaper/MD/TT_paper.Rmd",
+    "project_path" : "TT_paper.Rmd",
+    "properties" : {
+        "cursorPosition" : "55,0",
+        "scrollLine" : "0"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}
