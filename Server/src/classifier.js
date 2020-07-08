@@ -30,12 +30,7 @@ var CONFIG = require('./config.json')
 // cuis_full.model
 // umls_full.model
 
-// var classifierFile = CONFIG.system_path+"tools/IHW_table_classifier/trained/cuis_model.model" //
-
-var classifierFile = CONFIG.system_path+"tools/IHW_table_classifier/trained/semTypes_full.model" //
-//
-// python.ex`
-//   sgd = pickle.load(open(${classifierFile}, 'rb'))`
+var classifierFile = CONFIG.system_path+"Classifier/trained/semTypes_full.model" //
 
 python.ex`
   model = pickle.load(open(${classifierFile}, 'rb'))

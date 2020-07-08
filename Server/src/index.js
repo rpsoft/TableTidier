@@ -107,7 +107,7 @@ async function UMLSData(){
 
       var semtypes = new Promise( (resolve,reject) =>{
 
-          let inputStream = fs.createReadStream(CONFIG.system_path+ "tools/metamap_api/"+'cui_def.csv', 'utf8');
+          let inputStream = fs.createReadStream(CONFIG.system_path+ "Tools/metamap_api/"+'cui_def.csv', 'utf8');
 
           var result = {};
 
@@ -129,7 +129,7 @@ async function UMLSData(){
 
       var cui_def = new Promise( (resolve,reject) =>{
 
-          let inputStream = fs.createReadStream(CONFIG.system_path+ "tools/metamap_api/"+'cui_def.csv', 'utf8');
+          let inputStream = fs.createReadStream(CONFIG.system_path+ "Tools/metamap_api/"+'cui_def.csv', 'utf8');
 
           var result = {};
 
@@ -149,7 +149,7 @@ async function UMLSData(){
 
       var cui_concept = new Promise( (resolve,reject) =>{
 
-          let inputStream = fs.createReadStream(CONFIG.system_path+ "tools/metamap_api/"+'cui_concept.csv', 'utf8');
+          let inputStream = fs.createReadStream(CONFIG.system_path+ "Tools/metamap_api/"+'cui_concept.csv', 'utf8');
 
           var result = {};
 
@@ -175,48 +175,6 @@ async function CUIData (){
 
     var results = await getAnnotationResults()
 
-
-    //
-    //
-    // var actual_results = new Promise( (resolve,reject) =>{
-    //
-    //         let inputStream = fs.createReadStream(CONFIG.system_path+ "tools/metamap_api/"+'Feb2020_allresults.csv', 'utf8');
-    //
-    //         var result = {};
-    //
-    //         inputStream
-    //             .pipe(new CsvReadableStream({ parseNumbers: true, parseBooleans: true, trim: true, skipHeader: true }))
-    //             .on('data', function (row) {
-    //
-    //                 var currentItem = result[row[1]+"_"+row[2]] || {}
-    //
-    //                 // Only want one version of the annotations. There should be only one. If not, clean it up! As we have no automatic way to determine which one is best.
-    //                 if ( (currentItem["user"] && currentItem["user"].length > 0) && (currentItem["user"] !== row[0])){
-    //                    currentItem = {}
-    //                 }
-    //
-    //                 currentItem["user"] = row[0]
-    //
-    //                 currentItem["minPos"] = currentItem["minPos"] && currentItem["minPos"] < row[6] ? currentItem["minPos"] : row[6]
-    //
-    //
-    //                 var currentLoc = currentItem[row[5]] ? currentItem[row[5]] : {}
-    //
-    //                 currentLoc[row[6]] = { descriptors: row[7], modifier: row[8] }
-    //
-    //                 currentItem[row[5]] = currentLoc
-    //
-    //                 result[row[1]+"_"+row[2]] = currentItem
-    //
-    //             })
-    //             .on('end', function (data) {
-    //                 resolve(result);
-    //             });
-    //     })
-    //
-    // actual_results = await actual_results
-
-
     var rres = results.rows.reduce(
             (acc,ann,i) => {
 
@@ -240,8 +198,6 @@ async function CUIData (){
               };
               return acc
             } , {} )
-    //
-    // debugger
 
     return { cui_def: umlsData.cui_def, cui_concept: umlsData.cui_concept, actual_results: rres, semtypes: umlsData.semtypes }
 }
@@ -266,61 +222,6 @@ async function getAnnotationByID(docid,page,user){
         client.release()
   return result
 }
-
-
-      //
-      //
-      // var csvData = data.predicted.predictions.map(
-      //   (row_el,row) => {
-      //     return row_el.terms.map( ( term, col ) => {
-      //
-      //         var clean_concept = prepare_cell_text(term)
-      //         var row_terms = data.predicted.predictions[row].terms
-      //         // debugger;
-      //
-      //         var toReturn = {
-      //           docid: docid,
-      //           page: page,
-      //           concept : prepare_cell_text(term),
-      //           clean_concept : clean_concept,
-      //           original : term,
-      //           onlyNumbers : term.replace(/[^a-z]/g," ").replace(/ +/g," ").trim() == "",
-      //           // row: row,
-      //           // col: col,
-      //           pos_start: row == 0 ? 1 : "",
-      //           pos_middle: row > 0 && row < (data.predicted.predictions.length-1)  ? 1 : "",
-      //           pos_end: row == data.predicted.predictions.length-1 ? 1 : "",
-      //           // isCharacteristic_name: cols[col] && cols[col].descriptors.indexOf("characteristic_name") > -1 ? 1 : 0,
-      //           // isCharacteristic_level: cols[col] && cols[col].descriptors.indexOf("characteristic_level") > -1 ? 1 : 0,
-      //           // isOutcome: cols[col] && cols[col].descriptors.indexOf("outcomes") > -1 ? 1 : 0,
-      //           inRow : rows[row] ? 1 : "",
-      //           inCol : cols[col] ? 1 : "",
-      //           is_bold : data.predicted.predictions[row].cellClasses[col].indexOf("bold") > -1 ? 1 : "",
-      //           is_italic : data.predicted.predictions[row].cellClasses[col].indexOf("italic") > -1 ? 1 : "",
-      //           is_indent : data.predicted.predictions[row].cellClasses[col].indexOf("indent") > -1 ? 1 : "",
-      //           is_empty_row : row_terms[0] == row_terms.join("") ? 1 : "",
-      //           is_empty_row_p : row_terms.length > 2 && (row_terms[0]+row_terms[row_terms.length-1] == row_terms.join("")) ? 1 : "",  // this one is a crude estimation of P values structure. Assume the row has P value if multiple columns are detected but only first and last are populated.
-      //           label : cols[col] ? cols[col].descriptors : (rows[row] ? rows[row].descriptors : ""),
-      //           cuis: cui_data.cui_concept[clean_concept],
-      //           semanticTypes: getSemanticTypes(cui_data.cui_concept[clean_concept],cui_data).join(";"),
-      //
-      //           // cui_def, cui_concept
-      //         }
-      //
-      //         if ( cui_data.cui_concept[clean_concept] ){
-      //           cui_data.cui_concept[clean_concept].split(";").map( cui => {
-      //               toReturn[cui] = 1
-      //           })
-      //         }
-      //
-      //         getSemanticTypes(cui_data.cui_concept[clean_concept],cui_data).map( semType => {
-      //             toReturn[semType] = 1
-      //         })
-      //
-      //         return toReturn
-      //       })
-      //     }
-      //   )
 
 
 // preinitialisation of components if needed.
@@ -442,10 +343,9 @@ app.get('/api/getMetadataForCUI', async function(req,res){
       return result
 
   }
-  //console.log(req.query)
+
   if ( req.query && req.query.cui ){
     var meta = await getCuiTables(req.query.cui)
-    //console.log(meta)
     res.send(meta)
   } else {
     res.send("clear failed");
@@ -476,15 +376,9 @@ app.get('/api/clearMetadata', async function(req,res){
 
 app.get('/api/setMetadata', async function(req,res){
 
+  // Setting the Metadata. The Metadata includes the labelling of terms in headings by assigning CUIs.
   var setMetadata = async (docid, page, concept, cuis, qualifiers, cuis_selected, qualifiers_selected, user, istitle, labeller ) => {
       var client = await pool.connect()
-
-      // var done = await client.query('DELETE FROM metadata WHERE docid = $1 AND page = $2 AND "user" = $3', [docid, page, user ])
-      //   .then(result => console.log("deleted: "+ new Date()))
-      //   .catch(e => console.error(e.stack))
-      //   .then(() => client.release())
-      //
-      // client = await pool.connect()
 
      var done = await client.query('INSERT INTO metadata(docid, page, concept, cuis, qualifiers, "user", cuis_selected, qualifiers_selected, istitle, labeller ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) ON CONFLICT (docid, page, concept, "user") DO UPDATE SET cuis = $4, qualifiers = $5, cuis_selected = $7, qualifiers_selected = $8, istitle = $9, labeller = $10', [docid, page, concept, cuis, qualifiers, user, cuis_selected, qualifiers_selected, istitle, labeller ])
         .then(result => console.log("insert: "+ new Date()))
@@ -537,7 +431,6 @@ app.get('/api/allInfo',async function(req,res){
                                                   req.query.filter_labelgroup ? req.query.filter_labelgroup.split("_") : [])
 
 
-
     var available_documents_temp = result.available_documents
     var abs_index_temp = result.abs_index
     var DOCS_temp = result.DOCS
@@ -564,7 +457,7 @@ app.get('/api/allInfo',async function(req,res){
 
 });
 
-
+// Extracts all recommended CUIs from the DB and formats them as per the "recommend_cuis" variable a the bottom of the function.
 async function getRecommendedCUIS(){
   var cuiRecommend = async () => {
     var client = await pool.connect()
@@ -676,8 +569,9 @@ app.get('/api/cuisIndexAdd',async function(req,res){
 });
 
 
+
+// Produces the data required to teach classifiers. Traverses all existing tables, extracting cell values and associating it with the human annotations.
 async function trainingData(){
-  // var predictions = "user,docid,page,corrupted,tableType,location,number,content,qualifiers\n"
 
   var cui_data =  await CUIData ()
 
@@ -694,7 +588,7 @@ async function trainingData(){
       {id: 'semanticTypes', title: 'semanticTypes'},
       {id: 'label', title: 'label'}
   ]
-  //
+
   // Object.keys(cui_data.cui_def).map( c => {header.push({id: c, title: c})})
   // Object.keys(cui_data.semtypes).map( s => {header.push({id: s, title: s})})
 
@@ -712,6 +606,8 @@ async function trainingData(){
 
 
   var count = 1;
+
+  var cuirec = await getRecommendedCUIS()
 
   for ( var docid in available_documents){
     for ( var page in available_documents[docid].pages ) {
@@ -734,33 +630,19 @@ async function trainingData(){
         continue
       }
 
-      // if (! (docid == "16351668" && page == 2) ){
-      //    continue
-      // }
-      //
-      // debugger
-
-      // These are predicted, using the SGDClassifier
+      // The manual annotations for each col/row
       var cols; //= data.predicted.cols.reduce( (acc,e) => {acc[e.c] = {descriptors : e.descriptors.join(";"), modifier: e.unique_modifier}; return acc},{} )
       var rows; //= data.predicted.rows.reduce( (acc,e) => {acc[e.c] = {descriptors : e.descriptors.join(";"), modifier: e.unique_modifier}; return acc},{} )
 
-      var annotation_cols
-      var annotation_rows
-
       try{
       // These are manually annotated
-        annotation_cols = Object.keys(ac_res[docid+"_"+page].Col).reduce( (acc,e) => {  acc[e-1] = ac_res[docid+"_"+page].Col[e]; return acc }, {} )
-        annotation_rows = Object.keys(ac_res[docid+"_"+page].Row).reduce( (acc,e) => {  acc[e-1] = ac_res[docid+"_"+page].Row[e]; return acc }, {} )
+        cols = Object.keys(ac_res[docid+"_"+page].Col).reduce( (acc,e) => {  acc[e-1] = ac_res[docid+"_"+page].Col[e]; return acc }, {} )
+        rows = Object.keys(ac_res[docid+"_"+page].Row).reduce( (acc,e) => {  acc[e-1] = ac_res[docid+"_"+page].Row[e]; return acc }, {} )
       } catch (e) {
         console.log( "skipping: "+ docid+"_"+page)
         continue
       }
-      //Now we use the manual annotations here to build our dataset, to train the classifiers.
-      cols = annotation_cols
-      rows = annotation_rows
 
-
-      var cuirec = await getRecommendedCUIS()
 
       var getSemanticTypes = (cuis, cui_data) => {
 
@@ -785,7 +667,6 @@ async function trainingData(){
         (row_el,row) => {
           return row_el.terms.map( ( term, col ) => {
 
-              // var clean_concept = prepare_cell_text(term)
               var row_terms = data.predicted.predictions[row].terms
 
               var term_features = data.predicted.predictions[row].terms_features[col]
@@ -803,15 +684,11 @@ async function trainingData(){
                 semanticTypes: term_features[7],
                 label : cols[col] ? cols[col].descriptors : (rows[row] ? rows[row].descriptors : ""), // This is the label selected by the annotating person : "subgroup_name; level etc. "
               }
-              //
-              //
-
 
               return toReturn
             })
           }
         )
-          // debugger;
 
          csvData = csvData.flat();
 
@@ -830,21 +707,16 @@ async function trainingData(){
 
          }
 
-         //
-         // debugger;
-
-      await csvWriter.writeRecords(csvData)       // returns a promise
+      await csvWriter.writeRecords(csvData)
           .then(() => {
               console.log('...Done');
           });
-      await csvWriter_unique.writeRecords(csvDataUnique)       // returns a promise
+      await csvWriter_unique.writeRecords(csvDataUnique)
           .then(() => {
               console.log('...Done');
           });
     }
   }
-
-  // var cuirec = await getRecommendedCUIS()
 
   return {}
 }
@@ -868,7 +740,7 @@ app.get('/api/annotationPreview',async function(req,res){
           var page = req.query.page && (req.query.page.length > 0) ? req.query.page : 1
           var user = req.query.user && (req.query.user.length > 0) ? req.query.user : ""
 
-          console.log(user + "  -- "+JSON.stringify(req.query))
+          console.log("Producing Data Preview for: " + JSON.stringify(req.query))
           annotations = await getAnnotationByID(req.query.docid,page, user)
 
         } else{

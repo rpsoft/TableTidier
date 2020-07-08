@@ -130,7 +130,7 @@ function _UMLSData() {
         switch (_context39.prev = _context39.next) {
           case 0:
             semtypes = new Promise(function (resolve, reject) {
-              var inputStream = fs.createReadStream(CONFIG.system_path + "tools/metamap_api/" + 'cui_def.csv', 'utf8');
+              var inputStream = fs.createReadStream(CONFIG.system_path + "Tools/metamap_api/" + 'cui_def.csv', 'utf8');
               var result = {};
               inputStream.pipe(new CsvReadableStream({
                 parseNumbers: true,
@@ -152,7 +152,7 @@ function _UMLSData() {
           case 3:
             semtypes = _context39.sent;
             cui_def = new Promise(function (resolve, reject) {
-              var inputStream = fs.createReadStream(CONFIG.system_path + "tools/metamap_api/" + 'cui_def.csv', 'utf8');
+              var inputStream = fs.createReadStream(CONFIG.system_path + "Tools/metamap_api/" + 'cui_def.csv', 'utf8');
               var result = {};
               inputStream.pipe(new CsvReadableStream({
                 parseNumbers: true,
@@ -177,7 +177,7 @@ function _UMLSData() {
           case 7:
             cui_def = _context39.sent;
             cui_concept = new Promise(function (resolve, reject) {
-              var inputStream = fs.createReadStream(CONFIG.system_path + "tools/metamap_api/" + 'cui_concept.csv', 'utf8');
+              var inputStream = fs.createReadStream(CONFIG.system_path + "Tools/metamap_api/" + 'cui_concept.csv', 'utf8');
               var result = {};
               inputStream.pipe(new CsvReadableStream({
                 parseNumbers: true,
@@ -236,45 +236,6 @@ function _CUIData() {
 
           case 5:
             results = _context40.sent;
-            //
-            //
-            // var actual_results = new Promise( (resolve,reject) =>{
-            //
-            //         let inputStream = fs.createReadStream(CONFIG.system_path+ "tools/metamap_api/"+'Feb2020_allresults.csv', 'utf8');
-            //
-            //         var result = {};
-            //
-            //         inputStream
-            //             .pipe(new CsvReadableStream({ parseNumbers: true, parseBooleans: true, trim: true, skipHeader: true }))
-            //             .on('data', function (row) {
-            //
-            //                 var currentItem = result[row[1]+"_"+row[2]] || {}
-            //
-            //                 // Only want one version of the annotations. There should be only one. If not, clean it up! As we have no automatic way to determine which one is best.
-            //                 if ( (currentItem["user"] && currentItem["user"].length > 0) && (currentItem["user"] !== row[0])){
-            //                    currentItem = {}
-            //                 }
-            //
-            //                 currentItem["user"] = row[0]
-            //
-            //                 currentItem["minPos"] = currentItem["minPos"] && currentItem["minPos"] < row[6] ? currentItem["minPos"] : row[6]
-            //
-            //
-            //                 var currentLoc = currentItem[row[5]] ? currentItem[row[5]] : {}
-            //
-            //                 currentLoc[row[6]] = { descriptors: row[7], modifier: row[8] }
-            //
-            //                 currentItem[row[5]] = currentLoc
-            //
-            //                 result[row[1]+"_"+row[2]] = currentItem
-            //
-            //             })
-            //             .on('end', function (data) {
-            //                 resolve(result);
-            //             });
-            //     })
-            //
-            // actual_results = await actual_results
             rres = results.rows.reduce(function (acc, ann, i) {
               var annots = ann.annotation.annotations;
               annots = annots.reduce(function (acc, ann) {
@@ -298,9 +259,7 @@ function _CUIData() {
                 Row: annots.Row
               };
               return acc;
-            }, {}); //
-            // debugger
-
+            }, {});
             return _context40.abrupt("return", {
               cui_def: umlsData.cui_def,
               cui_concept: umlsData.cui_concept,
@@ -357,60 +316,7 @@ function _getMetadataLabellers() {
 
 function getAnnotationByID(_x, _x2, _x3) {
   return _getAnnotationByID.apply(this, arguments);
-} //
-//
-// var csvData = data.predicted.predictions.map(
-//   (row_el,row) => {
-//     return row_el.terms.map( ( term, col ) => {
-//
-//         var clean_concept = prepare_cell_text(term)
-//         var row_terms = data.predicted.predictions[row].terms
-//         // debugger;
-//
-//         var toReturn = {
-//           docid: docid,
-//           page: page,
-//           concept : prepare_cell_text(term),
-//           clean_concept : clean_concept,
-//           original : term,
-//           onlyNumbers : term.replace(/[^a-z]/g," ").replace(/ +/g," ").trim() == "",
-//           // row: row,
-//           // col: col,
-//           pos_start: row == 0 ? 1 : "",
-//           pos_middle: row > 0 && row < (data.predicted.predictions.length-1)  ? 1 : "",
-//           pos_end: row == data.predicted.predictions.length-1 ? 1 : "",
-//           // isCharacteristic_name: cols[col] && cols[col].descriptors.indexOf("characteristic_name") > -1 ? 1 : 0,
-//           // isCharacteristic_level: cols[col] && cols[col].descriptors.indexOf("characteristic_level") > -1 ? 1 : 0,
-//           // isOutcome: cols[col] && cols[col].descriptors.indexOf("outcomes") > -1 ? 1 : 0,
-//           inRow : rows[row] ? 1 : "",
-//           inCol : cols[col] ? 1 : "",
-//           is_bold : data.predicted.predictions[row].cellClasses[col].indexOf("bold") > -1 ? 1 : "",
-//           is_italic : data.predicted.predictions[row].cellClasses[col].indexOf("italic") > -1 ? 1 : "",
-//           is_indent : data.predicted.predictions[row].cellClasses[col].indexOf("indent") > -1 ? 1 : "",
-//           is_empty_row : row_terms[0] == row_terms.join("") ? 1 : "",
-//           is_empty_row_p : row_terms.length > 2 && (row_terms[0]+row_terms[row_terms.length-1] == row_terms.join("")) ? 1 : "",  // this one is a crude estimation of P values structure. Assume the row has P value if multiple columns are detected but only first and last are populated.
-//           label : cols[col] ? cols[col].descriptors : (rows[row] ? rows[row].descriptors : ""),
-//           cuis: cui_data.cui_concept[clean_concept],
-//           semanticTypes: getSemanticTypes(cui_data.cui_concept[clean_concept],cui_data).join(";"),
-//
-//           // cui_def, cui_concept
-//         }
-//
-//         if ( cui_data.cui_concept[clean_concept] ){
-//           cui_data.cui_concept[clean_concept].split(";").map( cui => {
-//               toReturn[cui] = 1
-//           })
-//         }
-//
-//         getSemanticTypes(cui_data.cui_concept[clean_concept],cui_data).map( semType => {
-//             toReturn[semType] = 1
-//         })
-//
-//         return toReturn
-//       })
-//     }
-//   )
-// preinitialisation of components if needed.
+} // preinitialisation of components if needed.
 
 
 function _getAnnotationByID() {
@@ -811,8 +717,7 @@ function () {
               return function getCuiTables(_x21) {
                 return _ref9.apply(this, arguments);
               };
-            }(); //console.log(req.query)
-
+            }();
 
             if (!(req.query && req.query.cui)) {
               _context9.next = 8;
@@ -824,7 +729,6 @@ function () {
 
           case 4:
             meta = _context9.sent;
-            //console.log(meta)
             res.send(meta);
             _context9.next = 9;
             break;
@@ -935,6 +839,7 @@ function () {
       while (1) {
         switch (_context13.prev = _context13.next) {
           case 0:
+            // Setting the Metadata. The Metadata includes the labelling of terms in headings by assigning CUIs.
             setMetadata =
             /*#__PURE__*/
             function () {
@@ -1153,7 +1058,7 @@ function () {
   return function (_x44, _x45) {
     return _ref16.apply(this, arguments);
   };
-}());
+}()); // Extracts all recommended CUIs from the DB and formats them as per the "recommend_cuis" variable a the bottom of the function.
 
 function getRecommendedCUIS() {
   return _getRecommendedCUIS.apply(this, arguments);
@@ -1504,7 +1409,7 @@ function () {
   return function (_x52, _x53) {
     return _ref22.apply(this, arguments);
   };
-}());
+}()); // Produces the data required to teach classifiers. Traverses all existing tables, extracting cell values and associating it with the human annotations.
 
 function trainingData() {
   return _trainingData.apply(this, arguments);
@@ -1514,7 +1419,7 @@ function _trainingData() {
   _trainingData = (0, _asyncToGenerator2.default)(
   /*#__PURE__*/
   _regenerator.default.mark(function _callee46() {
-    var cui_data, header, createCsvWriter, csvWriter, csvWriter_unique, count, docid, page, data, ac_res, cols, rows, annotation_cols, annotation_rows, cuirec, getSemanticTypes, csvData, csvDataUnique, allkeys, i, key;
+    var cui_data, header, createCsvWriter, csvWriter, csvWriter_unique, count, cuirec, docid, page, data, ac_res, cols, rows, getSemanticTypes, csvData, csvDataUnique, allkeys, i, key;
     return _regenerator.default.wrap(function _callee46$(_context46) {
       while (1) {
         switch (_context46.prev = _context46.next) {
@@ -1557,8 +1462,7 @@ function _trainingData() {
             }, {
               id: 'label',
               title: 'label'
-            }]; //
-            // Object.keys(cui_data.cui_def).map( c => {header.push({id: c, title: c})})
+            }]; // Object.keys(cui_data.cui_def).map( c => {header.push({id: c, title: c})})
             // Object.keys(cui_data.semtypes).map( s => {header.push({id: s, title: s})})
 
             createCsvWriter = require('csv-writer').createObjectCsvWriter;
@@ -1571,20 +1475,25 @@ function _trainingData() {
               header: header
             });
             count = 1;
+            _context46.next = 10;
+            return getRecommendedCUIS();
+
+          case 10:
+            cuirec = _context46.sent;
             _context46.t0 = _regenerator.default.keys(available_documents);
 
-          case 9:
+          case 12:
             if ((_context46.t1 = _context46.t0()).done) {
-              _context46.next = 51;
+              _context46.next = 49;
               break;
             }
 
             docid = _context46.t1.value;
             _context46.t2 = _regenerator.default.keys(available_documents[docid].pages);
 
-          case 12:
+          case 15:
             if ((_context46.t3 = _context46.t2()).done) {
-              _context46.next = 49;
+              _context46.next = 47;
               break;
             }
 
@@ -1597,50 +1506,41 @@ function _trainingData() {
             // }
 
             page = available_documents[docid].pages[page];
-            _context46.next = 18;
+            _context46.next = 21;
             return (0, _table.readyTableData)(docid, page);
 
-          case 18:
+          case 21:
             data = _context46.sent;
             ac_res = cui_data.actual_results;
 
             if (ac_res[docid + "_" + page]) {
-              _context46.next = 22;
+              _context46.next = 25;
               break;
             }
 
-            return _context46.abrupt("continue", 12);
+            return _context46.abrupt("continue", 15);
 
-          case 22:
-            _context46.prev = 22;
+          case 25:
+            _context46.prev = 25;
             // These are manually annotated
-            annotation_cols = Object.keys(ac_res[docid + "_" + page].Col).reduce(function (acc, e) {
+            cols = Object.keys(ac_res[docid + "_" + page].Col).reduce(function (acc, e) {
               acc[e - 1] = ac_res[docid + "_" + page].Col[e];
               return acc;
             }, {});
-            annotation_rows = Object.keys(ac_res[docid + "_" + page].Row).reduce(function (acc, e) {
+            rows = Object.keys(ac_res[docid + "_" + page].Row).reduce(function (acc, e) {
               acc[e - 1] = ac_res[docid + "_" + page].Row[e];
               return acc;
             }, {});
-            _context46.next = 31;
+            _context46.next = 34;
             break;
 
-          case 27:
-            _context46.prev = 27;
-            _context46.t4 = _context46["catch"](22);
+          case 30:
+            _context46.prev = 30;
+            _context46.t4 = _context46["catch"](25);
             console.log("skipping: " + docid + "_" + page);
-            return _context46.abrupt("continue", 12);
+            return _context46.abrupt("continue", 15);
 
-          case 31:
-            //Now we use the manual annotations here to build our dataset, to train the classifiers.
-            cols = annotation_cols;
-            rows = annotation_rows;
-            _context46.next = 35;
-            return getRecommendedCUIS();
-
-          case 35:
-            cuirec = _context46.sent;
-
+          case 34:
             getSemanticTypes = function getSemanticTypes(cuis, cui_data) {
               if (!cuis) {
                 return [];
@@ -1656,7 +1556,6 @@ function _trainingData() {
             count = count + 1;
             csvData = data.predicted.predictions.map(function (row_el, row) {
               return row_el.terms.map(function (term, col) {
-                // var clean_concept = prepare_cell_text(term)
                 var row_terms = data.predicted.predictions[row].terms;
                 var term_features = data.predicted.predictions[row].terms_features[col];
                 var toReturn = {
@@ -1672,14 +1571,11 @@ function _trainingData() {
                   cuis: term_features[6],
                   semanticTypes: term_features[7],
                   label: cols[col] ? cols[col].descriptors : rows[row] ? rows[row].descriptors : "" // This is the label selected by the annotating person : "subgroup_name; level etc. "
-                  //
-                  //
 
                 };
                 return toReturn;
               });
-            }); // debugger;
-
+            });
             csvData = csvData.flat();
             csvDataUnique = [];
             allkeys = {};
@@ -1691,40 +1587,36 @@ function _trainingData() {
                 allkeys[key] = true;
                 csvDataUnique.push(csvData[i]);
               }
-            } //
-            // debugger;
+            }
 
+            _context46.next = 43;
+            return csvWriter.writeRecords(csvData).then(function () {
+              console.log('...Done');
+            });
 
+          case 43:
             _context46.next = 45;
-            return csvWriter.writeRecords(csvData) // returns a promise
-            .then(function () {
+            return csvWriter_unique.writeRecords(csvDataUnique).then(function () {
               console.log('...Done');
             });
 
           case 45:
-            _context46.next = 47;
-            return csvWriter_unique.writeRecords(csvDataUnique) // returns a promise
-            .then(function () {
-              console.log('...Done');
-            });
+            _context46.next = 15;
+            break;
 
           case 47:
             _context46.next = 12;
             break;
 
           case 49:
-            _context46.next = 9;
-            break;
-
-          case 51:
             return _context46.abrupt("return", {});
 
-          case 52:
+          case 50:
           case "end":
             return _context46.stop();
         }
       }
-    }, _callee46, this, [[22, 27]]);
+    }, _callee46, this, [[25, 30]]);
   }));
   return _trainingData.apply(this, arguments);
 }
@@ -1781,7 +1673,7 @@ function () {
 
             page = req.query.page && req.query.page.length > 0 ? req.query.page : 1;
             user = req.query.user && req.query.user.length > 0 ? req.query.user : "";
-            console.log(user + "  -- " + JSON.stringify(req.query));
+            console.log("Producing Data Preview for: " + JSON.stringify(req.query));
             _context25.next = 7;
             return getAnnotationByID(req.query.docid, page, user);
 

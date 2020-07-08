@@ -297,53 +297,7 @@ runAll <- function(annotations){
       mutate(data_type = if_else(is.na(character) & !is.na(numeric), "character", data_type),
              character = if_else(is.na(character), as.character(numeric), character))
 
-    # ## Extract cell-level formatting
-    # if(file.exists(paste0(tablesDirectory, filename, ".html"))){
-    #   # formats <- xlsx_formats(paste0(tablesDirectory, filename, ".xlsx"))
-    #   #
-    #   # bold <- formats$local$font$bold
-    #   # ital <- formats$local$font$italic
-    #   # bold_ital <- bind_cols(formats$local$font[c("bold", "italic")])
-    #   # ## Note indentation is relative to minimum indent, problem is that this refers to every cell,
-    #   # ## not just column_type
-    #   # indt <- bind_cols(formats$local$alignment) %>%
-    #   #   mutate(indent = indent - min(indent),
-    #   #          indent_lvl = indent,
-    #   #          indent = horizontal %in% c("center", "right") |
-    #   #            (indent >=1)) %>%
-    #   #   select(indent, indent_lvl)
-    #
-    #   formats <- new_obj %>% filter( pmid_tbl == filename) %>% select(bold, italic,"indent","indent_lvl")
-    #
-    #   bold <- formats$bold
-    #   italic <- formats$italic
-    #   bold_ital <- cbind(bold,italic) %>% as_tibble
-    #   indt <- formats %>% select("indent","indent_lvl")
-    #
-    #   all_cells <- all_cells %>% mutate(local_format_id = seq_along(all_cells$row))
-    #
-    #
-    # } else {
-    #
-    #   formats <- new_obj %>% filter( pmid_tbl == filename) %>% select(bold, italic,"indent","indent_lvl")
-    #
-    #   bold <- formats$bold
-    #   italic <- formats$italic
-    #   bold_ital <- cbind(bold,italic) %>% as_tibble
-    #   indt <- formats %>% select("indent","indent_lvl")
-    #
     all_cells <- all_cells %>% mutate(local_format_id = seq_along(all_cells$row))
-    #
-    # }
-    #
-    #
-    #
-    # ## Append to main dataset
-    # formats <- bind_cols(bold_ital, indt) %>%
-    #   mutate(local_format_id = seq_along(bold))
-    #
-    # suppressWarnings(suppressMessages(all_cells <- all_cells %>%
-    #   inner_join(formats)))
 
     all_cells_indnt <- all_cells %>%
       filter(indent) %>%

@@ -1,6 +1,9 @@
 import {getAnnotationResults} from "./network_functions.js"
 const fs = require('fs');
 
+
+var buffer_tables = {}
+
 console.log("Loading Classifier")
 import {attempt_predictions, classify, grouped_predictor} from "./classifier.js"
 
@@ -10,6 +13,7 @@ var readyTableData = async (docid,page,method) => {
       htmlFolder = tables_folder+"/",
       htmlFile = docid
 
+
   //If an override file exists then use it!. Overrides are those produced by the editor.
   var file_exists = await fs.existsSync("HTML_TABLES_OVERRIDE/"+docid)
 
@@ -17,9 +21,14 @@ var readyTableData = async (docid,page,method) => {
     htmlFolder = "HTML_TABLES_OVERRIDE/"
   }
 
-  console.log("LOADING FROM "+ htmlFolder+" "+file_exists+"  "+"HTML_TABLES_OVERRIDE/"+docid)
+  console.log("Loading Table: "+docid+" "+(file_exists ? " [Override Folder]" : ""))
 
   var result = new Promise(function(resolve, reject) {
+
+  if ( buffer_tables[docid] ){ // early exit if buffer already has it.
+    resolve(buffer_tables[docid])
+  }
+
 
   try {
     fs.readFile(htmlFolder+htmlFile,
@@ -445,6 +454,8 @@ var readyTableData = async (docid,page,method) => {
             reject({status:"bad"})
         }
       });
+      // buffer_tables = {}
+      // buffer_tables[docid] = result
       return result
     } catch (e){
       return {status:"bad"}
@@ -702,6 +713,8 @@ var prepareAvailableDocuments = async (filter_topic, filter_type, hua, filter_gr
                 });
 
           });
+
+
 
           return await results
 }

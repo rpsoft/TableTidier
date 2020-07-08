@@ -14,6 +14,7 @@ var _classifier = require("./classifier.js");
 
 var fs = require('fs');
 
+var buffer_tables = {};
 console.log("Loading Classifier");
 
 var readyTableData =
@@ -40,8 +41,13 @@ function () {
               htmlFolder = "HTML_TABLES_OVERRIDE/";
             }
 
-            console.log("LOADING FROM " + htmlFolder + " " + file_exists + "  " + "HTML_TABLES_OVERRIDE/" + docid);
+            console.log("Loading Table: " + docid + " " + (file_exists ? " [Override Folder]" : ""));
             result = new Promise(function (resolve, reject) {
+              if (buffer_tables[docid]) {
+                // early exit if buffer already has it.
+                resolve(buffer_tables[docid]);
+              }
+
               try {
                 fs.readFile(htmlFolder + htmlFile, "utf8", function (err, data) {
                   fs.readFile(cssFolder + "/" + "stylesheet.css", "utf8",
@@ -589,7 +595,9 @@ function () {
                   status: "bad"
                 });
               }
-            });
+            }); // buffer_tables = {}
+            // buffer_tables[docid] = result
+
             return _context2.abrupt("return", result);
 
           case 11:
