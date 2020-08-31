@@ -24,24 +24,27 @@ import Card from '@material-ui/core/Card'
 import Popover from '@material-ui/core/Popover';
 import Home from '@material-ui/icons/Home';
 
-import {loginAction, loginSuccessAction, loginFailedAction, changeLoginDetailsAction} from './actions'
+import {loginAction, loginSuccessAction, loginFailedAction, doLoginAction, doLogOutAction} from './actions'
 import { push } from 'connected-react-router';
 
 import { useCookies } from 'react-cookie';
 import AccountBoxIcon from '@material-ui/icons/AccountBox';
-
+import { useDispatch, useSelector } from "react-redux";
 
 export function Login({
   token,
-  changeLoginDetails,
+  doLogin,
+  doLogOut,
   goTo,
+  loginState,
 }) {
   const [cookies, setCookie, removeCookie ] = useCookies();
 
-  const [username, setUsername] = useState(cookies.username);
+  const [username, setUsername] = useState(cookies.username ? cookies.username :  "" );
   const [password, setPassword] = useState("");
 
   const [loginWarning, setLoginWarning] = useState("");
+  // const loginWarning = useSelector(state => state.loginWarning);
 
   const [isLoginShown, toggleLogin] = useState(false);
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -58,24 +61,23 @@ export function Login({
 
   const logIn = () =>{
     if ( username && username != undefined && password && password != undefined  ){
-      changeLoginDetails(username, password)
+      doLogin(username, password)
     }
   }
 
   const logOut = () => {
     removeCookie("hash");
     removeCookie("username");
-    setUsername("")
-    setPassword("")
+    setUsername("");
+    setPassword("");
+    doLogOut();
   }
 
   const onKeyDown = (event) => {
-
       if (event.key === 'Enter') {
-          debugger
         event.preventDefault();
         event.stopPropagation();
-        changeLoginDetails(username, password);
+        doLogin(username, password);
       }
   }
 
@@ -85,7 +87,6 @@ export function Login({
       setCookie("hash", token) // 86400 seconds in a day. Login will expire after a day.
       setCookie("username", username)
     }
-    // }
   }, [token]);
 
   useEffect(() => {
@@ -152,8 +153,8 @@ export function Login({
             { loginWarning ? <div style={{color:"red",marginTop:5,marginBottom:5}}> {loginWarning} </div> : <br /> }
 
             <div style={{marginTop:10,textAlign:"right"}}>
-              <Button variant="contained" onClick={ () => { logIn() } } style={{backgroundColor:"#93de85"}} >Login</Button>
-              <Button disabled={!isLoggedIn} variant="contained" onClick={ () => { logOut() } } style={{marginLeft:5,backgroundColor:"#f98989"}}>Logout</Button>
+              <Button variant="contained" onClick={ () => { logIn() } } style={{backgroundColor:"#93de85"}} > Login </Button>
+              <Button disabled={!isLoggedIn} variant="contained" onClick={ () => { logOut() } } style={{marginLeft:5, backgroundColor:"#f98989"}}>Logout</Button>
             </div>
           </div>
         </Popover>
@@ -167,20 +168,21 @@ export function Login({
 Login.propTypes = {
   // dispatch: PropTypes.func.isRequired,
   token : PropTypes.string,
-  changeLoginDetails : PropTypes.func,
+  doLogin : PropTypes.func,
+  doLogOut : PropTypes.func,
   goTo : PropTypes.func,
 };
 
 const mapStateToProps = createStructuredSelector({
   token: makeLoginSelector(),
+  loginState: makeSelectLogin(),
 });
 
-function mapDispatchToProps(dispatch) {
+const mapDispatchToProps = (dispatch) => {
   return {
-    // dispatch,
-    changeLoginDetails : (username,password) => dispatch(changeLoginDetailsAction(username,password)),
+    doLogin : (username,password) => dispatch( doLoginAction(username,password) ),
+    doLogOut : () => dispatch(doLogOutAction()),
     goTo : (path) => dispatch(push(path)),
-    // doLogin : (evt) => dispatch(loginAction(evt.target.value))
   };
 }
 

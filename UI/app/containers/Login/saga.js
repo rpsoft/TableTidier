@@ -1,10 +1,9 @@
 import { take, call, put, select, takeLatest } from 'redux-saga/effects';
-import { LOGIN_CHANGE_DETAILS } from './constants';
+import { LOGIN_ACTION } from './constants';
 import { loginAction, loginSuccessAction, loginFailedAction } from './actions';
 import { makeSelectLogin } from './selectors';
 
 import request from '../../utils/request';
-
 // import HttpClient from '../../network/http-client';
 // import { URL_BASE } from '../../links'
 // const urlBase = URL_BASE + 'api/'
@@ -16,10 +15,6 @@ export function* doLogin() {
   const requestURL = `http://localhost:6541/login`;
 
   const params = new URLSearchParams( { 'username': login_details.username, 'password': login_details.password });
-        // params.append('username', login_details.username);
-        // params.append('password', login_details.password);
-
-
 
   const options = {
     method: 'POST', // *GET, POST, PUT, DELETE, etc.
@@ -37,25 +32,22 @@ export function* doLogin() {
 
   try {
     const response = yield call(request, requestURL, options);
-    if ( response.status && response.status == "unauthorised"){
-      debugger
-      yield put(loginFailedAction(response.status));
-    } else {
-      debugger
-      yield put(loginSuccessAction(response.payload.hash));
-    }
 
+    console.log("LOGIN: "+response.status);
+
+    if ( response.status && response.status == "unauthorised"){
+      yield put( yield loginFailedAction(response.status));
+    } else {
+      yield put( yield loginSuccessAction(response.payload.hash));
+    }
   } catch (err) {
-    debugger
     yield put(loginFailedAction(err));
   }
 
-  debugger
 }
 
 // Individual exports for testing
 export default function* loginSaga() {
   // See example in containers/HomePage/saga.js
-  // console.log("saga executed")
-  yield takeLatest(LOGIN_CHANGE_DETAILS, doLogin);
+  yield takeLatest(LOGIN_ACTION, doLogin);
 }

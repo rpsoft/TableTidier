@@ -4,15 +4,15 @@
  *
  */
 
-import { LOGIN_ACTION, LOGIN_ACTION_SUCCESS, LOGIN_ACTION_FAILED, LOGIN_CHANGE_DETAILS } from './constants';
-
-
-export function loginAction(username, password) {
-  return {
-    type: LOGIN_ACTION,
-    payload: {username, password}
-  };
-}
+import { LOGIN_ACTION, LOGIN_ACTION_SUCCESS, LOGIN_ACTION_FAILED, LOGOUT_ACTION } from './constants';
+//
+//
+// export function loginAction(username, password) {
+//   return {
+//     type: LOGIN_ACTION,
+//     payload: {username, password}
+//   };
+// }
 
 export function loginSuccessAction(token) {
   return {
@@ -28,11 +28,18 @@ export function loginFailedAction(error) {
   };
 }
 
-export function changeLoginDetailsAction(username, password) {
-  console.log("action called")
+export function doLoginAction(username, password) {
+  console.log("doLoginAction called")
   return {
-    type: LOGIN_CHANGE_DETAILS,
+    type: LOGIN_ACTION,
     username,
     password,
+  };
+}
+
+export function doLogOutAction() {
+  console.log("DO_LOGOUT called")
+  return {
+    type: LOGOUT_ACTION,
   };
 }

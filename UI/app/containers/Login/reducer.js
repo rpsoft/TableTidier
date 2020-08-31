@@ -4,34 +4,35 @@
  *
  */
 import produce from 'immer';
-import { LOGIN_ACTION, LOGIN_ACTION_SUCCESS, LOGIN_ACTION_FAILED, LOGIN_CHANGE_DETAILS } from './constants';
+import { LOGIN_ACTION, LOGIN_ACTION_SUCCESS, LOGIN_ACTION_FAILED, LOGOUT_ACTION } from './constants';
 
 export const initialState = {
   username : "",
   password : "",
   token : "",
   error : null,
+  loginWarning : "",
 };
 
 /* eslint-disable default-case, no-param-reassign */
 const loginReducer = (state = initialState, action) =>
   produce(state, draft => {
     switch (action.type) {
-      case LOGIN_CHANGE_DETAILS:
+      case LOGIN_ACTION:
         draft.username = action.username;
         draft.password = action.password;
         break;
-      case LOGIN_ACTION:
-        draft.username = action.payload.username;
-        draft.password = action.payload.password;
-        break;
       case LOGIN_ACTION_SUCCESS:
-        debugger
         draft.token = action.payload;
         draft.error = null;
         break;
       case LOGIN_ACTION_FAILED:
         draft.error = action.payload;
+        draft.token = "";
+        break;
+      case LOGOUT_ACTION:
+        // console.log("REDUCER LOGOUT")
+        draft.error = "";
         draft.token = "";
         break;
     }
