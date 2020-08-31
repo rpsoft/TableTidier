@@ -23,12 +23,11 @@ import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card'
 import Popover from '@material-ui/core/Popover';
 import Home from '@material-ui/icons/Home';
-
-import {loginAction, loginSuccessAction, loginFailedAction, doLoginAction, doLogOutAction} from './actions'
-import { push } from 'connected-react-router';
-
-import { useCookies } from 'react-cookie';
 import AccountBoxIcon from '@material-ui/icons/AccountBox';
+
+import { loginAction, loginSuccessAction, loginFailedAction, doLoginAction, doLogOutAction } from './actions'
+import { push } from 'connected-react-router';
+import { useCookies } from 'react-cookie';
 import { useDispatch, useSelector } from "react-redux";
 
 export function Login({

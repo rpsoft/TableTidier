@@ -18,6 +18,7 @@ import NotFoundPage from 'containers/NotFoundPage/Loadable';
 import GlobalStyle from '../../global-styles';
 
 import Login from '../Login'
+import Register from '../Register'
 import Annotator from '../Annotator'
 
 import {
@@ -49,7 +50,9 @@ export function App() {
         <Route path="/allresults" component={ResultsContainer}></Route>
         <Route path="/metaresults" component={MetaContainer}></Route>
         <Route path="/cuiadmin" component={CuiAdminContainer}></Route>
+        <Route path="/register" component={Register}></Route>
         <Route path="/" component={AppContainer}></Route>
+
       </Switch>
       <GlobalStyle />
     </div>
