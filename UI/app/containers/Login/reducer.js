@@ -26,6 +26,7 @@ const loginReducer = (state = initialState, action) =>
         draft.password = action.payload.password;
         break;
       case LOGIN_ACTION_SUCCESS:
+        debugger
         draft.token = action.payload;
         draft.error = null;
         break;
@@ -33,7 +34,6 @@ const loginReducer = (state = initialState, action) =>
         draft.error = action.payload;
         draft.token = "";
         break;
-
     }
   });
 

@@ -17,6 +17,7 @@ python.ex`
 python.ex`
   import pandas as pd
   import pickle
+  import sys
 `;
 
 // console.log(process.cwd())
@@ -30,18 +31,15 @@ var CONFIG = require('./config.json')
 // cuis_full.model
 // umls_full.model
 
-var classifierFile = CONFIG.system_path+"Classifier/trained/semTypes_full.model" //
+var classifierFile = CONFIG.system_path+"Classifier/trained/umls_full.model" //
 
 python.ex`
   model = pickle.load(open(${classifierFile}, 'rb'))
 `
-
-
 python.ex`
   def predict(data):
 
-      c = ['clean_concept',
-          'is_bold', 'is_italic', 'is_indent', 'is_empty_row',
+      c = ['clean_concept', 'is_bold', 'is_italic', 'is_indent', 'is_empty_row',
           'is_empty_row_p', 'cuis', 'semanticTypes']
 
       customPredict = pd.DataFrame(
@@ -51,13 +49,23 @@ python.ex`
       customPredict = customPredict[['clean_concept', 'is_bold', 'is_italic',
           'is_indent', 'is_empty_row', 'is_empty_row_p', 'semanticTypes']]
 
-
       return (model["target_codec"].inverse_transform(model["trained_model"].predict(customPredict)))
 
 
+
   def groupedPredict( data ):
+
+      c = ['clean_concept',
+          'is_bold', 'is_italic', 'is_indent', 'is_empty_row',
+          'is_empty_row_p', 'cuis', 'semanticTypes']
+
+      customPredict = pd.DataFrame(
+          data = data,
+          columns = c)
+
+      predictions = (model["target_codec"].inverse_transform(model["trained_model"].predict(customPredict)))
+
       terms = []
-      predictions = predict(data)
       classes = []
 
       for t in range(0,len(data)):
@@ -66,6 +74,7 @@ python.ex`
 
       return({"terms": terms, "classes" : classes})
 
+
   def printAll(data):
     print(data)
     return data
@@ -73,8 +82,6 @@ python.ex`
 
 
 async function classify(terms){
-
-   // debugger
 
   var result = new Promise(function(resolve, reject) {
     // var cleanTerms = []
@@ -94,7 +101,12 @@ async function classify(terms){
       python`
         groupedPredict(${terms})
       `.then( x => resolve(x))
-      .catch(python.Exception, (e) => console.log("python error: "+e));
+      .catch(python.Exception,
+        (e) => {
+          console.log("python error: "+e)
+          resolve({})
+        }
+      );
     } else {
       resolve({})
     }
@@ -102,6 +114,8 @@ async function classify(terms){
 
   result = await result
   // debugger
+
+  if ( result.terms )
   result = result.terms.reduce ( (acc,item,i) => { if ( item.length > 0 ) {acc[item] = result.classes[i];} return acc }, {} )
   // debugger
 
@@ -220,6 +234,7 @@ async function feature_extraction (lines){
             cellClasses[0] = (cellClasses[0].length > 0 ? cellClasses[0]+" " : "") + ((emptyRow ? " empty_row" : "") + (emptyRow_pvalue ? " empty_row_with_p_value" : "")).trim()
             // debugger
             terms_features = terms_features.map( item => [...item.slice(0,4), emptyRow ? 1 : 0, emptyRow_pvalue ? 1 : 0 , ...item.slice(4,6)])
+
 
             var pred_class = await classify(terms_features)
 

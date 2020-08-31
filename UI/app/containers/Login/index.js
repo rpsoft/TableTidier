@@ -41,7 +41,6 @@ export function Login({
   const [username, setUsername] = useState(cookies.username);
   const [password, setPassword] = useState("");
 
-
   const [loginWarning, setLoginWarning] = useState("");
 
   const [isLoginShown, toggleLogin] = useState(false);
@@ -71,12 +70,14 @@ export function Login({
   }
 
   const onKeyDown = (event) => {
+
       if (event.key === 'Enter') {
+          debugger
         event.preventDefault();
         event.stopPropagation();
         changeLoginDetails(username, password);
       }
-    }
+  }
 
   useEffect(() => {
     // If authentication token is available and it's different from the cookie token it will be set in the cookies.
@@ -94,6 +95,10 @@ export function Login({
   useInjectReducer({ key: 'login', reducer });
   useInjectSaga({ key: 'login', saga });
 
+  var isLoggedIn = cookies.hash ? true : false;
+
+  console.log(username +" -- " + token)
+
   return (
     <div style={{width:"100%"}}>
       <Helmet>
@@ -107,7 +112,7 @@ export function Login({
         <h2 style={{float:"left",margin:0, marginTop:10}}>TableTidier <div style={{color:"red",display:"inline-block",fontSize:15}}>(beta)</div></h2>
 
         <div style={{display:"inline-block",float:"right",marginTop:5}} >
-          <Button variant="contained" onClick={ handleLoginToggle }style={{marginLeft:5}}><AccountBoxIcon/> {cookies.username ? "Logged as: "+cookies.username : " guest "}</Button>
+          <Button variant="contained" onClick={ handleLoginToggle }style={{marginLeft:5}}><AccountBoxIcon/> {cookies.username ? "Logged as: "+ cookies.username : " guest "}</Button>
         </div>
 
 
@@ -148,7 +153,7 @@ export function Login({
 
             <div style={{marginTop:10,textAlign:"right"}}>
               <Button variant="contained" onClick={ () => { logIn() } } style={{backgroundColor:"#93de85"}} >Login</Button>
-              <Button variant="contained" onClick={ () => { logOut() } } style={{marginLeft:5,backgroundColor:"#f98989"}}>Logout</Button>
+              <Button disabled={!isLoggedIn} variant="contained" onClick={ () => { logOut() } } style={{marginLeft:5,backgroundColor:"#f98989"}}>Logout</Button>
             </div>
           </div>
         </Popover>

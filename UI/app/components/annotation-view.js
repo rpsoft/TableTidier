@@ -253,10 +253,17 @@ class AnnotationView extends Component {
         //   annotation = JSON.parse(await fetch.getAnnotationByID(urlparams.docid,urlparams.page,this.state.user))
         // }
 
-        var userIndex = annotations_formatted[urlparams.docid+"_"+urlparams.page].indexOf(this.state.user)
-        var annIndex = annotations_index[urlparams.docid+"_"+urlparams.page][userIndex]
-        var annotation = all_annotations.rows[annIndex] || {}
-        
+
+        var userIndex;
+        var annIndex;
+        var annotation;
+
+        if ( annotations_formatted[urlparams.docid+"_"+urlparams.page] ){
+            userIndex = annotations_formatted[urlparams.docid+"_"+urlparams.page].indexOf(this.state.user)
+            annIndex =  annotations_index[urlparams.docid+"_"+urlparams.page][userIndex]
+            annotation = all_annotations.rows[annIndex] || {}
+        }
+
 
         var recommend_cuis = await fetch.getConceptRecommend();
         var metadata = await fetch.getTableMetadata(urlparams.docid, urlparams.page, urlparams.user)

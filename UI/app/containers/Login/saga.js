@@ -15,9 +15,11 @@ export function* doLogin() {
   const login_details = yield select(makeSelectLogin());
   const requestURL = `http://localhost:6541/login`;
 
-  const params = new URLSearchParams();
-        params.append('username', login_details.username);
-        params.append('password', login_details.password);
+  const params = new URLSearchParams( { 'username': login_details.username, 'password': login_details.password });
+        // params.append('username', login_details.username);
+        // params.append('password', login_details.password);
+
+
 
   const options = {
     method: 'POST', // *GET, POST, PUT, DELETE, etc.
@@ -36,15 +38,19 @@ export function* doLogin() {
   try {
     const response = yield call(request, requestURL, options);
     if ( response.status && response.status == "unauthorised"){
+      debugger
       yield put(loginFailedAction(response.status));
     } else {
+      debugger
       yield put(loginSuccessAction(response.payload.hash));
     }
 
   } catch (err) {
+    debugger
     yield put(loginFailedAction(err));
   }
 
+  debugger
 }
 
 // Individual exports for testing

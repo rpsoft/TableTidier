@@ -1,7 +1,7 @@
 import http from 'http'
 
 var hostname =  "sephirhome.ddns.net"
-var port = 6540
+var port = 6541
 
 export default class HttpClient {
   constructor(config={}) {

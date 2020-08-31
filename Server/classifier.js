@@ -33,7 +33,7 @@ function _templateObject5() {
 }
 
 function _templateObject4() {
-  var data = (0, _taggedTemplateLiteral2.default)(["\n  def predict(data):\n\n      c = ['clean_concept',\n          'is_bold', 'is_italic', 'is_indent', 'is_empty_row',\n          'is_empty_row_p', 'cuis', 'semanticTypes']\n\n      customPredict = pd.DataFrame(\n          data = data,\n          columns = c)\n\n      customPredict = customPredict[['clean_concept', 'is_bold', 'is_italic',\n          'is_indent', 'is_empty_row', 'is_empty_row_p', 'semanticTypes']]\n\n\n      return (model[\"target_codec\"].inverse_transform(model[\"trained_model\"].predict(customPredict)))\n\n\n  def groupedPredict( data ):\n      terms = []\n      predictions = predict(data)\n      classes = []\n\n      for t in range(0,len(data)):\n          terms.append(data[t][0])\n          classes.append(\";\".join(predictions[t]))\n\n      return({\"terms\": terms, \"classes\" : classes})\n\n  def printAll(data):\n    print(data)\n    return data\n"]);
+  var data = (0, _taggedTemplateLiteral2.default)(["\n  def predict(data):\n\n      c = ['clean_concept', 'is_bold', 'is_italic', 'is_indent', 'is_empty_row',\n          'is_empty_row_p', 'cuis', 'semanticTypes']\n\n      customPredict = pd.DataFrame(\n          data = data,\n          columns = c)\n\n      customPredict = customPredict[['clean_concept', 'is_bold', 'is_italic',\n          'is_indent', 'is_empty_row', 'is_empty_row_p', 'semanticTypes']]\n\n      return (model[\"target_codec\"].inverse_transform(model[\"trained_model\"].predict(customPredict)))\n\n\n\n  def groupedPredict( data ):\n\n      c = ['clean_concept',\n          'is_bold', 'is_italic', 'is_indent', 'is_empty_row',\n          'is_empty_row_p', 'cuis', 'semanticTypes']\n\n      customPredict = pd.DataFrame(\n          data = data,\n          columns = c)\n\n      predictions = (model[\"target_codec\"].inverse_transform(model[\"trained_model\"].predict(customPredict)))\n\n      terms = []\n      classes = []\n\n      for t in range(0,len(data)):\n          terms.append(data[t][0])\n          classes.append(\";\".join(predictions[t]))\n\n      return({\"terms\": terms, \"classes\" : classes})\n\n\n  def printAll(data):\n    print(data)\n    return data\n"]);
 
   _templateObject4 = function _templateObject4() {
     return data;
@@ -53,7 +53,7 @@ function _templateObject3() {
 }
 
 function _templateObject2() {
-  var data = (0, _taggedTemplateLiteral2.default)(["\n  import pandas as pd\n  import pickle\n"]);
+  var data = (0, _taggedTemplateLiteral2.default)(["\n  import pandas as pd\n  import pickle\n  import sys\n"]);
 
   _templateObject2 = function _templateObject2() {
     return data;
@@ -91,7 +91,7 @@ var CONFIG = require('./config.json'); // simple_full.model
 // umls_full.model
 
 
-var classifierFile = CONFIG.system_path + "Classifier/trained/semTypes_full.model"; //
+var classifierFile = CONFIG.system_path + "Classifier/trained/umls_full.model"; //
 
 python.ex(_templateObject3(), classifierFile);
 python.ex(_templateObject4());
@@ -109,7 +109,6 @@ function _classify() {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            // debugger
             result = new Promise(function (resolve, reject) {
               // var cleanTerms = []
               //
@@ -127,7 +126,8 @@ function _classify() {
                 python(_templateObject5(), terms).then(function (x) {
                   return resolve(x);
                 }).catch(python.Exception, function (e) {
-                  return console.log("python error: " + e);
+                  console.log("python error: " + e);
+                  resolve({});
                 });
               } else {
                 resolve({});
@@ -139,7 +139,7 @@ function _classify() {
           case 3:
             result = _context.sent;
             // debugger
-            result = result.terms.reduce(function (acc, item, i) {
+            if (result.terms) result = result.terms.reduce(function (acc, item, i) {
               if (item.length > 0) {
                 acc[item] = result.classes[i];
               }
