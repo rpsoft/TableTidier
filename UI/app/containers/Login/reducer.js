@@ -21,19 +21,23 @@ const loginReducer = (state = initialState, action) =>
       case LOGIN_ACTION:
         draft.username = action.username;
         draft.password = action.password;
+        draft.loginWarning = "";
         break;
       case LOGIN_ACTION_SUCCESS:
         draft.token = action.payload;
         draft.error = null;
+        draft.loginWarning = "";
         break;
       case LOGIN_ACTION_FAILED:
         draft.error = action.payload;
         draft.token = "";
+        draft.loginWarning = "invalid details, have you registered?";
         break;
       case LOGOUT_ACTION:
         // console.log("REDUCER LOGOUT")
         draft.error = "";
         draft.token = "";
+        draft.loginWarning = "";
         break;
     }
   });

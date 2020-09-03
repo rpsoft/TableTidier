@@ -849,13 +849,15 @@ class AnnotationView extends Component {
         {metaAnnotator}
 
         <Card id="userData" style={{padding:15, height: 85}}>
-          <Home style={{float:"left",height:45,width:45, cursor:"pointer"}} onClick={() => this.props.goToUrl("/"+"?user="+(this.state.user ? this.state.user : "" )+this.formatFiltersForURL()+(this.state.hideUnannotated ? "&hua=true" : ""))}/>
+          {
+          //<Home style={{float:"left",height:45,width:45, cursor:"pointer"}} onClick={() => this.props.goToUrl("/"+"?user="+(this.state.user ? this.state.user : "" )+this.formatFiltersForURL()+(this.state.hideUnannotated ? "&hua=true" : ""))}/>
+          }
 
           <TextField
             value={this.state.user}
             placeholder="Set your username here"
             onChange={(event,value) => {this.setState({user: event.currentTarget.value})}}
-            style={{width:200,marginLeft:20,marginRight:20,float:"left"}}
+            style={{width:200,marginLeft:5,marginRight:20,float:"left"}}
             onKeyDown={(event, index) => {
 
               if (event.key === 'Enter') {

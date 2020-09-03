@@ -1,6 +1,7 @@
 import HttpClient from './http-client';
 import { URL_BASE } from '../links'
 
+
 const urlBase = URL_BASE + 'api/'
 
 export default class fetchData {
@@ -28,6 +29,24 @@ export default class fetchData {
 
       return r
   }
+
+
+  async fileUpload(data) {
+
+    let result
+
+    var options = {path : "/tableUploader"}
+
+    try {
+      //result = axios.post( urlBase + "tableUploader", data );
+      // result = await this.httpClient.sendPost( data, options )
+    } catch(error) {
+      console.error('table uploader: ' + error)
+    }
+
+    return result
+  }
+
 
   async saveTableEdit(docid,page,content) {
 

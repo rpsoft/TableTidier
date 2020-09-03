@@ -5,6 +5,9 @@ var html = require("html");
 
 var request = require("request");
 
+var multer = require('multer');
+// var upload = multer({ dest: 'upload/'});
+
 const fs = require('fs');
 
 const { Pool, Client, Query } = require('pg')
@@ -41,17 +44,13 @@ console.log("Loading Files Management")
 import {refreshDocuments} from "./files.js"
 
 console.log("Loading Security")
-import passport from "./security.js"
+import passport, {initialiseUsers, createUser}  from "./security.js"
 
 console.log("Loading Table Libs")
 import { prepareAvailableDocuments, readyTableData } from "./table.js"
 
 console.log("Loading MetaMap Docker Comms Module")
 import { metamap } from "./metamap.js"
-
-
-
-
 
 console.log("Loading Extra Functions")
 import ef from "./extra_functions.js"
@@ -60,7 +59,7 @@ console.log("Configuring DB client: Postgres")
 // Postgres configuration.
 global.pool = new Pool({
     user: CONFIG.db.user,
-    host: CONFIG.db.host,
+    host: CONFIG.db.createUserhost,
     database: CONFIG.db.database,
     password: CONFIG.db.password,
     port: CONFIG.db.port,
@@ -73,35 +72,147 @@ import {getAnnotationResults} from "./network_functions.js"
 console.log("Configuring Server")
 var app = express();
 
-    app.use(cors("*"));
-    app.use('/images', express.static(path.join(__dirname, 'images')))
-    app.use('/pdfs', express.static(path.join(__dirname, 'pdfs')))
-    app.engine('html', require('ejs').renderFile);
-    app.set('view engine', 'ejs');
-    app.use(require('body-parser').urlencoded({ extended: true }));
-    app.use(passport.initialize());
-    app.post('/login', function(req, res, next) {
-      passport.authenticate('custom', function(err, user, info) {
-        // console.log("login_req",JSON.stringify(req))
-        if ( err ){
-          res.json({status:"failed", payload: null})
-        } else if ( !user ) {
-          res.json({status:"unauthorised", payload: null})
-        } else {
-          res.json({status:"success", payload: user})
-        }
-
-        })(req, res, next)
-      });
+app.use(cors("*"));
+app.options('*', cors())
 
 
-    app.use(bodyParser.json());
-    app.use(bodyParser.urlencoded({ extended: true }));
+app.use('/images', express.static(path.join(__dirname, 'images')))
+app.use('/pdfs', express.static(path.join(__dirname, 'pdfs')))
+app.engine('html', require('ejs').renderFile);
+app.set('view engine', 'ejs');
+app.use(require('body-parser').urlencoded({ extended: true }));
+app.use(passport.initialize());
 
-    app.use(function (req, res, next) {
-      next()
-    })
 
+app.post('/login', function(req, res, next) {
+  passport.authenticate('custom', function(err, user, info) {
+    // console.log("login_req",JSON.stringify(req))
+    if ( err ){
+      res.json({status:"failed", payload: null})
+    } else if ( !user ) {
+      res.json({status:"unauthorised", payload: null})
+    } else {
+      res.json({status:"success", payload: user})
+    }
+
+    })(req, res, next)
+  });
+
+
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+
+app.post('/api/createUser', async function(req, res) {
+
+  var result;
+  try{
+    result = await createUser(req.body)
+    res.json({status:"success", payload: result })
+  } catch (e){
+    res.json({status:"failed", payload: "" })
+  }
+
+});
+
+app.get('/api/test', async function(req,res){
+
+
+    res.send("table recovered ouhyeah")
+});
+
+
+// var type = upload.single('recfile');
+
+// app.use(upload.array());
+
+// var type = upload.array()
+
+// const storage = multer.memoryStorage();
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads')
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname )
+  }
+})
+
+
+const upload = multer({ storage: storage });
+//
+// router.post("/upload", upload.array('fileNames'), (req, res) => {
+//  debug(req.file.buffer);
+//  res.status(200).send( true );
+//  res.end();
+// });
+
+app.post('/api/tableUploader', upload.array('fileNames'), async function(req, res) {
+
+  // debugger
+  // console.log(req.files);
+  //
+  // res.status(200).send( true );
+  // res.end();
+  //
+  // {fieldname: "fileNames", originalname: "7997016_1.html", encoding: "7bit", mimetype: "text/html", buffer: Buffer(3485), …}
+  // buffer: Buffer(3485) [60, 100, 105, 118, 32, 99, 108, 97, 115, 115, 61, 34, 104, 101, 97, 100, 101, 114, 115, 34, 62, 60, 100, 105, 118, 62, 85, 110, 107, 110, 111, 119, 110, 32, 116, 97, 98, 108, 101, 32, 110, 97, 109, 101, 60, 47, 100, 105, 118, 62, 60, 47, 100, 105, 118, 62, 60, 116, 97, 98, 108, 101, 32, 99, 108, 97, 115, 115, 61, 39, 103, 109, 105, 115, 99, 95, 116, 97, 98, 108, 101, 39, 32, 115, 116, 121, 108, 101, 61, 39, 98, 111, 114, 100, 101, 114, 45, 99, 111, 108, …]
+  // encoding: "7bit"
+  // fieldname: "fileNames"
+  // mimetype: "text/html"
+  // originalname: "7997016_1.html"
+  // size: 3485
+  // __proto__: Object
+  //
+  // for( var f in req.files) {
+  //
+  //   console.log(req.files[f])
+  //   var target_path = 'uploads/' + req.files[f].originalname;
+  //
+  //   var src = fs.createReadStream(tmp_path);
+  //   var dest = fs.createWriteStream(target_path);
+  //
+  //   src.pipe(dest);
+  //   src.on('end', function() { res.render('complete'); });
+  //   src.on('error', function(err) { res.render('error'); });
+  //
+  // }
+
+  //
+  //
+  // /** When using the "single"
+  //     data come in "req.file" regardless of the attribute "name". **/
+  // var tmp_path = req.files;
+  //
+  //
+  // debugger
+  // /** The original name of the uploaded file
+  //     stored in the variable "originalname". **/
+  // var target_path = 'uploads/' + req.file.originalname;
+  //
+  // /** A better way to copy the uploaded file. **/
+  // var src = fs.createReadStream(tmp_path);
+  // var dest = fs.createWriteStream(target_path);
+  // src.pipe(dest);
+  // src.on('end', function() { res.render('complete'); });
+  // src.on('error', function(err) { res.render('error'); });
+  //
+  // // var result;
+  // // try{
+  // //   result = await createUser(req.body)
+  // //   res.json({status:"success", payload: result })
+  // // } catch (e){
+  // //   res.json({status:"failed", payload: "" })
+  // // }
+
+  // console.log(req.body)
+
+  res.json({status:"test", payload: req.body })
+
+  res.end();
+});
 
 async function UMLSData(){
 
@@ -230,6 +341,9 @@ async function main(){
   umls_data_buffer = await UMLSData();
 
   await refreshDocuments()
+
+  await initialiseUsers()
+
 }
 
 main();

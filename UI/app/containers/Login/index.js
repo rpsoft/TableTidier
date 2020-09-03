@@ -30,6 +30,10 @@ import { push } from 'connected-react-router';
 import { useCookies } from 'react-cookie';
 import { useDispatch, useSelector } from "react-redux";
 
+
+import FileUploader from "../../components/FileUploader";
+
+
 export function Login({
   token,
   doLogin,
@@ -42,7 +46,7 @@ export function Login({
   const [username, setUsername] = useState(cookies.username ? cookies.username :  "" );
   const [password, setPassword] = useState("");
 
-  const [loginWarning, setLoginWarning] = useState("");
+  // const [loginWarning, setLoginWarning] = useState("");
   // const loginWarning = useSelector(state => state.loginWarning);
 
   const [isLoginShown, toggleLogin] = useState(false);
@@ -97,8 +101,6 @@ export function Login({
 
   var isLoggedIn = cookies.hash ? true : false;
 
-  console.log(username +" -- " + token)
-
   return (
     <div style={{width:"100%"}}>
       <Helmet>
@@ -111,9 +113,12 @@ export function Login({
         <Home style={{float:"left",height:45,width:45, cursor:"pointer", marginRight:15}} onClick={() => goTo('/')}/>
         <h2 style={{float:"left",margin:0, marginTop:10}}>TableTidier <div style={{color:"red",display:"inline-block",fontSize:15}}>(beta)</div></h2>
 
-        <div style={{display:"inline-block",float:"right",marginTop:5}} >
+        <FileUploader />
+
+        <div style={{display:"inline-block",float:"right",marginTop:5,marginRight:90}} >
           <Button variant="contained" onClick={ handleLoginToggle }style={{marginLeft:5}}><AccountBoxIcon/> {cookies.username ? "Logged as: "+ cookies.username : " guest "}</Button>
         </div>
+
 
 
         <Popover
@@ -130,7 +135,10 @@ export function Login({
           horizontal: 'center',
         }}
         >
-          <div style={{padding:10, maxWidth:300}}>
+          <div style={{padding:20, maxWidth:300}}>
+
+            <h4> Enter Your Login Details </h4>
+
             <TextField
               id="username"
               value={username}
@@ -148,8 +156,11 @@ export function Login({
               onChange={ (evt) => {setPassword(evt.currentTarget.value)} }
               onKeyDown ={onKeyDown}
               />
+              <br />
 
-            { loginWarning ? <div style={{color:"red",marginTop:5,marginBottom:5}}> {loginWarning} </div> : <br /> }
+            { loginState.loginWarning ? <div style={{color:"red",marginTop:5,marginBottom:5}}> {loginState.loginWarning} </div> : <br /> }
+
+
 
             <div style={{marginTop:10,textAlign:"right"}}>
               <Button variant="contained" onClick={ () => { logIn() } } style={{backgroundColor:"#93de85"}} > Login </Button>
@@ -161,8 +172,6 @@ export function Login({
     </div>
   );
 }
-
-// <FormattedMessage {...messages.header} />
 
 Login.propTypes = {
   // dispatch: PropTypes.func.isRequired,

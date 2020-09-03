@@ -4,13 +4,38 @@ const crypto = require('crypto');
 import passportCustom from 'passport-custom';
 const CustomStrategy = passportCustom.Strategy;
 
-
-
-var records = [
-    { id: 1, username: 'jack', password: 'secret', displayName: 'Jack', emails: [ { value: 'jack@example.com' } ], registered : "1588283579685", role: "viewer" }
-  , { id: 2, username: 'jill', password: 'birthday', displayName: 'Jill', emails: [ { value: 'jill@example.com' } ], registered : "1588283575644", role: "user" }
-  , { id: 3, username: 'suso', password: 'me', displayName: 'Jesus', emails: [ { value: 'suso@example.com' } ], registered : "1588283589667", role: "admin" }
+global.records = [
+  //   { id: 1, username: 'jack', password: 'secret', displayName: 'Jack', email: 'jack@example.com', registered : "1588283579685", role: "viewer" }
+  // , { id: 2, username: 'jill', password: 'birthday', displayName: 'Jill', email:'jill@example.com', registered : "1588283575644", role: "user" }
+  // , { id: 3, username: 'suso', password: 'me', displayName: 'Jesus', email: 'suso@example.com', registered : "1588283589667", role: "admin" }
 ];
+
+
+export async function initialiseUsers() {
+  var client = await global.pool.connect()
+  var result = await client.query('SELECT id, username, password, "displayName", email, registered, role FROM public.users')
+        client.release()
+
+  global.records = result.rows;
+}
+
+
+export async function createUser(userData) {
+  var client = await global.pool.connect()
+
+  var result = await client.query(
+    'INSERT INTO public.users( username, password, "displayName", email, registered, role) VALUES ($1, $2, $3, $4, $5, $6)',
+    [userData.username, userData.password, userData.displayName, userData.email,  Date.now(), "standard" ]);
+
+  client.release()
+
+  await initialiseUsers()
+
+  return result
+}
+
+
+
 
 function getUserHash(user){
   var hash = crypto.createHmac('sha256', CONFIG.hashSecret)
@@ -24,9 +49,9 @@ function getUserHash(user){
 passport.use(new CustomStrategy(
   function(req, done) {
 
-    for ( var i in records ){
-      if ( records[i].username == req.body.username ){
-        if (records[i].password != req.body.password) {
+    for ( var i in global.records ){
+      if ( global.records[i].username == req.body.username ){
+        if (global.records[i].password != req.body.password) {
           return done(null, false);
         }
         return done(null, getUserHash(records[i]));
@@ -42,9 +67,9 @@ passport.serializeUser(function(user, cb) {
 });
 
 passport.deserializeUser(function(id, cb) {
-  for ( var i in records ){
-    if ( records[i].id == id ){
-      return cb(null, records[i]);
+  for ( var i in global.records ){
+    if ( global.records[i].id == id ){
+      return cb(null, global.records[i]);
     }
   }
   return cb(null,false)
