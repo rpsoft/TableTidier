@@ -25,7 +25,7 @@ import WarningIcon from '@material-ui/icons/Warning';
 
 import SelectField from '@material-ui/core/Select';
 
- import Loader from 'react-loader-spinner'
+import Loader from 'react-loader-spinner'
 
 import { push } from 'connected-react-router'
 

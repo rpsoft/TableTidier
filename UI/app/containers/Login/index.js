@@ -31,8 +31,7 @@ import { useCookies } from 'react-cookie';
 import { useDispatch, useSelector } from "react-redux";
 
 
-import FileUploader from "../../components/FileUploader";
-
+//import FileUploader from "../../components/FileUploader"; //      <FileUploader />
 
 export function Login({
   token,
@@ -87,6 +86,7 @@ export function Login({
   useEffect(() => {
     // If authentication token is available and it's different from the cookie token it will be set in the cookies.
     if ( token ){
+      handleLoginToggle(); // close on successful login.
       setCookie("hash", token) // 86400 seconds in a day. Login will expire after a day.
       setCookie("username", username)
     }
@@ -113,9 +113,8 @@ export function Login({
         <Home style={{float:"left",height:45,width:45, cursor:"pointer", marginRight:15}} onClick={() => goTo('/')}/>
         <h2 style={{float:"left",margin:0, marginTop:10}}>TableTidier <div style={{color:"red",display:"inline-block",fontSize:15}}>(beta)</div></h2>
 
-        <FileUploader />
 
-        <div style={{display:"inline-block",float:"right",marginTop:5,marginRight:90}} >
+        <div style={{display:"inline-block",float:"right",marginTop:5,marginRight:0}} >
           <Button variant="contained" onClick={ handleLoginToggle }style={{marginLeft:5}}><AccountBoxIcon/> {cookies.username ? "Logged as: "+ cookies.username : " guest "}</Button>
         </div>
 

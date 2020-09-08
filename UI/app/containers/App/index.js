@@ -20,6 +20,7 @@ import GlobalStyle from '../../global-styles';
 import Login from '../Login'
 import Register from '../Register'
 import Annotator from '../Annotator'
+import Dashboard from '../Dashboard'
 
 import {
   URL_BASE,
@@ -51,8 +52,8 @@ export function App() {
         <Route path="/metaresults" component={MetaContainer}></Route>
         <Route path="/cuiadmin" component={CuiAdminContainer}></Route>
         <Route path="/register" component={Register}></Route>
+        <Route path="/dashboard" component={Dashboard}></Route>
         <Route path="/" component={AppContainer}></Route>
-
       </Switch>
       <GlobalStyle />
     </div>

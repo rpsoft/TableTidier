@@ -6,7 +6,6 @@ var html = require("html");
 var request = require("request");
 
 var multer = require('multer');
-// var upload = multer({ dest: 'upload/'});
 
 const fs = require('fs');
 
@@ -117,20 +116,10 @@ app.post('/api/createUser', async function(req, res) {
 });
 
 app.get('/api/test', async function(req,res){
-
-
-    res.send("table recovered ouhyeah")
+    res.send("testing this worked!")
 });
 
-
-// var type = upload.single('recfile');
-
-// app.use(upload.array());
-
-// var type = upload.array()
-
 // const storage = multer.memoryStorage();
-
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, 'uploads')
@@ -140,77 +129,20 @@ const storage = multer.diskStorage({
   }
 })
 
-
 const upload = multer({ storage: storage });
-//
-// router.post("/upload", upload.array('fileNames'), (req, res) => {
-//  debug(req.file.buffer);
-//  res.status(200).send( true );
-//  res.end();
-// });
+
+
+
 
 app.post('/api/tableUploader', upload.array('fileNames'), async function(req, res) {
 
-  // debugger
-  // console.log(req.files);
-  //
-  // res.status(200).send( true );
-  // res.end();
-  //
-  // {fieldname: "fileNames", originalname: "7997016_1.html", encoding: "7bit", mimetype: "text/html", buffer: Buffer(3485), …}
-  // buffer: Buffer(3485) [60, 100, 105, 118, 32, 99, 108, 97, 115, 115, 61, 34, 104, 101, 97, 100, 101, 114, 115, 34, 62, 60, 100, 105, 118, 62, 85, 110, 107, 110, 111, 119, 110, 32, 116, 97, 98, 108, 101, 32, 110, 97, 109, 101, 60, 47, 100, 105, 118, 62, 60, 47, 100, 105, 118, 62, 60, 116, 97, 98, 108, 101, 32, 99, 108, 97, 115, 115, 61, 39, 103, 109, 105, 115, 99, 95, 116, 97, 98, 108, 101, 39, 32, 115, 116, 121, 108, 101, 61, 39, 98, 111, 114, 100, 101, 114, 45, 99, 111, 108, …]
-  // encoding: "7bit"
-  // fieldname: "fileNames"
-  // mimetype: "text/html"
-  // originalname: "7997016_1.html"
-  // size: 3485
-  // __proto__: Object
-  //
-  // for( var f in req.files) {
-  //
-  //   console.log(req.files[f])
-  //   var target_path = 'uploads/' + req.files[f].originalname;
-  //
-  //   var src = fs.createReadStream(tmp_path);
-  //   var dest = fs.createWriteStream(target_path);
-  //
-  //   src.pipe(dest);
-  //   src.on('end', function() { res.render('complete'); });
-  //   src.on('error', function(err) { res.render('error'); });
-  //
-  // }
+  var uploaded_files = []
 
-  //
-  //
-  // /** When using the "single"
-  //     data come in "req.file" regardless of the attribute "name". **/
-  // var tmp_path = req.files;
-  //
-  //
-  // debugger
-  // /** The original name of the uploaded file
-  //     stored in the variable "originalname". **/
-  // var target_path = 'uploads/' + req.file.originalname;
-  //
-  // /** A better way to copy the uploaded file. **/
-  // var src = fs.createReadStream(tmp_path);
-  // var dest = fs.createWriteStream(target_path);
-  // src.pipe(dest);
-  // src.on('end', function() { res.render('complete'); });
-  // src.on('error', function(err) { res.render('error'); });
-  //
-  // // var result;
-  // // try{
-  // //   result = await createUser(req.body)
-  // //   res.json({status:"success", payload: result })
-  // // } catch (e){
-  // //   res.json({status:"failed", payload: "" })
-  // // }
+  for( var f in req.files) {
+      uploaded_files.push(req.files[f].originalname)
+  }
 
-  // console.log(req.body)
-
-  res.json({status:"test", payload: req.body })
-
+  res.json({status:"test", payload: uploaded_files })
   res.end();
 });
 
@@ -530,6 +462,98 @@ app.get('/api/getMetadata', async function(req,res){
 app.get('/',function(req,res){
   res.send("TTidier Server running.")
 });
+
+// Collections
+var listCollections = async () => {
+    var client = await pool.connect()
+    var result = await client.query(`SELECT id, title, description, owner_username FROM public.collection`)
+          client.release()
+    return result
+}
+
+var createCollection = async () => {
+    var client = await pool.connect()
+    var result = await client.query(`SELECT id, title, description, owner_username FROM public.collection`)
+          client.release()
+    return result
+}
+
+var editCollection = async () => {
+    var client = await pool.connect()
+    var result = await client.query(`SELECT id, title, description, owner_username FROM public.collection`)
+          client.release()
+    return result
+}
+
+app.post('/collections', async function(req,res){
+
+  if ( req.query && ( ! req.query.action ) ){
+    res.json({status: "undefined"})
+    return
+  }
+
+  var result;
+
+  switch (req.query.action) {
+    case "list":
+      result = await listCollections();
+      res.json({status: "success", data: result.rows})
+      break;
+    case "create":
+      result = await createCollection();
+      res.json({status: "success"})
+      break;
+    case "edit":
+      result = await editCollection();
+      res.json({status: "success"})
+      break;
+    default:
+      res.json({status: "failed"})
+  }
+  // var collections = await getCollections()
+  // res.json(collections.rows)
+});
+
+
+app.post('/search', async function(req,res){
+
+  var bod = req.body.searchContent
+  var type = JSON.parse(req.body.searchType)
+
+  type.searchCollections
+  type.searchTables
+
+  // debugger
+
+  console.log("SEARCH: "+ bod )
+
+  // if ( req.query && ( ! req.query.action ) ){
+  //   res.json({status: "undefined"})
+  //   return
+  // }
+  // var result;
+  //
+  // switch (req.query.action) {
+  //   case "list":
+  //     result = await listCollections();
+  //     res.json({status: "success", data: result.rows})
+  //     break;
+  //   case "create":
+  //     result = await createCollection();
+  //     res.json({status: "success"})
+  //     break;
+  //   case "edit":
+  //     result = await editCollection();
+  //     res.json({status: "success"})
+  //     break;
+  //   default:
+  //     res.json({status: "failed"})
+  // }
+  // // var collections = await getCollections()
+
+  res.json([])
+});
+
 
 app.get('/api/allInfo',async function(req,res){
 

@@ -23,7 +23,6 @@ function FileUploader() {
     const [open, setOpen] = useState(false);
     const [files, setFiles] = useState([]);
 
-
     const transferFiles = (acceptedFiles) => {
 
       const req = request.post('/api/tableUploader')
@@ -47,40 +46,17 @@ function FileUploader() {
        setOpen(true)
     }
 
-    //
-    // const onFileChange = event => {
-    //
-    //       // Update the state
-    //       var selectedFile = event.target.files[0]
-    //
-    //         // Create an object of formData
-    //       const formData = new FormData();
-    //
-    //       // Update the formData object
-    //       formData.append(
-    //         "myFile",
-    //         selectedFile,  DropzoneAreaBase
-    //         selectedFile.name
-    //       );
-    //
-    //       // Details of the uploaded file
-    //       console.log(selectedFile.name);
-    //       let fetch = new fetchData();
-    //       fetch.fileUpload(formData)
-    //     };
-    //
-
     return <div>
               <Button onClick={handleOpen}>
                 Add Files
               </Button>
               <DropzoneDialog
-                  open={open}
+                  open={ open }
                   onSave={ handleSave }
-                  acceptedFiles={['text/html']}
-                  showPreviews={true}
-                  maxFileSize={5000000}
-                  filesLimit={10}
+                  acceptedFiles={ ['text/html', "application/zip"] }
+                  showPreviews={ true }
+                  maxFileSize={ 10000000 }
+                  filesLimit={ 10 }
                   onClose={ handleClose }
               />
             </div>

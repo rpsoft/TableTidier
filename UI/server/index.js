@@ -18,15 +18,25 @@ const app = express();
 // https://create-react-app.dev/docs/proxying-api-requests-in-development/
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
+var proc_host_vars = {
+  "INIT_CWD" : process.env["INIT_CWD"],
+  "NODE_ENV" : process.env["NODE_ENV"],
+  "REACT_APP_WEBSITE_NAME" : process.env["REACT_APP_WEBSITE_NAME"],
+  "REACT_APP_SERVER_PORT" :process.env["REACT_APP_SERVER_PORT"],
+  "REACT_APP_WEBSITE_PORT" : process.env["REACT_APP_WEBSITE_PORT"],
+}
+
+var api_server_host = proc_host_vars.REACT_APP_WEBSITE_NAME+":"+proc_host_vars.REACT_APP_SERVER_PORT
+
 app.use(
   '/api',
   createProxyMiddleware({
-    target: 'http://localhost:6541',
+    target: api_server_host,
     changeOrigin: true,
   })
 );
 
-// In production we need to pass these values in instead of relying on webpack
+// In production we need to pass these values// console.log(api_server_host) in instead of relying on webpack
 setup(app, {
   outputPath: resolve(process.cwd(), 'build'),
   publicPath: '/',
