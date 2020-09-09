@@ -19,6 +19,8 @@ import reducer from './reducer';
 import saga from './saga';
 import messages from './messages';
 
+import { push } from 'connected-react-router'
+
 import {
   Card, Checkbox,
   Select as SelectField,
@@ -49,15 +51,17 @@ import SearchResult from '../../components/SearchResult'
 import { useCookies } from 'react-cookie';
 
 export function Dashboard({
-  doSearch
+  doSearch,
+  dashboard,
+  goToUrl
 }) {
   useInjectReducer({ key: 'dashboard', reducer });
   useInjectSaga({ key: 'dashboard', saga });
 
   const [cookies, setCookie, removeCookie ] = useCookies();
 
-  const [searchContent, setSearchContent ] = useState("");
-  const [searchType, setSearchType ] = useState("");
+  const [searchContent, setSearchContent ] = useState(dashboard.searchContent);
+  const [searchType, setSearchType ] = useState(dashboard.searchType);
 
   return (
     <div>
@@ -65,14 +69,16 @@ export function Dashboard({
         <title>Dashboard</title>
         <meta name="description" content="Description of Dashboard" />
       </Helmet>
+
       <Card style={{marginTop:10, padding:10}}>
         <div>
           <SearchBar
+            searchContent = {searchContent}
             doSearch={
                 (searchContent, searchType) => {
-                  console.log(searchContent + " -- "+
-                              searchType.searchCollections + " -- "+
-                              searchType.searchTables);
+                  // console.log(searchContent + " -- "+
+                  //             searchType.searchCollections + " -- "+
+                  //             searchType.searchTables);
 
                   setSearchContent(searchContent)
                   setSearchType(searchType)
@@ -83,14 +89,23 @@ export function Dashboard({
         </div>
       </Card>
 
+
+      <Card style={{marginTop:10,padding:10}}>
+        <div> { dashboard.search_results.length == 100 ? "Showing the first 100" : + dashboard.search_results.length +" results" } </div>
+      </Card>
+
       <Card style={{marginTop:10, maxHeight:600, overflowY:"scroll"}}>
         <div>
+          {
+            dashboard.search_results.map( (result,i) => {
+              var elems = result.doc.replace(".html","").split("_")
+              var docname = elems[0]
+              var page = elems[1]
+              var url = "/table?docid="+docname+"&page="+page
 
-        {
-          Array.from({length:100},(v,k)=> { k+1; return <SearchResult key={k} text={"something here"} type={"table"} /> })
-        }
-        <SearchResult text={"something here"} type={"collection"} />
-
+              return <SearchResult key={i} text={docname+"_"+page} type={"table"} onClick={ ()=> { goToUrl(url) }}/>
+            })
+          }
         </div>
       </Card>
 
@@ -110,6 +125,7 @@ function mapDispatchToProps(dispatch) {
   return {
     dispatch,
     doSearch : (searchContent,searchType) => dispatch( doSearchAction(searchContent,searchType) ),
+    goToUrl: (url) => dispatch(push(url))
   };
 }
 

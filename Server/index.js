@@ -54,6 +54,7 @@ global.CONFIG = require('./config.json');
 global.available_documents = {};
 global.abs_index = [];
 global.tables_folder = "HTML_TABLES";
+global.tables_folder_override = "HTML_TABLES_OVERRIDE";
 global.tables_folder_deleted = "HTML_TABLES_DELETED";
 global.cssFolder = "HTML_STYLES";
 global.DOCS = [];
@@ -70,6 +71,10 @@ console.log("Loading Security");
 console.log("Loading Table Libs");
 console.log("Loading MetaMap Docker Comms Module");
 console.log("Loading Extra Functions");
+console.log("Loading Search Module");
+
+var easysearch = require('@sephir/easy-search');
+
 console.log("Configuring DB client: Postgres"); // Postgres configuration.
 
 global.pool = new Pool({
@@ -481,18 +486,23 @@ function _main() {
         switch (_context51.prev = _context51.next) {
           case 0:
             _context51.next = 2;
-            return UMLSData();
+            return easysearch.indexFolder([path.join(process.cwd(), global.tables_folder), path.join(process.cwd(), global.tables_folder_override)]);
 
           case 2:
-            umls_data_buffer = _context51.sent;
+            global.searchIndex = _context51.sent;
             _context51.next = 5;
-            return (0, _files.refreshDocuments)();
+            return UMLSData();
 
           case 5:
-            _context51.next = 7;
+            umls_data_buffer = _context51.sent;
+            _context51.next = 8;
+            return (0, _files.refreshDocuments)();
+
+          case 8:
+            _context51.next = 10;
             return (0, _security.initialiseUsers)();
 
-          case 7:
+          case 10:
           case "end":
             return _context51.stop();
         }
@@ -1310,41 +1320,21 @@ function () {
   var _ref23 = (0, _asyncToGenerator2.default)(
   /*#__PURE__*/
   _regenerator.default.mark(function _callee23(req, res) {
-    var bod, type;
+    var bod, type, search_results;
     return _regenerator.default.wrap(function _callee23$(_context23) {
       while (1) {
         switch (_context23.prev = _context23.next) {
           case 0:
             bod = req.body.searchContent;
             type = JSON.parse(req.body.searchType);
-            type.searchCollections;
-            type.searchTables; // debugger
+            search_results = easysearch.search(global.searchIndex, bod);
+            console.log("SEARCH: " + search_results.length + " for " + bod);
 
-            console.log("SEARCH: " + bod); // if ( req.query && ( ! req.query.action ) ){
-            //   res.json({status: "undefined"})
-            //   return
-            // }
-            // var result;
-            //
-            // switch (req.query.action) {
-            //   case "list":
-            //     result = await listCollections();
-            //     res.json({status: "success", data: result.rows})
-            //     break;
-            //   case "create":
-            //     result = await createCollection();
-            //     res.json({status: "success"})
-            //     break;
-            //   case "edit":
-            //     result = await editCollection();
-            //     res.json({status: "success"})
-            //     break;
-            //   default:
-            //     res.json({status: "failed"})
-            // }
-            // // var collections = await getCollections()
+            if (search_results.length > 100) {
+              search_results = search_results.slice(0, 100);
+            }
 
-            res.json([]);
+            res.json(search_results);
 
           case 6:
           case "end":
@@ -2319,8 +2309,7 @@ function () {
 }()); // POST method route
 
 app.post('/saveTableOverride', function (req, res) {
-  // debugger
-  fs.writeFile("HTML_TABLES_OVERRIDE/" + req.body.docid + "_" + req.body.page + '.html', req.body.table, function (err) {
+  fs.writeFile(global.tables_folder_override + "/" + req.body.docid + "_" + req.body.page + '.html', req.body.table, function (err) {
     if (err) throw err;
     console.log('Written replacement for: ' + req.body.docid + "_" + req.body.page + '.html');
   });
@@ -2343,15 +2332,15 @@ function () {
             }
 
             _context37.next = 3;
-            return fs.existsSync("HTML_TABLES_OVERRIDE/" + req.query.docid + "_" + req.query.page + ".html");
+            return fs.existsSync(global.tables_folder_override + "/" + req.query.docid + "_" + req.query.page + ".html");
 
           case 3:
             file_exists = _context37.sent;
 
             if (file_exists) {
-              fs.unlink("HTML_TABLES_OVERRIDE/" + req.query.docid + "_" + req.query.page + ".html", function (err) {
+              fs.unlink(global.tables_folder_override + "/" + req.query.docid + "_" + req.query.page + ".html", function (err) {
                 if (err) throw err;
-                console.log("REMOVED : HTML_TABLES_OVERRIDE/" + req.query.docid + "_" + req.query.page + ".html");
+                console.log("REMOVED : " + global.tables_folder_override + "/" + req.query.docid + "_" + req.query.page + ".html");
               });
             }
 

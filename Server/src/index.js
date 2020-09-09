@@ -7,6 +7,7 @@ var request = require("request");
 
 var multer = require('multer');
 
+
 const fs = require('fs');
 
 const { Pool, Client, Query } = require('pg')
@@ -29,6 +30,7 @@ global.CONFIG = require('./config.json')
 global.available_documents = {}
 global.abs_index = []
 global.tables_folder = "HTML_TABLES"
+global.tables_folder_override = "HTML_TABLES_OVERRIDE"
 global.tables_folder_deleted = "HTML_TABLES_DELETED"
 global.cssFolder = "HTML_STYLES"
 global.DOCS = [];
@@ -54,6 +56,9 @@ import { metamap } from "./metamap.js"
 console.log("Loading Extra Functions")
 import ef from "./extra_functions.js"
 
+console.log("Loading Search Module")
+var easysearch = require('@sephir/easy-search')
+
 console.log("Configuring DB client: Postgres")
 // Postgres configuration.
 global.pool = new Pool({
@@ -66,7 +71,6 @@ global.pool = new Pool({
 
 //Network functions
 import {getAnnotationResults} from "./network_functions.js"
-
 
 console.log("Configuring Server")
 var app = express();
@@ -130,9 +134,6 @@ const storage = multer.diskStorage({
 })
 
 const upload = multer({ storage: storage });
-
-
-
 
 app.post('/api/tableUploader', upload.array('fileNames'), async function(req, res) {
 
@@ -270,6 +271,10 @@ async function getAnnotationByID(docid,page,user){
 // preinitialisation of components if needed.
 async function main(){
 
+  //Indexing documents
+  global.searchIndex = await easysearch.indexFolder( [path.join(process.cwd(), global.tables_folder) , path.join(process.cwd(), global.tables_folder_override)] )
+
+  // UMLS Data buffer
   umls_data_buffer = await UMLSData();
 
   await refreshDocuments()
@@ -520,38 +525,15 @@ app.post('/search', async function(req,res){
   var bod = req.body.searchContent
   var type = JSON.parse(req.body.searchType)
 
-  type.searchCollections
-  type.searchTables
+  var search_results = easysearch.search( global.searchIndex, bod)
 
-  // debugger
+  console.log("SEARCH: "+ search_results.length+ " for " + bod )
 
-  console.log("SEARCH: "+ bod )
+  if ( search_results.length > 100){
+    search_results = search_results.slice(0,100)
+  }
 
-  // if ( req.query && ( ! req.query.action ) ){
-  //   res.json({status: "undefined"})
-  //   return
-  // }
-  // var result;
-  //
-  // switch (req.query.action) {
-  //   case "list":
-  //     result = await listCollections();
-  //     res.json({status: "success", data: result.rows})
-  //     break;
-  //   case "create":
-  //     result = await createCollection();
-  //     res.json({status: "success"})
-  //     break;
-  //   case "edit":
-  //     result = await editCollection();
-  //     res.json({status: "success"})
-  //     break;
-  //   default:
-  //     res.json({status: "failed"})
-  // }
-  // // var collections = await getCollections()
-
-  res.json([])
+  res.json(search_results)
 });
 
 
@@ -1068,8 +1050,7 @@ app.get('/api/getMMatch',async function(req,res){
 // POST method route
 app.post('/saveTableOverride', function (req, res) {
 
-  // debugger
-  fs.writeFile("HTML_TABLES_OVERRIDE/"+req.body.docid+"_"+req.body.page+'.html',  req.body.table, function (err) {
+  fs.writeFile(global.tables_folder_override+"/"+req.body.docid+"_"+req.body.page+'.html',  req.body.table, function (err) {
     if (err) throw err;
     console.log('Written replacement for: '+req.body.docid+"_"+req.body.page+'.html');
   });
@@ -1082,12 +1063,12 @@ app.get('/api/removeOverrideTable', async function(req,res){
 
   if(req.query && req.query.docid && req.query.page ){
 
-    var file_exists = await fs.existsSync("HTML_TABLES_OVERRIDE/"+req.query.docid+"_"+req.query.page+".html")
+    var file_exists = await fs.existsSync(global.tables_folder_override+"/"+req.query.docid+"_"+req.query.page+".html")
     if ( file_exists ) {
 
-      fs.unlink("HTML_TABLES_OVERRIDE/"+req.query.docid+"_"+req.query.page+".html", (err) => {
+      fs.unlink(global.tables_folder_override+"/"+req.query.docid+"_"+req.query.page+".html", (err) => {
         if (err) throw err;
-        console.log("REMOVED : HTML_TABLES_OVERRIDE/"+req.query.docid+"_"+req.query.page+".html");
+        console.log("REMOVED : "+global.tables_folder_override+"/"+req.query.docid+"_"+req.query.page+".html");
       });
 
     }
@@ -1096,8 +1077,6 @@ app.get('/api/removeOverrideTable', async function(req,res){
   } else {
     res.send({status: "no changes"})
   }
-
-
 });
 
 app.get('/api/classify', async function(req,res){

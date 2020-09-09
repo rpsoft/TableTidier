@@ -53,9 +53,8 @@ function SearchBar({
   doSearch
 }) {
   const classes = useStyles();
-
+  // console.log(sContent)
   const [searchContent, setSearchContent ] = useState("");
-
   const [searchCollections, setSearchCollections ] = useState(true);
   const [searchTables, setSearchTables ] = useState(true);
 

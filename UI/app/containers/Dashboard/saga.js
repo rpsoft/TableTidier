@@ -2,7 +2,7 @@ import { take, call, put, select, takeLatest } from 'redux-saga/effects';
 
 import { SEARCH_ACTION } from './constants';
 
-// import { doSearchAction } from './actions';
+import { updateSearchResultsAction } from './actions';
 import makeSelectDashboard from './selectors';
 
 import request from '../../utils/request';
@@ -23,18 +23,12 @@ export function* doSearch() {
   try {
     const response = yield call(request, requestURL, options);
 
-    // debugger
+    if ( response.status && response.status == "unauthorised"){
 
-    console.log("SEARCH: "+response.status);
-
-    // if ( response.status && response.status == "unauthorised"){
-    //   yield put( yield loginFailedAction(response.status));
-    // } else {
-    //   yield put( yield loginSuccessAction(response.payload.hash));
-    // }
-
+    } else {
+      yield put( yield updateSearchResultsAction(response.slice(0,100)) );
+    }
   } catch (err) {
-    // yield put(loginFailedAction(err));
     console.log(err)
   }
 
