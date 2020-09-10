@@ -6,11 +6,13 @@
 
 import { SEARCH_ACTION, SEARCH_RESULTS_UPDATE_ACTION } from './constants';
 
-export function doSearchAction(searchContent,searchType) {
+export function doSearchAction(searchContent, searchType, hash, username) {
   return {
     type: SEARCH_ACTION,
     searchContent,
-    searchType
+    searchType,
+    hash,
+    username
   };
 }
 

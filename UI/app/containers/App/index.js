@@ -21,6 +21,12 @@ import Login from '../Login'
 import Register from '../Register'
 import Annotator from '../Annotator'
 import Dashboard from '../Dashboard'
+import CollectionView from '../CollectionView'
+
+import { connect } from 'react-redux';
+import { compose } from 'redux';
+import { createStructuredSelector } from 'reselect';
+import makeSelectLocation from './selectors'
 
 import {
   URL_BASE,
@@ -39,8 +45,10 @@ import {
 
 const urlBase = URL_BASE
 
-export function App() {
-
+export function App({
+  appData,
+}) {
+  // debugger
 
   return (
     <div>
@@ -53,6 +61,7 @@ export function App() {
         <Route path="/cuiadmin" component={CuiAdminContainer}></Route>
         <Route path="/register" component={Register}></Route>
         <Route path="/dashboard" component={Dashboard}></Route>
+        <Route path="/collection" component={CollectionView}></Route>
         <Route path="/" component={AppContainer}></Route>
       </Switch>
       <GlobalStyle />
@@ -60,6 +69,14 @@ export function App() {
   );
 }
 
+const mapStateToProps = createStructuredSelector({
+  appData : makeSelectLocation(),
+});
 
+const withConnect = connect(
+  mapStateToProps,
+  // mapDispatchToProps,
+);
 
-export default App;
+export default compose(withConnect)(App);
+// export default App;

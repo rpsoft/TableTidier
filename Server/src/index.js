@@ -45,7 +45,7 @@ console.log("Loading Files Management")
 import {refreshDocuments} from "./files.js"
 
 console.log("Loading Security")
-import passport, {initialiseUsers, createUser}  from "./security.js"
+import passport, {initialiseUsers, createUser, getUserHash}  from "./security.js"
 
 console.log("Loading Table Libs")
 import { prepareAvailableDocuments, readyTableData } from "./table.js"
@@ -70,7 +70,7 @@ global.pool = new Pool({
   })
 
 //Network functions
-import {getAnnotationResults} from "./network_functions.js"
+import { getAnnotationResults } from "./network_functions.js"
 
 console.log("Configuring Server")
 var app = express();
@@ -471,26 +471,32 @@ app.get('/',function(req,res){
 // Collections
 var listCollections = async () => {
     var client = await pool.connect()
-    var result = await client.query(`SELECT id, title, description, owner_username FROM public.collection`)
+    var result = await client.query(`SELECT collection_id, title, description, owner_username FROM public.collection`)
           client.release()
     return result
 }
 
-var createCollection = async () => {
+var createCollection = async (title, description, owner) => {
     var client = await pool.connect()
-    var result = await client.query(`SELECT id, title, description, owner_username FROM public.collection`)
+    var result = await client.query(`INSERT INTO public.collection( title, description, owner_username) VALUES ( $1, $2, $3 )`, [title, description, owner] )
           client.release()
     return result
 }
 
-var editCollection = async () => {
+var editCollection = async (id, title, description, owner) => {
     var client = await pool.connect()
-    var result = await client.query(`SELECT id, title, description, owner_username FROM public.collection`)
+    var result = await client.query(`UPDATE public.collection SET title=$2, description=$3, owner_username=$4	WHERE collection_id=$1`,[id, title, description, owner])
           client.release()
     return result
 }
 
 app.post('/collections', async function(req,res){
+
+  // SELECT * FROM (
+	// SELECT username, name, description, unnest("groups") as g_id, group_id
+	// FROM public.users, public."usersGroup"
+  // ) as association
+  // WHERE g_id = group_id
 
   if ( req.query && ( ! req.query.action ) ){
     res.json({status: "undefined"})
@@ -519,21 +525,41 @@ app.post('/collections', async function(req,res){
   // res.json(collections.rows)
 });
 
+function validateUser (username, hash){
+    var validate_user;
+    for ( var u in global.records ) {
+      if ( global.records[u].username == username ){
+         var user = global.records[u]
+         var db_hash = getUserHash(user)
+         validate_user = hash == db_hash.hash ? user : false
+      }
+    }
+    return validate_user;
+}
+
 
 app.post('/search', async function(req,res){
 
   var bod = req.body.searchContent
   var type = JSON.parse(req.body.searchType)
 
-  var search_results = easysearch.search( global.searchIndex, bod)
+  var validate_user = validateUser(req.body.username, req.body.hash);
 
-  console.log("SEARCH: "+ search_results.length+ " for " + bod )
+  if ( validate_user ){
 
-  if ( search_results.length > 100){
-    search_results = search_results.slice(0,100)
+    var search_results = easysearch.search( global.searchIndex, bod)
+
+    console.log("SEARCH: "+ search_results.length+ " for " + bod )
+
+    if ( search_results.length > 100){
+      search_results = search_results.slice(0,100)
+    }
+
+    res.json(search_results)
+  } else {
+    res.json([])
   }
 
-  res.json(search_results)
 });
 
 
@@ -1257,7 +1283,6 @@ app.get('/api/modelEval', async (req,res) => {
 
       var counter = 0;
       for (var doc in available_documents) {
-
 
           // if ( counter > 10 ){
           //   break;

@@ -25,17 +25,6 @@ import {
   Card, Checkbox,
   Select as SelectField,
   Input as TextField,
-  Button as RaisedButton,
-  MenuItem,
-  Popover,
-  Menu,
-  Divider,
-  Tabs, Tab,
-  Table,
-  TableBody,
-  TableHead,
-  TableCell,
-  TableRow
 } from '@material-ui/core';
 
 import { doSearchAction } from './actions'
@@ -47,6 +36,9 @@ import CollectionIcon from '@material-ui/icons/Storage';
 import SearchBar from '../../components/SearchBar'
 
 import SearchResult from '../../components/SearchResult'
+
+import Collection from '../../components/Collection'
+
 
 import { useCookies } from 'react-cookie';
 
@@ -62,29 +54,42 @@ export function Dashboard({
 
   const [searchContent, setSearchContent ] = useState(dashboard.searchContent);
   const [searchType, setSearchType ] = useState(dashboard.searchType);
+  //
+  // const [collections, setCollections ] = useState(doSearch("placebo", searchType));
+
+
+  var table_search_results = <div>
+    {
+      dashboard.search_results.map( (result,i) => {
+        var elems = result.doc.replace(".html","").split("_")
+        var docname = elems[0]
+        var page = elems[1]
+        var url = "/table?docid="+docname+"&page="+page
+        return <SearchResult key={i} text={docname+"_"+page} type={"table"} onClick={ ()=> { goToUrl(url) }}/>
+      })
+    }
+  </div>
+
+  var collection_results = <div> <Collection /><Collection /><Collection />
+                <Collection /><Collection /><Collection /> </div>
 
   return (
-    <div>
+    <div style={{marginLeft:"2%", marginRight:"2%"}}>
       <Helmet>
         <title>Dashboard</title>
         <meta name="description" content="Description of Dashboard" />
       </Helmet>
 
-      <Card style={{marginTop:10, padding:10}}>
+      <Card style={{ marginTop:10, padding:10, backgroundColor: "#e4e2e2" }}>
         <div>
           <SearchBar
-            searchContent = {searchContent}
-            doSearch={
-                (searchContent, searchType) => {
-                  // console.log(searchContent + " -- "+
-                  //             searchType.searchCollections + " -- "+
-                  //             searchType.searchTables);
-
-                  setSearchContent(searchContent)
-                  setSearchType(searchType)
-
-                  doSearch(searchContent, searchType)
-            }
+            searchCont = {searchContent}
+            doSearch = {
+              (searchContent, searchType) => {
+                setSearchContent(searchContent)
+                setSearchType(searchType)
+                doSearch(searchContent, searchType, cookies.hash, cookies.username)
+              }
           }/>
         </div>
       </Card>
@@ -94,19 +99,10 @@ export function Dashboard({
         <div> { dashboard.search_results.length == 100 ? "Showing the first 100" : + dashboard.search_results.length +" results" } </div>
       </Card>
 
-      <Card style={{marginTop:10, maxHeight:600, overflowY:"scroll"}}>
-        <div>
-          {
-            dashboard.search_results.map( (result,i) => {
-              var elems = result.doc.replace(".html","").split("_")
-              var docname = elems[0]
-              var page = elems[1]
-              var url = "/table?docid="+docname+"&page="+page
+      <Card style={{marginTop:10, maxHeight:600, overflowY:"scroll", minHeight: 500, backgroundColor: dashboard.search_results.length > 0 ? "white" : "#e4e2e2"}}>
+         {dashboard.search_results.length > 0 ? table_search_results : collection_results}
 
-              return <SearchResult key={i} text={docname+"_"+page} type={"table"} onClick={ ()=> { goToUrl(url) }}/>
-            })
-          }
-        </div>
+
       </Card>
 
     </div>
@@ -124,8 +120,8 @@ const mapStateToProps = createStructuredSelector({
 function mapDispatchToProps(dispatch) {
   return {
     dispatch,
-    doSearch : (searchContent,searchType) => dispatch( doSearchAction(searchContent,searchType) ),
-    goToUrl: (url) => dispatch(push(url))
+    doSearch : (searchContent, searchType, hash, username) => dispatch( doSearchAction(searchContent, searchType, hash, username) ),
+    goToUrl : (url) => dispatch(push(url))
   };
 }
 

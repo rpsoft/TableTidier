@@ -1143,7 +1143,7 @@ function () {
           case 2:
             client = _context19.sent;
             _context19.next = 5;
-            return client.query("SELECT id, title, description, owner_username FROM public.collection");
+            return client.query("SELECT collection_id, title, description, owner_username FROM public.collection");
 
           case 5:
             result = _context19.sent;
@@ -1168,7 +1168,7 @@ var createCollection =
 function () {
   var _ref20 = (0, _asyncToGenerator2.default)(
   /*#__PURE__*/
-  _regenerator.default.mark(function _callee20() {
+  _regenerator.default.mark(function _callee20(title, description, owner) {
     var client, result;
     return _regenerator.default.wrap(function _callee20$(_context20) {
       while (1) {
@@ -1180,7 +1180,7 @@ function () {
           case 2:
             client = _context20.sent;
             _context20.next = 5;
-            return client.query("SELECT id, title, description, owner_username FROM public.collection");
+            return client.query("INSERT INTO public.collection( title, description, owner_username) VALUES ( $1, $2, $3 )", [title, description, owner]);
 
           case 5:
             result = _context20.sent;
@@ -1195,7 +1195,7 @@ function () {
     }, _callee20, this);
   }));
 
-  return function createCollection() {
+  return function createCollection(_x50, _x51, _x52) {
     return _ref20.apply(this, arguments);
   };
 }();
@@ -1205,7 +1205,7 @@ var editCollection =
 function () {
   var _ref21 = (0, _asyncToGenerator2.default)(
   /*#__PURE__*/
-  _regenerator.default.mark(function _callee21() {
+  _regenerator.default.mark(function _callee21(id, title, description, owner) {
     var client, result;
     return _regenerator.default.wrap(function _callee21$(_context21) {
       while (1) {
@@ -1217,7 +1217,7 @@ function () {
           case 2:
             client = _context21.sent;
             _context21.next = 5;
-            return client.query("SELECT id, title, description, owner_username FROM public.collection");
+            return client.query("UPDATE public.collection SET title=$2, description=$3, owner_username=$4\tWHERE collection_id=$1", [id, title, description, owner]);
 
           case 5:
             result = _context21.sent;
@@ -1232,7 +1232,7 @@ function () {
     }, _callee21, this);
   }));
 
-  return function editCollection() {
+  return function editCollection(_x53, _x54, _x55, _x56) {
     return _ref21.apply(this, arguments);
   };
 }();
@@ -1310,33 +1310,54 @@ function () {
     }, _callee22, this);
   }));
 
-  return function (_x50, _x51) {
+  return function (_x57, _x58) {
     return _ref22.apply(this, arguments);
   };
 }());
+
+function validateUser(username, hash) {
+  var validate_user;
+
+  for (var u in global.records) {
+    if (global.records[u].username == username) {
+      var user = global.records[u];
+      var db_hash = (0, _security.getUserHash)(user);
+      validate_user = hash == db_hash.hash ? user : false;
+    }
+  }
+
+  return validate_user;
+}
+
 app.post('/search',
 /*#__PURE__*/
 function () {
   var _ref23 = (0, _asyncToGenerator2.default)(
   /*#__PURE__*/
   _regenerator.default.mark(function _callee23(req, res) {
-    var bod, type, search_results;
+    var bod, type, validate_user, search_results;
     return _regenerator.default.wrap(function _callee23$(_context23) {
       while (1) {
         switch (_context23.prev = _context23.next) {
           case 0:
             bod = req.body.searchContent;
             type = JSON.parse(req.body.searchType);
-            search_results = easysearch.search(global.searchIndex, bod);
-            console.log("SEARCH: " + search_results.length + " for " + bod);
+            validate_user = validateUser(req.body.username, req.body.hash);
 
-            if (search_results.length > 100) {
-              search_results = search_results.slice(0, 100);
+            if (validate_user) {
+              search_results = easysearch.search(global.searchIndex, bod);
+              console.log("SEARCH: " + search_results.length + " for " + bod);
+
+              if (search_results.length > 100) {
+                search_results = search_results.slice(0, 100);
+              }
+
+              res.json(search_results);
+            } else {
+              res.json([]);
             }
 
-            res.json(search_results);
-
-          case 6:
+          case 4:
           case "end":
             return _context23.stop();
         }
@@ -1344,7 +1365,7 @@ function () {
     }, _callee23, this);
   }));
 
-  return function (_x52, _x53) {
+  return function (_x59, _x60) {
     return _ref23.apply(this, arguments);
   };
 }());
@@ -1409,7 +1430,7 @@ function () {
     }, _callee24, this);
   }));
 
-  return function (_x54, _x55) {
+  return function (_x61, _x62) {
     return _ref24.apply(this, arguments);
   };
 }()); // Extracts all recommended CUIs from the DB and formats them as per the "recommend_cuis" variable a the bottom of the function.
@@ -1536,7 +1557,7 @@ function () {
     }, _callee25, this);
   }));
 
-  return function (_x56, _x57) {
+  return function (_x63, _x64) {
     return _ref25.apply(this, arguments);
   };
 }());
@@ -1605,7 +1626,7 @@ function () {
     }, _callee27, this);
   }));
 
-  return function (_x58, _x59) {
+  return function (_x65, _x66) {
     return _ref26.apply(this, arguments);
   };
 }());
@@ -1683,7 +1704,7 @@ function () {
     }, _callee29, this);
   }));
 
-  return function (_x60, _x61) {
+  return function (_x67, _x68) {
     return _ref28.apply(this, arguments);
   };
 }());
@@ -1736,7 +1757,7 @@ function () {
                 }, _callee30, this);
               }));
 
-              return function insertCUI(_x64, _x65, _x66) {
+              return function insertCUI(_x71, _x72, _x73) {
                 return _ref31.apply(this, arguments);
               };
             }();
@@ -1760,7 +1781,7 @@ function () {
     }, _callee31, this);
   }));
 
-  return function (_x62, _x63) {
+  return function (_x69, _x70) {
     return _ref30.apply(this, arguments);
   };
 }()); // Produces the data required to teach classifiers. Traverses all existing tables, extracting cell values and associating it with the human annotations.
@@ -2002,7 +2023,7 @@ function () {
     }, _callee32, this);
   }));
 
-  return function (_x67, _x68) {
+  return function (_x74, _x75) {
     return _ref32.apply(this, arguments);
   };
 }()); // Generates the results table live preview, connecting to the R API.
@@ -2116,7 +2137,7 @@ function () {
     }, _callee33, this, [[0, 18]]);
   }));
 
-  return function (_x69, _x70) {
+  return function (_x76, _x77) {
     return _ref33.apply(this, arguments);
   };
 }()); // Returns all annotations for all document/tables.
@@ -2190,7 +2211,7 @@ function () {
     }, _callee34, this);
   }));
 
-  return function (_x71, _x72) {
+  return function (_x78, _x79) {
     return _ref34.apply(this, arguments);
   };
 }());
@@ -2259,7 +2280,7 @@ function () {
                 }, _callee35, this);
               }));
 
-              return function getMMatch(_x75) {
+              return function getMMatch(_x82) {
                 return _ref36.apply(this, arguments);
               };
             }();
@@ -2303,7 +2324,7 @@ function () {
     }, _callee36, this, [[1, 12]]);
   }));
 
-  return function (_x73, _x74) {
+  return function (_x80, _x81) {
     return _ref35.apply(this, arguments);
   };
 }()); // POST method route
@@ -2363,7 +2384,7 @@ function () {
     }, _callee37, this);
   }));
 
-  return function (_x76, _x77) {
+  return function (_x83, _x84) {
     return _ref37.apply(this, arguments);
   };
 }());
@@ -2403,7 +2424,7 @@ function () {
     }, _callee38, this);
   }));
 
-  return function (_x78, _x79) {
+  return function (_x85, _x86) {
     return _ref38.apply(this, arguments);
   };
 }());
@@ -2461,7 +2482,7 @@ function () {
     }, _callee39, this, [[0, 11]]);
   }));
 
-  return function (_x80, _x81) {
+  return function (_x87, _x88) {
     return _ref39.apply(this, arguments);
   };
 }());
@@ -2495,7 +2516,7 @@ function () {
     }, _callee40, this);
   }));
 
-  return function (_x82, _x83) {
+  return function (_x89, _x90) {
     return _ref40.apply(this, arguments);
   };
 }());
@@ -2546,7 +2567,7 @@ function () {
                 }, _callee41, this);
               }));
 
-              return function deleteAnnotation(_x86, _x87, _x88) {
+              return function deleteAnnotation(_x93, _x94, _x95) {
                 return _ref42.apply(this, arguments);
               };
             }();
@@ -2575,7 +2596,7 @@ function () {
     }, _callee42, this);
   }));
 
-  return function (_x84, _x85) {
+  return function (_x91, _x92) {
     return _ref41.apply(this, arguments);
   };
 }());
@@ -2654,7 +2675,7 @@ function () {
     }, _callee43, this);
   }));
 
-  return function (_x89, _x90) {
+  return function (_x96, _x97) {
     return _ref43.apply(this, arguments);
   };
 }());
@@ -2821,7 +2842,7 @@ function () {
     }, _callee44, this, [[23, 29]]);
   }));
 
-  return function (_x91, _x92) {
+  return function (_x98, _x99) {
     return _ref44.apply(this, arguments);
   };
 }());
@@ -2874,7 +2895,7 @@ function () {
                 }, _callee45, this);
               }));
 
-              return function insertAnnotation(_x95, _x96, _x97, _x98, _x99, _x100, _x101) {
+              return function insertAnnotation(_x102, _x103, _x104, _x105, _x106, _x107, _x108) {
                 return _ref46.apply(this, arguments);
               };
             }();
@@ -2900,7 +2921,7 @@ function () {
     }, _callee46, this);
   }));
 
-  return function (_x93, _x94) {
+  return function (_x100, _x101) {
     return _ref45.apply(this, arguments);
   };
 }());

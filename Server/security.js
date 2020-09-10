@@ -7,6 +7,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.initialiseUsers = initialiseUsers;
 exports.createUser = createUser;
+exports.getUserHash = getUserHash;
 exports.default = void 0;
 
 var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));

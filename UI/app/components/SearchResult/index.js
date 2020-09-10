@@ -27,7 +27,7 @@ function SearchResult({
 }) {
   return (
     <div>
-      <Button tooltip={"hello"} style={{width:"100%",textAlign:"left", justifyContent:"left"}} onClick={onClick} >
+      <Button tooltip={"hello"} style={{width:"100%", textAlign:"left", justifyContent:"left"}} onClick={onClick} >
         { type == "table" ? <Table /> : <CollectionIcon /> }
         <div style={{marginLeft:5}}>{ text }</div>
       </Button>

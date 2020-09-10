@@ -37,7 +37,7 @@ export async function createUser(userData) {
 
 
 
-function getUserHash(user){
+export function getUserHash(user){
   var hash = crypto.createHmac('sha256', CONFIG.hashSecret)
                      .update(user.username+user.password+user.registered)
                      .digest('hex');

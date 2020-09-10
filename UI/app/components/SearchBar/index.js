@@ -18,6 +18,8 @@ import DirectionsIcon from '@material-ui/icons/Directions';
 import { FormattedMessage } from 'react-intl';
 import messages from './messages';
 
+import BackspaceIcon from '@material-ui/icons/Backspace';
+
 import {
   Card, Checkbox,
   Select as SelectField,
@@ -50,11 +52,12 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function SearchBar({
-  doSearch
+  doSearch,
+  searchCont
 }) {
   const classes = useStyles();
-  // console.log(sContent)
-  const [searchContent, setSearchContent ] = useState("");
+
+  const [searchContent, setSearchContent ] = useState(searchCont);
   const [searchCollections, setSearchCollections ] = useState(true);
   const [searchTables, setSearchTables ] = useState(true);
 
@@ -73,36 +76,45 @@ function SearchBar({
 
   return (
 
-    <div style={{height:"auto"}}>
+    <div style={{height:"auto",  minWidth:"50%", maxWidth:600, marginLeft:"auto", marginRight:"auto"}}>
       <Paper component="form" className={classes.root}>
         <InputBase
           className={ classes.input }
           value={searchContent}
-          placeholder={ "Search for tables or collections here" }
+          placeholder={ "Search for tables" }
           onChange={ (evt) => { setSearchContent(evt.currentTarget.value)}}
           onKeyDown ={ onKeyDown }
         />
+
+        <IconButton className={classes.iconButton} aria-label="search" onClick={ () => { setSearchContent(""); doSearch("", {searchCollections, searchTables}) }}>
+          <BackspaceIcon />
+        </IconButton>
+
         <IconButton className={classes.iconButton} aria-label="search" onClick={ () => { doSearch(searchContent, {searchCollections, searchTables}) }}>
           <SearchIcon />
         </IconButton>
 
+
+
+
       </Paper>
 
       <div style={{width:"100%",textAlign:"center"}}>
-
-      Collections
-      <Checkbox
-        checked={searchCollections}
-        onChange={() => { searchCollections ? setSearchCollections(false) : setSearchCollections(true) }}
-        inputProps={{ 'aria-label': 'primary checkbox' }}
-      />
-
-      Tables
-      <Checkbox
-        checked={searchTables}
-        onChange={() => { searchTables ? setSearchTables(false) : setSearchTables(true) }}
-        inputProps={{ 'aria-label': 'primary checkbox' }}
-      />
+      {
+        // Collections
+        // <Checkbox
+        //   checked={searchCollections}
+        //   onChange={() => { searchCollections ? setSearchCollections(false) : setSearchCollections(true) }}
+        //   inputProps={{ 'aria-label': 'primary checkbox' }}
+        // />
+        //
+        // Tables
+        // <Checkbox
+        //   checked={searchTables}
+        //   onChange={() => { searchTables ? setSearchTables(false) : setSearchTables(true) }}
+        //   inputProps={{ 'aria-label': 'primary checkbox' }}
+        // />
+      }
       </div>
     </div>
   );

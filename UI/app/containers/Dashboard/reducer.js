@@ -9,7 +9,9 @@ import { SEARCH_ACTION, SEARCH_RESULTS_UPDATE_ACTION } from './constants';
 export const initialState = {
   searchContent : "",
   searchType : {},
-  search_results : []
+  search_results : [],
+  hash: "",
+  username : "",
 };
 
 /* eslint-disable default-case, no-param-reassign */
@@ -19,6 +21,8 @@ const dashboardReducer = (state = initialState, action) =>
       case SEARCH_ACTION:
         draft.searchContent = action.searchContent;
         draft.searchType = action.searchType;
+        draft.hash = action.hash;
+        draft.username = action.username;
         break;
       case SEARCH_RESULTS_UPDATE_ACTION:
         draft.search_results = action.search_results;
