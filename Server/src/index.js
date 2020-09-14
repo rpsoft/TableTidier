@@ -473,7 +473,19 @@ var listCollections = async () => {
     var client = await pool.connect()
     var result = await client.query(`SELECT collection_id, title, description, owner_username FROM public.collection`)
           client.release()
-    return result
+    return result.rows
+}
+
+var getCollection = async ( collection_id ) => {
+    var client = await pool.connect()
+    var result = await client.query(`SELECT collection_id, title, description, owner_username FROM public.collection WHERE collection_id = $1`,[collection_id])
+          client.release()
+
+    if ( result.rows.length == 1){
+        return result.rows[0]
+    }
+    
+    return {}
 }
 
 var createCollection = async (title, description, owner) => {
@@ -498,31 +510,44 @@ app.post('/collections', async function(req,res){
   // ) as association
   // WHERE g_id = group_id
 
-  if ( req.query && ( ! req.query.action ) ){
-    res.json({status: "undefined"})
+  if ( req.body && ( ! req.body.action ) ){
+    res.json({status: "undefined", received : req.query})
     return
   }
 
-  var result;
+  var validate_user = validateUser(req.body.username, req.body.hash);
 
-  switch (req.query.action) {
-    case "list":
-      result = await listCollections();
-      res.json({status: "success", data: result.rows})
-      break;
-    case "create":
-      result = await createCollection();
-      res.json({status: "success"})
-      break;
-    case "edit":
-      result = await editCollection();
-      res.json({status: "success"})
-      break;
-    default:
-      res.json({status: "failed"})
+  if ( validate_user ){
+
+    var result;
+
+    switch (req.body.action) {
+      case "list":
+        result = await listCollections();
+        res.json({status: "success", data: result})
+        break;
+      case "get":
+        result = await getCollection(req.body.collection_id);
+        res.json({status: "success", data: result})
+        break;
+      case "create":
+        result = await createCollection();
+        res.json({status: "success"})
+        break;
+      case "edit":
+        result = await editCollection();
+        res.json({status: "success"})
+        break;
+      default:
+        res.json({status: "failed"})
+    }
+
+  } else {
+    res.json({status:"unauthorised", payload: null})
   }
+
   // var collections = await getCollections()
-  // res.json(collections.rows)
+  // res.json({})
 });
 
 function validateUser (username, hash){

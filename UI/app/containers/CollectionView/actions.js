@@ -4,10 +4,17 @@
  *
  */
 
-import { DEFAULT_ACTION } from './constants';
+import { LOAD_COLLECTION_ACTION, UPDATE_COLLECTION_ACTION } from './constants';
 
-export function defaultAction() {
+export function loadCollectionAction() {
   return {
-    type: DEFAULT_ACTION,
+    type: LOAD_COLLECTION_ACTION,
+  };
+}
+
+export function updateCollectionAction(collectionData) {
+  return {
+    type: UPDATE_COLLECTION_ACTION,
+    collectionData,
   };
 }

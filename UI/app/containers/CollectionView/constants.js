@@ -4,4 +4,5 @@
  *
  */
 
-export const DEFAULT_ACTION = 'app/CollectionView/DEFAULT_ACTION';
+export const LOAD_COLLECTION_ACTION = 'app/CollectionView/LOAD_COLLECTION_ACTION';
+export const UPDATE_COLLECTION_ACTION = 'app/CollectionView/UPDATE_COLLECTION_ACTION';

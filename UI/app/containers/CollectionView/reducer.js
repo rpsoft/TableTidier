@@ -4,15 +4,27 @@
  *
  */
 import produce from 'immer';
-import { DEFAULT_ACTION } from './constants';
+import { LOAD_COLLECTION_ACTION, UPDATE_COLLECTION_ACTION } from './constants';
 
-export const initialState = {};
+export const initialState = {
+  title :"",
+  collection_id : "",
+  description : "",
+  owner_username : "",
+};
 
 /* eslint-disable default-case, no-param-reassign */
 const collectionViewReducer = (state = initialState, action) =>
-  produce(state, (/* draft */) => {
+  produce(state, draft => {
     switch (action.type) {
-      case DEFAULT_ACTION:
+      case LOAD_COLLECTION_ACTION:
+        break;
+      case UPDATE_COLLECTION_ACTION:
+        draft.title = action.collectionData.title;
+        draft.collection_id = action.collectionData.collection_id;
+        draft.description = action.collectionData.description;
+        draft.owner_username = action.collectionData.owner_username
+        console.log("REDUCED = "+JSON.stringify(action.collectionData))
         break;
     }
   });

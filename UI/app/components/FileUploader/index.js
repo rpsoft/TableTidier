@@ -47,8 +47,8 @@ function FileUploader() {
     }
 
     return <div>
-              <Button onClick={handleOpen}>
-                Add Files
+              <Button variant="contained"  onClick={handleOpen}>
+                Upload Tables
               </Button>
               <DropzoneDialog
                   open={ open }

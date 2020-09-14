@@ -25,6 +25,8 @@ import {
   Card, Checkbox,
   Select as SelectField,
   Input as TextField,
+  Button,
+  Paper,
 } from '@material-ui/core';
 
 import { doSearchAction } from './actions'
@@ -38,9 +40,42 @@ import SearchBar from '../../components/SearchBar'
 import SearchResult from '../../components/SearchResult'
 
 import Collection from '../../components/Collection'
-
+import Grid from "@material-ui/core/Grid";
 
 import { useCookies } from 'react-cookie';
+
+import { makeStyles } from '@material-ui/core/styles';
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    flexGrow: 1,
+  },
+  paper: {
+    padding: theme.spacing(2),
+  },
+  buttonHolder:{
+    marginBottom:5
+  },
+  buttonColor: {
+    backgroundColor:"blue",
+    '&:hover': {
+        backgroundColor: 'blue',
+        borderColor: '#0062cc',
+        boxShadow: 'none',
+    },
+    // '&:active': {
+    //   boxShadow: 'none',
+    //   backgroundColor: 'blue',
+    //   borderColor: '#005cbf',
+    // },
+    // '&:focus': {
+    //   boxShadow: '0 0 0 0.2rem rgba(0,123,255,.5)',
+    // },
+  },
+
+}));
+
+
 
 export function Dashboard({
   doSearch,
@@ -56,6 +91,8 @@ export function Dashboard({
   const [searchType, setSearchType ] = useState(dashboard.searchType);
   //
   // const [collections, setCollections ] = useState(doSearch("placebo", searchType));
+
+  const classes = useStyles();
 
 
   var table_search_results = <div>
@@ -94,16 +131,33 @@ export function Dashboard({
         </div>
       </Card>
 
+      <div className={classes.root}>
+        <Grid container spacing={1}>
+          <Grid item xs={9}>
+              <Card style={{marginTop:10,padding:10, fontWeight:"bold"}}>
+                <div> { dashboard.search_results.length == 100 ? "Showing the first 100" : + dashboard.search_results.length +" results" } </div>
+              </Card>
+              <Card style={{marginTop:10, minHeight: 500, backgroundColor: dashboard.search_results.length > 0 ? "white" : "#e4e2e2"}}>
+                 {dashboard.search_results.length > 0 ? table_search_results : collection_results}
+              </Card>
+          </Grid>
+          <Grid item xs={3}>
+            <Card style={{marginTop:10,padding:10, fontWeight:"bold"}}>
+              <div>Actions Panel</div>
+            </Card>
+            <Card style={{marginTop:10,padding:5, backgroundColor:"#e4e2e2" }}>
+              <Card style={{padding:5}}>
+                <div>
+                  <div className={classes.buttonHolder}><Button variant="contained" onClick={ () => "create coll, and edit" } > New Collection </Button> </div>
+                  <div className={classes.buttonHolder}><Button variant="contained" > Option 2 </Button> </div>
+                  <div className={classes.buttonHolder}><Button variant="contained" > Option 3 </Button> </div>
+                </div>
+              </Card>
+            </Card>
+          </Grid>
+        </Grid>
+      </div>
 
-      <Card style={{marginTop:10,padding:10}}>
-        <div> { dashboard.search_results.length == 100 ? "Showing the first 100" : + dashboard.search_results.length +" results" } </div>
-      </Card>
-
-      <Card style={{marginTop:10, maxHeight:600, overflowY:"scroll", minHeight: 500, backgroundColor: dashboard.search_results.length > 0 ? "white" : "#e4e2e2"}}>
-         {dashboard.search_results.length > 0 ? table_search_results : collection_results}
-
-
-      </Card>
 
     </div>
   );

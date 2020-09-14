@@ -10,3 +10,4 @@
  */
 
  export const APP_SET_GLOBALS = 'app/App/APP_SET_GLOBALS';
+ export const APP_SET_CREDENTIALS = 'app/App/APP_SET_CREDENTIALS';

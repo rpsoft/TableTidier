@@ -42,7 +42,6 @@ const initialState = { app: { host : process.env.REACT_APP_WEBSITE_NAME, server_
 const store = configureStore(initialState, history);
 const MOUNT_NODE = document.getElementById('app');
 
-
 const render = messages => {
   ReactDOM.render(
     <Provider store={store}>

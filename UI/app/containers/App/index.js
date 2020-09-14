@@ -7,7 +7,7 @@
  *
  */
 
-import React from 'react';
+import React, { useEffect, memo, useState } from 'react';
 import { Switch, Route } from 'react-router-dom';
 
 import PropTypes from 'prop-types';
@@ -28,6 +28,8 @@ import { compose } from 'redux';
 import { createStructuredSelector } from 'reselect';
 import makeSelectLocation from './selectors'
 
+import {setLoginCredentialsAction} from './actions'
+
 import {
   URL_BASE,
 } from '../../links'
@@ -45,13 +47,38 @@ import {
 
 const urlBase = URL_BASE
 
+import Footer from '../../components/Footer'
+
+import { useCookies } from 'react-cookie';
+
+
 export function App({
   appData,
+  setLoginCredentials,
 }) {
-  // debugger
 
+  const [ cookies, setCookie, removeCookie ] = useCookies();
+
+  setLoginCredentials(cookies)
+
+  // useEffect(() => {
+  //
+  //   // If authentication token is available and it's different from the cookie token it will be set in the cookies.
+  //   // if ( token ){
+  //   //   handleLoginToggle(); // close on successful login.
+  //   //   setCookie("hash", token) // 86400 seconds in a day. Login will expire after a day.
+  //   //   setCookie("username", username)
+  //   // }
+  //
+  //   setLoginCredentials(cookies)
+  //
+  // }, [cookies.hash]);
+
+  // debugger
+  //style={{maxWidth:1600, marginLeft:"auto", marginRight:"auto" }}
   return (
-    <div>
+
+    <div >
       <Login/>
       <Switch>
         <Route path="/annotator" component={Annotator} />
@@ -64,6 +91,7 @@ export function App({
         <Route path="/collection" component={CollectionView}></Route>
         <Route path="/" component={AppContainer}></Route>
       </Switch>
+      <Footer/>
       <GlobalStyle />
     </div>
   );
@@ -73,9 +101,17 @@ const mapStateToProps = createStructuredSelector({
   appData : makeSelectLocation(),
 });
 
+function mapDispatchToProps(dispatch) {
+  return {
+    dispatch,
+    setLoginCredentials : (cookies) => dispatch( setLoginCredentialsAction(cookies) ),
+    // getCollectionData : () => dispatch( loadCollectionAction() ),
+  };
+}
+
 const withConnect = connect(
   mapStateToProps,
-  // mapDispatchToProps,
+  mapDispatchToProps,
 );
 
 export default compose(withConnect)(App);
