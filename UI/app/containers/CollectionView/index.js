@@ -100,7 +100,7 @@ export function CollectionView({
   // console.log(collectionView)
   const parsed = queryString.parse(location.search);
 
-  const [ editMode, setEditMode ] = useState ( true )
+  const [ editMode, setEditMode ] = useState ( false )
 
   const classes = useStyles();
 
@@ -116,6 +116,7 @@ export function CollectionView({
 
   useEffect(() => {
     getCollectionData()
+    setEditMode()
   }, [cookies.hash]);
 
   useEffect(() => {
@@ -123,6 +124,7 @@ export function CollectionView({
     setCollection_id(collectionView.collection_id)
     setDescription(collectionView.description)
     setOwner_username(collectionView.owner_username)
+    setEditMode()
   }, [collectionView])
 
 

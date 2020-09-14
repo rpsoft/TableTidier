@@ -4,7 +4,7 @@
  *
  */
 import produce from 'immer';
-import { SEARCH_ACTION, SEARCH_RESULTS_UPDATE_ACTION } from './constants';
+import { SEARCH_ACTION, SEARCH_RESULTS_UPDATE_ACTION, UPDATE_COLLECTIONS_LIST_ACTION } from './constants';
 
 export const initialState = {
   searchContent : "",
@@ -12,6 +12,7 @@ export const initialState = {
   search_results : [],
   hash: "",
   username : "",
+  collections : [],
 };
 
 /* eslint-disable default-case, no-param-reassign */
@@ -27,6 +28,11 @@ const dashboardReducer = (state = initialState, action) =>
       case SEARCH_RESULTS_UPDATE_ACTION:
         draft.search_results = action.search_results;
         break;
+      case UPDATE_COLLECTIONS_LIST_ACTION:
+        // debugger
+        draft.collections = action.collections_list;
+        break;
+
     }
   });
 

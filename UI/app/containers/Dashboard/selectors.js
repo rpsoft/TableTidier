@@ -7,6 +7,14 @@ import { initialState } from './reducer';
 
 const selectDashboardDomain = state => state.dashboard || initialState;
 
+const selectCredentials = state => state.app.credentials || {};
+
+const makeSelectCredentials = () =>
+  createSelector(
+    selectCredentials,
+    substate => substate,
+  );
+
 /**
  * Other specific selectors
  */
@@ -21,4 +29,4 @@ const makeSelectDashboard = () =>
   );
 
 export default makeSelectDashboard;
-export { selectDashboardDomain };
+export { selectDashboardDomain, makeSelectCredentials };

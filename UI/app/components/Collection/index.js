@@ -42,7 +42,7 @@ function Collection({
       <div style={{marginTop:5, marginLeft:5}}> { owner_username || "default owner"} </div>
       <div style={{marginTop:5, marginLeft:5}}> { table_n || "0"} tables </div>
       <Button variant="contained" disableElevation
-                  onClick={ () => { console.log("col") } }
+                  onClick={ () => { goToUrl() } }
                   style={{float:"right"}}
                   >
         Enter Collection <ArrowForwardIcon />

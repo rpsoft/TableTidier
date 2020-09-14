@@ -29,7 +29,7 @@ import {
   Paper,
 } from '@material-ui/core';
 
-import { doSearchAction } from './actions'
+import { doSearchAction, requestCollectionsListAction } from './actions'
 import { useDispatch, useSelector } from "react-redux";
 
 import AddBoxIcon from '@material-ui/icons/AddBox';
@@ -80,7 +80,8 @@ const useStyles = makeStyles((theme) => ({
 export function Dashboard({
   doSearch,
   dashboard,
-  goToUrl
+  goToUrl,
+  listCollections
 }) {
   useInjectReducer({ key: 'dashboard', reducer });
   useInjectSaga({ key: 'dashboard', saga });
@@ -93,6 +94,15 @@ export function Dashboard({
   // const [collections, setCollections ] = useState(doSearch("placebo", searchType));
 
   const classes = useStyles();
+
+  // useEffect(() => {
+  //
+  // }, []);
+  //
+
+  useEffect(() => {
+    listCollections()
+  }, [cookies.hash]);
 
 
   var table_search_results = <div>
@@ -107,8 +117,15 @@ export function Dashboard({
     }
   </div>
 
-  var collection_results = <div> <Collection /><Collection /><Collection />
-                <Collection /><Collection /><Collection /> </div>
+  var collection_results = <div> { dashboard.collections.map(
+                                    (coll,i) => <Collection key={i}
+                                                            title={coll.title}
+                                                            description={coll.description}
+                                                            owner_username={coll.owner_username}
+                                                            table_n={0}
+                                                            goToUrl={() => {goToUrl("/collection?collId="+coll.collection_id)}} />
+                                                          )
+                                 }</div>
 
   return (
     <div style={{marginLeft:"2%", marginRight:"2%"}}>
@@ -134,10 +151,12 @@ export function Dashboard({
       <div className={classes.root}>
         <Grid container spacing={1}>
           <Grid item xs={9}>
-              <Card style={{marginTop:10,padding:10, fontWeight:"bold"}}>
-                <div> { dashboard.search_results.length == 100 ? "Showing the first 100" : + dashboard.search_results.length +" results" } </div>
-              </Card>
-              <Card style={{marginTop:10, minHeight: 500, backgroundColor: dashboard.search_results.length > 0 ? "white" : "#e4e2e2"}}>
+              { dashboard.search_results.length ?
+                  <Card style={{marginTop:10,padding:10, fontWeight:"bold"}}>
+                    <div> { dashboard.search_results.length == 100 ? "Showing the first 100" : + dashboard.search_results.length +" results" } </div>
+                  </Card> : ""
+              }
+              <Card style={{marginTop:10, minHeight: 700, backgroundColor: dashboard.search_results.length > 0 ? "white" : "#e4e2e2"}}>
                  {dashboard.search_results.length > 0 ? table_search_results : collection_results}
               </Card>
           </Grid>
@@ -175,6 +194,7 @@ function mapDispatchToProps(dispatch) {
   return {
     dispatch,
     doSearch : (searchContent, searchType, hash, username) => dispatch( doSearchAction(searchContent, searchType, hash, username) ),
+    listCollections : () => dispatch( requestCollectionsListAction() ),
     goToUrl : (url) => dispatch(push(url))
   };
 }
