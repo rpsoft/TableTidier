@@ -14,6 +14,8 @@ var _classifier = require("./classifier.js");
 
 var fs = require('fs');
 
+var path = require('path');
+
 var buffer_tables = {};
 console.log("Loading Classifier");
 
@@ -743,6 +745,15 @@ function () {
                 }
 
                 if (DOCS.length < 1) {
+                  items = items.reduce(function (acc, filename) {
+                    var doc_path = path.join(tables_folder, filename);
+
+                    if (fs.existsSync(doc_path) && !fs.lstatSync(doc_path).isDirectory()) {
+                      acc.push(filename);
+                    }
+
+                    return acc;
+                  }, []);
                   DOCS = items.sort(function (a, b) {
                     return fixVersionOrder(a).localeCompare(fixVersionOrder(b));
                   });

@@ -8,9 +8,10 @@ import { LOAD_COLLECTION_ACTION, UPDATE_COLLECTION_ACTION } from './constants';
 
 export const initialState = {
   title :"",
-  collection_id : "",
+  collection_id : "new",
   description : "",
   owner_username : "",
+  tables : []
 };
 
 /* eslint-disable default-case, no-param-reassign */
@@ -24,7 +25,9 @@ const collectionViewReducer = (state = initialState, action) =>
         draft.collection_id = action.collectionData.collection_id;
         draft.description = action.collectionData.description;
         draft.owner_username = action.collectionData.owner_username
-        console.log("REDUCED = "+JSON.stringify(action.collectionData))
+        draft.tables = action.collectionData.tables
+        // debugger
+        // console.log("REDUCED = "+JSON.stringify(action.collectionData))
         break;
     }
   });

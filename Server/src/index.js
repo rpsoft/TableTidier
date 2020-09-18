@@ -47,7 +47,7 @@ import {refreshDocuments} from "./files.js"
 console.log("Loading Security")
 import passport, {initialiseUsers, createUser, getUserHash}  from "./security.js"
 
-console.log("Loading Table Libs")
+console.log("Loadicorsng Table Libs")
 import { prepareAvailableDocuments, readyTableData } from "./table.js"
 
 console.log("Loading MetaMap Docker Comms Module")
@@ -78,12 +78,22 @@ var app = express();
 app.use(cors("*"));
 app.options('*', cors())
 
+app.use(bodyParser.json({
+  limit: '50mb'
+}));
 
-app.use('/images', express.static(path.join(__dirname, 'images')))
-app.use('/pdfs', express.static(path.join(__dirname, 'pdfs')))
-app.engine('html', require('ejs').renderFile);
-app.set('view engine', 'ejs');
-app.use(require('body-parser').urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({
+  limit: '50mb',
+  parameterLimit: 100000,
+  extended: true
+}));
+
+// app.use('/images', express.static(path.join(__dirname, 'images')))
+// app.use('/pdfs', express.static(path.join(__dirname, 'pdfs')))
+// app.engine('html', require('ejs').renderFile);
+// app.set('view engine', 'ejs');
+
+// app.use(require('body-parser').urlencoded({ extended: true }));
 app.use(passport.initialize());
 
 
@@ -101,12 +111,6 @@ app.post('/login', function(req, res, next) {
     })(req, res, next)
   });
 
-
-
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-
-
 app.post('/api/createUser', async function(req, res) {
 
   var result;
@@ -120,7 +124,23 @@ app.post('/api/createUser', async function(req, res) {
 });
 
 app.get('/api/test', async function(req,res){
-    res.send("testing this worked!")
+  console.log("GET /api/test")
+  res.send("testing this worked!")
+});
+
+app.get('/test', async function(req,res){
+  console.log("GET /test")
+  res.send("testing this worked!")
+});
+
+app.post('/api/test', async function(req,res){
+  console.log("/api/test")
+  res.send("testing this worked!")
+});
+
+app.post('/test', async function(req,res){
+  console.log("/test")
+  res.send("testing this worked!")
 });
 
 // const storage = multer.memoryStorage();
@@ -133,18 +153,61 @@ const storage = multer.diskStorage({
   }
 })
 
-const upload = multer({ storage: storage });
 
-app.post('/api/tableUploader', upload.array('fileNames'), async function(req, res) {
+// app.post('/api/tableUploader', async function(req,res){
+//   console.log("TESTING")
+//     res.send("testing this worked!")
+// });
+//
+// app.post('/tableUploader', async function(req,res){
+//   console.log("TESTING SIMPLR")
+//     res.send("testing this worked!")
+// });
 
-  var uploaded_files = []
+// app.post('/tableuploader', async function(req,res){
+//   console.log("TESTING_SIMPLE")
+//     res.send("testing this worked!")
+// });
 
-  for( var f in req.files) {
-      uploaded_files.push(req.files[f].originalname)
-  }
+// const upload = multer({ storage: storage });
 
-  res.json({status:"test", payload: uploaded_files })
-  res.end();
+const moveFileToCollection = (filedata,coll) => {
+  const fs = require('fs');
+
+  fs.mkdirSync(path.join(global.tables_folder, coll), { recursive: true })
+
+  fs.renameSync( filedata.path, path.join(global.tables_folder, coll, filedata.originalname) );
+
+}
+
+app.post('/api/tableUploader', async function(req, res) {
+
+ let upload = multer({ storage: storage }).array('fileNames');
+
+ upload(req, res, async function(err) {
+
+     const files = req.files;
+     let index, len;
+
+     var results = []
+
+     // Loop through all the uploaded files and return names to frontend
+     for (index = 0, len = files.length; index < len; ++index) {
+       try{
+         moveFileToCollection(files[index], req.body.collection_id )
+         const [docid, page] = files[index].originalname.split(".")[0].split("_")
+         await createTable(docid,page,req.body.username_uploader,req.body.collection_id,files[index].originalname)
+         results.push({filename: files[index].originalname, status:"success"})
+
+       } catch(err){
+         console.log("file: "+files[index].originalname+" failed to process")
+         results.push({filename: files[index].originalname, status:"failed"})
+       }
+     }
+
+     res.send(results);
+ });
+
 });
 
 async function UMLSData(){
@@ -468,30 +531,60 @@ app.get('/',function(req,res){
   res.send("TTidier Server running.")
 });
 
+// Simple validation
+function validateUser (username, hash){
+    var validate_user;
+    for ( var u in global.records ) {
+      if ( global.records[u].username == username ){
+         var user = global.records[u]
+         var db_hash = getUserHash(user)
+         validate_user = hash == db_hash.hash ? user : false
+      }
+    }
+    return validate_user;
+}
+
+
 // Collections
 var listCollections = async () => {
     var client = await pool.connect()
-    var result = await client.query(`SELECT collection_id, title, description, owner_username FROM public.collection`)
-          client.release()
+    var result = await client.query(`SELECT collection.collection_id, title, description, owner_username, table_n
+                                     FROM public.collection
+                                     LEFT JOIN
+                                     ( SELECT collection_id, count(docid) as table_n FROM
+                                     ( select distinct docid, page, collection_id from public.table ) as interm
+                                     group by collection_id ) as coll_counts
+                                     ON collection.collection_id = coll_counts.collection_id`)
+        client.release()
     return result.rows
 }
 
 var getCollection = async ( collection_id ) => {
     var client = await pool.connect()
     var result = await client.query(`SELECT collection_id, title, description, owner_username FROM public.collection WHERE collection_id = $1`,[collection_id])
-          client.release()
+
+    var tables = await client.query(`SELECT docid, page, "user", status, tid, collection_id, file_path, "tableType"	FROM public."table" WHERE collection_id = $1`,[collection_id])
+
+    client.release()
 
     if ( result.rows.length == 1){
-        return result.rows[0]
+        result = result.rows[0]
+        result.tables = tables.rows
+        return result
     }
-    
     return {}
 }
 
 var createCollection = async (title, description, owner) => {
+
+    // debugger
     var client = await pool.connect()
-    var result = await client.query(`INSERT INTO public.collection( title, description, owner_username) VALUES ( $1, $2, $3 )`, [title, description, owner] )
-          client.release()
+    var result = await client.query(`INSERT INTO public.collection(
+                                      title, description, owner_username)
+                                      VALUES ($1, $2, $3);`, [title, description, owner] )
+        result = await client.query(`Select * from collection
+                                     ORDER BY collection_id DESC LIMIT 1;` )
+    client.release()
     return result
 }
 
@@ -501,6 +594,7 @@ var editCollection = async (id, title, description, owner) => {
           client.release()
     return result
 }
+
 
 app.post('/collections', async function(req,res){
 
@@ -530,13 +624,21 @@ app.post('/collections', async function(req,res){
         result = await getCollection(req.body.collection_id);
         res.json({status: "success", data: result})
         break;
-      case "create":
-        result = await createCollection();
-        res.json({status: "success"})
-        break;
+      // case "create":
+      //   result = await createCollection();
+      //   res.json({status: "success"})
+      //   break;
+      // Well use edit to createCollection on the fly
       case "edit":
-        result = await editCollection();
-        res.json({status: "success"})
+        var allCollectionData = JSON.parse( req.body.collectionData )
+        // debugger
+        if ( allCollectionData.collection_id == "new" ) {
+          result = await createCollection(allCollectionData.collection_id, allCollectionData.title, allCollectionData.description, allCollectionData.owner_username);
+          result = result.rows[0]
+        } else {
+          result = await editCollection(allCollectionData.collection_id, allCollectionData.title, allCollectionData.description, allCollectionData.owner_username);
+        }
+        res.json({status: "success", data: result})
         break;
       default:
         res.json({status: "failed"})
@@ -550,17 +652,38 @@ app.post('/collections', async function(req,res){
   // res.json({})
 });
 
-function validateUser (username, hash){
-    var validate_user;
-    for ( var u in global.records ) {
-      if ( global.records[u].username == username ){
-         var user = global.records[u]
-         var db_hash = getUserHash(user)
-         validate_user = hash == db_hash.hash ? user : false
-      }
-    }
-    return validate_user;
+
+// Tables
+const createTable = async (docid,page,user,collection_id,file_path) => {
+    // debugger
+    var client = await pool.connect()
+    var result = await client.query(
+      `INSERT INTO public."table"(
+	       docid, page, "user", status, collection_id, file_path, "tableType")
+	     VALUES ($1, $2, $3, $4, $5, $6, $7);`,
+         [docid,page,user,"",collection_id,file_path,""])
+
+    client.release()
+    return result
 }
+
+// app.post('/tables', async function(req,res){
+//
+//   if ( req.body && ( ! req.body.action ) ){
+//     res.json({status: "undefined", received : req.query})
+//     return
+//   }
+//
+//   var validate_user = validateUser(req.body.username, req.body.hash);
+//
+//   if ( validate_user ){
+//
+//   } else {
+//     res.json({status:"unauthorised", payload: null})
+//   }
+//
+// });
+
 
 
 app.post('/search', async function(req,res){

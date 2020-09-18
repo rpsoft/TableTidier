@@ -122,7 +122,7 @@ export function Dashboard({
                                                             title={coll.title}
                                                             description={coll.description}
                                                             owner_username={coll.owner_username}
-                                                            table_n={0}
+                                                            table_n={coll.table_n}
                                                             goToUrl={() => {goToUrl("/collection?collId="+coll.collection_id)}} />
                                                           )
                                  }</div>
@@ -167,7 +167,7 @@ export function Dashboard({
             <Card style={{marginTop:10,padding:5, backgroundColor:"#e4e2e2" }}>
               <Card style={{padding:5}}>
                 <div>
-                  <div className={classes.buttonHolder}><Button variant="contained" onClick={ () => "create coll, and edit" } > New Collection </Button> </div>
+                  <div className={classes.buttonHolder}><Button variant="contained" onClick={ () => {goToUrl("/collection?collId=new")} } > New Collection </Button> </div>
                   <div className={classes.buttonHolder}><Button variant="contained" > Option 2 </Button> </div>
                   <div className={classes.buttonHolder}><Button variant="contained" > Option 3 </Button> </div>
                 </div>

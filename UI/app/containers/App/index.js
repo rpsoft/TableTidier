@@ -87,9 +87,9 @@ export function App({
         <Route path="/metaresults" component={MetaContainer}></Route>
         <Route path="/cuiadmin" component={CuiAdminContainer}></Route>
         <Route path="/register" component={Register}></Route>
-        <Route path="/dashboard" component={Dashboard}></Route>
         <Route path="/collection" component={CollectionView}></Route>
-        <Route path="/" component={AppContainer}></Route>
+        <Route path="/list" component={AppContainer}></Route>
+        <Route path="/" component={Dashboard}></Route>
       </Switch>
       <Footer/>
       <GlobalStyle />
