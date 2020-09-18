@@ -22,6 +22,7 @@ import {
 } from '@material-ui/core';
 
 function Collection({
+  col_id,
   title,
   description,
   owner_username,
@@ -37,7 +38,7 @@ function Collection({
 
   return (
     <Card style={{padding:10,margin:5, fontSize: 18}}><div>
-      <div style={{fontSize:30,marginBottom:10}}> <CollectionIcon fontSize={"large"}/> { title || "default title"} </div>
+      <div style={{fontSize:30,marginBottom:10}}> <CollectionIcon fontSize={"large"}/> {col_id+". "} { title || "default title"} </div>
       <div style={{marginTop:5, marginLeft:5}}> Description: { description || "default description"} </div>
       <div style={{marginTop:5, marginLeft:5}}> Owner: { owner_username || "default owner"} </div>
       <div style={{marginTop:5, marginLeft:5}}> { table_n || "0"} tables </div>

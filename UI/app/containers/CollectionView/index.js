@@ -22,7 +22,9 @@ import messages from './messages';
 
 import { FixedSizeList } from 'react-window';
 
-import { loadCollectionAction, updateCollectionAction, editCollectionAction } from './actions'
+import { loadCollectionAction, updateCollectionAction,
+         editCollectionAction, removeTablesAction,
+         moveTablesAction } from './actions'
 
 import { push } from 'connected-react-router'
 
@@ -37,18 +39,27 @@ import {
   Button,
   Paper,
   Switch,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogActions,
+  Select,
+  MenuItem,
 } from '@material-ui/core';
 
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";editCollectionAction
 
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import CollectionIcon from '@material-ui/icons/Storage';
 
-import SearchBar from '../../components/SearchBar'
+import SearchBar from 'Checkbox../../components/SearchBar'
 
 import SearchResult from '../../components/SearchResult'
 
 import FileUploader from '../../components/FileUploader'
+
+import ConfirmationDialog from '../../components/ConfirmationDialog'
+
 
 import Grid from "@material-ui/core/Grid";
 
@@ -101,6 +112,8 @@ export function CollectionView({
   getCollectionData,
   editCollectionData,
   updateCollectionData,
+  removeTables,
+  moveTables,
   collectionView,
   goToUrl
 }) {
@@ -122,31 +135,25 @@ export function CollectionView({
   const [ collection_id, setCollection_id ] = useState();
   const [ description, setDescription ] = useState();
   const [ owner_username, setOwner_username ] = useState();
-  const [ tables, setTables ] = useState([]);
+  const [ tables, setTables ] = useState(collectionView.tables || []);
+  const [ checkedTables, setCheckedTables ] = useState({});
 
-  const initialPagination = {
-      data: collectionView.tables,
-      offset: 0,
-      numberPerPage: 20,
-      pageCount: 0,
-      currentData: []
+  const [ targetCollectionID, setTargetCollectionID] = useState("");
+  const [ availableCollections, setAvailableCollections ] = useState([]);
+  const [ moveDialogOpen, setMoveDialogOpen ] = useState(false);
+
+  const [ deleteDialog, showDeleteDialog ] = useState(false);
+  const [ moveDialog, showMoveDialog ] = useState(false);
+
+
+  const toggleCheckBox = (docid) => {
+    var checkedTables_temp = checkedTables
+    checkedTables_temp[docid] = checkedTables_temp[docid] ? false : true
+    if ( checkedTables_temp[docid] == false ){
+      delete checkedTables_temp[docid]
     }
-
-  // const [pagination, setPagination] = useState(initialPagination);
-  //
-  // useEffect(() => {
-  //   setPagination((prevState) => ({
-  //     ...prevState,
-  //     pageCount: prevState.data.length / prevState.numberPerPage,
-  //     currentData: prevState.data.slice(pagination.offset, pagination.offset + pagination.numberPerPage)
-  //   }))
-  // }, [pagination.numberPerPage, pagination.offset])
-
-  // const handlePageClick = event => {
-  //   const selected = event.selected;
-  //   const offset = selected * pagination.numberPerPage
-  //   setPagination({ ...pagination, offset })
-  // }
+    setCheckedTables(checkedTables_temp)
+  }
 
   useEffect(() => {
     getCollectionData()
@@ -159,41 +166,42 @@ export function CollectionView({
     setDescription(collectionView.description)
     setOwner_username(collectionView.owner_username)
     setTables(collectionView.tables)
-  
-    // setPagination({...initialPagination,
-    //   pageCount: initialPagination.data.length / initialPagination.numberPerPage,
-    //   currentData: initialPagination.data.slice(pagination.offset, initialPagination.offset + initialPagination.numberPerPage)}
-    // )
-
-    // debugger
+    setAvailableCollections(collectionView.collectionsList)
     setEditMode(false)
+    setCheckedTables({})
   }, [collectionView])
+
+  const prepareCollectionData = () => {
+    var collectionData = {
+      title : title,
+      collection_id : collection_id ,
+      description : description ,
+      owner_username : owner_username ,
+      tables : tables ,
+    }
+    return collectionData
+  }
 
 
   const saveChanges = () => {
-      var collectionData = {
-        title : title,
-        collection_id : collection_id ,
-        description : description ,
-        owner_username : owner_username ,
-        tables : tables ,
-      }
-
-      updateCollectionData(collectionData);
+      updateCollectionData(prepareCollectionData());
       editCollectionData();
   }
 
-  const Row = ({ index, style }) => (
-          <div style={{...style, display: "flex", alignItems: "center"}}>
-          <SearchResult
-
-                        text={collectionView.tables[index].docid+"_"+collectionView.tables[index].page+" -- "+collectionView.tables[index].user+" -- "+collectionView.tables[index].status}
-                        type={"table"}
-                        onClick={ ()=> { goToUrl("/table?docid="+collectionView.tables[index].docid+"&page="+collectionView.tables[index].page)
+  const Row = ({ index, style }) => {
+          var table_key = collectionView.tables[index].docid+"_"+collectionView.tables[index].page
+          return <div style={{...style, display: "flex", alignItems: "center"}}>
+            <Checkbox checked={checkedTables[table_key]}
+                onChange={() => {toggleCheckBox(table_key)}}
+                inputProps={{ 'aria-label': 'primary checkbox' }}
+                />
+            <SearchResult
+                  text={ table_key+" -- "+collectionView.tables[index].user+" -- "+collectionView.tables[index].status }
+                  type={"table"}
+                  onClick={ () => { goToUrl("/table?docid="+collectionView.tables[index].docid+"&page="+collectionView.tables[index].page)
                 }}/>
-             {/* define the row component using items[index] */}
           </div>
-        );
+        };
 
   return (
     <div style={{margin:10}}>
@@ -249,66 +257,26 @@ export function CollectionView({
                   </Card>
 
                   <Card>
+                    <FixedSizeList
+                      height={700}
+                      width={"100%"}
+                      itemSize={50}
+                      itemCount={collectionView.tables ? collectionView.tables.length : 0}
+                    >
+                      {Row}
+                    </FixedSizeList>
+                    </Card>
 
-                  <FixedSizeList
-                    height={500}
-                    width={"100%"}
-                    itemSize={50}
-                    itemCount={collectionView.tables ? collectionView.tables.length : 0}
-                  >
-                    {Row}
-                  </FixedSizeList>
-
-                  {
-                    // <div style={{ padding:10, height:800, overflowY:"scroll"}}>
-                    //
-                    //     {
-                    //       pagination.currentData && pagination.currentData.map(((table,i) =>
-                    //       <SearchResult
-                    //               key={i}
-                    //               text={table.docid+"_"+table.page+" -- "+table.user+" -- "+table.status}
-                    //               type={"table"}
-                    //               onClick={ ()=> { goToUrl("/table?docid="+table.docid+"&page="+table.page)
-                    //       }}/>))
-                    //     }
-                    //
-                    //
-                    // </div>
-                  }
-                  </Card>
-
-                  {
-                  // <Card style={{marginTop:10,fontSize:20}}>
-                  //   <div>
-                  //     <ReactPaginate
-                  //       previousLabel={'previous'}
-                  //       nextLabel={'next'}
-                  //       breakLabel={'...'}
-                  //       pageCount={pagination.pageCount}
-                  //       marginPagesDisplayed={2}
-                  //       pageReditCollectionDataangeDisplayed={5}
-                  //       onPageChange={handlePageClick}
-                  //       containerClassName={'pagination'}
-                  //       activeClassName={'active'}
-                  //     />
-                  //   </div>
-                  // </Card>
-                  }
                 </Grid>
                 <Grid item xs={3}>
                   <Card>
                   <div  style={{ padding:10}}>
-                    {
-                    // <div className={classes.buttonHolder}>
-                    //       <Button variant="contained"
-                    //               onClick={ () => { setEditMode(!editMode) }} > Edit Collection Details
-                    //       </Button>
-                    // </div>
-                    }
+
                     <div style={{marginBottom:10,textAlign:"center"}}>Collection Options</div>
 
                     <div className={classes.buttonHolder}><Button variant="contained" > Edit Collaborators </Button> </div>
                     <div className={classes.buttonHolder}><Button variant="contained" > Set Visibility </Button> </div>
+                    <div className={classes.buttonHolder}><Button variant="contained" > Delete Collection </Button> </div>
                                         <hr />
                     <div style={{marginBottom:10,textAlign:"center"}}>Table Actions</div>
 
@@ -319,8 +287,64 @@ export function CollectionView({
                                         updaterCallBack= { getCollectionData }/>
                     </div>
 
-                      <div className={classes.buttonHolder}><Button variant="contained" > Move Tables </Button> </div>
-                      <div className={classes.buttonHolder}><Button variant="contained" style={{backgroundColor:"#ff8282"}}> Delete Tables </Button> </div>
+                      <div className={classes.buttonHolder}>
+                        <Button variant="contained" onClick={() => { setMoveDialogOpen(true); }} > Move Tables </Button>
+                        </div>
+
+                      <Dialog onClose={ () => {}} aria-labelledby="customized-dialog-title" open={moveDialogOpen}>
+                            <DialogTitle id="customized-dialog-title" >
+                              Move Tables to Target Collection
+                            </DialogTitle>
+                            <DialogContent dividers>
+                              <Select
+                                  labelId="demo-simple-select-helper-label"
+                                  id="demo-simple-select-helper"
+                                  value={targetCollectionID}
+                                  onChange={(event) => {setTargetCollectionID(event.target.value)}}
+                                  style={{width:"100%"}}
+                                >
+                                {
+                                  availableCollections ? availableCollections.map( (coll,j) =>{
+                                    return <MenuItem key={j} value={coll.collection_id}><SearchResult
+                                          text={ coll.collection_id+" -- "+coll.title }
+                                          type={"collection"}
+                                          /></MenuItem>
+                                  }) : ""
+
+                                }
+
+                              </Select>
+                            </DialogContent>
+                            <DialogActions>
+                              <Button onClick={()=>{showMoveDialog(true);}}> Accept </Button>
+                              <Button onClick={()=>{setMoveDialogOpen(false);}}> Cancel </Button>
+                            </DialogActions>
+
+                            <ConfirmationDialog
+                                  title={"Move Tables"}
+                                  accept_action={
+                                    () => { moveTables(checkedTables, targetCollectionID);
+                                            setMoveDialogOpen(false);
+                                            setCheckedTables({});
+                                            showMoveDialog(false);
+                                        }
+                                    }
+                                  cancel_action={ () => {showMoveDialog(false);} }
+                                  open={moveDialog} />
+                      </Dialog>
+
+                      <div className={classes.buttonHolder}>
+                        <Button variant="contained"
+                                onClick={ () => {showDeleteDialog(true)}}
+                                style={{backgroundColor:"#ff8282"}}> Delete Tables </Button>
+
+                          <ConfirmationDialog
+                                title={"Delete Tables"}
+                                accept_action={ () => {removeTables(checkedTables, prepareCollectionData()); showDeleteDialog(false);}}
+                                cancel_action={ () => {showDeleteDialog(false);} }
+                                open={deleteDialog} />
+                        </div>
+
                     <hr />
 
                     <div className={classes.buttonHolder} style={{float:"right",marginBottom:10}}>
@@ -349,6 +373,8 @@ function mapDispatchToProps(dispatch) {
     getCollectionData : () => dispatch( loadCollectionAction() ),
     updateCollectionData : (collectionData) => dispatch( updateCollectionAction (collectionData)),
     editCollectionData : () => dispatch( editCollectionAction() ),
+    removeTables : (tablesList, collectionData) => dispatch( removeTablesAction(tablesList, collectionData) ),
+    moveTables : (tablesList, targetCollectionID ) => dispatch ( moveTablesAction (tablesList, targetCollectionID) ),
     goToUrl : (url) => dispatch(push(url))
   };
 }

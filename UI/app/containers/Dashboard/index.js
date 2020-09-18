@@ -119,6 +119,7 @@ export function Dashboard({
 
   var collection_results = <div> { dashboard.collections.map(
                                     (coll,i) => <Collection key={i}
+                                                            col_id={coll.collection_id}
                                                             title={coll.title}
                                                             description={coll.description}
                                                             owner_username={coll.owner_username}

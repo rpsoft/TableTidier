@@ -11,7 +11,8 @@ export const initialState = {
   collection_id : "new",
   description : "",
   owner_username : "",
-  tables : []
+  tables : [],
+  collectionsList : [],
 };
 
 /* eslint-disable default-case, no-param-reassign */
@@ -24,9 +25,9 @@ const collectionViewReducer = (state = initialState, action) =>
         draft.title = action.collectionData.title;
         draft.collection_id = action.collectionData.collection_id;
         draft.description = action.collectionData.description;
-        draft.owner_username = action.collectionData.owner_username
-        draft.tables = action.collectionData.tables
-        // debugger
+        draft.owner_username = action.collectionData.owner_username;
+        draft.tables = action.collectionData.tables;
+        draft.collectionsList = action.collectionData.collectionsList;  
         // console.log("REDUCED = "+JSON.stringify(action.collectionData))
         break;
     }

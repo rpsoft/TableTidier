@@ -565,11 +565,14 @@ var getCollection = async ( collection_id ) => {
 
     var tables = await client.query(`SELECT docid, page, "user", status, tid, collection_id, file_path, "tableType"	FROM public."table" WHERE collection_id = $1`,[collection_id])
 
+    var collectionsList = await client.query(`SELECT * FROM public.collection`);
+
     client.release()
 
     if ( result.rows.length == 1){
         result = result.rows[0]
         result.tables = tables.rows
+        result.collectionsList = collectionsList.rows;
         return result
     }
     return {}
@@ -577,7 +580,6 @@ var getCollection = async ( collection_id ) => {
 
 var createCollection = async (title, description, owner) => {
 
-    // debugger
     var client = await pool.connect()
     var result = await client.query(`INSERT INTO public.collection(
                                       title, description, owner_username)
@@ -631,9 +633,9 @@ app.post('/collections', async function(req,res){
       // Well use edit to createCollection on the fly
       case "edit":
         var allCollectionData = JSON.parse( req.body.collectionData )
-        // debugger
+
         if ( allCollectionData.collection_id == "new" ) {
-          result = await createCollection(allCollectionData.collection_id, allCollectionData.title, allCollectionData.description, allCollectionData.owner_username);
+          result = await createCollection(allCollectionData.title, allCollectionData.description, allCollectionData.owner_username);
           result = result.rows[0]
         } else {
           result = await editCollection(allCollectionData.collection_id, allCollectionData.title, allCollectionData.description, allCollectionData.owner_username);
@@ -655,7 +657,7 @@ app.post('/collections', async function(req,res){
 
 // Tables
 const createTable = async (docid,page,user,collection_id,file_path) => {
-    // debugger
+
     var client = await pool.connect()
     var result = await client.query(
       `INSERT INTO public."table"(
@@ -667,22 +669,79 @@ const createTable = async (docid,page,user,collection_id,file_path) => {
     return result
 }
 
-// app.post('/tables', async function(req,res){
-//
-//   if ( req.body && ( ! req.body.action ) ){
-//     res.json({status: "undefined", received : req.query})
-//     return
-//   }
-//
-//   var validate_user = validateUser(req.body.username, req.body.hash);
-//
-//   if ( validate_user ){
-//
-//   } else {
-//     res.json({status:"unauthorised", payload: null})
-//   }
-//
-// });
+const removeTables = async (tables, collection_id) => {
+    tables = tables.map( (tab) => { const [docid, page] = tab.split("_"); return {docid,page} })
+
+    var client = await pool.connect()
+
+    for ( var i = 0; i < tables.length; i++){
+      var result = await client.query(
+        `DELETE FROM public."table"
+        	WHERE docid = $1 AND page = $2 AND collection_id = $3;`,
+           [tables[i].docid, tables[i].page, collection_id])
+    }
+
+    client.release()
+    return result
+}
+
+const moveTables = async (tables, collection_id, target_collection_id) => {
+    tables = tables.map( (tab) => { const [docid, page] = tab.split("_"); return {docid,page} })
+    debugger
+    var client = await pool.connect()
+
+    for ( var i = 0; i < tables.length; i++){
+      var result = await client.query(
+        `UPDATE public."table"
+	       SET collection_id=$4
+         WHERE docid = $1 AND page = $2 AND collection_id = $3;`,
+        [tables[i].docid, tables[i].page, collection_id, target_collection_id])
+    }
+
+    client.release()
+    return result
+}
+
+
+
+app.post('/tables', async function(req,res){
+
+  if ( req.body && ( ! req.body.action ) ){
+    res.json({status: "undefined", received : req.query})
+    return
+  }
+
+  var validate_user = validateUser(req.body.username, req.body.hash);
+
+  if ( validate_user ){
+
+    var result;
+
+    switch (req.body.action) {
+      case "remove":
+        // debugger
+        result = await removeTables(JSON.parse(req.body.tablesList), req.body.collection_id);
+        result = await getCollection(req.body.collection_id);
+        debugger
+        res.json({status: "success", data: result})
+        break;
+      case "move":
+        debugger
+        result = await moveTables(JSON.parse(req.body.tablesList), req.body.collection_id, req.body.targetCollectionID);
+        result = await getCollection(req.body.collection_id);
+        res.json({status: "success", data: result})
+        break;
+      default:
+        res.json({status: "success", data: {}})
+    }
+
+
+
+  } else {
+    res.json({status:"unauthorised", payload: null})
+  }
+
+});
 
 
 
@@ -1462,7 +1521,7 @@ app.get('/api/modelEval', async (req,res) => {
               records = transferAnnotations( records, tableData.predicted.rows, "Row")
             } else {
               console.log("no predicted data found")
-              debugger
+              // debugger
             }
           }
 

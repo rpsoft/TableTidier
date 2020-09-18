@@ -83,7 +83,6 @@ export function* listCollections() {
 
 // Individual exports for testing
 export default function* dashboardSaga() {
-  // See example in containers/HomePage/saga.js
   yield takeLatest(SEARCH_ACTION, doSearch);
   yield takeLatest(REQUEST_COLLECTIONS_LIST_ACTION, listCollections);
 }
