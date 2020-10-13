@@ -23,6 +23,10 @@ import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card'
 import Popover from '@material-ui/core/Popover';
 import Home from '@material-ui/icons/Home';
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+
+
 import AccountBoxIcon from '@material-ui/icons/AccountBox';
 
 import { loginAction, loginSuccessAction, loginFailedAction, doLoginAction, doLogOutAction } from './actions'
@@ -30,6 +34,35 @@ import { push } from 'connected-react-router';
 import { useCookies } from 'react-cookie';
 import { useDispatch, useSelector } from "react-redux";
 
+import { makeStyles, useTheme } from '@material-ui/core/styles';
+
+
+const drawerWidth = 0;
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+   display: 'flex',
+ },
+ appBar: {
+   width: `calc(100% - ${drawerWidth}px)`,
+   minHeight: 64,
+   marginRight: drawerWidth,
+ },
+ drawer: {
+   width: drawerWidth,
+   flexShrink: 0,
+ },
+ drawerPaper: {
+   width: drawerWidth,
+ },
+ // necessary for content to be below app bar
+ toolbar: theme.mixins.toolbar,
+ content: {
+   flexGrow: 1,
+   backgroundColor: theme.palette.background.default,
+   padding: theme.spacing(3),
+ },
+}));
 
 //import FileUploader from "../../components/FileUploader"; //      <FileUploader />
 
@@ -40,6 +73,11 @@ export function Login({
   goTo,
   loginState,
 }) {
+
+  const classes = useStyles();
+  const theme = useTheme();
+
+
   const [cookies, setCookie, removeCookie ] = useCookies();
 
   const [username, setUsername] = useState(cookies.username ? cookies.username :  "" );
@@ -101,20 +139,20 @@ export function Login({
 
   var isLoggedIn = cookies.hash ? true : false;
 
+// <div style={{width:"100%"}}>
   return (
-    <div style={{width:"100%"}}>
+    <AppBar position="fixed" className={classes.appBar}>
+    <Toolbar>
+
       <Helmet>
         <title>Login</title>
         <meta name="description" content="Description of Login" />
       </Helmet>
 
-      <Card style={{padding:5}}>
+        <Home style={{height:45,width:45, cursor:"pointer", marginRight:15}} onClick={() => goTo('/')}/>
+        <h2 style={{margin:0}}>TableTidier <div style={{color:"red",display:"inline-block",fontSize:15}}>(beta)</div></h2>
 
-        <Home style={{float:"left",height:45,width:45, cursor:"pointer", marginRight:15}} onClick={() => goTo('/')}/>
-        <h2 style={{float:"left",margin:0, marginTop:10}}>TableTidier <div style={{color:"red",display:"inline-block",fontSize:15}}>(beta)</div></h2>
-
-
-        <div style={{display:"inline-block",float:"right",marginTop:5,marginRight:0}} >
+        <div style={{marginRight:0, position:"absolute",right:16}} >
           <Button variant="contained" onClick={ handleLoginToggle }style={{marginLeft:5}}><AccountBoxIcon/> {cookies.username ? "Logged as: "+ cookies.username : " guest "}</Button>
         </div>
 
@@ -165,10 +203,12 @@ export function Login({
               <Button variant="contained" onClick={ () => { logIn() } } style={{backgroundColor:"#93de85"}} > Login </Button>
               <Button disabled={!isLoggedIn} variant="contained" onClick={ () => { logOut() } } style={{marginLeft:5, backgroundColor:"#f98989"}}>Logout</Button>
             </div>
+
           </div>
         </Popover>
-      </Card>
-    </div>
+
+      </Toolbar>
+    </AppBar>
   );
 }
 

@@ -171,12 +171,12 @@ const storage = multer.diskStorage({
 
 // const upload = multer({ storage: storage });
 
-const moveFileToCollection = (filedata,coll) => {
+const moveFileToCollection = (filedata, coll) => {
   const fs = require('fs');
 
-  fs.mkdirSync(path.join(global.tables_folder, coll), { recursive: true })
-
-  fs.renameSync( filedata.path, path.join(global.tables_folder, coll, filedata.originalname) );
+  var tables_folder_target = (coll.indexOf("delete") > -1 ? global.tables_folder_deleted : global.tables_folder)
+  fs.mkdirSync(path.join(tables_folder_target, coll), { recursive: true })
+  fs.renameSync( filedata.path, path.join(tables_folder_target, coll, filedata.originalname) );
 
 }
 
@@ -200,7 +200,7 @@ app.post('/api/tableUploader', async function(req, res) {
          results.push({filename: files[index].originalname, status:"success"})
 
        } catch(err){
-         console.log("file: "+files[index].originalname+" failed to process")
+         console.log("file: " + files[index].originalname + " failed to process")
          results.push({filename: files[index].originalname, status:"failed"})
        }
      }
@@ -321,26 +321,33 @@ async function getMetadataLabellers(){
 }
 
 // Returns the annotation for a single document/table
-async function getAnnotationByID(docid,page,user){
+async function getAnnotationByID(docid,page,user,collId){
 
   var client = await pool.connect()
 
-  var result = await client.query('select * from annotations where docid=$1 AND page=$2 AND "user"=$3 order by docid desc,page asc',[docid,page,user])
+  var result = await client.query(`
+                  select * from "table",annotations where "table".tid = annotations.tid
+                  AND docid=$1 AND page=$2 AND collection_id = $4 `,[docid,page,user,collId])
         client.release()
   return result
 }
 
+const rebuildSearchIndex = async () => {
+  var tables = fs.readdirSync(path.join(global.tables_folder)).map( (dir) => path.join(global.tables_folder,dir))
+  var tables_folder_override = fs.readdirSync(path.join(global.tables_folder_override)).map( (dir) => path.join(global.tables_folder_override,dir))
+  global.searchIndex = await easysearch.indexFolder( [...tables,...tables_folder_override] )
+}
 
 // preinitialisation of components if needed.
 async function main(){
 
-  //Indexing documents
-  global.searchIndex = await easysearch.indexFolder( [path.join(process.cwd(), global.tables_folder) , path.join(process.cwd(), global.tables_folder_override)] )
+  // search index rebuild/initialisation
+  await rebuildSearchIndex()
 
   // UMLS Data buffer
   umls_data_buffer = await UMLSData();
 
-  await refreshDocuments()
+  // await refreshDocuments()
 
   await initialiseUsers()
 
@@ -364,7 +371,7 @@ app.get('/api/deleteTable', async function(req,res){
     });
 
     await delprom;
-    await refreshDocuments();
+    // await refreshDocuments();
 
     res.send("table deleted")
   } else {
@@ -548,30 +555,36 @@ function validateUser (username, hash){
 // Collections
 var listCollections = async () => {
     var client = await pool.connect()
-    var result = await client.query(`SELECT collection.collection_id, title, description, owner_username, table_n
-                                     FROM public.collection
-                                     LEFT JOIN
-                                     ( SELECT collection_id, count(docid) as table_n FROM
-                                     ( select distinct docid, page, collection_id from public.table ) as interm
-                                     group by collection_id ) as coll_counts
-                                     ON collection.collection_id = coll_counts.collection_id`)
+    var result = await client.query(
+      `SELECT collection.collection_id, title, description, owner_username, table_n
+       FROM public.collection
+       LEFT JOIN
+       ( SELECT collection_id, count(docid) as table_n FROM
+       ( select distinct docid, page, collection_id from public.table ) as interm
+       group by collection_id ) as coll_counts
+       ON collection.collection_id = coll_counts.collection_id ORDER BY collection_id`)
         client.release()
     return result.rows
 }
 
 var getCollection = async ( collection_id ) => {
     var client = await pool.connect()
-    var result = await client.query(`SELECT collection_id, title, description, owner_username FROM public.collection WHERE collection_id = $1`,[collection_id])
+    var result = await client.query(
+      `SELECT *
+      FROM public.collection WHERE collection_id = $1`,[collection_id])
 
-    var tables = await client.query(`SELECT docid, page, "user", status, tid, collection_id, file_path, "tableType"	FROM public."table" WHERE collection_id = $1`,[collection_id])
+    var tables = await client.query(
+      `SELECT docid, page, "user", notes, tid, collection_id, file_path, "tableType"
+      FROM public."table" WHERE collection_id = $1 ORDER BY docid,page`,[collection_id])
 
-    var collectionsList = await client.query(`SELECT * FROM public.collection`);
+    var collectionsList = await client.query(
+      `SELECT * FROM public.collection ORDER BY collection_id`);
 
     client.release()
 
     if ( result.rows.length == 1){
         result = result.rows[0]
-        result.tables = tables.rows
+        result.tables = tables.rows;
         result.collectionsList = collectionsList.rows;
         return result
     }
@@ -582,19 +595,40 @@ var createCollection = async (title, description, owner) => {
 
     var client = await pool.connect()
     var result = await client.query(`INSERT INTO public.collection(
-                                      title, description, owner_username)
-                                      VALUES ($1, $2, $3);`, [title, description, owner] )
+                                      title, description, owner_username, visibility, completion)
+                                      VALUES ($1, $2, $3, $4, $5);`, [title, description, owner, "public", "in progress"] )
         result = await client.query(`Select * from collection
                                      ORDER BY collection_id DESC LIMIT 1;` )
     client.release()
     return result
 }
 
-var editCollection = async (id, title, description, owner) => {
+var editCollection = async (collData) => {
     var client = await pool.connect()
-    var result = await client.query(`UPDATE public.collection SET title=$2, description=$3, owner_username=$4	WHERE collection_id=$1`,[id, title, description, owner])
-          client.release()
+    var result = await client.query(
+      `UPDATE public.collection
+      SET title=$2, description=$3, owner_username=$4, completion=$5, visibility=$6
+      WHERE collection_id=$1`,
+      [collData.collection_id, collData.title, collData.description,
+        collData.owner_username, collData.completion, collData.visibility])
+    client.release()
     return result
+}
+
+var deleteCollection = async (collection_id) => {
+  var client = await pool.connect()
+
+  var tables = await client.query(
+    `SELECT docid, page FROM public."table" WHERE collection_id = $1`,[collection_id]
+  )
+
+  tables = tables.rows
+  var result = await removeTables(tables, collection_id, true);
+
+  var results = await client.query(
+    `DELETE FROM collection WHERE collection_id = $1`, [collection_id]
+  )
+  client.release()
 }
 
 
@@ -626,20 +660,25 @@ app.post('/collections', async function(req,res){
         result = await getCollection(req.body.collection_id);
         res.json({status: "success", data: result})
         break;
-      // case "create":
-      //   result = await createCollection();
-      //   res.json({status: "success"})
-      //   break;
+      case "delete":
+        await deleteCollection(req.body.collection_id);
+        res.json({status: "success", data: {}})
+        break;
+      case "create":
+        result = await createCollection("new collection", "", req.body.username);
+        res.json({status: "success", data: result})
+        break;
       // Well use edit to createCollection on the fly
       case "edit":
         var allCollectionData = JSON.parse( req.body.collectionData )
 
-        if ( allCollectionData.collection_id == "new" ) {
-          result = await createCollection(allCollectionData.title, allCollectionData.description, allCollectionData.owner_username);
-          result = result.rows[0]
-        } else {
-          result = await editCollection(allCollectionData.collection_id, allCollectionData.title, allCollectionData.description, allCollectionData.owner_username);
-        }
+        // if ( allCollectionData.collection_id == "new" ) {
+        //   result = await createCollection(allCollectionData.title, allCollectionData.description, allCollectionData.owner_username);
+        //   // result = result.rows[0]
+        // } else {
+        result = await editCollection(allCollectionData);
+        // }
+        result = await getCollection(req.body.collection_id);
         res.json({status: "success", data: result})
         break;
       default:
@@ -661,7 +700,7 @@ const createTable = async (docid,page,user,collection_id,file_path) => {
     var client = await pool.connect()
     var result = await client.query(
       `INSERT INTO public."table"(
-	       docid, page, "user", status, collection_id, file_path, "tableType")
+	       docid, page, "user", notes, collection_id, file_path, "tableType")
 	     VALUES ($1, $2, $3, $4, $5, $6, $7);`,
          [docid,page,user,"",collection_id,file_path,""])
 
@@ -669,8 +708,11 @@ const createTable = async (docid,page,user,collection_id,file_path) => {
     return result
 }
 
-const removeTables = async (tables, collection_id) => {
-    tables = tables.map( (tab) => { const [docid, page] = tab.split("_"); return {docid,page} })
+const removeTables = async (tables, collection_id, fromSelect = false) => {
+
+    if (!fromSelect){
+      tables = tables.map( (tab) => { const [docid, page] = tab.split("_"); return {docid,page} })
+    }
 
     var client = await pool.connect()
 
@@ -679,6 +721,13 @@ const removeTables = async (tables, collection_id) => {
         `DELETE FROM public."table"
         	WHERE docid = $1 AND page = $2 AND collection_id = $3;`,
            [tables[i].docid, tables[i].page, collection_id])
+
+      var filename = tables[i].docid +"_"+ tables[i].page+".html";
+      try{
+        moveFileToCollection({ originalname: filename, path: path.join(global.tables_folder, collection_id, filename) }, "deleted" )
+      } catch (err){
+        console.log("REMOVE FILE DIDN't EXIST: "+JSON.stringify(err))
+      }
     }
 
     client.release()
@@ -687,7 +736,7 @@ const removeTables = async (tables, collection_id) => {
 
 const moveTables = async (tables, collection_id, target_collection_id) => {
     tables = tables.map( (tab) => { const [docid, page] = tab.split("_"); return {docid,page} })
-    debugger
+    // debugger
     var client = await pool.connect()
 
     for ( var i = 0; i < tables.length; i++){
@@ -696,6 +745,13 @@ const moveTables = async (tables, collection_id, target_collection_id) => {
 	       SET collection_id=$4
          WHERE docid = $1 AND page = $2 AND collection_id = $3;`,
         [tables[i].docid, tables[i].page, collection_id, target_collection_id])
+
+      var filename = tables[i].docid +"_"+ tables[i].page+".html";
+      try{
+        moveFileToCollection({ originalname: filename, path: path.join(global.tables_folder, collection_id, filename) }, target_collection_id )
+      } catch (err){
+        console.log("MOVE FILE DIDN't EXIST: "+JSON.stringify(err))
+      }
     }
 
     client.release()
@@ -715,28 +771,21 @@ app.post('/tables', async function(req,res){
 
   if ( validate_user ){
 
-    var result;
+    var result = {};
 
     switch (req.body.action) {
       case "remove":
-        // debugger
         result = await removeTables(JSON.parse(req.body.tablesList), req.body.collection_id);
-        result = await getCollection(req.body.collection_id);
-        debugger
-        res.json({status: "success", data: result})
         break;
       case "move":
-        debugger
         result = await moveTables(JSON.parse(req.body.tablesList), req.body.collection_id, req.body.targetCollectionID);
-        result = await getCollection(req.body.collection_id);
-        res.json({status: "success", data: result})
         break;
+      case "list":  // This is the same as not doing anything and returning the collection and its tables.
       default:
-        res.json({status: "success", data: {}})
     }
-
-
-
+    // Always return the updated collection details
+    result = await getCollection(req.body.collection_id);
+    res.json({status: "success", data: result})
   } else {
     res.json({status:"unauthorised", payload: null})
   }
@@ -775,14 +824,9 @@ app.get('/api/allInfo',async function(req,res){
   var labellers = await getMetadataLabellers();
       labellers = labellers.rows.reduce( (acc,item) => { acc[item.docid+"_"+item.page] = item.labeller; return acc;},{})
 
-  if ( req.query && (req.query.filter_topic || req.query.filter_type || req.query.hua || req.query.filter_group || req.query.filter_labelgroup) ){
+  if ( req.query && req.query.collId  ){
 
-    var result = await prepareAvailableDocuments( req.query.filter_topic ? req.query.filter_topic.split("_") : [],
-                                                  req.query.filter_type ? req.query.filter_type.split("_") : [],
-                                                  req.query.hua ? req.query.hua == "true" : false,
-                                                  req.query.filter_group ? req.query.filter_group.split("_") : [],
-                                                  req.query.filter_labelgroup ? req.query.filter_labelgroup.split("_") : [])
-
+    var result = await prepareAvailableDocuments( req.query.collId )
 
     var available_documents_temp = result.available_documents
     var abs_index_temp = result.abs_index
@@ -922,166 +966,6 @@ app.get('/api/cuisIndexAdd',async function(req,res){
 });
 
 
-
-// Produces the data required to teach classifiers. Traverses all existing tables, extracting cell values and associating it with the human annotations.
-async function trainingData(){
-
-  var cui_data =  await CUIData ()
-
-  var header = [
-      {id: 'docid', title: 'docid'},
-      {id: 'page', title: 'page'},
-      {id: 'clean_concept', title: 'clean_concept'},
-      {id: 'is_bold', title: 'is_bold'},
-      {id: 'is_italic', title: 'is_italic'},
-      {id: 'is_indent', title: 'is_indent'},
-      {id: 'is_empty_row', title: 'is_empty_row'},
-      {id: 'is_empty_row_p', title: 'is_empty_row_p'},
-      {id: 'cuis', title: 'cuis'},
-      {id: 'semanticTypes', title: 'semanticTypes'},
-      {id: 'label', title: 'label'}
-  ]
-
-  // Object.keys(cui_data.cui_def).map( c => {header.push({id: c, title: c})})
-  // Object.keys(cui_data.semtypes).map( s => {header.push({id: s, title: s})})
-
-  const createCsvWriter = require('csv-writer').createObjectCsvWriter;
-
-  const csvWriter = createCsvWriter({
-      path: 'training_data.csv',
-      header: header
-  });
-
-  const csvWriter_unique = createCsvWriter({
-      path: 'training_data_unique.csv',
-      header: header
-  });
-
-
-  var count = 1;
-
-  var cuirec = await getRecommendedCUIS()
-
-  for ( var docid in available_documents){
-    for ( var page in available_documents[docid].pages ) {
-      console.log(docid+"  --  "+page+"  --  "+count+" / "+DOCS.length)
-
-      //
-      // count = count + 1;
-      //
-      // if ( count < 1800 ){
-      //   continue
-      // }
-
-
-      var page = available_documents[docid].pages[page]
-      var data = await readyTableData(docid,page)
-
-      var ac_res = cui_data.actual_results
-
-      if ( !ac_res[docid+"_"+page] ) { // table could not be annotated yet, so we skip it.
-        continue
-      }
-
-      // The manual annotations for each col/row
-      var cols; //= data.predicted.cols.reduce( (acc,e) => {acc[e.c] = {descriptors : e.descriptors.join(";"), modifier: e.unique_modifier}; return acc},{} )
-      var rows; //= data.predicted.rows.reduce( (acc,e) => {acc[e.c] = {descriptors : e.descriptors.join(";"), modifier: e.unique_modifier}; return acc},{} )
-
-      try{
-      // These are manually annotated
-        cols = Object.keys(ac_res[docid+"_"+page].Col).reduce( (acc,e) => {  acc[e-1] = ac_res[docid+"_"+page].Col[e]; return acc }, {} )
-        rows = Object.keys(ac_res[docid+"_"+page].Row).reduce( (acc,e) => {  acc[e-1] = ac_res[docid+"_"+page].Row[e]; return acc }, {} )
-      } catch (e) {
-        console.log( "skipping: "+ docid+"_"+page)
-        continue
-      }
-
-
-      var getSemanticTypes = (cuis, cui_data) => {
-
-        if ( ! cuis ){
-          return []
-        }
-
-        var semType = []
-
-        cuis.split(";").map( (cui) => {
-
-            semType.push(cui_data.cui_def[cui].semTypes.split(";"))
-
-        });
-
-        return semType.flat()
-      }
-
-      count = count + 1;
-
-      var csvData = data.predicted.predictions.map(
-        (row_el,row) => {
-          return row_el.terms.map( ( term, col ) => {
-
-              var row_terms = data.predicted.predictions[row].terms
-
-              var term_features = data.predicted.predictions[row].terms_features[col]
-
-              var toReturn = {
-                docid: docid,
-                page: page,
-                clean_concept : term_features[0],
-                is_bold : term_features[1],
-                is_italic : term_features[2],
-                is_indent : term_features[3],
-                is_empty_row : term_features[4],
-                is_empty_row_p : term_features[5],  // this one is a crude estimation of P values structure. Assume the row has P value if multiple columns are detected but only first and last are populated.
-                cuis: term_features[6],
-                semanticTypes: term_features[7],
-                label : cols[col] ? cols[col].descriptors : (rows[row] ? rows[row].descriptors : ""), // This is the label selected by the annotating person : "subgroup_name; level etc. "
-              }
-
-              return toReturn
-            })
-          }
-        )
-
-         csvData = csvData.flat();
-
-
-         var csvDataUnique = []
-
-         var allkeys = {}
-
-         for ( var i = 0; i < csvData.length; i++ ) {
-           var key = Object.values(csvData[i]).join("")
-
-           if ( !allkeys[key] ){
-             allkeys[key] = true;
-             csvDataUnique.push(csvData[i]);
-           }
-
-         }
-
-      await csvWriter.writeRecords(csvData)
-          .then(() => {
-              console.log('...Done');
-          });
-      await csvWriter_unique.writeRecords(csvDataUnique)
-          .then(() => {
-              console.log('...Done');
-          });
-    }
-  }
-
-  return {}
-}
-
-app.get('/api/trainingData', async function(req,res){
-  console.log("getting all training data")
-
-  var allP = await trainingData()
-
-  res.send(allP)
-});
-
 // Generates the results table live preview, connecting to the R API.
 app.get('/api/annotationPreview',async function(req,res){
 
@@ -1092,9 +976,10 @@ app.get('/api/annotationPreview',async function(req,res){
         if(req.query && req.query.docid && req.query.docid.length > 0 ){
           var page = req.query.page && (req.query.page.length > 0) ? req.query.page : 1
           var user = req.query.user && (req.query.user.length > 0) ? req.query.user : ""
+          var collId = req.query.collId && (req.query.collId.length > 0) ? req.query.collId : ""
 
           console.log("Producing Data Preview for: " + JSON.stringify(req.query))
-          annotations = await getAnnotationByID(req.query.docid,page, user)
+          annotations = await getAnnotationByID(req.query.docid, page, user, collId)
 
         } else{
           res.send( {state:"badquery: "+JSON.stringify(req.query)} )
@@ -1325,11 +1210,13 @@ app.get('/api/classify', async function(req,res){
 
 app.get('/api/getTable',async function(req,res){
    try{
-    if(req.query && req.query.docid
-      && req.query.page && available_documents[req.query.docid]
-      && available_documents[req.query.docid].pages.indexOf(req.query.page) > -1){
 
-      var tableData = await readyTableData(req.query.docid,req.query.page)
+      // && available_documents[req.query.docid]
+      // && available_documents[req.query.docid].pages.indexOf(req.query.page) > -1
+    if(req.query && req.query.docid && req.query.page && req.query.collId ){
+
+      // debugger
+      var tableData = await readyTableData(req.query.docid,req.query.page,req.query.collId)
 
       res.send( tableData  )
     } else {
@@ -1378,43 +1265,44 @@ app.get('/api/getAnnotationByID',async function(req,res){
   if(req.query && req.query.docid && req.query.docid.length > 0 ){
     var page = req.query.page && (req.query.page.length > 0) ? req.query.page : 1
     var user = req.query.user && (req.query.user.length > 0) ? req.query.user : ""
+    var collId = req.query.collId && (req.query.collId.length > 0) ? req.query.collId : ""
 
-              var annotations = await getAnnotationByID(req.query.docid,page,user)
+    debugger
+    var annotations = await getAnnotationByID(req.query.docid,page,user,collId)
 
-              var final_annotations = {}
+    var final_annotations = {}
 
-              /**
-              * There are multiple versions of the annotations. When calling reading the results from the database, here we will return only the latest/ most complete version of the annotation.
-              * Independently from the author of it. Completeness here measured as the result with the highest number of annotations and the highest index number (I.e. Newest, but only if it has more information/annotations).
-              * May not be the best in some cases.
-              *
-              */
+    /**
+    * There are multiple versions of the annotations. When calling reading the results from the database, here we will return only the latest/ most complete version of the annotation.
+    * Independently from the author of it. Completeness here measured as the result with the highest number of annotations and the highest index number (I.e. Newest, but only if it has more information/annotations).
+    * May not be the best in some cases.
+    *
+    */
+    //
+    // for ( var r in annotations.rows){
+    //   var ann = annotations.rows[r]
+    //   var existing = final_annotations[ann.docid+"_"+ann.page]
+    //   if ( existing ){
+    //     if ( ann.N > existing.N && ann.annotation.annotations.length >= existing.annotation.annotations.length ){
+    //           final_annotations[ann.docid+"_"+ann.page] = ann
+    //     }
+    //   } else { // Didn't exist so add it.
+    //     final_annotations[ann.docid+"_"+ann.page] = ann
+    //   }
+    // }
+    //
+    // var final_annotations_array = []
+    // for (  var r in final_annotations ){
+    //   var ann = final_annotations[r]
+    //   final_annotations_array[final_annotations_array.length] = ann
+    // }
 
-              for ( var r in annotations.rows){
-                var ann = annotations.rows[r]
-                var existing = final_annotations[ann.docid+"_"+ann.page]
-                if ( existing ){
-                  if ( ann.N > existing.N && ann.annotation.annotations.length >= existing.annotation.annotations.length ){
-                        final_annotations[ann.docid+"_"+ann.page] = ann
-                  }
-                } else { // Didn't exist so add it.
-                  final_annotations[ann.docid+"_"+ann.page] = ann
-                }
-              }
-
-              var final_annotations_array = []
-              for (  var r in final_annotations ){
-                var ann = final_annotations[r]
-                final_annotations_array[final_annotations_array.length] = ann
-              }
-
-              if( final_annotations_array.length > 0){
-
-                  var entry = final_annotations_array[0]
-                  res.send( entry )
-              } else {
-                  res.send( {} )
-              }
+    if( annotations.rows.length > 0){ // Should really be just one.
+        var entry = annotations.rows[annotations.rows.length-1]
+        res.send( entry )
+    } else {
+        res.send( {} )
+    }
 
   } else{
     res.send( {error:"failed request"} )
@@ -1422,121 +1310,6 @@ app.get('/api/getAnnotationByID',async function(req,res){
 
 });
 
-
-
-app.get('/api/modelEval', async (req,res) => {
-
-  var testingDocs = new Promise( (resolve,reject) =>{
-      let inputStream = fs.createReadStream(CONFIG.system_path+ "testing_tables_list.csv", 'utf8');
-
-        var testingDocs = [];
-
-        inputStream.pipe(new CsvReadableStream({ parseNumbers: true, parseBooleans: true, trim: true, skipHeader: true }))
-          .on('data', function (row) {
-
-              testingDocs.push(row[0]+"_"+row[1])
-
-          })
-          .on('end', function (data) {
-              console.log("read testing docs list")
-              resolve(testingDocs)
-          });
-
-    });
-
-    testingDocs = await testingDocs;
-    // debugger
-
-    var createCsvWriter = require('csv-writer').createObjectCsvWriter;
-      var csvWriter = createCsvWriter({
-        path: CONFIG.system_path+'predictor_results.csv',
-        header: [
-            {id: 'user', title: 'user'},
-            {id: 'docid', title: 'docid'},
-            {id: 'page', title: 'page'},
-            {id: 'corrupted', title: 'corrupted'},
-            {id: 'tableType', title: 'tableType'},
-            {id: 'location', title: 'location'},
-            {id: 'number', title: 'number'},
-            {id: 'content', title: 'content'},
-            {id: 'qualifiers', title: 'qualifiers'}
-        ]
-      });
-
-      var records = [
-      ];
-
-      var transferAnnotations = (records, items, type ) => {
-
-          items.map( (p,i) =>
-            records.push( {
-              user : "auto",
-              docid : docid,
-              page : page,
-              corrupted : "false",
-              tableType : "na",
-              location : type == "Col" ? "Col" : "Row",
-              number : parseInt(p.c)+1,
-              content : p.descriptors.join(";"),
-              qualifiers : p.unique_modifier.split(" ").join(";")
-            })
-           );
-
-           return records
-      }
-
-
-
-
-      var counter = 0;
-      for (var doc in available_documents) {
-
-          // if ( counter > 10 ){
-          //   break;
-          // }
-
-          for (var p in available_documents[doc].pages ){
-            var page = available_documents[doc].pages[p]
-            var docid = doc
-
-            console.log( (counter) + " / " + (testingDocs.length > 0 ? testingDocs.length : Object.keys(available_documents).length) )
-
-            if ( testingDocs.indexOf(docid+"_"+page) < 0 ) {
-              continue
-            } else {
-              counter++
-            }
-
-
-            var tableData
-            try{
-              tableData = await readyTableData(docid,page)
-            } catch (e){
-              console.log(docid+"_"+page+ " :: Failed");
-              continue;
-            }
-
-            if ( tableData.predicted ){
-              records = transferAnnotations( records, tableData.predicted.cols, "Col")
-              records = transferAnnotations( records, tableData.predicted.rows, "Row")
-            } else {
-              console.log("no predicted data found")
-              // debugger
-            }
-          }
-
-      }
-
-      // debugger
-
-      csvWriter.writeRecords(records)       // returns a promise
-          .then(() => {
-              res.send("Done experiments")
-          });
-
-
-
-});
 
 
 app.get('/api/recordAnnotation',async function(req,res){

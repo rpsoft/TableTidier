@@ -4,7 +4,7 @@
  *
  */
 
-import { SEARCH_ACTION, SEARCH_RESULTS_UPDATE_ACTION, REQUEST_COLLECTIONS_LIST_ACTION, UPDATE_COLLECTIONS_LIST_ACTION } from './constants';
+import { SEARCH_ACTION, SEARCH_RESULTS_UPDATE_ACTION, REQUEST_COLLECTIONS_LIST_ACTION, UPDATE_COLLECTIONS_LIST_ACTION, CREATE_COLLECTION_ACTION } from './constants';
 
 export function doSearchAction(searchContent, searchType, hash, username) {
   return {
@@ -34,5 +34,11 @@ export function updateCollectionsListAction(collections_list) {
   return {
     type: UPDATE_COLLECTIONS_LIST_ACTION,
     collections_list
+  };
+}
+
+export function createCollectionAction() {
+  return {
+    type: CREATE_COLLECTION_ACTION,
   };
 }

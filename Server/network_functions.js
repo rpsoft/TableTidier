@@ -12,7 +12,7 @@ function () {
   var _ref = (0, _asyncToGenerator2.default)(
   /*#__PURE__*/
   _regenerator.default.mark(function _callee() {
-    var client, result, filtered_rows, hey, docids, i;
+    var client, result;
     return _regenerator.default.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
@@ -23,26 +23,30 @@ function () {
           case 2:
             client = _context.sent;
             _context.next = 5;
-            return client.query("select * from annotations order by docid desc,page asc");
+            return client.query("select * from \"table\",annotations where \"table\".tid = annotations.tid order by docid desc,page asc");
 
           case 5:
             result = _context.sent;
-            client.release();
-            filtered_rows = [];
-            hey = available_documents;
-            docids = Object.keys(available_documents);
-
-            for (i = 0; i < result.rows.length; i++) {
-              if (docids.indexOf(result.rows[i].docid) > -1) {
-                filtered_rows.push(result.rows[i]);
-              }
-            }
-
-            result.rows = filtered_rows; // debugger/
+            client.release(); // var filtered_rows = []
+            //
+            // var hey = available_documents
+            //
+            // var docids = Object.keys(available_documents)
+            //
+            // for ( var i=0; i < result.rows.length; i++ ) {
+            //
+            //   if (  docids.indexOf (result.rows[i].docid) > -1 ){
+            //     filtered_rows.push(result.rows[i])
+            //   }
+            //
+            // }
+            //
+            // result.rows = filtered_rows
+            // debugger
 
             return _context.abrupt("return", result);
 
-          case 13:
+          case 8:
           case "end":
             return _context.stop();
         }

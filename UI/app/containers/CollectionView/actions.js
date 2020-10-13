@@ -4,7 +4,9 @@
  *
  */
 
-import { LOAD_COLLECTION_ACTION, UPDATE_COLLECTION_ACTION, EDIT_COLLECTION_ACTION, REMOVE_TABLES_ACTION, MOVE_TABLES_ACTION } from './constants';
+import { LOAD_COLLECTION_ACTION, UPDATE_COLLECTION_ACTION, DELETE_COLLECTION_ACTION,
+         EDIT_COLLECTION_ACTION, REMOVE_TABLES_ACTION,
+         MOVE_TABLES_ACTION } from './constants';
 
 export function loadCollectionAction() {
   return {
@@ -38,5 +40,11 @@ export function moveTablesAction(tablesList, targetCollectionID) {
     type: MOVE_TABLES_ACTION,
     tablesList,
     targetCollectionID
+  };
+}
+
+export function deleteCollectionAction() {
+  return {
+    type: DELETE_COLLECTION_ACTION,
   };
 }

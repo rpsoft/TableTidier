@@ -12,7 +12,7 @@ import { Switch, Route } from 'react-router-dom';
 
 import PropTypes from 'prop-types';
 
-import HomePage from 'containers/HomePage/Loadable';
+// import HomePage from 'containers/HomePage/Loadable';
 import NotFoundPage from 'containers/NotFoundPage/Loadable';
 
 import GlobalStyle from '../../global-styles';
@@ -22,6 +22,7 @@ import Register from '../Register'
 import Annotator from '../Annotator'
 import Dashboard from '../Dashboard'
 import CollectionView from '../CollectionView'
+import HomePage from '../HomePage'
 
 import { connect } from 'react-redux';
 import { compose } from 'redux';
@@ -34,16 +35,16 @@ import {
   URL_BASE,
 } from '../../links'
 
-import {
-  // Core components
-  AppContainer,
-  CommonView,
-  ResultsContainer,
-  MetaContainer,
-  TableContainer,
-  AnnotationView,
-  CuiAdminContainer,
-} from '../../components/'
+// import {
+//   // Core components
+//   AppContainer,
+//   CommonView,
+//   ResultsContainer,
+//   MetaContainer,
+//   TableContainer,
+//   AnnotationView,
+//   CuiAdminContainer,
+// } from '../../components/'
 
 const urlBase = URL_BASE
 
@@ -76,22 +77,29 @@ export function App({
 
   // debugger
   //style={{maxWidth:1600, marginLeft:"auto", marginRight:"auto" }}
-  return (
 
-    <div >
-      <Login/>
-      <Switch>
-        <Route path="/annotator" component={Annotator} />
-        <Route path="/table" component={TableContainer}></Route>
-        <Route path="/allresults" component={ResultsContainer}></Route>
-        <Route path="/metaresults" component={MetaContainer}></Route>
-        <Route path="/cuiadmin" component={CuiAdminContainer}></Route>
-        <Route path="/register" component={Register}></Route>
-        <Route path="/collection" component={CollectionView}></Route>
-        <Route path="/list" component={AppContainer}></Route>
-        <Route path="/" component={Dashboard}></Route>
-      </Switch>
-      <Footer/>
+  return (
+    <div style={{marginLeft:"auto", marginRight:"auto", minWidth:800, maxWidth:1400, width:"100%", minHeight:"100vh"}}>
+        <Login />
+
+          <div style={{padding:5, paddingTop:65,  marginLeft:10, paddingBottom:70, minHeight:"90vh"}}>
+            <Switch>
+              <Route path="/table" component={Annotator} />
+              {
+                // <Route path="/table" component={TableContainer}></Route>
+                // <Route path="/allresults" component={ResultsContainer}></Route>
+                // <Route path="/metaresults" component={MetaContainer}></Route>
+                // <Route path="/cuiadmin" component={CuiAdminContainer}></Route>
+                // <Route path="/list" component={AppContainer}></Route>
+              }
+              <Route path="/register" component={Register}></Route>
+              <Route path="/collection" component={CollectionView}></Route>
+              <Route path="/landing" component={HomePage}></Route>
+              <Route path="/" component={Dashboard}></Route>
+            </Switch>
+          </div>
+
+      <div style={{position:"fixed", left:0, bottom:0, width:"100%" }}><Footer /></div>
       <GlobalStyle />
     </div>
   );

@@ -28,11 +28,13 @@ function ConfirmationDialog({
             {title}
           </DialogTitle>
           <DialogContent>
-            <h3 style={{color:"#ff2323"}}>Are you sure?</h3>
+            <h3 style={{color:"#ff2323", textAlign:"center"}}>Are you sure?</h3>
           </DialogContent>
-          <DialogActions>
-            <Button onClick={()=>{ accept_action() }}> Accept </Button>
-            <Button onClick={()=>{ cancel_action() }}> Cancel </Button>
+          <DialogActions style={{justifyContent:"center"}}>
+            <div style={{justifyContent:"center"}}>
+              <Button onClick={()=>{ accept_action() }} style={{marginRight:30}}> Accept </Button>
+              <Button onClick={()=>{ cancel_action() }} style={{marginLeft:30}}> Cancel </Button>
+            </div>
           </DialogActions>
     </Dialog>
 }

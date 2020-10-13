@@ -1,6 +1,6 @@
 import { take, call, put, select, takeLatest } from 'redux-saga/effects';
 
-import { LOAD_COLLECTION_ACTION, EDIT_COLLECTION_ACTION, REMOVE_TABLES_ACTION, MOVE_TABLES_ACTION } from './constants';
+import { LOAD_COLLECTION_ACTION, EDIT_COLLECTION_ACTION, REMOVE_TABLES_ACTION, MOVE_TABLES_ACTION, DELETE_COLLECTION_ACTION} from './constants';
 
 import { loadCollectionAction, updateCollectionAction } from './actions';
 
@@ -42,7 +42,6 @@ export function* getCollectionData() {
     const response = yield call(request, requestURL, options);
 
     if ( response.status && response.status == "unauthorised"){
-
       // COUld probably redirect to /
       yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
     } else {
@@ -66,7 +65,7 @@ export function* editCollectionData() {
   const parsed = queryString.parse(location.search);
 
   const requestURL = `http://`+locationData.host+`:`+locationData.server_port+`/collections`;
-
+  // debugger
   const params = new URLSearchParams({
       'hash' : credentials.hash,
       'username' :  credentials.username,
@@ -88,10 +87,7 @@ export function* editCollectionData() {
     } else {
       // console.log("BOOM ALLES GUT")
 
-      yield put( yield updateCollectionAction({title : response.data.title,
-                                              collection_id : response.data.collection_id,
-                                              description: response.data.description,
-                                              owner_username : response.data.owner_username}) );
+      yield put( yield updateCollectionAction(response.data) );
 
       // yield put( yield updateCollectionAction(response.data) );
     }
@@ -181,11 +177,56 @@ export function* moveCollectionTables ( payload ) {
   return {}
 }
 
+export function* deleteCollection() {
+
+  const credentials = yield select(makeSelectCredentials());
+  const locationData = yield select(makeSelectLocation());
+  const collectionState = yield select(makeSelectCollectionView());
+
+  const parsed = queryString.parse(location.search);
+
+  const requestURL = `http://`+locationData.host+`:`+locationData.server_port+`/collections`;
+
+  const params = new URLSearchParams({
+      'hash' : credentials.hash,
+      'username' :  credentials.username,
+      'collection_id' : parsed.collId,
+      'action' : 'delete'
+    });
+
+  const options = {
+    method: 'POST',
+    body: params
+  }
+
+  try {
+    const response = yield call(request, requestURL, options);
+
+    if ( response.status && response.status == "unauthorised"){
+
+      // COUld probably redirect to /
+      // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
+      // debugger
+    } else {
+      // debugger
+      // yield put( yield updateCollectionAction(response.data) );
+    }
+  } catch (err) {
+    console.log(err)
+  }
+
+  return {}
+  // return {collection: "hello"}
+}
+
+
 // Individual exports for testing
 export default function* collectionViewSaga() {
   yield takeLatest(LOAD_COLLECTION_ACTION, getCollectionData);
   yield takeLatest(EDIT_COLLECTION_ACTION, editCollectionData);
+  yield takeLatest(DELETE_COLLECTION_ACTION, deleteCollection);
   yield takeLatest(REMOVE_TABLES_ACTION, removeCollectionTables);
   yield takeLatest(MOVE_TABLES_ACTION, moveCollectionTables);
+
 
 }

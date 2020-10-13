@@ -29,7 +29,7 @@ import {
   Paper,
 } from '@material-ui/core';
 
-import { doSearchAction, requestCollectionsListAction } from './actions'
+import { doSearchAction, requestCollectionsListAction, createCollectionAction } from './actions'
 import { useDispatch, useSelector } from "react-redux";
 
 import AddBoxIcon from '@material-ui/icons/AddBox';
@@ -48,7 +48,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    flexGrow: 1,
+    flexGrow: 1
   },
   paper: {
     padding: theme.spacing(2),
@@ -81,6 +81,7 @@ export function Dashboard({
   doSearch,
   dashboard,
   goToUrl,
+  createCollection,
   listCollections
 }) {
   useInjectReducer({ key: 'dashboard', reducer });
@@ -92,6 +93,8 @@ export function Dashboard({
   const [searchType, setSearchType ] = useState(dashboard.searchType);
   //
   // const [collections, setCollections ] = useState(doSearch("placebo", searchType));
+
+  const [charCount, setCharCount ]  = useState(0);
 
   const classes = useStyles();
 
@@ -129,7 +132,7 @@ export function Dashboard({
                                  }</div>
 
   return (
-    <div style={{marginLeft:"2%", marginRight:"2%"}}>
+    <div style={{marginLeft:"2%", marginRight:"2%", minHeight: "84vh"}}>
       <Helmet>
         <title>Dashboard</title>
         <meta name="description" content="Description of Dashboard" />
@@ -144,9 +147,11 @@ export function Dashboard({
                 setSearchContent(searchContent)
                 setSearchType(searchType)
                 doSearch(searchContent, searchType, cookies.hash, cookies.username)
+                }
               }
-          }/>
-        </div>
+            setCharCount={ setCharCount }
+          />
+          </div>
       </Card>
 
       <div className={classes.root}>
@@ -157,20 +162,25 @@ export function Dashboard({
                     <div> { dashboard.search_results.length == 100 ? "Showing the first 100" : + dashboard.search_results.length +" results" } </div>
                   </Card> : ""
               }
-              <Card style={{marginTop:10, minHeight: 700, backgroundColor: dashboard.search_results.length > 0 ? "white" : "#e4e2e2"}}>
+              <Card style={{marginTop:10, minHeight: "82vh", backgroundColor: dashboard.search_results.length > 0 ? "white" : "#e4e2e2"}}>
                  {dashboard.search_results.length > 0 ? table_search_results : collection_results}
               </Card>
           </Grid>
           <Grid item xs={3}>
-            <Card style={{marginTop:10,padding:10, fontWeight:"bold"}}>
+            <Card style={{marginTop:10,padding:10, fontWeight:"bold", textAlign:"center"}}>
               <div>Actions Panel</div>
             </Card>
             <Card style={{marginTop:10,padding:5, backgroundColor:"#e4e2e2" }}>
               <Card style={{padding:5}}>
                 <div>
-                  <div className={classes.buttonHolder}><Button variant="contained" onClick={ () => {goToUrl("/collection?collId=new")} } > New Collection </Button> </div>
-                  <div className={classes.buttonHolder}><Button variant="contained" > Option 2 </Button> </div>
-                  <div className={classes.buttonHolder}><Button variant="contained" > Option 3 </Button> </div>
+                  <div className={classes.buttonHolder}><Button style={{backgroundColor:"#98f398"}} variant="contained" onClick={ () => {createCollection();
+                                                                                      //  goToUrl("/collection?collId=new")
+                                                                                      }} > New Collection </Button> </div>
+                  <div className={classes.buttonHolder}><Button disabled={true} variant="contained" > Results to New Collection </Button> </div>
+                  {
+                  // <div className={classes.buttonHolder}><Button variant="contained" > Option 2 </Button> </div>
+                  // <div className={classes.buttonHolder}><Button variant="contained" > Option 3 </Button> </div>
+                  }
                 </div>
               </Card>
             </Card>
@@ -196,7 +206,8 @@ function mapDispatchToProps(dispatch) {
     dispatch,
     doSearch : (searchContent, searchType, hash, username) => dispatch( doSearchAction(searchContent, searchType, hash, username) ),
     listCollections : () => dispatch( requestCollectionsListAction() ),
-    goToUrl : (url) => dispatch(push(url))
+    goToUrl : (url) => dispatch(push(url)),
+    createCollection : () => dispatch( createCollectionAction() ),
   };
 }
 

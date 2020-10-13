@@ -22,8 +22,8 @@ export default class fetchData {
   }
 
 
-  async removeOverrideTable(docid,page){
-      var urlQueryRequest = urlBase+ "removeOverrideTable?docid="+encodeURIComponent(docid)+"&page="+page
+  async removeOverrideTable(docid,page,collId){
+      var urlQueryRequest = urlBase+ "removeOverrideTable?docid="+encodeURIComponent(docid)+"&page="+page+"&collId="+collId
 
       var r = await this.getGeneric( urlQueryRequest  )
 
@@ -48,14 +48,14 @@ export default class fetchData {
   }
 
 
-  async saveTableEdit(docid,page,content) {
+  async saveTableEdit(docid,page,content,collId) {
 
     let result
 
     var options = {path : "/saveTableOverride"}
 
     try {
-      result = await this.httpClient.sendPost( {docid: docid, page: page, table: content}, options )
+      result = await this.httpClient.sendPost( {docid: docid, page: page, table: content, collId: collId}, options )
     } catch(error) {
       console.error('Table Edit POST failed: ' + error)
     }
@@ -63,21 +63,15 @@ export default class fetchData {
     return result
   }
 
-  async saveAnnotation(docid,page,user,annotation,corrupted, tableType, corrupted_text) {
+  async saveAnnotation(docid,page,user,annotation,corrupted, tableType, corrupted_text, collId) {
 
-    var urlQueryRequest = urlBase+ "recordAnnotation?docid="+encodeURIComponent(docid)+"&page="+page+"&user="+user+"&annotation="+encodeURIComponent(JSON.stringify(annotation))+"&corrupted="+ (corrupted == undefined ? false : corrupted)+"&tableType="+tableType + "&corrupted_text=" + corrupted_text
-
-    console.log(urlQueryRequest)
-
-    var r = await this.getGeneric( urlQueryRequest  )
-
-    return r
-
-  }
-
-  async deleteAnnotation(docid,page,user,annotation,corrupted, tableType, corrupted_text) {
-
-    var urlQueryRequest = urlBase+ "deleteAnnotation?docid="+encodeURIComponent(docid)+"&page="+page+"&user="+user
+    var urlQueryRequest = urlBase+ "recordAnnotation?docid="+encodeURIComponent(docid)
+                                 +"&page="+page+"&user="+user
+                                 +"&annotation="+encodeURIComponent(JSON.stringify(annotation))
+                                 +"&corrupted="+ (corrupted == undefined ? false : corrupted)
+                                 +"&tableType="+tableType
+                                 +"&corrupted_text=" + corrupted_text
+                                 +"&collId="+collId
 
     console.log(urlQueryRequest)
 
@@ -87,9 +81,21 @@ export default class fetchData {
 
   }
 
-  async getTable(docid,page) {
+  async deleteAnnotation(docid,page,user,annotation,corrupted, tableType, corrupted_text,collId ) {
 
-        var urlQueryRequest = urlBase+ "getTable?docid="+encodeURIComponent(docid)+"&page="+page
+    var urlQueryRequest = urlBase+ "deleteAnnotation?docid="+encodeURIComponent(docid)+"&page="+page+"&user="+user+"&collId="+collId
+
+    console.log(urlQueryRequest)
+
+    var r = await this.getGeneric( urlQueryRequest  )
+
+    return r
+
+  }
+
+  async getTable(docid,page,collId) {
+
+        var urlQueryRequest = urlBase+ "getTable?docid="+encodeURIComponent(docid)+"&page="+page+"&collId="+collId
 
         var r = await this.getGeneric( urlQueryRequest  )
 
@@ -129,9 +135,9 @@ export default class fetchData {
 
   }
 
-  async deleteTable(docid,page) {
+  async deleteTable(docid,page,collId) {
 
-        var urlQueryRequest = urlBase+ "deleteTable?docid="+encodeURIComponent(docid)+"&page="+page
+        var urlQueryRequest = urlBase+ "deleteTable?docid="+encodeURIComponent(docid)+"&page="+page+"&collId="+collId
 
         var r = await this.getGeneric( urlQueryRequest  )
 
@@ -148,7 +154,7 @@ export default class fetchData {
         return JSON.parse(r)
   }
 
-  async setTableMetadata(docid, page, concept, cuis, cuis_selected, qualifiers, qualifiers_selected, user, istitle, labeller) {
+  async setTableMetadata(docid, page, concept, cuis, cuis_selected, qualifiers, qualifiers_selected, user, istitle, labeller, collId) {
         // debugger
         var urlQueryRequest = urlBase+ "setMetadata?docid="+encodeURIComponent(docid)
                                                 +"&page="+page
@@ -159,16 +165,20 @@ export default class fetchData {
                                                 +"&qualifiers_selected="+encodeURIComponent(qualifiers_selected)
                                                 +"&user="+encodeURIComponent(user)
                                                 +"&istitle="+encodeURIComponent(istitle || false)
-                                                +"&labeller="+encodeURIComponent(labeller ? labeller : user) // default to user if no labeller set.
+                                                +"&labeller="+encodeURIComponent(labeller ? labeller : user)
+                                                +"&collId="+collId // default to user if no labeller set.
 
         var r = await this.getGeneric( urlQueryRequest  )
 
         return r
   }
 
-  async getTableMetadata(docid, page, user) {
+  async getTableMetadata(docid, page, user, collId) {
 
-        var urlQueryRequest = urlBase+ "getMetadata?docid="+encodeURIComponent(docid)+"&page="+page+"&user="+encodeURIComponent(user)
+        var urlQueryRequest = urlBase+ "getMetadata?docid="+encodeURIComponent(docid)+
+                                                    "&page="+page+
+                                                    "&user="+encodeURIComponent(user)+
+                                                    "&collId="+collId
 
         var r = await this.getGeneric( urlQueryRequest  )
 
@@ -176,9 +186,12 @@ export default class fetchData {
   }
 
 
-  async clearTableMetadata(docid, page, user) {
+  async clearTableMetadata(docid, page, user ,collId) {
 
-        var urlQueryRequest = urlBase+ "clearMetadata?docid="+encodeURIComponent(docid)+"&page="+page+"&user="+encodeURIComponent(user)
+        var urlQueryRequest = urlBase+ "clearMetadata?docid="+encodeURIComponent(docid)+
+                                                    "&page="+page+
+                                                    "&user="+encodeURIComponent(user)+
+                                                    "&collId="+collId
 
         var r = await this.getGeneric( urlQueryRequest  )
 
@@ -189,50 +202,50 @@ export default class fetchData {
 
 
 
-  async getAnnotationPreview(docid,page,user) {
+  async getAnnotationPreview(docid,page,user,collId) {
 
-        var urlQueryRequest = urlBase+ "annotationPreview?docid="+encodeURIComponent(docid)+"&page="+page+"&user="+user
+        var urlQueryRequest = urlBase+ "annotationPreview?docid="+encodeURIComponent(docid)+"&page="+page+"&user="+user+"&collId="+collId
 
         var r = await this.getGeneric( urlQueryRequest  )
         // debugger
         return JSON.parse(r)
   }
 
-  async getAnnotationByID(docid,page,user) {
+  async getAnnotationByID(docid,page,user,collId) {
 
-        var urlQueryRequest = urlBase+ "getAnnotationByID?docid="+encodeURIComponent(docid)+"&page="+page+"&user="+user
+        var urlQueryRequest = urlBase+ "getAnnotationByID?docid="+encodeURIComponent(docid)+"&page="+page+"&user="+user+"&collId="+collId
 
         var r = await this.getGeneric( urlQueryRequest  )
 
         return r
   }
 
-  async getAllInfo(filter_topic, filter_type, hua, filter_group, filter_labelgroup) {
+  async getAllInfo(collection_id) {
       // debugger
         // filter = filter == "nofilter" ? null : filter
         var params = []
+        //
+        // if ( filter_topic && filter_topic.length > 0 ){
+        //   params.push("filter_topic=" + encodeURIComponent(filter_topic))
+        // }
+        //
+        // if ( filter_type && filter_type.length > 0 ){
+        //   params.push("filter_type=" + encodeURIComponent(filter_type))
+        // }
+        //
+        // if ( filter_group && filter_group.length > 0 ){
+        //   params.push("filter_group=" + encodeURIComponent(filter_group))
+        // }
+        //
+        // if ( filter_labelgroup && filter_labelgroup.length > 0 ){
+        //   params.push("filter_labelgroup=" + encodeURIComponent(filter_labelgroup))
+        // }
+        //
+        // if (hua) {
+        //   params.push("hua=true")
+        // }
 
-        if ( filter_topic && filter_topic.length > 0 ){
-          params.push("filter_topic=" + encodeURIComponent(filter_topic))
-        }
-
-        if ( filter_type && filter_type.length > 0 ){
-          params.push("filter_type=" + encodeURIComponent(filter_type))
-        }
-
-        if ( filter_group && filter_group.length > 0 ){
-          params.push("filter_group=" + encodeURIComponent(filter_group))
-        }
-
-        if ( filter_labelgroup && filter_labelgroup.length > 0 ){
-          params.push("filter_labelgroup=" + encodeURIComponent(filter_labelgroup))
-        }
-
-        if (hua) {
-          params.push("hua=true")
-        }
-
-        var urlQueryRequest = urlBase+ "allInfo?"+params.join("&")
+        var urlQueryRequest = urlBase+ "allInfo?collId="+collection_id
 
         var r = await this.getGeneric( urlQueryRequest  )
 

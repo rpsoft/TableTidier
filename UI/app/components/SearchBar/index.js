@@ -53,7 +53,8 @@ const useStyles = makeStyles((theme) => ({
 
 function SearchBar({
   doSearch,
-  searchCont
+  searchCont,
+  setCharCount
 }) {
   const classes = useStyles();
 
@@ -82,7 +83,7 @@ function SearchBar({
           className={ classes.input }
           value={searchContent}
           placeholder={ "Search for tables" }
-          onChange={ (evt) => { setSearchContent(evt.currentTarget.value)}}
+          onChange={ (evt) => { setSearchContent(evt.currentTarget.value); setCharCount(evt.currentTarget.value.length)}}
           onKeyDown ={ onKeyDown }
         />
 

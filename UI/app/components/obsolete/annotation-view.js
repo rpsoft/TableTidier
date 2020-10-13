@@ -119,68 +119,6 @@ class AnnotationView extends Component {
     return decodeURIComponent(props.location.search).replace("?","").split("&").reduce( (acc,item) => {item = item.split("="); acc[item[0]] = item[1]; return acc },{})
   }
 
-  async componentDidMount () {
-
-    console.log("DID MOUNT COMPONENT")
-    //debugger
-    //
-    // var urlparams = this.getUrlParams(this.props);
-    //
-    // var filter_topics = urlparams["filter_topic"] ? urlparams["filter_topic"].split("_") : []
-    // var filter_type = urlparams["filter_type"] ? urlparams["filter_type"].split("_") : []
-    // var filter_group = urlparams["filter_group"] ? urlparams["filter_group"].split("_") : []
-    // var filter_labelgroup = urlparams["filter_labelgroup"] ? urlparams["filter_labelgroup"].split("_") : []
-    //
-    // let fetch = new fetchData();
-    //
-    // var annotation = JSON.parse(await fetch.getAnnotationByID(urlparams.docid,urlparams.page,this.state.user))
-    //
-    // var all_annotations = JSON.parse(await fetch.getAllAnnotations())
-    //
-    // var annotations_formatted = {}
-    //     all_annotations.rows.map( (v,i) => {
-    //       if ( annotations_formatted[v.docid+"_"+v.page] ){
-    //         annotations_formatted[v.docid+"_"+v.page].push(v.user)
-    //       } else {
-    //         annotations_formatted[v.docid+"_"+v.page] = [v.user]
-    //       }
-    //     })
-    //
-    // var recommend_cuis = await fetch.getConceptRecommend();
-    // var metadata = await fetch.getTableMetadata(urlparams.docid, urlparams.page, urlparams.user)
-    //
-    // var titleSubgroups = []
-    //
-    // if ( !metadata.error ){
-    //     metadata.rows.map ( item => { if ( item.istitle ){ titleSubgroups.push(item.concept) } })
-    // }
-    //
-    //
-    // this.setState({
-    //   //user : this.state.user.length > 0 ? this.state.user : this.props.location.query.user,
-    //   corrupted : annotation.corrupted === 'true',
-    //   corrupted_text : annotation.corrupted_text,
-    //   docid : (annotation || annotation.docid) || urlparams.docid,
-    //   page : annotation.page || urlparams.page,
-    //   tableType : annotation.tableType ? annotation.tableType : "",
-    //   annotations : annotation.annotation ? annotation.annotation.annotations : [],
-    //   allAnnotations : annotations_formatted,
-    //   recommend_cuis : recommend_cuis,
-    //   metadata : metadata,
-    //   titleSubgroups : titleSubgroups,
-    //   deleteEnabled: false,
-    //   filter_topics : filter_topics,
-    //   filter_type : filter_type,
-    //   hideUnannotated : urlparams["hua"] ? urlparams["hua"] == "true" : false,
-    //   filter_group : filter_group,
-    //   filter_labelgroup : filter_labelgroup,
-    // })
-    //
-    // if( !this.state.preview ){
-    //   this.getPreview()
-    // }
-  }
-
   async componentWillReceiveProps(next) {
         this.loadPageFromProps(next)
   }
@@ -192,13 +130,13 @@ class AnnotationView extends Component {
   async loadPageFromProps(props){
     // debugger
     var urlparams = this.getUrlParams(props);
-
-    var filter_topics = urlparams["filter_topic"] ? urlparams["filter_topic"].split("_") : []
-    var filter_type = urlparams["filter_type"] ? urlparams["filter_type"].split("_") : []
-    var filter_group = urlparams["filter_group"] ? urlparams["filter_group"].split("_") : []
-    var filter_labelgroup = urlparams["filter_labelgroup"] ? urlparams["filter_labelgroup"].split("_") : []
-
-    var hua = urlparams["hua"] ? urlparams["hua"] == "true" : false
+    //
+    // var filter_topics = urlparams["filter_topic"] ? urlparams["filter_topic"].split("_") : []
+    // var filter_type = urlparams["filter_type"] ? urlparams["filter_type"].split("_") : []
+    // var filter_group = urlparams["filter_group"] ? urlparams["filter_group"].split("_") : []
+    // var filter_labelgroup = urlparams["filter_labelgroup"] ? urlparams["filter_labelgroup"].split("_") : []
+    //
+    // var hua = urlparams["hua"] ? urlparams["hua"] == "true" : false
 
     // debugger;
 
@@ -225,21 +163,24 @@ class AnnotationView extends Component {
         })
 
         // Here we get the actual table
-        var data = await fetch.getTable(urlparams.docid,urlparams.page)
+        var data = await fetch.getTable(urlparams.docid, urlparams.page, urlparams.collId)
 
         // Return back to main page, if something has gone wrong. I.e table does not exist somehow.
+
+
         if ( JSON.parse(data).status == "wrong parameters"){
-          alert("table not valid, maybe it was removed by another user")
-          this.props.goToUrl("/?user="+this.state.user+this.formatFiltersForURL()+(this.state.hideUnannotated ? "&hua=true" : ""));
+          debugger
+          // alert("table not valid")
+          // this.props.goToUrl("/");
         }
 
         // AllInfo helps building the Next and Previous buttons etc.
-        var allInfo;
-        if ( (filter_topics.length + filter_type.length + filter_group.length + filter_labelgroup.length) > 0){
-          allInfo = JSON.parse(await fetch.getAllInfo(filter_topics.join("_"), filter_type.join("_"), hua, filter_group.join("_"), filter_labelgroup.join("_")))
-        } else {
-          allInfo = JSON.parse(await fetch.getAllInfo())
-        }
+        var allInfo = JSON.parse(await fetch.getAllInfo(urlparams.collId));
+        // if ( (filter_topics.length + filter_type.length + filter_group.length + filter_labelgroup.length) > 0){
+        //   allInfo =
+        // } else {
+        //   allInfo = JSON.parse(await fetch.getAllInfo()
+        // }
 
         // allInfo.abs_index = allInfo.abs_index.sort( (st_a,st_b) => {var dd = st_a.docid.localeCompare(st_b.docid); return dd == 0 ? parseInt(st_a.page) - parseInt(st_b.page) : dd} )
 
@@ -266,7 +207,7 @@ class AnnotationView extends Component {
 
 
         var recommend_cuis = await fetch.getConceptRecommend();
-        var metadata = await fetch.getTableMetadata(urlparams.docid, urlparams.page, urlparams.user)
+        var metadata = await fetch.getTableMetadata(urlparams.docid, urlparams.page, urlparams.user, urlparams.collId)
         var titleSubgroups = []
 
         if ( !metadata.error ){
@@ -280,6 +221,7 @@ class AnnotationView extends Component {
             table: JSON.parse(data),
             docid : annotation.docid || urlparams.docid,
             page: annotation.page || urlparams.page,
+            collId: urlparams.collId,
             allInfo,
             gindex: current_table_g_index,
             user : urlparams.user ? urlparams.user : "",
@@ -291,19 +233,14 @@ class AnnotationView extends Component {
             recommend_cuis : recommend_cuis,
             metadata : metadata,
             titleSubgroups : titleSubgroups,
-            filter: urlparams.filter,
             deleteEnabled: false,
-            filter_topics : filter_topics,
-            filter_type : filter_type,
-            hideUnannotated : hua,
-            filter_group : filter_group,
-            filter_labelgroup : filter_labelgroup,
           })
         } else {
           this.setState({
             table: JSON.parse(data),
             docid : urlparams.docid,
             page: urlparams.page,
+            collId: urlparams.collId,
             allInfo,
             gindex: current_table_g_index,
             user : urlparams.user ? urlparams.user : "",
@@ -311,13 +248,7 @@ class AnnotationView extends Component {
             recommend_cuis : recommend_cuis,
             metadata : metadata,
             titleSubgroups : titleSubgroups,
-            filter: urlparams.filter,
             deleteEnabled: false,
-            filter_topics : filter_topics,
-            filter_type : filter_type,
-            hideUnannotated : hua,
-            filter_group : filter_group,
-            filter_labelgroup : filter_labelgroup,
           })
         }
 
@@ -348,7 +279,7 @@ class AnnotationView extends Component {
 
      this.setState({annotations:[],gindex: current_table_g_index, overrideTable: n != 0 ? null : this.state.overrideTable })
 
-     this.props.goToUrl("/table?docid="+encodeURIComponent(newDocument.docid)+"&page="+newDocument.page+"&user="+this.state.user+this.formatFiltersForURL()+(this.state.hideUnannotated ? "&hua=true" : ""))
+     this.props.goToUrl("/table?docid="+encodeURIComponent(newDocument.docid)+"&page="+newDocument.page+"&user="+this.state.user+"&collId="+this.state.collId)
 
    }
 
@@ -453,13 +384,13 @@ class AnnotationView extends Component {
      this.setState({annotations})
    }
 
-  removeOverrideTable = async (docid,page) => {
+  removeOverrideTable = async (docid,page, collId) => {
 
     if ( this.state.recoverEnabled ) {
        let fetch = new fetchData();
-       await fetch.removeOverrideTable(docid,page)
+       await fetch.removeOverrideTable(docid,page,collId)
 
-       var data = await fetch.getTable(docid,page)
+       var data = await fetch.getTable(docid,page,collId)
 
        this.setState({table: JSON.parse(data), editor_enabled : this.state.editor_enabled ? false : true, overrideTable: null})
      }
@@ -503,7 +434,7 @@ class AnnotationView extends Component {
      }
 
      var newDocument = this.state.allInfo.abs_index[index]
-     this.props.goToUrl("/table?docid="+encodeURIComponent(newDocument.docid)+"&page="+newDocument.page+"&user="+this.state.user+this.formatFiltersForURL()+(this.state.hideUnannotated ? "&hua=true" : ""))
+     this.props.goToUrl("/table?docid="+encodeURIComponent(newDocument.docid)+"&page="+newDocument.page+"&user="+this.state.user+"&collId="+this.state.collId)
    }
 
    async saveAnnotations(){

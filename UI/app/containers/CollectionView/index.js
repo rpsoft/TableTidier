@@ -24,7 +24,7 @@ import { FixedSizeList } from 'react-window';
 
 import { loadCollectionAction, updateCollectionAction,
          editCollectionAction, removeTablesAction,
-         moveTablesAction } from './actions'
+         moveTablesAction, deleteCollectionAction } from './actions'
 
 import { push } from 'connected-react-router'
 
@@ -45,12 +45,22 @@ import {
   DialogActions,
   Select,
   MenuItem,
+  FormHelperText,
+  FormControl,
+  InputLabel,
+  Popover,
 } from '@material-ui/core';
 
 import { useDispatch, useSelector } from "react-redux";editCollectionAction
 
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import CollectionIcon from '@material-ui/icons/Storage';
+import WarningIcon from '@material-ui/icons/Warning';
+import PeopleAltIcon from '@material-ui/icons/PeopleAlt';
+import OpenInNewIcon from '@material-ui/icons/OpenInNew';
+import DeleteIcon from '@material-ui/icons/Delete';
+import SaveIcon from '@material-ui/icons/Save';
+
 
 import SearchBar from 'Checkbox../../components/SearchBar'
 
@@ -95,7 +105,7 @@ const useStyles = makeStyles((theme) => ({
         backgroundColor: 'blue',
         borderColor: '#0062cc',
         boxShadow: 'none',
-    },
+    }
     // '&:active': {
     //   boxShadow: 'none',
     //   backgroundColor: 'blue',
@@ -112,6 +122,7 @@ export function CollectionView({
   getCollectionData,
   editCollectionData,
   updateCollectionData,
+  deleteCollection,
   removeTables,
   moveTables,
   collectionView,
@@ -120,7 +131,7 @@ export function CollectionView({
   useInjectReducer({ key: 'collectionView', reducer });
   useInjectSaga({ key: 'collectionView', saga });
 
-  // console.log(collectionView)
+ // console.log(collectionView)
   const parsed = queryString.parse(location.search);
 
   const [ editMode, setEditMode ] = useState ( false )
@@ -137,13 +148,24 @@ export function CollectionView({
   const [ owner_username, setOwner_username ] = useState();
   const [ tables, setTables ] = useState(collectionView.tables || []);
   const [ checkedTables, setCheckedTables ] = useState({});
+  const [ noTables, setNoTables ] = useState(0);
 
   const [ targetCollectionID, setTargetCollectionID] = useState("");
   const [ availableCollections, setAvailableCollections ] = useState([]);
   const [ moveDialogOpen, setMoveDialogOpen ] = useState(false);
 
+  const [ delete_enabled, set_delete_enabled ] = useState(false);
+
+  const [ collectionDeleteDialog, showCollectionDeleteDialog ] = useState(false);
+
   const [ deleteDialog, showDeleteDialog ] = useState(false);
   const [ moveDialog, showMoveDialog ] = useState(false);
+
+  const visibility_states = ["public", "registered", "private"]
+  const [visibility, setVisibility] = useState("public");
+
+  const completion_states = ["in progress", "complete"]
+  const [completion, setCompletion] = useState("in progress");
 
 
   const toggleCheckBox = (docid) => {
@@ -153,6 +175,7 @@ export function CollectionView({
       delete checkedTables_temp[docid]
     }
     setCheckedTables(checkedTables_temp)
+    setNoTables(Object.keys(checkedTables).length)
   }
 
   useEffect(() => {
@@ -167,8 +190,10 @@ export function CollectionView({
     setOwner_username(collectionView.owner_username)
     setTables(collectionView.tables)
     setAvailableCollections(collectionView.collectionsList)
-    setEditMode(false)
+    setEditMode(collectionView.collection_id == "new" ? true : false)
     setCheckedTables({})
+    setVisibility(collectionView.visibility)
+    setCompletion(collectionView.completion)
   }, [collectionView])
 
   const prepareCollectionData = () => {
@@ -178,6 +203,8 @@ export function CollectionView({
       description : description ,
       owner_username : owner_username ,
       tables : tables ,
+      visibility : visibility,
+      completion : completion,
     }
     return collectionData
   }
@@ -195,16 +222,22 @@ export function CollectionView({
                 onChange={() => {toggleCheckBox(table_key)}}
                 inputProps={{ 'aria-label': 'primary checkbox' }}
                 />
+                <span> -- </span>
             <SearchResult
-                  text={ table_key+" -- "+collectionView.tables[index].user+" -- "+collectionView.tables[index].status }
+                  text={ table_key+" -- "+collectionView.tables[index].user+" -- "+collectionView.tables[index].notes }
                   type={"table"}
-                  onClick={ () => { goToUrl("/table?docid="+collectionView.tables[index].docid+"&page="+collectionView.tables[index].page)
+                  onClick={ () => {
+                    goToUrl("/table?"+
+                                "docid="+collectionView.tables[index].docid+
+                                "&page="+collectionView.tables[index].page+
+                                "&collId="+collectionView.collection_id
+                            )
                 }}/>
           </div>
         };
 
   return (
-    <div style={{margin:10}}>
+    <div style={{margin:10, minHeight: "84vh"}}>
             <Helmet>
               <title>CollectionView</title>
               <meta name="description" content="Description of CollectionView" />
@@ -258,7 +291,7 @@ export function CollectionView({
 
                   <Card>
                     <FixedSizeList
-                      height={700}
+                      height={900}
                       width={"100%"}
                       itemSize={50}
                       itemCount={collectionView.tables ? collectionView.tables.length : 0}
@@ -269,16 +302,80 @@ export function CollectionView({
 
                 </Grid>
                 <Grid item xs={3}>
+                  <Card style={{padding:10, fontWeight:"bold",marginBottom:5, textAlign:"center"}}>
+                    <div>Collection Options</div>
+                  </Card>
+
                   <Card>
-                  <div  style={{ padding:10}}>
+                    <div style={{padding:10}}>
+                      <div className={classes.buttonHolder} style={{float:"right"}}>
 
-                    <div style={{marginBottom:10,textAlign:"center"}}>Collection Options</div>
+                        <Button onClick={ () => {set_delete_enabled(!delete_enabled)}}> <DeleteIcon  style={{ color: "#ff8282" }}   /> </Button>
 
-                    <div className={classes.buttonHolder}><Button variant="contained" > Edit Collaborators </Button> </div>
-                    <div className={classes.buttonHolder}><Button variant="contained" > Set Visibility </Button> </div>
-                    <div className={classes.buttonHolder}><Button variant="contained" > Delete Collection </Button> </div>
-                                        <hr />
-                    <div style={{marginBottom:10,textAlign:"center"}}>Table Actions</div>
+                        { delete_enabled ? <Button variant="contained"
+                                onClick={ () => {showCollectionDeleteDialog(true);}}
+                                style={{backgroundColor:"#ff8282"}} >
+                          <WarningIcon  style={{ color: "#ffdc37" }}   />
+                            Delete Collection
+                          <WarningIcon  style={{ color: "#ffdc37" }}   />
+                          </Button> : ""
+                        }
+
+                        <ConfirmationDialog
+                              title={ <div style={{textAlign:"center"}}>This collection, associated tables, and annotations will be deleted <div style={{color:"red", fontWeight:"bolder"}}>PERMANENTLY</div></div> }
+                              accept_action={ () => {deleteCollection(); alert("collection deleted"); goToUrl("/")} }
+                              cancel_action={ () => {showCollectionDeleteDialog(false);} }
+                              open={collectionDeleteDialog} />
+                      </div>
+                      {
+                      // <div className={classes.buttonHolder}><Button variant="contained" > Edit Collaborators <PeopleAltIcon style={{marginLeft:5}} />  </Button> </div>
+                      }
+                      <FormControl variant="outlined" className={classes.formControl} style={{marginTop:20, width: 200}}>
+                        <InputLabel id="outlined-visibility-label">Set Visibility</InputLabel>
+                        <Select
+                            labelId="outlined-visibility-label"
+                            id="visibility-select-helper"
+                            value={visibility}
+                            onChange={(event) => {setVisibility(event.target.value)}}
+                            style={{width:"100%",display:"inline-block"}}
+                            label="Set Visibility"
+                          >
+                          {
+                            visibility_states.map( (com,j) =>{
+                              return <MenuItem key={"vis"+j} value={com}>{com}</MenuItem>
+                            })
+                          }
+                        </Select>
+                        </FormControl>
+                        <br />
+
+                      <FormControl variant="outlined" className={classes.formControl} style={{marginTop:20, width: 200}}  >
+                        <InputLabel id="outlined-completion-label">Set Completion</InputLabel>
+                        <Select
+                            labelId="outlined-completion-label"
+                            id="completion-select-helper"
+                            value={completion}
+                            onChange={(event) => {setCompletion(event.target.value)}}
+                            style={{width:"100%",display:"inline-block"}}
+                            label="Set Completion"
+                          >
+                          {
+                            completion_states.map( (com,j) =>{
+                              return <MenuItem key={"com"+j} value={com}>{com}</MenuItem>
+                            })
+                          }
+                        </Select>
+                        </FormControl>
+                        </div>
+                  </Card>
+
+                  <Card style={{padding:10, fontWeight:"bold", marginTop:5, marginBottom:5, textAlign:"center"}}>
+                    <div>Table Actions</div>
+                  </Card>
+
+
+                  <Card style={{padding:10}}>
+                    <div>
 
                     <div className={classes.buttonHolder}>
                           <FileUploader baseURL={undefined}
@@ -288,7 +385,7 @@ export function CollectionView({
                     </div>
 
                       <div className={classes.buttonHolder}>
-                        <Button variant="contained" onClick={() => { setMoveDialogOpen(true); }} > Move Tables </Button>
+                        <Button variant="contained"   disabled = { noTables == 0 } onClick={() => { setMoveDialogOpen(true); }} > Move Tables <OpenInNewIcon style={{marginLeft:5}}/> </Button>
                         </div>
 
                       <Dialog onClose={ () => {}} aria-labelledby="customized-dialog-title" open={moveDialogOpen}>
@@ -305,6 +402,9 @@ export function CollectionView({
                                 >
                                 {
                                   availableCollections ? availableCollections.map( (coll,j) =>{
+                                    if ( coll.collection_id == collection_id){
+                                      return ""
+                                    }
                                     return <MenuItem key={j} value={coll.collection_id}><SearchResult
                                           text={ coll.collection_id+" -- "+coll.title }
                                           type={"collection"}
@@ -335,8 +435,9 @@ export function CollectionView({
 
                       <div className={classes.buttonHolder}>
                         <Button variant="contained"
+                                disabled = { noTables == 0 }
                                 onClick={ () => {showDeleteDialog(true)}}
-                                style={{backgroundColor:"#ff8282"}}> Delete Tables </Button>
+                                style={{backgroundColor:"#ff8282"}}> Delete Tables <DeleteIcon style={{marginLeft:5}} /></Button>
 
                           <ConfirmationDialog
                                 title={"Delete Tables"}
@@ -345,11 +446,14 @@ export function CollectionView({
                                 open={deleteDialog} />
                         </div>
 
-                    <hr />
 
-                    <div className={classes.buttonHolder} style={{float:"right",marginBottom:10}}>
-                          <Button variant="contained" disabled={false} onClick={() => {saveChanges()}} > Save Changes </Button> </div>
+
                   </div>
+                  </Card>
+
+                  <Card style={{padding:10, fontWeight:"bold", marginTop:5, marginBottom:5, textAlign:"center"}}>
+                    <div className={classes.buttonHolder} style={{float:"right"}}>
+                        <Button variant="contained" disabled={false} onClick={() => {saveChanges()}} > Save Changes <SaveIcon style={{marginLeft:5}} /> </Button> </div>
                   </Card>
 
                 </Grid>
@@ -371,6 +475,7 @@ function mapDispatchToProps(dispatch) {
   return {
     dispatch,
     getCollectionData : () => dispatch( loadCollectionAction() ),
+    deleteCollection : () => dispatch( deleteCollectionAction() ),
     updateCollectionData : (collectionData) => dispatch( updateCollectionAction (collectionData)),
     editCollectionData : () => dispatch( editCollectionAction() ),
     removeTables : (tablesList, collectionData) => dispatch( removeTablesAction(tablesList, collectionData) ),
