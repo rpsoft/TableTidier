@@ -31,6 +31,12 @@ function MultiplePopOver({
     const [checked, setChecked] = React.useState( value || []);
     const [anchorEl, setAnchorEl] = React.useState();
 
+    React.useEffect(
+    () => {
+      setChecked(value)
+    }, [value]);
+
+
     const handleClick = (event) => {
       setOpen(true)
       setAnchorEl(event.currentTarget)
@@ -72,13 +78,13 @@ function MultiplePopOver({
             </div>
             {
               options.map(
-                (v,o) => <div key={o} style={{marginLeft:15}}>{v}
+                (v,o) => {return <div key={o} style={{marginLeft:15}}>{v}
                             <Checkbox
                               value={ v }
                               checked={ checked.indexOf(v) > -1 }
                               onChange={ () => { updateCheck(v) }}
                               />
-                         </div>
+                         </div>}
                        )
             }
           </div>

@@ -6,7 +6,7 @@ import { initialState } from './reducer';
  */
 
 const selectAnnotatorDomain = state => {
-    return {...state.annotator,...state.input} || initialState
+  return {...state.annotator,...state.input} || initialState
 }
 
 

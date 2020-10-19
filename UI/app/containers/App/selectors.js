@@ -6,6 +6,14 @@ import { initialState } from './reducer';
 const selectApp = state => state.app || initialState;
 // const selectDashboardDomain = state => state.dashboard
 
+const selectCredentials = state => state.app.credentials || {};
+
+const makeSelectCredentials = () =>
+  createSelector(
+    selectCredentials,
+    substate => substate,
+  );
+
 const makeSelectLocation = () =>
   createSelector(
     // selectRouter,
@@ -14,4 +22,4 @@ const makeSelectLocation = () =>
   );
 
 export default makeSelectLocation;
-export { makeSelectLocation };
+export { makeSelectLocation, makeSelectCredentials };

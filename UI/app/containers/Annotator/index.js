@@ -15,20 +15,22 @@ import { compose } from 'redux';
 import { useInjectSaga } from 'utils/injectSaga';
 import { useInjectReducer } from 'utils/injectReducer';
 
-import ReactTable from 'react-table'
-import 'react-table/react-table.css'
-
 import makeSelectAnnotator from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 import messages from './messages';
+import {
+  loadTableContentAction
+} from './actions'
 
 import { useCookies } from 'react-cookie';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 
 import { ArrowDropUp, ArrowDropDown }from '@material-ui/icons';
 
-import RLDD from 'react-list-drag-and-drop/lib/RLDD.js';
+import { push } from 'connected-react-router'
+
+// import {browserHistory} from 'react-router';
 
 import {
   Card, Checkbox,
@@ -62,6 +64,8 @@ const drawerWidth = 240;
 
 import TableAnnotator from 'components/TableAnnotator'
 import TableEditor from 'components/TableEditor'
+import TableResult from 'components/TableResult'
+
 
 
 import {
@@ -100,6 +104,9 @@ const useStyles = makeStyles((theme) => ({
  bottomButtons: {
    width: 185,
    marginBottom:5,
+ },
+ bottomTable: {
+
  }
 }));
 
@@ -107,8 +114,12 @@ var diffY = 0;
 
 
 export function Annotator({
-  annotator
+  annotator,
+  loadTableContent,
+  goToUrl
 }) {
+  // console.log(annotator)
+
   useInjectReducer({ key: 'annotator', reducer });
   useInjectSaga({ key: 'annotator', saga });
 
@@ -126,31 +137,45 @@ export function Annotator({
   const [ startBottomSize, setStartBottomSize ] = React.useState(0);
   const [ dragStartY, setDragStartY ] = React.useState(0);
 
-  const [ annotations, setAnnotations ] = React.useState([{id:0, subAnnotation:false},{id:1, subAnnotation:false},{id:2, subAnnotation:true},{id:3, subAnnotation:true}]);
+  const [ N_tables, setN_tables ] = React.useState(0)
+  const [ tablePosition, setTablePosition] = React.useState(-1)
 
-  const [ tableData, setTableData ] = React.useState({ tableBody: "<div>This is the content</div>", tableTitle: "<div>This is Title </div>"});
+  const [ tableData, setTableData ] = React.useState( {...annotator.tableData });
+  const [ annotations, setAnnotations ] = React.useState( annotator.annotations );
+  const [ results, setResults ] = React.useState( {} );
+  const [ metadata, setMetadata ] = React.useState( {} );
 
   const [ editorEnabled, setEditorEnabled ] = React.useState(false);
 
-  // const eventLogger = (e, data) => {
-  //   // debugger
-  //   //
-  //   // data.deltaY
-  //
-  //   // setBottomSize( bottomSize+ data.deltaY)
-  //   console.log('delta: ', bottomSize + data.y);
-  //   // console.log('Data: ', data);
-  // };
 
-  // useEffect(() => {
-  //   // This reloads the authentication token if it's available in the cookies.
-  //   if ( token ) {
-  //     setCookie("hash", token)
-  //   }
-  //
-  // });
+  //On component will mount
+  React.useEffect(() => {
+    loadTableContent()
+  }, []);
 
-  // <FormattedMessage {...messages.header} />
+
+  React.useEffect(() => {
+    // debugger
+    // console.log(JSON.stringify(annotator.tableData))
+      if( annotator.tableData){
+        setAnnotations(annotator.annotations)
+        setTableData(annotator.tableData)
+        setN_tables(annotator.tableData.collectionData.tables.length)
+        setTablePosition(annotator.tableData.tablePosition)
+      }
+    }, [annotator])
+
+  // React.useEffect(() => {
+  //   // getCollectionData()
+  //   // setEditMode(false)
+  // }, [cookies.hash]);
+
+  React.useEffect(() => {
+    // console.log("changed: " + JSON.stringify(location.search))
+    loadTableContent()
+  }, [location.search]);
+
+  // <FormattedMessage {...messages.header} />     console.log("EFFEFCT")
   // <div>Logged in as {cookies.username}</div>
   // <div>{cookies.hash}</div>
 
@@ -160,78 +185,29 @@ export function Annotator({
   //   var element = document.getElementById("bottom");
   //   element.scrollIntoView({behavior: "smooth"});
   // }
+  //
+  // const handleMultiChoice = (variable,values) => {
+  //
+  //
+  //   // var prevState = this.state
+  //   //     prevState[variable] = values
+  //   //
+  //   // console.log(prevState)
+  //   // this.setState(prevState)
+  //   //
+  //   //
+  //   // this.props.addAnnotation(this.state)
+  // }
+  //
+  // const staticTransform = `translate(0px, 0px)`
+  //
 
-  const handleMultiChoice = (variable,values) => {
-
-
-    // var prevState = this.state
-    //     prevState[variable] = values
-    //
-    // console.log(prevState)
-    // this.setState(prevState)
-    //
-    //
-    // this.props.addAnnotation(this.state)
-  }
-
-  const staticTransform = `translate(0px, 0px)`
-
-
-  const descriptors_available = ["outcomes", "characteristic_name", "characteristic_level", "arms", "measures", "time/period", "other", "p-interaction"]
-  const formaters_available = ["plain", "bold", "indented", "italic", "empty_row","empty_row_with_p_value"]
-
-
-  const table_annotator =  <div>
-      <div style={{height:35, fontSize:22}}> 1. Table <b> Annotations </b> <Button variant="outlined" style={{backgroundColor:"lightblue", float:"right"}} onClick={ () => {} }> save annotation changes </Button></div>
-
-      <hr style={{borderTop:"1px #acacac dashed"}}/>
-        {
-          // annotations.map( (ann,i) => <TableAnnotator
-          //       key={"ann_"+i}
-          //       annotationData={ () => {} }
-          //       addAnnotation={ () => {} }
-          //       deleteAnnotation={ () => {} }
-          // /> )
-        }
-
-        <RLDD
-          items={annotations}
-          itemRenderer={(item) => {
-            return (
-              <div className="item">
-              <TableAnnotator
-                    key={"ann_"+item.id}
-                    annotationData={ item }
-                    addAnnotation={ () => {} }
-                    deleteAnnotation={ () => {} }
-              />
-              </div>
-            );
-          }}
-          onChange={ (newAnnotations) => { setAnnotations(newAnnotations) } }
-        />
-        <Button variant="outlined" style={{backgroundColor:"lightgreen", marginTop:5}} onClick={ () => { var temp = Array.from(annotations); temp.push({id:temp.length}); setAnnotations( temp )} }> + add annotation item</Button>
-      </div>
+  const table_annotator =  annotations ? <TableAnnotator annotations={annotations} setAnnotations={ (anns) => {setAnnotations(anns)}}  /> : ""
 
 
   var cols = []  //columns.map( (v,i) => { var col = {Header: v, accessor : v}; if( v == "col" || v == "row"){ col.width = 70 }; if( v == "value" ){ col.width = 200 }; return col } )
 
-  const table_results = <div>
-                          <div style={{textAlign:"right", marginBottom:5}}>
-                            <div style={{height:35, fontSize:22, float:"left", paddingTop:5}}> 2. Extraction <b> Results </b> </div>
-                            <Button variant="outlined" style={{backgroundColor:"lightblue"}} onClick={ () => {} }> Reload Results </Button>
-                          </div>
-
-                          <ReactTable
-                            data={[{hello:12,there:"cucu"}]}
-                            columns={[{Header:"hello",accessor:"hello"},{Header:"there",accessor:"there"}]}
-                            style={{
-                              marginBottom: 10,
-                              backgroundColor:"#f6f5f5"
-                            }}
-                            defaultPageSize={10}
-                          />
-                        </div>
+  const table_results = <TableResult />
 
   const table_metadata = <div>
                             <div style={{textAlign:"right", marginBottom:5}}>
@@ -245,7 +221,7 @@ export function Annotator({
                               "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?"
 
                               1914 translation by H. Rackham
-                              "But I must explain to you how all this mistaken idea of denouncing pleasure and praising pain was born and I will give you a complete account of the system, and expound the actual teachings of the great explorer of the truth, the master-builder of human happiness. No one rejects, dislikes, or avoids pleasure itself, because it is pleasure, but because those who do not know how to pursue pleasure rationally encounter consequences that are extremely painful. Nor again is there anyone who loves or pursues or desires to obtain pain of itself, because it is pain, but because occasionally circumstances occur in which toil and pain can procure him some great pleasure. To take a trivial example, which of us ever undertakes laborious physical exercise, except to obtain some advantage from it? But who has any right to find fault with a man who chooses to enjoy a pleasure that has no annoying consequences, or one who avoids a pain that produces no resultant pleasure?"
+                              "But I must explain to you how all thtable_annotatoris mistaken idea of denouncing pleasure and praising pain was born and I will give you a complete account of the system, and expound the actual teachings of the great explorer of the truth, the master-builder of human happiness. No one rejects, dislikes, or avoids pleasure itself, because it is pleasure, but because those who do not know how to pursue pleasure rationally encounter consequences that are extremely painful. Nor again is there anyone who loves or pursues or desires to obtain pain of itself, because it is pain, but because occasionally circumstances occur in which toil and pain can procure him some great pleasure. To take a trivial example, which of us ever undertakes laborious physical exercise, except to obtain some advantage from it? But who has any right to find fault with a man who chooses to enjoy a pleasure that has no annoying consequences, or one who avoids a pain that produces no resultant pleasure?"
 
                               Section 1.10.33 of "de Finibus Bonorum et Malorum", written by Cicero in 45 BC
                               "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat."
@@ -264,6 +240,21 @@ export function Annotator({
     setTableData(temp_table_data);
 
   }
+
+  // Preparing navigation variables here.
+  const prepare_nav_link  = (table) => {
+
+    if (!table ){
+      return () => {}
+    }
+    return () => {goToUrl("/table?"+
+                "docid="+table.docid+
+                "&page="+table.page+
+                "&collId="+table.collection_id);}
+  }
+
+  const goPrev = prepare_nav_link(annotator.tableData ? annotator.tableData.tablePosition_prev : false)
+  const goNext = prepare_nav_link(annotator.tableData ? annotator.tableData.tablePosition_next : false)
 
   return (
 
@@ -289,11 +280,11 @@ export function Annotator({
 
             <hr />
 
-            <TableEditor editorID={"table_title_editor"} textContent={tableData.tableTitle} editorEnabled={editorEnabled} saveTextChanges={ (newText) => { changeTableData("tableTitle", newText) } }/>
+            <TableEditor editorID={"table_title_editor"} textContent={tableData ? tableData.tableTitle : ""} editorEnabled={editorEnabled} saveTextChanges={ (newText) => { changeTableData("tableTitle", newText) } }/>
 
             <hr />
 
-            <TableEditor editorID={"table_content_editor"} textContent={tableData.tableBody} editorEnabled={editorEnabled} saveTextChanges={ (newText) => { changeTableData("tableBody", newText) } }/>
+            <TableEditor editorID={"table_content_editor"} textContent={tableData ? tableData.tableBody : ""} editorEnabled={editorEnabled} saveTextChanges={ (newText) => { changeTableData("tableBody", newText) } }/>
         </div>
 
            <Drawer
@@ -311,14 +302,14 @@ export function Annotator({
                 Table Number in Collection:
               </ListItem>
               <ListItem>
-                <Button variant="outlined" size="small" style={{minWidth: "auto", width:30, marginLeft:5}}>
+                <Button variant="outlined" size="small" style={{minWidth: "auto", width:30, marginLeft:5}} onClick={ goPrev }>
                   <NavigateBeforeIcon style={{fontSize:20}} />
                 </Button>
                 <div style={{display:"inline", border:"1px solid #e5e5e5", borderRadius:5, height:30, verticalAlign:"center", width:"100% ", textAlign:"center", padding:2, fontSize:15}}>
-                  <input style={{width:70, marginRight:5, textAlign:"right"}} type="number"/>
-                  <div style={{display:"inline-block"}}> / 99999 </div>
+                  <input readOnly style={{width:70, marginRight:5, textAlign:"right"}} type="number" value={tablePosition > -1 ? tablePosition+1 : -1}/>
+                  <div style={{display:"inline-block"}}> / {N_tables} </div>
                 </div>
-                <Button variant="outlined" size="small" style={{minWidth: "auto", width:30}}>
+                <Button variant="outlined" size="small" style={{minWidth: "auto", width:30}} onClick={ goNext }>
                   <NavigateNextIcon style={{fontSize:20}} />
                 </Button>
               </ListItem>
@@ -358,14 +349,16 @@ export function Annotator({
                   <ListItemIcon><LinkIcon/></ListItemIcon>
                   <ListItemText primary={"Link to Document"} />
                 </ListItem>
-                <ListItem button>
-                  <ListItemIcon><DownloadIcon/></ListItemIcon>
-                  <ListItemText primary={"Download CSV Data"} />
-                </ListItem>
-                <ListItem button>
-                  <ListItemIcon><DownloadIcon/></ListItemIcon>
-                  <ListItemText primary={"Download CSV Data"} />
-                </ListItem>
+                {
+                // <ListItem button>
+                //   <ListItemIcon><DownloadIcon/></ListItemIcon>
+                //   <ListItemText primary={"Download CSV Data"} />
+                // </ListItem>
+                // <ListItem button>
+                //   <ListItemIcon><DownloadIcon/></ListItemIcon>
+                //   <ListItemText primary={"Download CSV Data"} />
+                // </ListItem>
+                }
               </List>
             </Drawer>
         </div>
@@ -401,7 +394,9 @@ export function Annotator({
               if ( bottomEnabled ){
                 var dragX = e.pageX, dragY = e.pageY;
                 var nextSize = startBottomSize + (dragStartY - dragY)
-                setBottomSize(nextSize > 1000 ? 1000 : nextSize);
+                // debugger
+
+                setBottomSize( (nextSize < 0) || (nextSize > window.innerHeight*0.75) ? window.innerHeight*0.75 : nextSize);
                 e.preventDefault()
               }
             }}
@@ -412,16 +407,18 @@ export function Annotator({
             {
               !bottomEnabled ||
                <div style={{height:"100%", backgroundColor:"#ffffff",paddingRight:70}}>
-                  <table style={{width:"100%", height:"100%"}}>
+                  <table className={"bottomTable"}  style={{width:"100%", height:"100%"}}>
                     <tbody>
                       <tr>
-                          <td style={{ textAlign: "center",padding:5, borderRight:"5px solid #e5e5e5", verticalAlign:"top"}}>
-                            <Button variant="outlined" className={classes.bottomButtons} style={{backgroundColor: bottomAnnotations ? "lightgoldenrodyellow" : "" }} onClick={ () => showBottomAnnotations(!bottomAnnotations)}>
-                                          1. Annotations { bottomAnnotations ? <VisibilityIcon style={{marginLeft:5}}/> : <VisibilityOffIcon style={{marginLeft:5}}/> }  </Button>
-                            <Button variant="outlined" className={classes.bottomButtons} style={{backgroundColor: bottomResults ? "lightsteelblue" : ""  }} onClick={ () => showBottomResults(!bottomResults)}>
-                                          2. Results { bottomResults ? <VisibilityIcon style={{ marginLeft:5}}/> : <VisibilityOffIcon style={{marginLeft:5}}/> } </Button>
-                            <Button variant="outlined" className={classes.bottomButtons} style={{backgroundColor: bottomMetadata ? "lightpink" : ""  }} onClick={ () => showBottomMetadata(!bottomMetadata)}>
-                                          3. Metadata { bottomMetadata ? <VisibilityIcon style={{ marginLeft:5}}/> : <VisibilityOffIcon style={{marginLeft:5}}/> } </Button>
+                          <td style={{ textAlign: "center", padding:5, borderRight:"5px solid #e5e5e5", verticalAlign:"top"}}>
+                            <div style={{width:"100%", maxWidth:200}}>
+                              <Button variant="outlined" className={classes.bottomButtons} style={{backgroundColor: bottomAnnotations ? "lightgoldenrodyellow" : "" }} onClick={ () => showBottomAnnotations(!bottomAnnotations)}>
+                                            1. Annotations { bottomAnnotations ? <VisibilityIcon style={{marginLeft:5}}/> : <VisibilityOffIcon style={{marginLeft:5}}/> }  </Button>
+                              <Button variant="outlined" className={classes.bottomButtons} style={{backgroundColor: bottomResults ? "lightsteelblue" : ""  }} onClick={ () => showBottomResults(!bottomResults)}>
+                                            2. Results { bottomResults ? <VisibilityIcon style={{ marginLeft:5}}/> : <VisibilityOffIcon style={{marginLeft:5}}/> } </Button>
+                              <Button variant="outlined" className={classes.bottomButtons} style={{backgroundColor: bottomMetadata ? "lightpink" : ""  }} onClick={ () => showBottomMetadata(!bottomMetadata)}>
+                                            3. Metadata { bottomMetadata ? <VisibilityIcon style={{ marginLeft:5}}/> : <VisibilityOffIcon style={{marginLeft:5}}/> } </Button>
+                            </div>
                           </td>
                           <td style={{ padding:5, verticalAlign:"top"}}>
                             <div style={{overflowY:"scroll",height:"100%"}}>
@@ -451,6 +448,7 @@ export function Annotator({
 
 Annotator.propTypes = {
   dispatch: PropTypes.func.isRequired,
+  annotator: PropTypes.object
 };
 
 const mapStateToProps = createStructuredSelector({
@@ -460,6 +458,10 @@ const mapStateToProps = createStructuredSelector({
 function mapDispatchToProps(dispatch) {
   return {
     dispatch,
+    loadTableContent : () => dispatch( loadTableContentAction() ),
+    goToUrl : (url) => dispatch(push(url))
+    // deleteCollection : () => dispatch( deleteCollectionAction() ),
+    // updateCollectionData : (collectionData) => dispatch( updateCollectionAction (collectionData)),
   };
 }
 

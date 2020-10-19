@@ -48,7 +48,7 @@ console.log("Loading Security")
 import passport, {initialiseUsers, createUser, getUserHash}  from "./security.js"
 
 console.log("Loadicorsng Table Libs")
-import { prepareAvailableDocuments, readyTableData } from "./table.js"
+import { readyTable, prepareAvailableDocuments, readyTableData } from "./table.js"
 
 console.log("Loading MetaMap Docker Comms Module")
 import { metamap } from "./metamap.js"
@@ -321,13 +321,13 @@ async function getMetadataLabellers(){
 }
 
 // Returns the annotation for a single document/table
-async function getAnnotationByID(docid,page,user,collId){
+async function getAnnotationByID(docid,page,collId){
 
   var client = await pool.connect()
 
   var result = await client.query(`
                   select * from "table",annotations where "table".tid = annotations.tid
-                  AND docid=$1 AND page=$2 AND collection_id = $4 `,[docid,page,user,collId])
+                  AND docid=$1 AND page=$2 AND collection_id = $3 `,[docid,page,collId])
         client.release()
   return result
 }
@@ -819,6 +819,46 @@ app.post('/search', async function(req,res){
 });
 
 
+
+
+app.post('/getTableContent',async function(req,res){
+
+    var bod = req.body.searchContent
+
+    var validate_user = validateUser(req.body.username, req.body.hash);
+
+    if ( validate_user ){
+
+      try{
+
+        if(req.body.docid && req.body.page && req.body.collId ){
+          var collection_data = await getCollection(req.body.collId)
+
+          var tableData = await readyTable(req.body.docid, req.body.page, req.body.collId) //readyTableData  on the other hand does the predictions too
+
+          var annotation = await getAnnotationByID(req.body.docid, req.body.page, req.body.collId)
+
+          tableData.collectionData = collection_data
+          tableData.annotationData = annotation && annotation.rows.length > 0 ? annotation.rows[0] : {}
+
+          res.json( tableData )
+        } else {
+          res.json({status: "wrong parameters", body : req.body})
+        }
+      } catch (e){
+        console.log(e)
+        res.json({status: "probably page out of bounds, or document does not exist", body : req.body})
+      }
+
+    } else {
+      res.json([])
+    }
+});
+
+
+
+///// Probably vintage from here on.
+
 app.get('/api/allInfo',async function(req,res){
 
   var labellers = await getMetadataLabellers();
@@ -967,75 +1007,98 @@ app.get('/api/cuisIndexAdd',async function(req,res){
 
 
 // Generates the results table live preview, connecting to the R API.
-app.get('/api/annotationPreview',async function(req,res){
+app.post('/annotationPreview',async function(req,res){
 
-  try{
+      var bod = req.body.searchContent
 
-        var annotations
+      var validate_user = validateUser(req.body.username, req.body.hash);
 
-        if(req.query && req.query.docid && req.query.docid.length > 0 ){
-          var page = req.query.page && (req.query.page.length > 0) ? req.query.page : 1
-          var user = req.query.user && (req.query.user.length > 0) ? req.query.user : ""
-          var collId = req.query.collId && (req.query.collId.length > 0) ? req.query.collId : ""
+      if ( validate_user ){
 
-          console.log("Producing Data Preview for: " + JSON.stringify(req.query))
-          annotations = await getAnnotationByID(req.query.docid, page, user, collId)
+        try{
 
-        } else{
-          res.send( {state:"badquery: "+JSON.stringify(req.query)} )
-        }
+          if(req.body.docid && req.body.page && req.body.collId ){
 
-        var final_annotations = {}
+            var annotation = await getAnnotationByID(req.body.docid, req.body.page, req.body.collId)
 
-        /**
-        * There are multiple versions of the annotations. When calling reading the results from the database, here we will return only the latest/ most complete version of the annotation.
-        * Independently from the author of it. Completeness here measured as the result with the highest number of annotations and the highest index number (I.e. Newest, but only if it has more information/annotations).
-        * May not be the best in some cases.
-        *
-        */
+            var final_annotations = {}
 
-        for ( var r in annotations.rows){
-          var ann = annotations.rows[r]
-          var existing = final_annotations[ann.docid+"_"+ann.page]
-          if ( existing ){
-            if ( ann.N > existing.N && ann.annotation.annotations.length >= existing.annotation.annotations.length ){
-                  final_annotations[ann.docid+"_"+ann.page] = ann
+            /**
+            * There are multiple versions of the annotations. When calling reading the results from the database, here we will return only the latest/ most complete version of the annotation.
+            * Independently from the author of it. Completeness here measured as the result with the highest number of annotations and the highest index number (I.e. Newest, but only if it has more information/annotations).
+            * May not be the best in some cases.
+            *
+            */
+
+            for ( var r in annotations.rows){
+              var ann = annotations.rows[r]
+              var existing = final_annotations[ann.docid+"_"+ann.page]
+              if ( existing ){
+                if ( ann.N > existing.N && ann.annotation.annotations.length >= existing.annotation.annotations.length ){
+                      final_annotations[ann.docid+"_"+ann.page] = ann
+                }
+              } else { // Didn't exist so add it.
+                final_annotations[ann.docid+"_"+ann.page] = ann
+              }
             }
-          } else { // Didn't exist so add it.
-            final_annotations[ann.docid+"_"+ann.page] = ann
+
+            var final_annotations_array = []
+            for (  var r in final_annotations ){
+              var ann = final_annotations[r]
+              final_annotations_array[final_annotations_array.length] = ann
+            }
+
+            if( final_annotations_array.length > 0){
+
+                  var entry = final_annotations_array[0]
+                      entry.annotation = entry.annotation.annotations.map( (v,i) => {var ann = v; ann.content = Object.keys(ann.content).join(";"); ann.qualifiers = Object.keys(ann.qualifiers).join(";"); return ann} )
+
+                  request({
+                          url: 'http://localhost:6666/preview',
+                          method: "POST",
+                          json: {
+                            anns: entry
+                          }
+                    }, function (error, response, body) {
+                    res.json( {"state" : "good", result : body.tableResult, "anns": body.ann} )
+                  });
+
+            } else {
+              res.json({"state" : "empty"})
+            }
+
+          } else {
+            res.json({status: "wrong parameters", body : req.body})
           }
+
+        } catch (e){
+          // console.log(e)
+          res.json({status: "probably page out of bounds, or document does not exist", body : req.body})
         }
 
-        var final_annotations_array = []
-        for (  var r in final_annotations ){
-          var ann = final_annotations[r]
-          final_annotations_array[final_annotations_array.length] = ann
-        }
-
-        if( final_annotations_array.length > 0){
-
-              var entry = final_annotations_array[0]
-                  entry.annotation = entry.annotation.annotations.map( (v,i) => {var ann = v; ann.content = Object.keys(ann.content).join(";"); ann.qualifiers = Object.keys(ann.qualifiers).join(";"); return ann} )
-
-              request({
-                      url: 'http://localhost:6666/preview',
-                      method: "POST",
-                      json: {
-                        anns: entry
-                      }
-                }, function (error, response, body) {
-                res.send( {"state" : "good", result : body.tableResult, "anns": body.ann} )
-              });
-
-        } else {
-          res.send({"state" : "empty"})
-        }
-
-  } catch (e){
-
-    res.send({"state" : "failed"})
-  }
-
+      } else {
+        res.json([])
+      }
+  //
+  // try{
+  //
+  //       var annotations
+  //
+  //       if(req.query && req.query.docid && req.query.docid.length > 0 ){
+  //         var page = req.query.page && (req.query.page.length > 0) ? req.query.page : 1
+  //         var user = req.query.user && (req.query.user.length > 0) ? req.query.user : ""
+  //         var collId = req.query.collId && (req.query.collId.length > 0) ? req.query.collId : ""
+  //
+  //         console.log("Producing Data For: " + JSON.stringify(req.query))
+  //         annotations = await getAnnotationByID(req.query.docid, page, collId)
+  //
+  //       } else{
+  //         res.send( {state:"badquery: "+JSON.stringify(req.query)} )
+  //       }
+  //
+  // } catch (e){
+  //   res.send({"state" : "failed"})
+  // }
 
 });
 
@@ -1208,26 +1271,27 @@ app.get('/api/classify', async function(req,res){
 
 });
 
-app.get('/api/getTable',async function(req,res){
-   try{
-
-      // && available_documents[req.query.docid]
-      // && available_documents[req.query.docid].pages.indexOf(req.query.page) > -1
-    if(req.query && req.query.docid && req.query.page && req.query.collId ){
-
-      // debugger
-      var tableData = await readyTableData(req.query.docid,req.query.page,req.query.collId)
-
-      res.send( tableData  )
-    } else {
-      res.send({status: "wrong parameters", query : req.query})
-    }
-} catch (e){
-  console.log(e)
-  res.send({status: "probably page out of bounds, or document does not exist", query : req.query})
-}
-
-});
+//
+// app.post('/api/getTable',async function(req,res){
+//    try{
+//
+//       // && available_documents[req.query.docid]
+//       // && available_documents[req.query.docid].pages.indexOf(req.query.page) > -1
+//     if(req.query && req.query.docid && req.query.page && req.query.collId ){
+//
+//       // debugger
+//       var tableData = await readyTableData(req.query.docid,req.query.page,req.query.collId)
+//
+//       res.send( tableData  )
+//     } else {
+//       res.send({status: "wrong parameters", query : req.query})
+//     }
+//   } catch (e){
+//     console.log(e)
+//     res.send({status: "probably page out of bounds, or document does not exist", query : req.query})
+//   }
+//
+// });
 
 app.get('/api/getAvailableTables',function(req,res){
   res.send(available_documents)
@@ -1267,8 +1331,8 @@ app.get('/api/getAnnotationByID',async function(req,res){
     var user = req.query.user && (req.query.user.length > 0) ? req.query.user : ""
     var collId = req.query.collId && (req.query.collId.length > 0) ? req.query.collId : ""
 
-    debugger
-    var annotations = await getAnnotationByID(req.query.docid,page,user,collId)
+    // debugger
+    var annotations = await getAnnotationByID(req.query.docid,page,collId)
 
     var final_annotations = {}
 

@@ -12,3 +12,11 @@
 .dl-item.floating {
   width: 40%;
 }
+
+.bottomTable tr:hover {
+  background-color: white;
+}
+
+.bottomTable td:hover {
+  background-color: white;
+}

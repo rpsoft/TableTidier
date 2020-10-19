@@ -10,10 +10,17 @@ import React, { memo } from 'react';
 
 import { FormattedMessage } from 'react-intl';
 import messages from './messages';
-import DragIndicatorIcon from '@material-ui/icons/DragIndicator';
+
+import TableAnnotatorItem from 'components/TableAnnotatorItem'
+
+import AdbIcon from '@material-ui/icons/Adb';
+
+import ReactDOM from "react-dom";
+
+import { List, arrayMove } from 'react-movable';
 
 import {
-  Button as RaisedButton,
+  Button,
   TextField,
   Select as SelectField,
   Menu,
@@ -21,139 +28,76 @@ import {
   Card,
   Popover,
   Checkbox,
+  Switch,
 } from '@material-ui/core';
 
-import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
-import SubdirectoryArrowRightIcon from '@material-ui/icons/SubdirectoryArrowRight';
-import DeleteIcon from '@material-ui/icons/Delete';
-import Fab from '@material-ui/core/Fab';
-
-import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
-import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
-
-
-//
-//
-// import RaisedButton from '@material-ui/core/Button';
-// import TextField from '@material-ui/core/TextField';
-//
-// import SelectField from '@material-ui/core/Select';
-// import Menu from '@material-ui/core/Menu';
-// import MenuItem from '@material-ui/core/MenuItem';
-//
-// import Card from '@material-ui/core/Card';
-//
-// import Popover from '@material-ui/core/Popover';
-// import Checkbox from '@material-ui/core/Checkbox';
-
-import MultiplePopOver from 'components/MultiplePopOver'
-
 function TableAnnotator({
-  annotationData,
-  addAnnotation,
-  deleteAnnotation
+  annotations,
+  setAnnotations,
 }) {
 
-  const [location, setLocation] = React.useState("Col")
-  const [content, setContent] = React.useState("Col")
-  const [qualifiers, setQualifiers] = React.useState("Col")
-  const [number, setNumber] = React.useState("")
+  const [enableDelete, setEnableDelete] = React.useState(false);
 
-  const [ optionsShown, showOptions ] = React.useState(false);
-
-  const [isSub, setSub ] = React.useState(false)
-
-  const handleChange = (event, data, source) => {
-     // var prevState = this.state
-     // prevState[source] = event.target.value
-     // console.log(prevState)
-     // this.setState(prevState);
-     // this.props.addAnnotation(this.state)
-  };
-
-  const handleMultiChoice = (variable, values) => {
-    // var prevState = this.state
-    //     prevState[variable] = values
-    // this.setState(prevState)
-    //
-    // this.props.addAnnotation(this.state)
+  const changeAnnotationData = (index, key, data) => {
+    var temp = Array.from(annotations);
+    temp[index][key] = data;
+    setAnnotations(temp.slice());
   }
 
-  const [descriptors, setDescriptors] = React.useState([])
-  const [formaters, setFormaters] = React.useState([])
+  const deleteAnnotationLine = (index) => {
+    var temp = Array.from(annotations);
+    temp.splice(index,1)
+    setAnnotations(temp.slice());
+  }
 
-  const descriptors_available = ["outcomes", "characteristic_name", "characteristic_level", "arms", "measures", "time/period", "other", "p-interaction"]
-  const formaters_available = ["plain", "bold", "indented", "italic", "empty_row","empty_row_with_p_value"]
+  const AnnotationList = annotations ? <List
+      values={annotations}
+      onChange={({ oldIndex, newIndex }) =>
+        setAnnotations(arrayMove(annotations, oldIndex, newIndex))
+      }
+      renderList={({ children, props }) => <div {...props}>{children}</div>}
+      renderItem={({ value, index, props }) => <div {...props}>{
+        <TableAnnotatorItem
+            id={index}
+            annotationData={ value }
+            deleteAnnotation={ deleteAnnotationLine }
+            editAnnotation={ changeAnnotationData }
+            enableDelete={enableDelete}
+        />}
+      </div>}
+    />: ""
+
 
   return (
-    <div style={{marginLeft:5, height: 40}} onMouseEnter={ () => {showOptions(true)} } onMouseLeave={ () => {showOptions(false)} } >
+    <div >
+        <div style={{height:35, fontSize:22}}> 1. Table <b> Annotations </b>
 
+          <Button variant="outlined" style={{backgroundColor:"lightblue", float:"right"}} onClick={ () => {} }> save annotation changes </Button>
+          <Button variant="outlined" style={{backgroundColor:"lightblue", float:"right", marginRight:20}} onClick={ () => {} }> Auto Annotate <AdbIcon /></Button>
 
-          <DragIndicatorIcon style={{cursor:"grab"}}/>
+          <span style={{float:"right", marginRight:20, fontSize:17, border:"1px #acacac solid", borderRadius:10, paddingLeft:10}}>
+            Enable Delete
+            <Switch
+                checked={enableDelete}
+                onChange={() => { setEnableDelete(!enableDelete) }}
+                name="checkedA"
+                inputProps={{ 'aria-label': 'secondary checkbox' }}
 
-          <span onClick={ (e) => {e.preventDefault()}}>
-
-          <RaisedButton style={{minWidth: "auto", width: 30, marginLeft: 5}}> <KeyboardArrowLeftIcon /> </RaisedButton>
-          <RaisedButton style={{minWidth: "auto", width: 30, marginLeft: 5}}> <KeyboardArrowRightIcon /> </RaisedButton>
-
-          <span> { annotationData.subAnnotation ? <SubdirectoryArrowRightIcon style={{marginLeft:20}}/> : ""} </span>
-
-          <SelectField
-              value={location}
-              onChange={(event,index,value) => {setLocation(index.props.value) }}
-              style={{width:130,marginLeft:10}}
-              >
-                <MenuItem value={"Col"} key={1} >Column</MenuItem>
-                <MenuItem value={"Row"} key={2} >Row</MenuItem>
-          </SelectField>
-
-          <TextField
-                value={number}
-                placeholder="N"
-                onChange={(event,value) => { setNumber(value) }}
-                inputProps={{style: { textAlign: 'center' }}}
-                style={{width:30,marginLeft:20, textAlign:"center"}}
               />
-
-
-          <MultiplePopOver
-                       value={descriptors}
-                       variable={"Content "}
-                       options={ descriptors_available }
-                       updateAnnotation={ (values) => { handleMultiChoice("content", setDescriptors(values)) } }
-                       style={{marginLeft:10}}
-                       />
-
-          <MultiplePopOver
-                       value={ formaters }
-                       variable={"Format "}
-                       options={ formaters_available }
-                       updateAnnotation={ (values) => { handleMultiChoice("content", setFormaters(values)) } }
-                       style={{marginLeft:10}}
-                       />
-
-
-
-          {
-            // <span style={{marginLeft:10, padding:9, border:"1px solid black", borderRadius:5}}>
-            //   Subordinate ?
-            //  <Checkbox
-            //    checked={ false }
-            //    onChange={ () => {} }
-            //    inputProps={{ 'aria-label': 'primary checkbox' }}
-            //  />
-            // </span>
-            //   <RaisedButton
-            //   variant={"contained"}
-            //   style={{marginLeft: 30, backgroundColor:"#ffa3a3"}}
-            //   onClick={() => { deleteAnnotation()}}
-            //
-            // ><DeleteIcon /></RaisedButton>
-            optionsShown ? <span> <KeyboardBackspaceIcon style={{marginLeft:30}}/>
-            <Fab style={{height:25, width:35, marginLeft:30, backgroundColor:"#ffa3a3"}} ><DeleteIcon style={{height:20}}/> </Fab></span> : ""
-          }
-
           </span>
+
+
+        </div>
+
+      {//<div>{JSON.stringify(annotations)}</div>
+      }
+        <hr style={{borderTop:"1px #acacac dashed"}}/>
+
+        <div style={{width:"100%",whiteSpace: "nowrap"}}>
+          {AnnotationList}
+        </div>
+          <Button variant="outlined" style={{backgroundColor:"lightgreen", marginTop:5}} onClick={ () => { var temp = Array.from(annotations); temp.push({location: "Col" , content:{}, qualifiers:{}, number:"", subAnnotation:false}); setAnnotations( temp )} }> + add annotation item</Button>
+
     </div>
   );
 }

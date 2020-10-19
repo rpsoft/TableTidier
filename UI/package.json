@@ -99,6 +99,7 @@
     "react-intl": "2.8.0",
     "react-list-drag-and-drop": "^0.9.2",
     "react-loader-spinner": "^2.3.0",
+    "react-movable": "^2.5.3",
     "react-paginate": "^6.5.0",
     "react-redux": "7.0.2",
     "react-resizable": "^1.11.0",

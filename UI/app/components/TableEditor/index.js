@@ -31,11 +31,10 @@ function TableEditor({
   // const [editorEnabled, setEditorEnabled] = React.useState(false);
 
   // //
-  // React.useEffect(
-  // () => {
-  //   debugger
-  //   setEditorContent(textContent)
-  // },[textContent]);
+  React.useEffect(
+  () => {
+    setEditorContent(textContent)
+  }, [textContent]);
 
   const clearEditor = (CKEDITOR) => {
 

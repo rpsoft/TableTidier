@@ -1,6 +1,6 @@
 import { take, call, put, select, takeLatest } from 'redux-saga/effects';
 
-import { REGISTER_ACCOUNT, REGISTER_ACCOUNT_SUCCESS,  REGISTER_ACCOUNT_FAIL } from './constants';
+import { REGISTER_ACCOUNT, REGISTER_ACCOUNT_SUCCESS, REGISTER_ACCOUNT_FAIL } from './constants';
 
 import { registerAccountAction, registerAccountActionSuccess, registerAccountActionFailed } from './actions';
 

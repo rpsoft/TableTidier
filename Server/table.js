@@ -16,7 +16,6 @@ var fs = require('fs');
 
 var path = require('path');
 
-var buffer_tables = {};
 console.log("Loading Classifier");
 
 var readyTableData =
@@ -48,11 +47,6 @@ function () {
 
             console.log("Loading Table: " + docid + " " + (file_exists ? " [Override Folder]" : ""));
             result = new Promise(function (resolve, reject) {
-              if (buffer_tables[docid]) {
-                // early exit if buffer already has it.
-                resolve(buffer_tables[docid]);
-              }
-
               try {
                 fs.readFile(path.join(htmlFolder, htmlFile), //already has collection_id in html_folder
                 "utf8", function (err, data) {
@@ -62,7 +56,7 @@ function () {
                     var _ref2 = (0, _asyncToGenerator2.default)(
                     /*#__PURE__*/
                     _regenerator.default.mark(function _callee(err2, data_ss) {
-                      var tablePage, tableEdited, firstColContent, spaceRow, htmlHeader, findHeader, possible_tags_for_title, t, htmlHeaderText, actual_table, colum_with_numbers, styles, formattedPage, predictions, terms_matrix, preds_matrix, format_matrix, feature_matrix, content_type_matrix, cleanModifier, isTermNumber, getColumnAsArray, getFreqs, getMatchingIndices, getElementsByIndices, getTopDescriptors, isMostlyNumbers, max_col, max_row, col_top_descriptors, row_top_descriptors, format_units, f, format_key, format_unit, col, col_array, indices_w_format, pred_array, predictions_w_format, content_array, descriptors, row, row_predictions, rowFirstCellEmpty, is_empty_or_P, sanitiseItemRepetition, reduceFormatRedundancy, predicted;
+                      var tablePage, tableEdited, firstColContent, spaceRow, htmlHeader, findHeader, possible_tags_for_title, t, htmlHeaderText, actual_table, colum_with_numbers, styles, formattedPage, predicted;
                       return _regenerator.default.wrap(function _callee$(_context) {
                         while (1) {
                           switch (_context.prev = _context.next) {
@@ -170,8 +164,13 @@ function () {
                                   var headText = cheerio(headerNodes[h]).text().trim();
                                   var textLimit = 400;
                                   var actualText = headText.length > textLimit ? headText.slice(0, textLimit - 1) + " [...] " : headText;
-                                  totalTextChars += actualText.length;
-                                  htmlHeader = htmlHeader + '<tr ><td style="font-size:20px; font-weight:bold; white-space: normal;">' + encodeURI(actualText) + "</td></tr>";
+                                  totalTextChars += actualText.length; // try{
+                                  //   actualText = decodeURI(actualText)
+                                  // } catch (e) {
+                                  //   console.log(e)
+                                  // }
+
+                                  htmlHeader = htmlHeader + '<tr ><td style="font-size:20px; font-weight:bold; white-space: normal;">' + actualText + "</td></tr>";
                                 }
 
                                 return {
@@ -226,365 +225,18 @@ function () {
                               styles = actual_table.indexOf('<style type="text/css">.indent0') > -1 ? "" : "<style>" + data_ss + "</style>";
                               formattedPage = actual_table.indexOf("tr:hover" < 0) ? "<div>" + styles + actual_table + "</div>" : actual_table;
                               _context.next = 41;
-                              return (0, _classifier.attempt_predictions)(actual_table);
+                              return attemptPrediction(actual_table);
 
                             case 41:
-                              predictions = _context.sent;
-                              terms_matrix = predictions.map(function (e) {
-                                return e.terms.map(function (term) {
-                                  return term;
-                                });
-                              });
-                              preds_matrix = predictions.map(function (e) {
-                                return e.terms.map(function (term) {
-                                  return e.pred_class[term];
-                                });
-                              });
-                              format_matrix = predictions.map(function (e) {
-                                return e.cellClasses.map(function (cellClass) {
-                                  return cellClass;
-                                });
-                              });
-                              feature_matrix = predictions.map(function (e) {
-                                return e.terms_features.map(function (term) {
-                                  return term;
-                                });
-                              }); // values in this matrix represent the cell contents, and can be: "text", "numeric" or ""
-
-                              content_type_matrix = predictions.map(function (e) {
-                                return e.terms.map(function (term) {
-                                  var term = term.replace(/\$nmbr\$/g, 0);
-                                  var numberless_size = term.replace(/([^A-z0-9 ])/g, "").replace(/[0-9]+/g, '').replace(/ +/g, " ").trim().length;
-                                  var spaceless_size = term.replace(/([^A-z0-9 ])/g, "").replace(/ +/g, " ").trim().length; // debugger
-
-                                  return spaceless_size == 0 ? "" : numberless_size >= spaceless_size / 2 ? "text" : "numeric";
-                                });
-                              });
-
-                              cleanModifier = function cleanModifier(modifier) {
-                                modifier = modifier ? modifier : ""; //prevent blow up
-
-                                return modifier.replace("firstCol", "empty_row").replace("firstLastCol", "empty_row_with_p_value").replace("indent0", "indent").replace("indent1", "indent").replace("indent2", "indent").replace("indent3", "indent").replace("indent4", "indent").trim();
-                              };
-
-                              isTermNumber = function isTermNumber(term) {
-                                term = term ? term : ""; // Just in case term is undefined
-
-                                var statsRelated = ["nmbr", "mean", "median", "percent", "mode", "std", "nan", "na", "nr"];
-                                var stats = term.toLowerCase().replace(/[^A-z0-9 ]/gi, " ").replace(/ +/gi, " ").trim().split(" ").filter(function (el) {
-                                  return el.length > 1;
-                                }).reduce(function (acc, term) {
-                                  if (statsRelated.indexOf(term) > -1) {
-                                    acc.numbers++;
-                                  }
-
-                                  ;
-                                  acc.total++;
-                                  return acc;
-                                }, {
-                                  numbers: 0,
-                                  total: 0
-                                });
-                                return stats.numbers > stats.total / 2;
-                              };
-
-                              getColumnAsArray = function getColumnAsArray(matrix, c) {
-                                return matrix.map(function (row, r) {
-                                  return row[c];
-                                });
-                              };
-
-                              getFreqs = function getFreqs(elements) {
-                                return elements.reduce(function (countMap, word) {
-                                  countMap.freqs[word] = ++countMap.freqs[word] || 1;
-                                  var max = countMap["max"] || 0;
-                                  countMap["max"] = max < countMap.freqs[word] ? countMap.freqs[word] : max;
-                                  countMap["total"] = ++countMap["total"] || 1;
-                                  return countMap;
-                                }, {
-                                  total: 0,
-                                  freqs: {}
-                                });
-                              };
-
-                              getMatchingIndices = function getMatchingIndices(elements, items) {
-                                return elements.reduce(function (indices, el, i) {
-                                  if (items.indexOf(el) > -1) {
-                                    indices.push(i);
-                                  }
-
-                                  return indices;
-                                }, []);
-                              };
-
-                              getElementsByIndices = function getElementsByIndices(elements, indices) {
-                                return elements.reduce(function (res, el, i) {
-                                  if (indices.indexOf(i) > -1) {
-                                    res.push(elements[i]);
-                                  }
-
-                                  return res;
-                                }, []);
-                              };
-
-                              getTopDescriptors = function getTopDescriptors(freqs) {
-                                var rowFirstCellEmpty = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-
-                                if (rowFirstCellEmpty) {
-                                  delete freqs[""];
-                                }
-
-                                var sum = Object.values(freqs).reduce(function (total, i) {
-                                  return total + i;
-                                }, 0);
-                                var avg = sum / Object.values(freqs).length * 0.85; // just a bit under the average
-
-                                return Object.keys(freqs).reduce(function (acc, k, i) {
-                                  var exclude = ["undefined", undefined, ""];
-
-                                  if (freqs[k] >= avg && exclude.indexOf(k) < 0) {
-                                    acc.push(k);
-                                  }
-
-                                  return acc;
-                                }, []);
-                              };
-                              /*
-                                Used to check if more than half elements in the column/row are just numbers.
-                                This is useful as they can be detected as characteristic_level by the classifier.
-                                We use this function to not accept predictions if most elements are just numbers, I.e very likely a results column/row
-                              */
-
-
-                              isMostlyNumbers = function isMostlyNumbers(all_terms) {
-                                var equals = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-                                var numberTerms_number = all_terms.map(function (term) {
-                                  return isTermNumber(term);
-                                }).reduce(function (sum, isNumber) {
-                                  return isNumber ? sum + 1 : sum;
-                                }, 0);
-                                return equals ? numberTerms_number >= all_terms.length / 2 : numberTerms_number > all_terms.length / 2;
-                              };
-
-                              max_col = preds_matrix.reduce(function (acc, n) {
-                                return n.length > acc ? n.length : acc;
-                              }, 0);
-                              max_row = preds_matrix.length; //Estimate column predictions.
-
-                              col_top_descriptors = [];
-                              row_top_descriptors = [];
-                              format_units = Array.from(new Set(format_matrix.flat()));
-                              _context.t3 = _regenerator.default.keys(format_units);
-
-                            case 61:
-                              if ((_context.t4 = _context.t3()).done) {
-                                _context.next = 86;
-                                break;
-                              }
-
-                              f = _context.t4.value;
-                              format_key = format_units[f];
-                              format_unit = {};
-                              col = 0;
-
-                            case 66:
-                              if (!(col < max_col)) {
-                                _context.next = 84;
-                                break;
-                              }
-
-                              col_array = getColumnAsArray(format_matrix, col);
-                              indices_w_format = getMatchingIndices(col_array, [format_key]); // debugger
-                              // If the cells with this formatting are rare. then ignore.
-
-                              if (!(format_key.indexOf("empty_row") < 0 && indices_w_format.length <= 2)) {
-                                _context.next = 71;
-                                break;
-                              }
-
-                              return _context.abrupt("continue", 81);
-
-                            case 71:
-                              if (!isMostlyNumbers(getColumnAsArray(terms_matrix, col))) {
-                                _context.next = 73;
-                                break;
-                              }
-
-                              return _context.abrupt("continue", 81);
-
-                            case 73:
-                              pred_array = getColumnAsArray(preds_matrix, col);
-                              predictions_w_format = getElementsByIndices(pred_array, indices_w_format);
-                              predictions_w_format = predictions_w_format.join(";").split(";");
-                              content_array = getColumnAsArray(content_type_matrix, col); // debugger
-
-                              if (!(getFreqs(content_array).freqs["text"] < content_array.length / 2)) {
-                                _context.next = 79;
-                                break;
-                              }
-
-                              return _context.abrupt("continue", 81);
-
-                            case 79:
-                              descriptors = getTopDescriptors(getFreqs(predictions_w_format).freqs);
-
-                              if (descriptors.length > 0) {
-                                col_top_descriptors[col_top_descriptors.length] = {
-                                  descriptors: descriptors,
-                                  c: col,
-                                  unique_modifier: format_key.split(" ").join(";")
-                                };
-                              }
-
-                            case 81:
-                              col++;
-                              _context.next = 66;
-                              break;
-
-                            case 84:
-                              _context.next = 61;
-                              break;
-
-                            case 86:
-                              row = 0;
-
-                            case 87:
-                              if (!(row < max_row)) {
-                                _context.next = 105;
-                                break;
-                              }
-
-                              if (!isMostlyNumbers(terms_matrix[row])) {
-                                _context.next = 90;
-                                break;
-                              }
-
-                              return _context.abrupt("continue", 102);
-
-                            case 90:
-                              row_predictions = preds_matrix[row];
-                              row_predictions = row_predictions.join(";").split(";");
-                              content_array = content_type_matrix[row];
-                              content_array = content_array.reduce(function (acc, it) {
-                                if (it.length > 0) {
-                                  acc.push(it);
-                                }
-
-                                ;
-                                return acc;
-                              }, []);
-
-                              if (!(getFreqs(content_array).freqs["text"] < content_array.length / 2)) {
-                                _context.next = 96;
-                                break;
-                              }
-
-                              return _context.abrupt("continue", 102);
-
-                            case 96:
-                              rowFirstCellEmpty = terms_matrix[row][0].trim() == ""; // very likely to be a heading row, since the first empty cell indicates a indentation.
-
-                              descriptors = getTopDescriptors(getFreqs(row_predictions).freqs, rowFirstCellEmpty);
-                              is_empty_or_P = format_matrix[row][0].indexOf("empty_row") > -1;
-
-                              if (!is_empty_or_P) {
-                                _context.next = 101;
-                                break;
-                              }
-
-                              return _context.abrupt("continue", 102);
-
-                            case 101:
-                              if (descriptors.length > 0) {
-                                // debugger
-                                row_top_descriptors[row_top_descriptors.length] = {
-                                  descriptors: descriptors,
-                                  c: row,
-                                  unique_modifier: ""
-                                };
-                              }
-
-                            case 102:
-                              row++;
-                              _context.next = 87;
-                              break;
-
-                            case 105:
-                              // Estimate row predictions
-                              // NEed some sanitation here.
-                              // If many rows, or many columns, chose only top one.
-                              // col_top_descriptors[col_top_descriptors.length] = {descriptors, c , unique_modifier}
-                              // row_top_descriptors[row_top_descriptors.length] = {descriptors, c : r , unique_modifier:""}
-                              //debugger
-                              // Eliminates rows/cols given a descriptor set that exceeds the amount allowed by the threshold w.r.t. the total.
-                              sanitiseItemRepetition = function sanitiseItemRepetition(top_descriptors, total) {
-                                var threshold = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0.40;
-                                var similarRowCounts = top_descriptors.reduce(function (acc, row_item, r) {
-                                  var thekey = row_item.descriptors.join(";");
-                                  var storedRow = acc[thekey];
-
-                                  if (storedRow) {
-                                    storedRow.push(row_item.c);
-                                  } else {
-                                    storedRow = [row_item.c];
-                                  }
-
-                                  acc[thekey] = storedRow;
-                                  return acc;
-                                }, {});
-                                var clean_top_descriptors = [];
-
-                                for (var d in top_descriptors) {
-                                  var thekey = top_descriptors[d].descriptors.join(";");
-
-                                  for (var r in similarRowCounts) {
-                                    if (similarRowCounts[thekey].length < total * threshold) {
-                                      clean_top_descriptors.push(top_descriptors[d]);
-                                      break;
-                                    }
-                                  }
-                                }
-
-                                return clean_top_descriptors;
-                              };
-
-                              row_top_descriptors = sanitiseItemRepetition(row_top_descriptors, max_row);
-
-                              reduceFormatRedundancy = function reduceFormatRedundancy(descriptors) {
-                                var references = {};
-                                var finalDescriptors = [];
-
-                                for (var c in descriptors) {
-                                  if (descriptors[c].unique_modifier == "") {
-                                    references[descriptors[c].c] = descriptors[c].descriptors.join(";");
-                                    finalDescriptors.push(descriptors[c]);
-                                  }
-                                }
-
-                                for (var c in descriptors) {
-                                  if (descriptors[c].descriptors.join(";") != references[descriptors[c].c]) {
-                                    finalDescriptors.push(descriptors[c]);
-                                  }
-                                }
-
-                                return finalDescriptors;
-                              };
-
-                              col_top_descriptors = reduceFormatRedundancy(col_top_descriptors);
-                              predicted = {
-                                cols: col_top_descriptors,
-                                rows: row_top_descriptors,
-                                predictions: predictions
-                              };
+                              predicted = _context.sent;
                               resolve({
                                 status: "good",
-                                htmlHeader: htmlHeader,
-                                formattedPage: formattedPage,
-                                title: "",
-                                predicted: predicted
+                                tableTitle: htmlHeader,
+                                tableBody: formattedPage,
+                                predictedAnnotation: predicted
                               });
 
-                            case 111:
+                            case 43:
                             case "end":
                               return _context.stop();
                           }
@@ -604,9 +256,7 @@ function () {
                   status: "bad"
                 });
               }
-            }); // buffer_tables = {}
-            // buffer_tables[docid] = result
-
+            });
             return _context2.abrupt("return", result);
 
           case 13:
@@ -631,16 +281,393 @@ function () {
   };
 }();
 
-var prepareAvailableDocuments =
+var attemptPrediction =
 /*#__PURE__*/
 function () {
   var _ref3 = (0, _asyncToGenerator2.default)(
   /*#__PURE__*/
-  _regenerator.default.mark(function _callee3(collection_id) {
-    var ftop, ftyp, fgroup, flgroup, hua, type_lookup, i, filtered_docs_ttype, allAnnotations, all_annotated_docids, ordered_Splits, ordered_docs_to_label, allLabelled, selected_group_docs, group_index, selected_label_docs, label_index, results;
+  _regenerator.default.mark(function _callee3(actual_table) {
+    var predictions, terms_matrix, preds_matrix, format_matrix, feature_matrix, content_type_matrix, cleanModifier, isTermNumber, getColumnAsArray, getFreqs, getMatchingIndices, getElementsByIndices, getTopDescriptors, isMostlyNumbers, max_col, max_row, col_top_descriptors, row_top_descriptors, format_units, f, format_key, format_unit, col, col_array, indices_w_format, pred_array, predictions_w_format, content_array, descriptors, row, row_predictions, rowFirstCellEmpty, is_empty_or_P, sanitiseItemRepetition, reduceFormatRedundancy, predicted;
     return _regenerator.default.wrap(function _callee3$(_context3) {
       while (1) {
         switch (_context3.prev = _context3.next) {
+          case 0:
+            _context3.next = 2;
+            return (0, _classifier.attempt_predictions)(actual_table);
+
+          case 2:
+            predictions = _context3.sent;
+            terms_matrix = predictions.map(function (e) {
+              return e.terms.map(function (term) {
+                return term;
+              });
+            });
+            preds_matrix = predictions.map(function (e) {
+              return e.terms.map(function (term) {
+                return e.pred_class[term];
+              });
+            });
+            format_matrix = predictions.map(function (e) {
+              return e.cellClasses.map(function (cellClass) {
+                return cellClass;
+              });
+            });
+            feature_matrix = predictions.map(function (e) {
+              return e.terms_features.map(function (term) {
+                return term;
+              });
+            }); // values in this matrix represent the cell contents, and can be: "text", "numeric" or ""
+
+            content_type_matrix = predictions.map(function (e) {
+              return e.terms.map(function (term) {
+                var term = term.replace(/\$nmbr\$/g, 0);
+                var numberless_size = term.replace(/([^A-z0-9 ])/g, "").replace(/[0-9]+/g, '').replace(/ +/g, " ").trim().length;
+                var spaceless_size = term.replace(/([^A-z0-9 ])/g, "").replace(/ +/g, " ").trim().length; // debugger
+
+                return spaceless_size == 0 ? "" : numberless_size >= spaceless_size / 2 ? "text" : "numeric";
+              });
+            });
+
+            cleanModifier = function cleanModifier(modifier) {
+              modifier = modifier ? modifier : ""; //prevent blow up
+
+              return modifier.replace("firstCol", "empty_row").replace("firstLastCol", "empty_row_with_p_value").replace("indent0", "indent").replace("indent1", "indent").replace("indent2", "indent").replace("indent3", "indent").replace("indent4", "indent").trim();
+            };
+
+            isTermNumber = function isTermNumber(term) {
+              term = term ? term : ""; // Just in case term is undefined
+
+              var statsRelated = ["nmbr", "mean", "median", "percent", "mode", "std", "nan", "na", "nr"];
+              var stats = term.toLowerCase().replace(/[^A-z0-9 ]/gi, " ").replace(/ +/gi, " ").trim().split(" ").filter(function (el) {
+                return el.length > 1;
+              }).reduce(function (acc, term) {
+                if (statsRelated.indexOf(term) > -1) {
+                  acc.numbers++;
+                }
+
+                ;
+                acc.total++;
+                return acc;
+              }, {
+                numbers: 0,
+                total: 0
+              });
+              return stats.numbers > stats.total / 2;
+            };
+
+            getColumnAsArray = function getColumnAsArray(matrix, c) {
+              return matrix.map(function (row, r) {
+                return row[c];
+              });
+            };
+
+            getFreqs = function getFreqs(elements) {
+              return elements.reduce(function (countMap, word) {
+                countMap.freqs[word] = ++countMap.freqs[word] || 1;
+                var max = countMap["max"] || 0;
+                countMap["max"] = max < countMap.freqs[word] ? countMap.freqs[word] : max;
+                countMap["total"] = ++countMap["total"] || 1;
+                return countMap;
+              }, {
+                total: 0,
+                freqs: {}
+              });
+            };
+
+            getMatchingIndices = function getMatchingIndices(elements, items) {
+              return elements.reduce(function (indices, el, i) {
+                if (items.indexOf(el) > -1) {
+                  indices.push(i);
+                }
+
+                return indices;
+              }, []);
+            };
+
+            getElementsByIndices = function getElementsByIndices(elements, indices) {
+              return elements.reduce(function (res, el, i) {
+                if (indices.indexOf(i) > -1) {
+                  res.push(elements[i]);
+                }
+
+                return res;
+              }, []);
+            };
+
+            getTopDescriptors = function getTopDescriptors(freqs) {
+              var rowFirstCellEmpty = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
+              if (rowFirstCellEmpty) {
+                delete freqs[""];
+              }
+
+              var sum = Object.values(freqs).reduce(function (total, i) {
+                return total + i;
+              }, 0);
+              var avg = sum / Object.values(freqs).length * 0.85; // just a bit under the average
+
+              return Object.keys(freqs).reduce(function (acc, k, i) {
+                var exclude = ["undefined", undefined, ""];
+
+                if (freqs[k] >= avg && exclude.indexOf(k) < 0) {
+                  acc.push(k);
+                }
+
+                return acc;
+              }, []);
+            };
+            /*
+              Used to check if more than half elements in the column/row are just numbers.
+              This is useful as they can be detected as characteristic_level by the classifier.
+              We use this function to not accept predictions if most elements are just numbers, I.e very likely a results column/row
+            */
+
+
+            isMostlyNumbers = function isMostlyNumbers(all_terms) {
+              var equals = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+              var numberTerms_number = all_terms.map(function (term) {
+                return isTermNumber(term);
+              }).reduce(function (sum, isNumber) {
+                return isNumber ? sum + 1 : sum;
+              }, 0);
+              return equals ? numberTerms_number >= all_terms.length / 2 : numberTerms_number > all_terms.length / 2;
+            };
+
+            max_col = preds_matrix.reduce(function (acc, n) {
+              return n.length > acc ? n.length : acc;
+            }, 0);
+            max_row = preds_matrix.length; //Estimate column predictions.
+
+            col_top_descriptors = [];
+            row_top_descriptors = [];
+            format_units = Array.from(new Set(format_matrix.flat()));
+            _context3.t0 = _regenerator.default.keys(format_units);
+
+          case 22:
+            if ((_context3.t1 = _context3.t0()).done) {
+              _context3.next = 47;
+              break;
+            }
+
+            f = _context3.t1.value;
+            format_key = format_units[f];
+            format_unit = {};
+            col = 0;
+
+          case 27:
+            if (!(col < max_col)) {
+              _context3.next = 45;
+              break;
+            }
+
+            col_array = getColumnAsArray(format_matrix, col);
+            indices_w_format = getMatchingIndices(col_array, [format_key]); // debugger
+            // If the cells with this formatting are rare. then ignore.
+
+            if (!(format_key.indexOf("empty_row") < 0 && indices_w_format.length <= 2)) {
+              _context3.next = 32;
+              break;
+            }
+
+            return _context3.abrupt("continue", 42);
+
+          case 32:
+            if (!isMostlyNumbers(getColumnAsArray(terms_matrix, col))) {
+              _context3.next = 34;
+              break;
+            }
+
+            return _context3.abrupt("continue", 42);
+
+          case 34:
+            pred_array = getColumnAsArray(preds_matrix, col);
+            predictions_w_format = getElementsByIndices(pred_array, indices_w_format);
+            predictions_w_format = predictions_w_format.join(";").split(";");
+            content_array = getColumnAsArray(content_type_matrix, col); // debugger
+
+            if (!(getFreqs(content_array).freqs["text"] < content_array.length / 2)) {
+              _context3.next = 40;
+              break;
+            }
+
+            return _context3.abrupt("continue", 42);
+
+          case 40:
+            descriptors = getTopDescriptors(getFreqs(predictions_w_format).freqs);
+
+            if (descriptors.length > 0) {
+              col_top_descriptors[col_top_descriptors.length] = {
+                descriptors: descriptors,
+                c: col,
+                unique_modifier: format_key.split(" ").join(";")
+              };
+            }
+
+          case 42:
+            col++;
+            _context3.next = 27;
+            break;
+
+          case 45:
+            _context3.next = 22;
+            break;
+
+          case 47:
+            row = 0;
+
+          case 48:
+            if (!(row < max_row)) {
+              _context3.next = 66;
+              break;
+            }
+
+            if (!isMostlyNumbers(terms_matrix[row])) {
+              _context3.next = 51;
+              break;
+            }
+
+            return _context3.abrupt("continue", 63);
+
+          case 51:
+            row_predictions = preds_matrix[row];
+            row_predictions = row_predictions.join(";").split(";");
+            content_array = content_type_matrix[row];
+            content_array = content_array.reduce(function (acc, it) {
+              if (it.length > 0) {
+                acc.push(it);
+              }
+
+              ;
+              return acc;
+            }, []);
+
+            if (!(getFreqs(content_array).freqs["text"] < content_array.length / 2)) {
+              _context3.next = 57;
+              break;
+            }
+
+            return _context3.abrupt("continue", 63);
+
+          case 57:
+            rowFirstCellEmpty = terms_matrix[row][0].trim() == ""; // very likely to be a heading row, since the first empty cell indicates a indentation.
+
+            descriptors = getTopDescriptors(getFreqs(row_predictions).freqs, rowFirstCellEmpty);
+            is_empty_or_P = format_matrix[row][0].indexOf("empty_row") > -1;
+
+            if (!is_empty_or_P) {
+              _context3.next = 62;
+              break;
+            }
+
+            return _context3.abrupt("continue", 63);
+
+          case 62:
+            if (descriptors.length > 0) {
+              // debugger
+              row_top_descriptors[row_top_descriptors.length] = {
+                descriptors: descriptors,
+                c: row,
+                unique_modifier: ""
+              };
+            }
+
+          case 63:
+            row++;
+            _context3.next = 48;
+            break;
+
+          case 66:
+            // Estimate row predictions
+            // NEed some sanitation here.
+            // If many rows, or many columns, chose only top one.
+            // col_top_descriptors[col_top_descriptors.length] = {descriptors, c , unique_modifier}
+            // row_top_descriptors[row_top_descriptors.length] = {descriptors, c : r , unique_modifier:""}
+            //debugger
+            // Eliminates rows/cols given a descriptor set that exceeds the amount allowed by the threshold w.r.t. the total.
+            sanitiseItemRepetition = function sanitiseItemRepetition(top_descriptors, total) {
+              var threshold = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0.40;
+              var similarRowCounts = top_descriptors.reduce(function (acc, row_item, r) {
+                var thekey = row_item.descriptors.join(";");
+                var storedRow = acc[thekey];
+
+                if (storedRow) {
+                  storedRow.push(row_item.c);
+                } else {
+                  storedRow = [row_item.c];
+                }
+
+                acc[thekey] = storedRow;
+                return acc;
+              }, {});
+              var clean_top_descriptors = [];
+
+              for (var d in top_descriptors) {
+                var thekey = top_descriptors[d].descriptors.join(";");
+
+                for (var r in similarRowCounts) {
+                  if (similarRowCounts[thekey].length < total * threshold) {
+                    clean_top_descriptors.push(top_descriptors[d]);
+                    break;
+                  }
+                }
+              }
+
+              return clean_top_descriptors;
+            };
+
+            row_top_descriptors = sanitiseItemRepetition(row_top_descriptors, max_row);
+
+            reduceFormatRedundancy = function reduceFormatRedundancy(descriptors) {
+              var references = {};
+              var finalDescriptors = [];
+
+              for (var c in descriptors) {
+                if (descriptors[c].unique_modifier == "") {
+                  references[descriptors[c].c] = descriptors[c].descriptors.join(";");
+                  finalDescriptors.push(descriptors[c]);
+                }
+              }
+
+              for (var c in descriptors) {
+                if (descriptors[c].descriptors.join(";") != references[descriptors[c].c]) {
+                  finalDescriptors.push(descriptors[c]);
+                }
+              }
+
+              return finalDescriptors;
+            };
+
+            col_top_descriptors = reduceFormatRedundancy(col_top_descriptors);
+            predicted = {
+              cols: col_top_descriptors,
+              rows: row_top_descriptors,
+              predictions: predictions
+            };
+            return _context3.abrupt("return", predicted);
+
+          case 72:
+          case "end":
+            return _context3.stop();
+        }
+      }
+    }, _callee3, this);
+  }));
+
+  return function attemptPrediction(_x6) {
+    return _ref3.apply(this, arguments);
+  };
+}();
+
+var prepareAvailableDocuments =
+/*#__PURE__*/
+function () {
+  var _ref4 = (0, _asyncToGenerator2.default)(
+  /*#__PURE__*/
+  _regenerator.default.mark(function _callee4(collection_id) {
+    var ftop, ftyp, fgroup, flgroup, hua, type_lookup, i, filtered_docs_ttype, allAnnotations, all_annotated_docids, ordered_Splits, ordered_docs_to_label, allLabelled, selected_group_docs, group_index, selected_label_docs, label_index, results;
+    return _regenerator.default.wrap(function _callee4$(_context4) {
+      while (1) {
+        switch (_context4.prev = _context4.next) {
           case 0:
             ftop = [];
             ftyp = [];
@@ -660,11 +687,11 @@ function () {
             }
 
             filtered_docs_ttype = [];
-            _context3.next = 10;
+            _context4.next = 10;
             return (0, _network_functions.getAnnotationResults)();
 
           case 10:
-            allAnnotations = _context3.sent;
+            allAnnotations = _context4.sent;
             all_annotated_docids = Array.from(new Set(allAnnotations.rows.reduce(function (acc, ann) {
               acc = acc ? acc : [];
               acc.push(ann.docid + "_" + ann.page);
@@ -860,8 +887,7 @@ function () {
                       extension: extension,
                       docfile: docfile
                     };
-                  } // console.log("YAY")
-
+                  }
 
                   resolve({
                     available_documents: available_documents,
@@ -874,26 +900,283 @@ function () {
                 }
               });
             });
-            _context3.next = 25;
+            _context4.next = 25;
             return results;
 
           case 25:
-            return _context3.abrupt("return", _context3.sent);
+            return _context4.abrupt("return", _context4.sent);
 
           case 26:
           case "end":
-            return _context3.stop();
+            return _context4.stop();
         }
       }
-    }, _callee3, this);
+    }, _callee4, this);
   }));
 
-  return function prepareAvailableDocuments(_x6) {
-    return _ref3.apply(this, arguments);
+  return function prepareAvailableDocuments(_x7) {
+    return _ref4.apply(this, arguments);
+  };
+}();
+
+var readyTable =
+/*#__PURE__*/
+function () {
+  var _ref5 = (0, _asyncToGenerator2.default)(
+  /*#__PURE__*/
+  _regenerator.default.mark(function _callee6(docname, page, collection_id) {
+    var docid, htmlFolder, htmlFile, file_exists, result;
+    return _regenerator.default.wrap(function _callee6$(_context6) {
+      while (1) {
+        switch (_context6.prev = _context6.next) {
+          case 0:
+            _context6.prev = 0;
+            docid = docname + "_" + page + ".html";
+            htmlFolder = path.join(global.tables_folder, collection_id); //global.tables_folder+"/",
+
+            htmlFile = docid; //If an override file exists then use it!. Overrides are those produced by the editor.
+
+            _context6.next = 6;
+            return fs.existsSync(path.join(global.tables_folder_override, collection_id, docid));
+
+          case 6:
+            file_exists = _context6.sent;
+
+            if (file_exists) {
+              htmlFolder = path.join(global.tables_folder_override, collection_id); //"HTML_TABLES_OVERRIDE/"
+            }
+
+            console.log("Loading Table: " + docid + " " + (file_exists ? " [Override Folder]" : ""));
+            result = new Promise(function (resolve, reject) {
+              try {
+                fs.readFile(path.join(htmlFolder, htmlFile), //already has collection_id in html_folder
+                "utf8", function (err, data) {
+                  fs.readFile(path.join(global.cssFolder, "stylesheet.css"), "utf8",
+                  /*#__PURE__*/
+                  function () {
+                    var _ref6 = (0, _asyncToGenerator2.default)(
+                    /*#__PURE__*/
+                    _regenerator.default.mark(function _callee5(err2, data_ss) {
+                      var tablePage, tableEdited, firstColContent, spaceRow, htmlHeader, findHeader, possible_tags_for_title, t, actual_table, colum_with_numbers, styles, formattedPage;
+                      return _regenerator.default.wrap(function _callee5$(_context5) {
+                        while (1) {
+                          switch (_context5.prev = _context5.next) {
+                            case 0:
+                              _context5.prev = 0;
+                              // debugger
+                              tablePage = cheerio.load(data);
+                              tableEdited = false; // tablePage("col").removeAttr('style');
+
+                              if (tablePage) {
+                                _context5.next = 6;
+                                break;
+                              }
+
+                              resolve({
+                                htmlHeader: "",
+                                formattedPage: "",
+                                title: ""
+                              });
+                              return _context5.abrupt("return");
+
+                            case 6:
+                              // Remove all empty rows from the top.
+                              while (tablePage('table tr:nth-child(1)').text().trim().length == 0) {
+                                tablePage('table tr:nth-child(1)').remove();
+                                tableEdited = true;
+                              } //
+                              // debugger
+                              // "remove NCT column on the fly"
+
+
+                              firstColContent = tablePage('table tr td:nth-child(1)').text().trim();
+
+                              if (firstColContent.indexOf("NCT") == 0) {
+                                tablePage('table tr td:nth-child(1)').remove();
+                                tablePage('table tr td:nth-child(1)').remove();
+                                tableEdited = true;
+                              } // debugger
+
+
+                              if (tablePage("strong").length > 0 || tablePage("b").length > 0 || tablePage("i").length > 0) {
+                                // fixing strong, b and i tags on the fly. using "bold" and "italic" classes is preferred
+                                tablePage("strong").closest("td").addClass("bold");
+                                tablePage("strong").map(function (i, el) {
+                                  var content = cheerio(el).html();
+                                  var parent = cheerio(el).parent();
+                                  cheerio(el).remove();
+                                  parent.append(content);
+                                });
+                                tablePage("b").closest("td").addClass("bold");
+                                tablePage("b").map(function (i, el) {
+                                  var content = cheerio(el).html();
+                                  var parent = cheerio(el).parent();
+                                  cheerio(el).remove();
+                                  parent.append(content);
+                                });
+                                tablePage("i").closest("td").addClass("italic");
+                                tablePage("i").map(function (i, el) {
+                                  var content = cheerio(el).html();
+                                  var parent = cheerio(el).parent();
+                                  cheerio(el).remove();
+                                  parent.append(content);
+                                }); // debugger
+
+                                tableEdited = true; // fs.writeFile(htmlFolder+htmlFile,  tablePage.html(), function (err) {
+                                //   if (err) throw err;
+                                //   console.log('Substituted strong tags by "bold" class for: '+htmlFolder+htmlFile);
+                                // });
+                              }
+
+                              if (tableEdited) {
+                                console.log('Table corrected on the fly: ' + path.join(htmlFolder, htmlFile));
+                                fs.writeFile(path.join(htmlFolder, htmlFile), tablePage.html(), function (err) {
+                                  if (err) throw err;
+                                  console.log('Table corrected on the fly: ' + path.join(htmlFolder, htmlFile));
+                                });
+                              }
+
+                              _context5.next = 17;
+                              break;
+
+                            case 13:
+                              _context5.prev = 13;
+                              _context5.t0 = _context5["catch"](0);
+                              // console.log(JSON.stringify(e)+" -- " + JSON.stringify(data))
+                              resolve({
+                                htmlHeader: "",
+                                formattedPage: "",
+                                title: ""
+                              });
+                              return _context5.abrupt("return");
+
+                            case 17:
+                              spaceRow = -1;
+                              htmlHeader = "";
+
+                              findHeader = function findHeader(tablePage, tag) {
+                                var totalTextChars = 0;
+                                var headerNodes = [cheerio(tablePage(tag)[0]).remove()];
+                                var htmlHeader = "";
+
+                                for (var h in headerNodes) {
+                                  // cheerio(headerNodes[h]).css("font-size","20px");
+                                  var headText = cheerio(headerNodes[h]).text().trim();
+                                  var textLimit = 400;
+                                  var actualText = headText.length > textLimit ? headText.slice(0, textLimit - 1) + " [...] " : headText;
+                                  totalTextChars += actualText.length; // try{
+                                  //   actualText = decodeURI(actualText)
+                                  // } catch (e) {
+                                  //   console.log(e)
+                                  // }
+
+                                  htmlHeader = htmlHeader + '<tr ><td style="font-size:20px; font-weight:bold; white-space: normal;">' + actualText + "</td></tr>";
+                                }
+
+                                return {
+                                  htmlHeader: htmlHeader,
+                                  totalTextChars: totalTextChars
+                                };
+                              };
+
+                              possible_tags_for_title = [".headers", ".caption", ".captions", ".article-table-caption"];
+                              _context5.t1 = _regenerator.default.keys(possible_tags_for_title);
+
+                            case 22:
+                              if ((_context5.t2 = _context5.t1()).done) {
+                                _context5.next = 29;
+                                break;
+                              }
+
+                              t = _context5.t2.value;
+                              htmlHeader = findHeader(tablePage, possible_tags_for_title[t]);
+
+                              if (!(htmlHeader.totalTextChars > 0)) {
+                                _context5.next = 27;
+                                break;
+                              }
+
+                              return _context5.abrupt("break", 29);
+
+                            case 27:
+                              _context5.next = 22;
+                              break;
+
+                            case 29:
+                              htmlHeader = "<table>" + htmlHeader.htmlHeader + "</table>";
+                              actual_table = tablePage("table").parent().html();
+                              actual_table = cheerio.load(actual_table); // The following lines remove, line numbers present in some tables, as well as positions in headings derived from the excel sheets  if present.
+
+                              colum_with_numbers = actual_table("tr > td:nth-child(1), tr > td:nth-child(2), tr > th:nth-child(1), tr > th:nth-child(2)");
+
+                              if (colum_with_numbers.text().replace(/[0-9]/gi, "").replace(/\s+/g, "").toLowerCase() === "row/col") {
+                                colum_with_numbers.remove();
+                              }
+
+                              if (actual_table("thead").text().trim().indexOf("1(A)") > -1) {
+                                actual_table("thead").remove();
+                              } ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                              // Correction here for bold
+
+
+                              actual_table = actual_table.html(); // var ss = "<style>"+data_ss+" td {width: auto;} tr:hover {background: aliceblue} td:hover {background: #82c1f8} col{width:100pt} </style>"
+
+                              styles = actual_table.indexOf('<style type="text/css">.indent0') > -1 ? "" : "<style>" + data_ss + "</style>";
+                              formattedPage = actual_table.indexOf("tr:hover" < 0) ? "<div>" + styles + actual_table + "</div>" : actual_table;
+                              resolve({
+                                status: "good",
+                                tableTitle: htmlHeader,
+                                tableBody: formattedPage,
+                                predictedAnnotation: {}
+                              });
+
+                            case 39:
+                            case "end":
+                              return _context5.stop();
+                          }
+                        }
+                      }, _callee5, this, [[0, 13]]);
+                    }));
+
+                    return function (_x11, _x12) {
+                      return _ref6.apply(this, arguments);
+                    };
+                  }());
+                });
+              } catch (e) {
+                console.log(e);
+                debugger;
+                reject({
+                  status: "bad"
+                });
+              }
+            });
+            return _context6.abrupt("return", result);
+
+          case 13:
+            _context6.prev = 13;
+            _context6.t0 = _context6["catch"](0);
+            console.log(_context6.t0);
+            debugger;
+            return _context6.abrupt("return", {
+              status: "bad"
+            });
+
+          case 18:
+          case "end":
+            return _context6.stop();
+        }
+      }
+    }, _callee6, this, [[0, 13]]);
+  }));
+
+  return function readyTable(_x8, _x9, _x10) {
+    return _ref5.apply(this, arguments);
   };
 }();
 
 module.exports = {
+  readyTable: readyTable,
   readyTableData: readyTableData,
   prepareAvailableDocuments: prepareAvailableDocuments
 };
