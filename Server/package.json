@@ -83,8 +83,9 @@
     "passport-custom": "^1.1.1",
     "passport-local": "^1.0.0",
     "passport-localapikey": "0.0.3",
-    "pg": "^7.7.1",
+    "pg": "^7.18.2",
     "python-bridge": "^1.1.0",
+    "python-shell": "^2.0.2",
     "r-script": "0.0.3",
     "util": "^0.12.3"
   }

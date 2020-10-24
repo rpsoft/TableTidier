@@ -31,10 +31,19 @@ import {
   Switch,
 } from '@material-ui/core';
 
+import { makeStyles } from '@material-ui/core/styles';
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    height: 35,
+  }
+}));
+
 function TableAnnotator({
   annotations,
   setAnnotations,
 }) {
+  const classes = useStyles();
 
   const [enableDelete, setEnableDelete] = React.useState(false);
 
@@ -69,8 +78,8 @@ function TableAnnotator({
 
 
   return (
-    <div >
-        <div style={{height:35, fontSize:22}}> 1. Table <b> Annotations </b>
+    <div style={{padding:"0px 7px 7px 7px"}} >
+        <div style={{height:35, fontSize:22}}>
 
           <Button variant="outlined" style={{backgroundColor:"lightblue", float:"right"}} onClick={ () => {} }> save annotation changes </Button>
           <Button variant="outlined" style={{backgroundColor:"lightblue", float:"right", marginRight:20}} onClick={ () => {} }> Auto Annotate <AdbIcon /></Button>
@@ -82,10 +91,12 @@ function TableAnnotator({
                 onChange={() => { setEnableDelete(!enableDelete) }}
                 name="checkedA"
                 inputProps={{ 'aria-label': 'secondary checkbox' }}
-
+                classes={{
+                  root: classes.root, // class name, e.g. `classes-nesting-root-x`
+                }}
               />
           </span>
-
+          <div style={{paddingTop:5}}> 1. Table <b> Annotations </b> </div>
 
         </div>
 

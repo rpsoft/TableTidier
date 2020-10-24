@@ -48,7 +48,7 @@ console.log("Loading Security")
 import passport, {initialiseUsers, createUser, getUserHash}  from "./security.js"
 
 console.log("Loadicorsng Table Libs")
-import { readyTable, prepareAvailableDocuments, readyTableData } from "./table.js"
+import { readyTable, prepareAvailableDocuments } from "./table.js"
 
 console.log("Loading MetaMap Docker Comms Module")
 import { metamap } from "./metamap.js"
@@ -819,8 +819,6 @@ app.post('/search', async function(req,res){
 });
 
 
-
-
 app.post('/getTableContent',async function(req,res){
 
     var bod = req.body.searchContent
@@ -834,7 +832,7 @@ app.post('/getTableContent',async function(req,res){
         if(req.body.docid && req.body.page && req.body.collId ){
           var collection_data = await getCollection(req.body.collId)
 
-          var tableData = await readyTable(req.body.docid, req.body.page, req.body.collId) //readyTableData  on the other hand does the predictions too
+          var tableData = await readyTable(req.body.docid, req.body.page, req.body.collId, JSON.parse(req.body.enablePrediction ) ) // false, predictions are disabled.
 
           var annotation = await getAnnotationByID(req.body.docid, req.body.page, req.body.collId)
 
@@ -847,7 +845,8 @@ app.post('/getTableContent',async function(req,res){
         }
       } catch (e){
         console.log(e)
-        res.json({status: "probably page out of bounds, or document does not exist", body : req.body})
+        debugger
+        res.json({status: "getTableContent: probably page out of bounds, or document does not exist", body : req.body})
       }
 
     } else {
@@ -1019,87 +1018,109 @@ app.post('/annotationPreview',async function(req,res){
 
           if(req.body.docid && req.body.page && req.body.collId ){
 
-            var annotation = await getAnnotationByID(req.body.docid, req.body.page, req.body.collId)
+            var annotations = await getAnnotationByID(req.body.docid, req.body.page, req.body.collId)
 
-            var final_annotations = {}
+            var tid = annotations.rows.length > 0 ? annotations.rows[0].tid : -1;
 
-            /**
-            * There are multiple versions of the annotations. When calling reading the results from the database, here we will return only the latest/ most complete version of the annotation.
-            * Independently from the author of it. Completeness here measured as the result with the highest number of annotations and the highest index number (I.e. Newest, but only if it has more information/annotations).
-            * May not be the best in some cases.
-            *
-            */
-
-            for ( var r in annotations.rows){
-              var ann = annotations.rows[r]
-              var existing = final_annotations[ann.docid+"_"+ann.page]
-              if ( existing ){
-                if ( ann.N > existing.N && ann.annotation.annotations.length >= existing.annotation.annotations.length ){
-                      final_annotations[ann.docid+"_"+ann.page] = ann
-                }
-              } else { // Didn't exist so add it.
-                final_annotations[ann.docid+"_"+ann.page] = ann
-              }
+            if ( tid < 0 ){
+              res.json({status: "wrong parameters (missing tid)", body : req.body})
+              return;
             }
 
-            var final_annotations_array = []
-            for (  var r in final_annotations ){
-              var ann = final_annotations[r]
-              final_annotations_array[final_annotations_array.length] = ann
-            }
+            var client = await pool.connect()
 
-            if( final_annotations_array.length > 0){
+            var tableResult = await client.query(
+              `SELECT tid, "tableResult" FROM result WHERE tid = $1`,[tid]
+            )
 
-                  var entry = final_annotations_array[0]
-                      entry.annotation = entry.annotation.annotations.map( (v,i) => {var ann = v; ann.content = Object.keys(ann.content).join(";"); ann.qualifiers = Object.keys(ann.qualifiers).join(";"); return ann} )
+            //
+            // tableResult = tableResult.rows.length > 0 ? tableResult.rows[0].tableResult : []
+            //
+            // if ( req.body.cachedOnly === 'true' ){
+            //
+            //   if ( tableResult.length > 0){
+            //     res.json( {"state" : "good", result : tableResult } )
+            //   } else {
+            //     res.json( {"state" : "good", result : [] } )
+            //   }
+            //
+            //   console.log( "tableResult: "+ tableResult.length )
+            //   return;
+            // }
 
-                  request({
-                          url: 'http://localhost:6666/preview',
-                          method: "POST",
-                          json: {
-                            anns: entry
-                          }
-                    }, function (error, response, body) {
-                    res.json( {"state" : "good", result : body.tableResult, "anns": body.ann} )
-                  });
+            // var final_annotations = {}
+            //
+            // /**
+            // * There are multiple versions of the annotations. When calling reading the results from the database, here we will return only the latest/ most complete version of the annotation.
+            // * Independently from the author of it. Completeness here measured as the result with the highest number of annotations and the highest index number (I.e. Newest, but only if it has more information/annotations).
+            // * May not be the best in some cases.
+            // *
+            // */
+            //
+            // for ( var r in annotations.rows){
+            //   var ann = annotations.rows[r]
+            //   var existing = final_annotations[ann.docid+"_"+ann.page]
+            //   if ( existing ){
+            //     if ( ann.N > existing.N && ann.annotation.annotations.length >= existing.annotation.annotations.length ){
+            //           final_annotations[ann.docid+"_"+ann.page] = ann
+            //     }
+            //   } else { // Didn't exist so add it.
+            //     final_annotations[ann.docid+"_"+ann.page] = ann
+            //   }
+            // }
+            //
+            // var final_annotations_array = []
+            // for (  var r in final_annotations ){
+            //   var ann = final_annotations[r]
+            //   final_annotations_array[final_annotations_array.length] = ann
+            // }
 
-            } else {
-              res.json({"state" : "empty"})
-            }
+            // if( final_annotations_array.length > 0){
+            //
+            //       var entry = final_annotations_array[0]
+            //           entry.annotation = entry.annotation.annotations.map( (v,i) => {var ann = v; ann.content = Object.keys(ann.content).join(";"); ann.qualifiers = Object.keys(ann.qualifiers).join(";"); return ann} )
+            //
+            //       request({
+            //               url: 'http://localhost:6666/preview',
+            //               method: "POST",
+            //               json: {
+            //                 anns: entry,
+            //                 collId: req.body.collId
+            //               }
+            //         }, async function (error, response, body) {
+            //
+            //           var insertResult = async (tid, tableResult) => {
+            //                 var client = await pool.connect()
+            //                 var done = await client.query('INSERT INTO result(tid, "tableResult") VALUES ($1, $2) ON CONFLICT (tid) DO UPDATE SET "tableResult" = $2',  [tid, tableResult])
+            //                   .then(result => console.log("insert result: "+ new Date()))
+            //                   .catch(e => console.error(e.stack))
+            //                   .then(() => client.release())
+            //           }
+            //           if ( body.tableResult.length > 0){
+            //               await insertResult(body.ann.tid[0], body.tableResult)
+            //           }
+            //           // res.json( {"state" : "good", result : body.tableResult, "anns" : body.ann} )
+            //           res.json( {"state" : "good", result : body.tableResult} )
+            //       });
+            //       res.json( {"state" : "good2", result : body.tableResult} )
+            // } else {
+            //   res.json({"state" : "empty"})
+            // }
 
           } else {
             res.json({status: "wrong parameters", body : req.body})
           }
 
         } catch (e){
-          // console.log(e)
-          res.json({status: "probably page out of bounds, or document does not exist", body : req.body})
+          console.log(e)
+          res.json({status: "annotationPreview : probably page out of bounds, or document does not exist", body : req.body})
         }
 
       } else {
         res.json([])
       }
-  //
-  // try{
-  //
-  //       var annotations
-  //
-  //       if(req.query && req.query.docid && req.query.docid.length > 0 ){
-  //         var page = req.query.page && (req.query.page.length > 0) ? req.query.page : 1
-  //         var user = req.query.user && (req.query.user.length > 0) ? req.query.user : ""
-  //         var collId = req.query.collId && (req.query.collId.length > 0) ? req.query.collId : ""
-  //
-  //         console.log("Producing Data For: " + JSON.stringify(req.query))
-  //         annotations = await getAnnotationByID(req.query.docid, page, collId)
-  //
-  //       } else{
-  //         res.send( {state:"badquery: "+JSON.stringify(req.query)} )
-  //       }
-  //
-  // } catch (e){
-  //   res.send({"state" : "failed"})
-  // }
 
+      res.json( {"state" : "reached end", result : []} )
 });
 
 // Returns all annotations for all document/tables.
@@ -1272,26 +1293,26 @@ app.get('/api/classify', async function(req,res){
 });
 
 //
-// app.post('/api/getTable',async function(req,res){
-//    try{
-//
-//       // && available_documents[req.query.docid]
-//       // && available_documents[req.query.docid].pages.indexOf(req.query.page) > -1
-//     if(req.query && req.query.docid && req.query.page && req.query.collId ){
-//
-//       // debugger
-//       var tableData = await readyTableData(req.query.docid,req.query.page,req.query.collId)
-//
-//       res.send( tableData  )
-//     } else {
-//       res.send({status: "wrong parameters", query : req.query})
-//     }
-//   } catch (e){
-//     console.log(e)
-//     res.send({status: "probably page out of bounds, or document does not exist", query : req.query})
-//   }
-//
-// });
+app.get('/api/getTable',async function(req,res){
+
+   try{
+
+      // && available_documents[req.query.docid]
+      // && available_documents[req.query.docid].pages.indexOf(req.query.page) > -1
+    if(req.query && req.query.docid && req.query.page && req.query.collId ){
+
+      var tableData = await readyTable(req.query.docid, req.query.page, req.query.collId, false)
+
+      res.send( tableData  )
+    } else {
+      res.send({status: "wrong parameters", query : req.query})
+    }
+  } catch (e){
+    console.log(e)
+    res.send({status: "getTable: probably page out of bounds, or document does not exist", query : req.query})
+  }
+
+});
 
 app.get('/api/getAvailableTables',function(req,res){
   res.send(available_documents)

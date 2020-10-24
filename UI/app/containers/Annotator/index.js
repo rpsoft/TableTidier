@@ -20,7 +20,8 @@ import reducer from './reducer';
 import saga from './saga';
 import messages from './messages';
 import {
-  loadTableContentAction
+  loadTableContentAction,
+  loadTableResultsAction
 } from './actions'
 
 import { useCookies } from 'react-cookie';
@@ -56,7 +57,7 @@ import MailIcon from '@material-ui/icons/Mail';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 
-import Draggable from 'react-draggable';
+// import Draggable from 'react-draggable';
 
 import { Resizable, ResizableBox } from 'react-resizable';
 
@@ -65,6 +66,7 @@ const drawerWidth = 240;
 import TableAnnotator from 'components/TableAnnotator'
 import TableEditor from 'components/TableEditor'
 import TableResult from 'components/TableResult'
+import TableMetadata from 'components/TableMetadata'
 
 
 
@@ -116,6 +118,7 @@ var diffY = 0;
 export function Annotator({
   annotator,
   loadTableContent,
+  loadTableResults,
   goToUrl
 }) {
   // console.log(annotator)
@@ -142,7 +145,7 @@ export function Annotator({
 
   const [ tableData, setTableData ] = React.useState( {...annotator.tableData });
   const [ annotations, setAnnotations ] = React.useState( annotator.annotations );
-  const [ results, setResults ] = React.useState( {} );
+  const [ results, setResults ] = React.useState(  annotator.results );
   const [ metadata, setMetadata ] = React.useState( {} );
 
   const [ editorEnabled, setEditorEnabled ] = React.useState(false);
@@ -151,6 +154,7 @@ export function Annotator({
   //On component will mount
   React.useEffect(() => {
     loadTableContent()
+    // loadTableResults()
   }, []);
 
 
@@ -160,8 +164,9 @@ export function Annotator({
       if( annotator.tableData){
         setAnnotations(annotator.annotations)
         setTableData(annotator.tableData)
-        setN_tables(annotator.tableData.collectionData.tables.length)
-        setTablePosition(annotator.tableData.tablePosition)
+        setN_tables(parseInt(annotator.tableData.collectionData.tables.length))
+        setTablePosition(parseInt(annotator.tableData.tablePosition))
+        setResults(annotator.results)
       }
     }, [annotator])
 
@@ -173,6 +178,7 @@ export function Annotator({
   React.useEffect(() => {
     // console.log("changed: " + JSON.stringify(location.search))
     loadTableContent()
+    // loadTableResults()
   }, [location.search]);
 
   // <FormattedMessage {...messages.header} />     console.log("EFFEFCT")
@@ -207,29 +213,9 @@ export function Annotator({
 
   var cols = []  //columns.map( (v,i) => { var col = {Header: v, accessor : v}; if( v == "col" || v == "row"){ col.width = 70 }; if( v == "value" ){ col.width = 200 }; return col } )
 
-  const table_results = <TableResult />
+  const table_results = <TableResult loadTableResults={loadTableResults} tableResult={results} />
 
-  const table_metadata = <div>
-                            <div style={{textAlign:"right", marginBottom:5}}>
-                              <div style={{height:35, fontSize:22, float:"left", paddingTop:5}}> 3. <b> Metadata </b> Linking </div>
-                              <Button variant="outlined" style={{backgroundColor:"lightblue"}} onClick={ () => {} }> Save Metadata Changes </Button>
-                            </div>
-
-                            `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-
-                              Section 1.10.32 of "de Finibus Bonorum et Malorum", written by Cicero in 45 BC
-                              "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?"
-
-                              1914 translation by H. Rackham
-                              "But I must explain to you how all thtable_annotatoris mistaken idea of denouncing pleasure and praising pain was born and I will give you a complete account of the system, and expound the actual teachings of the great explorer of the truth, the master-builder of human happiness. No one rejects, dislikes, or avoids pleasure itself, because it is pleasure, but because those who do not know how to pursue pleasure rationally encounter consequences that are extremely painful. Nor again is there anyone who loves or pursues or desires to obtain pain of itself, because it is pain, but because occasionally circumstances occur in which toil and pain can procure him some great pleasure. To take a trivial example, which of us ever undertakes laborious physical exercise, except to obtain some advantage from it? But who has any right to find fault with a man who chooses to enjoy a pleasure that has no annoying consequences, or one who avoids a pain that produces no resultant pleasure?"
-
-                              Section 1.10.33 of "de Finibus Bonorum et Malorum", written by Cicero in 45 BC
-                              "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat."
-
-                              1914 translation by H. Rackham
-                              "On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness of will, which is the same as saying through shrinking from toil and pain. These cases are perfectly simple and easy to distinguish. In a free hour, when our power of choice is untrammelled and when nothing prevents our being able to do what we like best, every pleasure is to be welcomed and every pain avoided. But in certain circumstances and owing to the claims of duty or the obligations of business it will frequently occur that pleasures have to be repudiated and annoyances accepted. The wise man therefore always holds in these matters to this principle of selection: he rejects pleasures to secure other greater pleasures, or else he endures pains to avoid worse pains.`
-
-                          </div>
+  const table_metadata = <TableMetadata />
 
   const bottom_elements = [table_annotator, table_results, table_metadata]
 
@@ -242,19 +228,38 @@ export function Annotator({
   }
 
   // Preparing navigation variables here.
-  const prepare_nav_link  = (table) => {
+  const prepare_nav_link  = (tables, index, prev, next) => {
 
-    if (!table ){
+
+    if (!tables ){
       return () => {}
     }
-    return () => {goToUrl("/table?"+
-                "docid="+table.docid+
-                "&page="+table.page+
-                "&collId="+table.collection_id);}
+
+    // console.log(prevNumber+" "+nextNumber+" "+table.docid+" "+table.page)
+    // debugger
+
+    return () => {
+      // debugger
+      var address = "/table?"+
+                "docid="+tables[index].docid+
+                "&page="+tables[index].page+
+                "&collId="+tables[index].collection_id;
+
+      console.log(address+" -- "+ prev + " : "+ next);
+      goToUrl(address);
+    }
   }
 
-  const goPrev = prepare_nav_link(annotator.tableData ? annotator.tableData.tablePosition_prev : false)
-  const goNext = prepare_nav_link(annotator.tableData ? annotator.tableData.tablePosition_next : false)
+  // debugger
+
+  const prevNumber = ((tablePosition-1) >= 0) ? (tablePosition-1) : 0
+  const nextNumber = ((tablePosition+1) > (N_tables-1)) ? (N_tables-1) : (tablePosition+1)
+
+  // annotator.tableData.collectionData.tables
+  const goPrev = annotator.tableData ? prepare_nav_link(annotator.tableData.collectionData.tables,prevNumber, prevNumber, nextNumber) : () => {}
+  const goNext = annotator.tableData ? prepare_nav_link(annotator.tableData.collectionData.tables,nextNumber, prevNumber, nextNumber) : () => {}
+
+  const docid = annotator.tableData && annotator.tableData.collectionData.tables.length > 0 && tablePosition > -1  ? annotator.tableData.collectionData.tables[tablePosition].docid : ""
 
   return (
 
@@ -265,16 +270,19 @@ export function Annotator({
           <div className={classes.content}>
 
             <div style={{width:"100%",textAlign:"right"}}>
-              <div style={{float:"left", marginTop:10}}> Document Name / ID:  <span style={{fontWeight:"bold", textDecoration: "underline", cursor: "pointer", color: "blue"}}> 43245435432 </span></div>
-                <div>
-                <EditIcon/> {editorEnabled ? "Disable" : "Enable"} Editing
-                <Switch
-                    checked={editorEnabled}
-                    onChange={() => { setEditorEnabled(!editorEnabled);}}
-                    name="checkedA"
-                    inputProps={{ 'aria-label': 'secondary checkbox' }}
-                  />
-                </div>
+              <div style={{float:"left", marginTop:10}}>
+                    Document Name / ID:  <span style={{fontWeight:"bold", textDecoration: "underline", cursor: "pointer", color: "blue"}}> {docid} </span>
+              </div>
+
+              <div>
+              <EditIcon/> {editorEnabled ? "Disable" : "Enable"} Editing
+              <Switch
+                  checked={editorEnabled}
+                  onChange={() => { setEditorEnabled(!editorEnabled);}}
+                  name="checkedA"
+                  inputProps={{ 'aria-label': 'secondary checkbox' }}
+                />
+              </div>
 
             </div>
 
@@ -371,13 +379,17 @@ export function Annotator({
             onDrag={e => {
               if ( bottomEnabled ){
                 var dragX = e.pageX, dragY = e.pageY;
-                if ( (startBottomSize + (dragStartY - dragY)) % 10 == 0 ){
-                  setBottomSize(startBottomSize + (dragStartY - dragY));
+
+                var comp = Math.round((startBottomSize + (dragStartY - dragY))/100)*100
+
+                if ( (comp) % 20 == 0 ){
+                  setBottomSize(comp);
+
                 }
               }
+
             }}
             onDragStart={ (e,data) => {
-
               var img = new Image();
               img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=';
               event.dataTransfer.setDragImage(img, 0, 0);
@@ -397,7 +409,7 @@ export function Annotator({
                 // debugger
 
                 setBottomSize( (nextSize < 0) || (nextSize > window.innerHeight*0.75) ? window.innerHeight*0.75 : nextSize);
-                e.preventDefault()
+                // e.preventDefault()
               }
             }}
           > </div>
@@ -426,7 +438,7 @@ export function Annotator({
                                 <tbody>
                                   { [bottomAnnotations, bottomResults, bottomMetadata].map( (elm, i) => elm ?
                                       <tr key={"tr_"+i} style={{width:"100%", verticalAlign:"top", borderBottom:"1px #acacac solid"}}>
-                                        <td style={{padding:7, paddingBottom:20}}>
+                                        <td style={{paddingBottom:20}}>
                                           { bottom_elements[i] }
                                         </td>
                                       </tr> : undefined )
@@ -459,6 +471,7 @@ function mapDispatchToProps(dispatch) {
   return {
     dispatch,
     loadTableContent : () => dispatch( loadTableContentAction() ),
+    loadTableResults : () => dispatch ( loadTableResultsAction() ),
     goToUrl : (url) => dispatch(push(url))
     // deleteCollection : () => dispatch( deleteCollectionAction() ),
     // updateCollectionData : (collectionData) => dispatch( updateCollectionAction (collectionData)),

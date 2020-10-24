@@ -24,7 +24,7 @@ export const initialState = {
   tableData: { tableTitle: "<div>This is Title </div>", tableBody: "<div>This is the content</div>", collectionData: {tables:[]}, tablePosition:-1},
   annotations: [ { location: "Row" , content:{}, qualifiers:{}, number:1, subAnnotation:false },
                  { location: "Col" , content:{}, qualifiers:{}, number:1, subAnnotation:false } ],
-  results : {},
+  results : [],
   metadata : {},
 };
 
@@ -34,10 +34,15 @@ const annotatorReducer = (state = initialState, action) =>
     switch (action.type) {
       case UPDATE_TABLE_CONTENT_ACTION:
         draft.tableData = action.tableData;
+        draft.results = []
+        draft.metadata = {}
         break;
       case UPDATE_TABLE_ANNOTATIONS_ACTION:
         draft.annotations = action.annotations;
         break;
+      case UPDATE_TABLE_RESULTS_ACTION:
+        draft.results = action.results;
+
     }
   });
 

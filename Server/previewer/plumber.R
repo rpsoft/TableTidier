@@ -17,20 +17,20 @@ baseFolder <- "~/ihw/tableAnnotator/Server/src/"
 tablesDirectory <- "~/ihw/tableAnnotator/Server/HTML_TABLES_OVERRIDE/"
 # new_obj <- readRDS(paste0(baseFolder,"Full_set_of_tables_Prepared.Rds"))
 
-html_2_df <- function (pmid,page){
+html_2_df <- function (pmid, page, collId){
 
-  url <- paste0("http://localhost:6541/api/getTable?docid=",pmid,"&page=",page)
+  url <- paste0("http://localhost:6541/api/getTable?docid=",pmid,"&page=",page,"&collId=",collId)
   JsonData <- fromJSON(file= url )
 
-  browser()
+  # browser()
   # doc_string <- read_file(paste0("~/ihw/tableAnnotator/Server/HTML_TABLES_OVERRIDE/",pmid,"_",page,".html"))
-
-  x <- read_xml(JsonData$formattedPage, as_html = FALSE)
+  # print(JsonData)
+  x <- read_xml(JsonData$tableBody, as_html = FALSE)
   ps <- xml_find_all(x, ".//td/p")
   tds <- xml_find_all(x, ".//td")
 
 
-  x_header <- read_xml(JsonData$htmlHeader, as_html = FALSE)
+  x_header <- read_xml(JsonData$tableTitle, as_html = FALSE)
   textHeader <- xml_text(xml_find_all(x_header, "//td"))
 
 
@@ -88,13 +88,13 @@ html_2_df <- function (pmid,page){
   newdata <- newdata %>% mutate( first_last_col = str_detect(attr,"firstLastCol"))
   newdata <- newdata %>% mutate( indent = str_detect(attr,"indent"))
   newdata <- newdata %>% mutate( indent_lvl = trimws(gsub("[^0-9]", " ", attr), "both"))
-  
+
   newdata[c("is_empty", "blank_row", "italic", "first_col", "first_last_col", "indent")][is.na(newdata[c("is_empty", "blank_row", "italic", "first_col", "first_last_col", "indent")])] <- FALSE
   newdata[c("attr")][is.na(newdata[c("attr")])] <- ""
   newdata[c("bold")][is.na(newdata[c("bold")])] <- FALSE
-  
-  browser()
-  
+
+  # browser()
+
   newdata[c("indent_lvl")][is.na(newdata[c("indent_lvl")])] <- "0"
   newdata[c("indent_lvl")][!is.numeric(newdata[c("indent_lvl")])] <- "0"
 
@@ -120,7 +120,7 @@ html_2_df <- function (pmid,page){
 }
 
 
-runAll <- function(annotations){
+runAll <- function(annotations, collId){
 
   # message("Joining by: ", capture.output(dput(by)))
 
@@ -245,9 +245,10 @@ runAll <- function(annotations){
 
   metadata <- prepareAnnotations( annotations )
 
+  #browser()
 
-
-  TidyTable <- function(docid_page_selected){
+  TidyTable <- function(docid_page_selected, collId ){
+    
     meta <- metadata %>%
       filter(docid_page == docid_page_selected)
 
@@ -280,12 +281,14 @@ runAll <- function(annotations){
 
 
     # if(file.exists(paste0(tablesDirectory, filename, ".html"))){
-      all_cells <- html_2_df(meta$docid[1], meta$page[1])
+      all_cells <- html_2_df(meta$docid[1], meta$page[1], collId)
+      
+      # print(all_cells)
     # } else {
       # all_cells <- new_obj %>% filter( pmid_tbl == filename)
     # }
 
-     browser()
+     #browser()
 
 
     ##  Simplify table by making all values character
@@ -514,7 +517,7 @@ runAll <- function(annotations){
     row_lbls <- table_body %>%
       filter(row %in% row_lbls_meta$row,
              !col %in% col_lbls_meta$col)
-    browser()
+    # browser()
     for(i_choose in unique(row_lbls_meta$i)){
       ## Select each richest column description in turn, removing that from the dataset
 
@@ -536,17 +539,19 @@ runAll <- function(annotations){
       filter(!is.na(value))
     # data_cells
   }
-  
+
   TidyTableSafe <- safely(TidyTable)
 
-  outputs <- map(metadata$docid_page %>% unique, ~ TidyTableSafe(.x))
+  outputs <- map(metadata$docid_page %>% unique, ~ TidyTableSafe(.x, collId))
 
+  # print(outputs)
+  
   names(outputs) <- metadata$docid_page %>% unique()
   outputs <- transpose(outputs)
 
 
   result <- outputs$result
-  result_success <- result[map_lgl(result, is.tibble)]
+  result_success <- result[map_lgl(result, is_tibble)]
   result_success <- bind_rows(result_success, .id = "docid_page")
 
   return(result_success)
@@ -558,27 +563,39 @@ runAll <- function(annotations){
 #* @get /preview
 #* @post /preview
 function(req, anns = "" ) {
+
+
   # url <- paste0("http://localhost:6541/api/getTable?docid=11527638&page=1")
   # JsonData <- fromJSON(file= url )
   #
-  #write_rds(anns, paste0(baseFolder,"last_out_other.rds"))
+  # write_rds(anns, paste0(baseFolder,"last_out_other.rds"))
   #
   #anns <- read_rds(paste0(baseFolder,"last_out_other.rds"))
-  #print(anns)
 
   annotations <- anns$annotation %>%
     as.data.frame() %>%
-    mutate(docid = anns$docid,page = anns$page,user = anns$user,corrupted = anns$corrupted,tableType = anns$tableType) %>%
-    select(user,docid,page,corrupted,tableType,location,number,content,qualifiers) %>%
+    mutate(docid = anns$docid,page = anns$page,user = anns$user,tableType = anns$tableType) %>%
+    select(user,docid,page,tableType,location,number,content,qualifiers) %>%
     mutate(page = as.double(page)) %>%
-    mutate(corrupted = ifelse(corrupted == "false",FALSE,TRUE)) %>%
     mutate(qualifiers = ifelse( qualifiers == "",NA, qualifiers)) %>%
     mutate(content = ifelse( content == "",NA, content)) %>%
     as_tibble()
 
+#    annotations <- anns$annotation %>%
+#      as.data.frame() %>%
+#      mutate(docid = anns$docid,page = anns$page,user = anns$user,corrupted = anns$corrupted,tableType = anns$tableType) %>%
+#      select(user,docid,page,corrupted,tableType,location,number,content,qualifiers) %>%
+#      mutate(page = as.double(page)) %>%
+#      mutate(corrupted = ifelse(corrupted == "false",FALSE,TRUE)) %>%
+#      mutate(qualifiers = ifelse( qualifiers == "",NA, qualifiers)) %>%
+#      mutate(content = ifelse( content == "",NA, content)) %>%
+#      as_tibble()
+
   #print(annotations)
-  # annotations <- readRDS(paste0(b aseFolder,"testing-annotations.rds"))
-  result <- value( future( runAll(annotations) ) )
+  # annotations <- readRDS(paste0(baseFolder,"testing-annotations.rds"))
+  
+  collId <- anns$collection_id
+  result <- value( future( runAll(annotations, collId) ) )
 
   list(
     tableResult = result,

@@ -18,27 +18,34 @@ var path = require('path');
 
 console.log("Loading Classifier");
 
-var readyTableData =
+var readyTable =
 /*#__PURE__*/
 function () {
   var _ref = (0, _asyncToGenerator2.default)(
   /*#__PURE__*/
   _regenerator.default.mark(function _callee2(docname, page, collection_id) {
-    var docid, htmlFolder, htmlFile, file_exists, result;
+    var enablePrediction,
+        docid,
+        htmlFolder,
+        htmlFile,
+        file_exists,
+        result,
+        _args2 = arguments;
     return _regenerator.default.wrap(function _callee2$(_context2) {
       while (1) {
         switch (_context2.prev = _context2.next) {
           case 0:
-            _context2.prev = 0;
+            enablePrediction = _args2.length > 3 && _args2[3] !== undefined ? _args2[3] : false;
+            _context2.prev = 1;
             docid = docname + "_" + page + ".html";
             htmlFolder = path.join(global.tables_folder, collection_id); //global.tables_folder+"/",
 
             htmlFile = docid; //If an override file exists then use it!. Overrides are those produced by the editor.
 
-            _context2.next = 6;
+            _context2.next = 7;
             return fs.existsSync(path.join(global.tables_folder_override, collection_id, docid));
 
-          case 6:
+          case 7:
             file_exists = _context2.sent;
 
             if (file_exists) {
@@ -94,8 +101,7 @@ function () {
                                 tablePage('table tr td:nth-child(1)').remove();
                                 tablePage('table tr td:nth-child(1)').remove();
                                 tableEdited = true;
-                              } // debugger
-
+                              }
 
                               if (tablePage("strong").length > 0 || tablePage("b").length > 0 || tablePage("i").length > 0) {
                                 // fixing strong, b and i tags on the fly. using "bold" and "italic" classes is preferred
@@ -164,12 +170,7 @@ function () {
                                   var headText = cheerio(headerNodes[h]).text().trim();
                                   var textLimit = 400;
                                   var actualText = headText.length > textLimit ? headText.slice(0, textLimit - 1) + " [...] " : headText;
-                                  totalTextChars += actualText.length; // try{
-                                  //   actualText = decodeURI(actualText)
-                                  // } catch (e) {
-                                  //   console.log(e)
-                                  // }
-
+                                  totalTextChars += actualText.length;
                                   htmlHeader = htmlHeader + '<tr ><td style="font-size:20px; font-weight:bold; white-space: normal;">' + actualText + "</td></tr>";
                                 }
 
@@ -224,11 +225,21 @@ function () {
 
                               styles = actual_table.indexOf('<style type="text/css">.indent0') > -1 ? "" : "<style>" + data_ss + "</style>";
                               formattedPage = actual_table.indexOf("tr:hover" < 0) ? "<div>" + styles + actual_table + "</div>" : actual_table;
-                              _context.next = 41;
+                              predicted = {};
+
+                              if (!enablePrediction) {
+                                _context.next = 45;
+                                break;
+                              }
+
+                              console.log("predicting");
+                              _context.next = 44;
                               return attemptPrediction(actual_table);
 
-                            case 41:
+                            case 44:
                               predicted = _context.sent;
+
+                            case 45:
                               resolve({
                                 status: "good",
                                 tableTitle: htmlHeader,
@@ -236,7 +247,7 @@ function () {
                                 predictedAnnotation: predicted
                               });
 
-                            case 43:
+                            case 46:
                             case "end":
                               return _context.stop();
                           }
@@ -250,8 +261,8 @@ function () {
                   }());
                 });
               } catch (e) {
-                console.log(e);
-                debugger;
+                console.log(e); // debugger
+
                 reject({
                   status: "bad"
                 });
@@ -259,11 +270,11 @@ function () {
             });
             return _context2.abrupt("return", result);
 
-          case 13:
-            _context2.prev = 13;
-            _context2.t0 = _context2["catch"](0);
-            console.log(_context2.t0);
-            debugger;
+          case 14:
+            _context2.prev = 14;
+            _context2.t0 = _context2["catch"](1);
+            console.log(_context2.t0); // debugger
+
             return _context2.abrupt("return", {
               status: "bad"
             });
@@ -273,10 +284,10 @@ function () {
             return _context2.stop();
         }
       }
-    }, _callee2, this, [[0, 13]]);
+    }, _callee2, this, [[1, 14]]);
   }));
 
-  return function readyTableData(_x, _x2, _x3) {
+  return function readyTable(_x, _x2, _x3) {
     return _ref.apply(this, arguments);
   };
 }();
@@ -917,266 +928,191 @@ function () {
   return function prepareAvailableDocuments(_x7) {
     return _ref4.apply(this, arguments);
   };
-}();
+}(); // var readyTable = async (docname, page, collection_id) => {
+//   try {
+//   const docid = docname+"_"+page+".html"
+//   var htmlFolder = path.join(global.tables_folder, collection_id) //global.tables_folder+"/",
+//   const htmlFile = docid
+//
+//
+//   //If an override file exists then use it!. Overrides are those produced by the editor.
+//   var file_exists = await fs.existsSync( path.join(global.tables_folder_override, collection_id, docid) )
+//
+//   if ( file_exists ) {
+//     htmlFolder = path.join(global.tables_folder_override, collection_id) //"HTML_TABLES_OVERRIDE/"
+//   }
+//
+//   console.log("Loading Table: "+docid+" "+(file_exists ? " [Override Folder]" : ""))
+//
+//   var result = new Promise(function(resolve, reject) {
+//
+//   try {
+//     fs.readFile(path.join(htmlFolder,htmlFile), //already has collection_id in html_folder
+//                 "utf8",
+//                 function(err, data) {
+//                   fs.readFile(path.join(global.cssFolder,"stylesheet.css"),
+//                               "utf8",
+//                               async function(err2, data_ss) {
+//
+//                                   var tablePage;
+//
+//                                   try{
+//                                     // debugger
+//                                       tablePage = cheerio.load(data);
+//
+//
+//                                       var tableEdited = false;
+//                                       // tablePage("col").removeAttr('style');
+//                                       if ( !tablePage ){
+//                                             resolve({htmlHeader: "",formattedPage : "", title: "" })
+//                                             return;
+//                                       }
+//
+//
+//                                       // Remove all empty rows from the top.
+//                                       while ( tablePage('table tr:nth-child(1)').text().trim().length == 0 ) {
+//                                         tablePage('table tr:nth-child(1)').remove()
+//                                         tableEdited = true;
+//                                       }
+//                                       //
+//                                       // debugger
+//
+//                                       // "remove NCT column on the fly"
+//
+//                                       var firstColContent = tablePage('table tr td:nth-child(1)').text().trim()
+//                                       if ( firstColContent.indexOf("NCT") == 0 ){
+//                                           tablePage('table tr td:nth-child(1)').remove()
+//                                           tablePage('table tr td:nth-child(1)').remove()
+//                                           tableEdited = true;
+//                                       }
+//
+//                                       // debugger
+//
+//                                       if ( tablePage("strong").length > 0 || tablePage("b").length > 0 || tablePage("i").length > 0){
+//
+//                                         // fixing strong, b and i tags on the fly. using "bold" and "italic" classes is preferred
+//                                         tablePage("strong").closest("td").addClass("bold")
+//                                         tablePage("strong").map( (i,el) => { var content = cheerio(el).html(); var parent = cheerio(el).parent(); cheerio(el).remove(); parent.append( content ) } )
+//
+//                                         tablePage("b").closest("td").addClass("bold")
+//                                         tablePage("b").map( (i,el) => { var content = cheerio(el).html(); var parent = cheerio(el).parent(); cheerio(el).remove(); parent.append( content ) } )
+//
+//                                         tablePage("i").closest("td").addClass("italic")
+//                                         tablePage("i").map( (i,el) => { var content = cheerio(el).html(); var parent = cheerio(el).parent(); cheerio(el).remove(); parent.append( content ) } )
+//
+//                                         // debugger
+//
+//                                         tableEdited = true
+//                                         // fs.writeFile(htmlFolder+htmlFile,  tablePage.html(), function (err) {
+//                                         //   if (err) throw err;
+//                                         //   console.log('Substituted strong tags by "bold" class for: '+htmlFolder+htmlFile);
+//                                         // });
+//
+//                                       }
+//
+//                                       if ( tableEdited ){
+//                                         console.log('Table corrected on the fly: '+path.join(htmlFolder,htmlFile));
+//                                         fs.writeFile(path.join(htmlFolder,htmlFile),  tablePage.html(), function (err) {
+//                                           if (err) throw err;
+//                                           console.log('Table corrected on the fly: '+path.join(htmlFolder,htmlFile));
+//                                         });
+//                                       }
+//
+//                                   } catch (e){
+//                                     // console.log(JSON.stringify(e)+" -- " + JSON.stringify(data))
+//                                     resolve({htmlHeader: "",formattedPage : "", title: "" })
+//                                     return;
+//                                   }
+//
+//                                   var spaceRow = -1;
+//                                   var htmlHeader = ""
+//
+//
+//
+//
+//                                   var findHeader = (tablePage, tag) => {
+//                                     var totalTextChars = 0
+//
+//                                     var headerNodes = [cheerio(tablePage(tag)[0]).remove()]
+//                                     var htmlHeader = ""
+//                                     for ( var h in headerNodes){
+//                                         // cheerio(headerNodes[h]).css("font-size","20px");
+//                                         var headText = cheerio(headerNodes[h]).text().trim()
+//                                         var textLimit = 400
+//                                         var actualText = (headText.length > textLimit ? headText.slice(0,textLimit-1) +" [...] " : headText)
+//                                             totalTextChars += actualText.length
+//
+//                                         // try{
+//                                         //   actualText = decodeURI(actualText)
+//                                         // } catch (e) {
+//                                         //   console.log(e)
+//                                         // }
+//                                         htmlHeader = htmlHeader + '<tr ><td style="font-size:20px; font-weight:bold; white-space: normal;">' + actualText + "</td></tr>"
+//                                     }
+//
+//                                     return {htmlHeader, totalTextChars}
+//                                   }
+//
+//                                   var possible_tags_for_title = [".headers",".caption",".captions",".article-table-caption"]
+//
+//                                   for (var t in possible_tags_for_title){
+//
+//                                     htmlHeader = findHeader(tablePage, possible_tags_for_title[t])
+//                                     if ( htmlHeader.totalTextChars > 0){
+//                                       break;
+//                                     }
+//
+//                                   }
+//
+//                                   htmlHeader = "<table>"+htmlHeader.htmlHeader+"</table>"
+//
+//                                   var actual_table = tablePage("table").parent().html();
+//                                       actual_table = cheerio.load(actual_table);
+//
+//
+//                                   // The following lines remove, line numbers present in some tables, as well as positions in headings derived from the excel sheets  if present.
+//                                   var colum_with_numbers = actual_table("tr > td:nth-child(1), tr > td:nth-child(2), tr > th:nth-child(1), tr > th:nth-child(2)")
+//
+//                                   if ( colum_with_numbers.text().replace( /[0-9]/gi, "").replace(/\s+/g,"").toLowerCase() === "row/col" ){
+//                                     colum_with_numbers.remove()
+//                                   }
+//
+//                                   if ( actual_table("thead").text().trim().indexOf("1(A)") > -1 ){
+//                                       actual_table("thead").remove();
+//                                   }
+//                                   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//                                   // Correction here for bold
+//
+//                                   actual_table = actual_table.html();
+//
+//                                   // var ss = "<style>"+data_ss+" td {width: auto;} tr:hover {background: aliceblue} td:hover {background: #82c1f8} col{width:100pt} </style>"
+//                                   var styles = actual_table.indexOf('<style type="text/css">.indent0') > -1 ? "" : "<style>"+data_ss+"</style>"
+//
+//                                   var formattedPage = actual_table.indexOf("tr:hover" < 0) ? "<div>"+styles+actual_table+"</div>" : actual_table
+//
+//                                   resolve({status: "good", tableTitle: htmlHeader, tableBody: formattedPage, predictedAnnotation: {} })
+//                               });
+//
+//                 });
+//         } catch ( e ){
+//           console.log(e)
+//            debugger
+//             reject({status:"bad"})
+//         }
+//       });
+//
+//       return result
+//     } catch (e){
+//       console.log(e)
+//       debugger
+//       return {status:"bad"}
+//     }
+// }
 
-var readyTable =
-/*#__PURE__*/
-function () {
-  var _ref5 = (0, _asyncToGenerator2.default)(
-  /*#__PURE__*/
-  _regenerator.default.mark(function _callee6(docname, page, collection_id) {
-    var docid, htmlFolder, htmlFile, file_exists, result;
-    return _regenerator.default.wrap(function _callee6$(_context6) {
-      while (1) {
-        switch (_context6.prev = _context6.next) {
-          case 0:
-            _context6.prev = 0;
-            docid = docname + "_" + page + ".html";
-            htmlFolder = path.join(global.tables_folder, collection_id); //global.tables_folder+"/",
-
-            htmlFile = docid; //If an override file exists then use it!. Overrides are those produced by the editor.
-
-            _context6.next = 6;
-            return fs.existsSync(path.join(global.tables_folder_override, collection_id, docid));
-
-          case 6:
-            file_exists = _context6.sent;
-
-            if (file_exists) {
-              htmlFolder = path.join(global.tables_folder_override, collection_id); //"HTML_TABLES_OVERRIDE/"
-            }
-
-            console.log("Loading Table: " + docid + " " + (file_exists ? " [Override Folder]" : ""));
-            result = new Promise(function (resolve, reject) {
-              try {
-                fs.readFile(path.join(htmlFolder, htmlFile), //already has collection_id in html_folder
-                "utf8", function (err, data) {
-                  fs.readFile(path.join(global.cssFolder, "stylesheet.css"), "utf8",
-                  /*#__PURE__*/
-                  function () {
-                    var _ref6 = (0, _asyncToGenerator2.default)(
-                    /*#__PURE__*/
-                    _regenerator.default.mark(function _callee5(err2, data_ss) {
-                      var tablePage, tableEdited, firstColContent, spaceRow, htmlHeader, findHeader, possible_tags_for_title, t, actual_table, colum_with_numbers, styles, formattedPage;
-                      return _regenerator.default.wrap(function _callee5$(_context5) {
-                        while (1) {
-                          switch (_context5.prev = _context5.next) {
-                            case 0:
-                              _context5.prev = 0;
-                              // debugger
-                              tablePage = cheerio.load(data);
-                              tableEdited = false; // tablePage("col").removeAttr('style');
-
-                              if (tablePage) {
-                                _context5.next = 6;
-                                break;
-                              }
-
-                              resolve({
-                                htmlHeader: "",
-                                formattedPage: "",
-                                title: ""
-                              });
-                              return _context5.abrupt("return");
-
-                            case 6:
-                              // Remove all empty rows from the top.
-                              while (tablePage('table tr:nth-child(1)').text().trim().length == 0) {
-                                tablePage('table tr:nth-child(1)').remove();
-                                tableEdited = true;
-                              } //
-                              // debugger
-                              // "remove NCT column on the fly"
-
-
-                              firstColContent = tablePage('table tr td:nth-child(1)').text().trim();
-
-                              if (firstColContent.indexOf("NCT") == 0) {
-                                tablePage('table tr td:nth-child(1)').remove();
-                                tablePage('table tr td:nth-child(1)').remove();
-                                tableEdited = true;
-                              } // debugger
-
-
-                              if (tablePage("strong").length > 0 || tablePage("b").length > 0 || tablePage("i").length > 0) {
-                                // fixing strong, b and i tags on the fly. using "bold" and "italic" classes is preferred
-                                tablePage("strong").closest("td").addClass("bold");
-                                tablePage("strong").map(function (i, el) {
-                                  var content = cheerio(el).html();
-                                  var parent = cheerio(el).parent();
-                                  cheerio(el).remove();
-                                  parent.append(content);
-                                });
-                                tablePage("b").closest("td").addClass("bold");
-                                tablePage("b").map(function (i, el) {
-                                  var content = cheerio(el).html();
-                                  var parent = cheerio(el).parent();
-                                  cheerio(el).remove();
-                                  parent.append(content);
-                                });
-                                tablePage("i").closest("td").addClass("italic");
-                                tablePage("i").map(function (i, el) {
-                                  var content = cheerio(el).html();
-                                  var parent = cheerio(el).parent();
-                                  cheerio(el).remove();
-                                  parent.append(content);
-                                }); // debugger
-
-                                tableEdited = true; // fs.writeFile(htmlFolder+htmlFile,  tablePage.html(), function (err) {
-                                //   if (err) throw err;
-                                //   console.log('Substituted strong tags by "bold" class for: '+htmlFolder+htmlFile);
-                                // });
-                              }
-
-                              if (tableEdited) {
-                                console.log('Table corrected on the fly: ' + path.join(htmlFolder, htmlFile));
-                                fs.writeFile(path.join(htmlFolder, htmlFile), tablePage.html(), function (err) {
-                                  if (err) throw err;
-                                  console.log('Table corrected on the fly: ' + path.join(htmlFolder, htmlFile));
-                                });
-                              }
-
-                              _context5.next = 17;
-                              break;
-
-                            case 13:
-                              _context5.prev = 13;
-                              _context5.t0 = _context5["catch"](0);
-                              // console.log(JSON.stringify(e)+" -- " + JSON.stringify(data))
-                              resolve({
-                                htmlHeader: "",
-                                formattedPage: "",
-                                title: ""
-                              });
-                              return _context5.abrupt("return");
-
-                            case 17:
-                              spaceRow = -1;
-                              htmlHeader = "";
-
-                              findHeader = function findHeader(tablePage, tag) {
-                                var totalTextChars = 0;
-                                var headerNodes = [cheerio(tablePage(tag)[0]).remove()];
-                                var htmlHeader = "";
-
-                                for (var h in headerNodes) {
-                                  // cheerio(headerNodes[h]).css("font-size","20px");
-                                  var headText = cheerio(headerNodes[h]).text().trim();
-                                  var textLimit = 400;
-                                  var actualText = headText.length > textLimit ? headText.slice(0, textLimit - 1) + " [...] " : headText;
-                                  totalTextChars += actualText.length; // try{
-                                  //   actualText = decodeURI(actualText)
-                                  // } catch (e) {
-                                  //   console.log(e)
-                                  // }
-
-                                  htmlHeader = htmlHeader + '<tr ><td style="font-size:20px; font-weight:bold; white-space: normal;">' + actualText + "</td></tr>";
-                                }
-
-                                return {
-                                  htmlHeader: htmlHeader,
-                                  totalTextChars: totalTextChars
-                                };
-                              };
-
-                              possible_tags_for_title = [".headers", ".caption", ".captions", ".article-table-caption"];
-                              _context5.t1 = _regenerator.default.keys(possible_tags_for_title);
-
-                            case 22:
-                              if ((_context5.t2 = _context5.t1()).done) {
-                                _context5.next = 29;
-                                break;
-                              }
-
-                              t = _context5.t2.value;
-                              htmlHeader = findHeader(tablePage, possible_tags_for_title[t]);
-
-                              if (!(htmlHeader.totalTextChars > 0)) {
-                                _context5.next = 27;
-                                break;
-                              }
-
-                              return _context5.abrupt("break", 29);
-
-                            case 27:
-                              _context5.next = 22;
-                              break;
-
-                            case 29:
-                              htmlHeader = "<table>" + htmlHeader.htmlHeader + "</table>";
-                              actual_table = tablePage("table").parent().html();
-                              actual_table = cheerio.load(actual_table); // The following lines remove, line numbers present in some tables, as well as positions in headings derived from the excel sheets  if present.
-
-                              colum_with_numbers = actual_table("tr > td:nth-child(1), tr > td:nth-child(2), tr > th:nth-child(1), tr > th:nth-child(2)");
-
-                              if (colum_with_numbers.text().replace(/[0-9]/gi, "").replace(/\s+/g, "").toLowerCase() === "row/col") {
-                                colum_with_numbers.remove();
-                              }
-
-                              if (actual_table("thead").text().trim().indexOf("1(A)") > -1) {
-                                actual_table("thead").remove();
-                              } ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-                              // Correction here for bold
-
-
-                              actual_table = actual_table.html(); // var ss = "<style>"+data_ss+" td {width: auto;} tr:hover {background: aliceblue} td:hover {background: #82c1f8} col{width:100pt} </style>"
-
-                              styles = actual_table.indexOf('<style type="text/css">.indent0') > -1 ? "" : "<style>" + data_ss + "</style>";
-                              formattedPage = actual_table.indexOf("tr:hover" < 0) ? "<div>" + styles + actual_table + "</div>" : actual_table;
-                              resolve({
-                                status: "good",
-                                tableTitle: htmlHeader,
-                                tableBody: formattedPage,
-                                predictedAnnotation: {}
-                              });
-
-                            case 39:
-                            case "end":
-                              return _context5.stop();
-                          }
-                        }
-                      }, _callee5, this, [[0, 13]]);
-                    }));
-
-                    return function (_x11, _x12) {
-                      return _ref6.apply(this, arguments);
-                    };
-                  }());
-                });
-              } catch (e) {
-                console.log(e);
-                debugger;
-                reject({
-                  status: "bad"
-                });
-              }
-            });
-            return _context6.abrupt("return", result);
-
-          case 13:
-            _context6.prev = 13;
-            _context6.t0 = _context6["catch"](0);
-            console.log(_context6.t0);
-            debugger;
-            return _context6.abrupt("return", {
-              status: "bad"
-            });
-
-          case 18:
-          case "end":
-            return _context6.stop();
-        }
-      }
-    }, _callee6, this, [[0, 13]]);
-  }));
-
-  return function readyTable(_x8, _x9, _x10) {
-    return _ref5.apply(this, arguments);
-  };
-}();
 
 module.exports = {
+  // readyTable,
   readyTable: readyTable,
-  readyTableData: readyTableData,
   prepareAvailableDocuments: prepareAvailableDocuments
 };

@@ -21,7 +21,7 @@ import {
   SAVE_TABLE_METADATA_ACTION,
 } from './constants';
 
-
+// Table Data
 export function loadTableContentAction(docid, page, collId) {
   return {
     type: LOAD_TABLE_CONTENT_ACTION,
@@ -36,7 +36,7 @@ export function updateTableContentAction(tableData) {
   };
 }
 
-
+// Annotation
 export function loadTableAnnotationsAction(docid, page, collId) {
   return {
     type: LOAD_TABLE_ANNOTATIONS_ACTION,
@@ -51,6 +51,7 @@ export function updateTableAnnotationsAction(annotations) {
   };
 }
 
+// Table Results
 export function loadTableResultsAction(docid, page, collId) {
   return {
     type: LOAD_TABLE_RESULTS_ACTION,
@@ -58,6 +59,14 @@ export function loadTableResultsAction(docid, page, collId) {
   };
 }
 
+export function updateTableResultsAction(results) {
+  return {
+    type: UPDATE_TABLE_RESULTS_ACTION,
+    results,
+  };
+}
+
+// Table Metadata
 export function loadTableMetadataAction(docid, page, collId) {
   return {
     type: LOAD_TABLE_METADATA_ACTION,

@@ -1,5 +1,8 @@
 import { metamap } from "./metamap.js"
 
+import {PythonShell} from 'python-shell';
+
+
 let assert = require('assert');
 let pythonBridge = require('python-bridge');
 
@@ -7,36 +10,132 @@ let python = pythonBridge({
     python: 'python3'
 });
 
+
+var CONFIG = require('./config.json')
+
+var classifierFile = CONFIG.system_path+"Classifier/trained/umls_full.model"
+
+// const pythonScript = `
+// import warnings
+// warnings.filterwarnings("ignore", category=FutureWarning)
+// warnings.filterwarnings("ignore", category=UserWarning)
+// import pandas as pd
+// import pickle
+// import sys
+//
+// model = pickle.load(open("${classifierFile}", 'rb'))
+//
+// def predict(data):
+//
+//     c = ['clean_concept', 'is_bold', 'is_italic', 'is_indent', 'is_empty_row',
+//         'is_empty_row_p', 'cuis', 'semanticTypes']
+//
+//     customPredict = pd.DataFrame(
+//         data = data,
+//         columns = c)
+//
+//     customPredict = customPredict[['clean_concept', 'is_bold', 'is_italic',
+//         'is_indent', 'is_empty_row', 'is_empty_row_p', 'semanticTypes']]
+//
+//     return (model["target_codec"].inverse_transform(model["trained_model"].predict(customPredict)))
+//
+// def groupedPredict( data ):
+//
+//     c = ['clean_concept',
+//         'is_bold', 'is_italic', 'is_indent', 'is_empty_row',
+//         'is_empty_row_p', 'cuis', 'semanticTypes']
+//
+//     customPredict = pd.DataFrame(
+//         data = data,
+//         columns = c)
+//
+//     predictions = (model["target_codec"].inverse_transform(model["trained_model"].predict(customPredict)))
+//
+//     terms = []
+//     classes = []
+//
+//     for t in range(0,len(data)):
+//         terms.append(data[t][0])
+//         classes.append(";".join(predictions[t]))
+//
+//     return({"terms": terms, "classes" : classes})
+//
+// def printAll(data):
+//   print(data)
+//   return data
+//
+// print("LOADED")
+// `
+//
+// let options = {
+//   mode: 'text',
+//   pythonPath: 'path/to/python',
+//   pythonOptions: ['-u'], // get print results in real-time
+//   scriptPath: 'path/to/my/scripts',
+//   args: ['value1', 'value2', 'value3']
+// };
+//
+// PythonShell.runString( pythonScript, null, function (err, results) {
+//   if (err) throw err;
+//   console.log('finished');
+//
+//   console.log('results: %j', results);
+// });
+//groupedPredict(${["gender","age"]})
+// let shell = new PythonShell('src/classifier.py', { mode: 'json'});
+// shell.send({ command: `
+// printAll
+// `, args: ["gender","age"] });
+//
+// shell.on('message', function (message) {
+//   // received a message sent from the Python script (a simple "print" statement)
+//   console.log(message);
+// });
+//
+// shell.receive( function (message) {
+//   console.log(message)
+// })
+//
+// shell.end(function (err,code,signal) {
+//   if (err) throw err;
+//   console.log('The exit code was: ' + code);
+//   console.log('The exit signal was: ' + signal);
+//   console.log('finished');
+// });
+//
+// let pyshell = new PythonShell('src/classifier.py');
+//
+// // sends a message to the Python script via stdin
+// 'clean_concept',
+//       'is_bold', 'is_italic', 'is_indent', 'is_empty_row',
+//       'is_empty_row_p', 'cuis', 'semanticTypes'
+//
+// pyshell.send([ ["sex",0,0,0,0,0,"",""], ["gender",0,0,0,0,0,"",""] ]);
+//
+// pyshell.on('message', function (message) {
+//   // received a message sent from the Python script (a simple "print" statement)
+//   console.log("HERE: "+message);
+// });
+//
+// // end the input stream and allow the process to exit
+// pyshell.end(function (err,code,signal) {
+//   if (err) throw err;
+//   console.log('The exit code was: ' + code);
+//   console.log('The exit signal was: ' + signal);
+//   console.log('finished');
+// });
+
 // For python debugging remove this.
 python.ex`
   import warnings
   warnings.filterwarnings("ignore", category=FutureWarning)
   warnings.filterwarnings("ignore", category=UserWarning)
-`;
-
-python.ex`
   import pandas as pd
   import pickle
   import sys
-`;
 
-// console.log(process.cwd())
-//   sgd = pickle.load(open("./src/sgd_multiterm.sav", 'rb'))
-//   sgd = pickle.load(open("./src/sgd_l_svm_char.sav", 'rb'))
-
-var CONFIG = require('./config.json')
-
-// simple_full.model
-// semTypes_full.model
-// cuis_full.model
-// umls_full.model
-
-var classifierFile = CONFIG.system_path+"Classifier/trained/umls_full.model" //
-
-python.ex`
   model = pickle.load(open(${classifierFile}, 'rb'))
-`
-python.ex`
+
   def predict(data):
 
       c = ['clean_concept', 'is_bold', 'is_italic', 'is_indent', 'is_empty_row',
@@ -50,8 +149,6 @@ python.ex`
           'is_indent', 'is_empty_row', 'is_empty_row_p', 'semanticTypes']]
 
       return (model["target_codec"].inverse_transform(model["trained_model"].predict(customPredict)))
-
-
 
   def groupedPredict( data ):
 
@@ -74,7 +171,6 @@ python.ex`
 
       return({"terms": terms, "classes" : classes})
 
-
   def printAll(data):
     print(data)
     return data
@@ -84,20 +180,9 @@ python.ex`
 async function classify(terms){
 
   var result = new Promise(function(resolve, reject) {
-    // var cleanTerms = []
-    //
-    // for( var t in terms ){
-    //
-    //   var term = terms[t]
-    //
-    //   if (term.length > 0){
-    //     if ( term.replace(/[^a-z]/g,"").trim().length > 2 ){ // na's and "to" as part of ranges matching this length. Potentially other rubbish picked up here.
-    //       cleanTerms[cleanTerms.length] = term
-    //     }
-    //   }
-    // }
 
     if ( terms.length > 0 ){
+
       python`
         groupedPredict(${terms})
       `.then( x => resolve(x))
@@ -113,11 +198,9 @@ async function classify(terms){
   });
 
   result = await result
-  // debugger
 
   if ( result.terms )
   result = result.terms.reduce ( (acc,item,i) => { if ( item.length > 0 ) {acc[item] = result.classes[i];} return acc }, {} )
-  // debugger
 
   return result
 }
@@ -139,12 +222,11 @@ async function grouped_predictor(terms){
       resolve({})
     }
   });
-  // debugger
+
   return result
 }
 
 async function feature_extraction (lines){
-
 
         var predictions = new Array(lines.length)
 
@@ -208,19 +290,8 @@ async function feature_extraction (lines){
 
                       }
                     }
-
                   }
-              //
-              // var um = umls_data_buffer
-              // debugger
-              //
-              // debugger
-              //     ,
-              //     is_empty_row =,
-              //     is_empty_row_p =,
-              //     cuis =,
-              //     semanticTypes =,
-              //
+
               var feats = [term, is_bold, is_italic, is_indent, cuis, semanticTypes]
 
               terms_features[terms_features.length] = [term, is_bold, is_italic, is_indent, cuis, semanticTypes]
@@ -232,35 +303,14 @@ async function feature_extraction (lines){
             var emptyRow_pvalue = (terms.join("") == comb) && (comb.length > terms[0].length)
 
             cellClasses[0] = (cellClasses[0].length > 0 ? cellClasses[0]+" " : "") + ((emptyRow ? " empty_row" : "") + (emptyRow_pvalue ? " empty_row_with_p_value" : "")).trim()
-            // debugger
-            terms_features = terms_features.map( item => [...item.slice(0,4), emptyRow ? 1 : 0, emptyRow_pvalue ? 1 : 0 , ...item.slice(4,6)])
 
+            terms_features = terms_features.map( item => [...item.slice(0,4), emptyRow ? 1 : 0, emptyRow_pvalue ? 1 : 0 , ...item.slice(4,6)])
 
             var pred_class = await classify(terms_features)
 
             predictions[l] = {pred_class, terms, cellClasses, terms_features}
         }
-        // ['clean_concept', 'pos_start', 'pos_middle', 'pos_end', 'is_bold', 'is_italic', 'is_indent', 'is_empty_row', 'is_empty_row_p', 'cuis', 'semanticTypes']
-        //   [clean_concept, pos_start, pos_middle, pos_end, is_bold, is_italic, is_indent, is_empty_row, is_empty_row_p, cuis, semanticTypes]
-      //
-      //
-      // {
-      //   clean_concept : clean_concept,
-      //   original : term,
-      //   onlyNumbers : term.replace(/[^a-z]/g," ").replace(/ +/g," ").trim() == "",
-      //   pos_start: row == 0 ? 1 : "",
-      //   pos_middle: row > 0 && row < (data.predicted.predictions.length-1)  ? 1 : "",
-      //   pos_end: row == data.predicted.predictions.length-1 ? 1 : "",
-      //   is_bold : data.predicted.predictions[row].cellClasses[col].indexOf("bold") > -1 ? 1 : "",
-      //   is_italic : data.predicted.predictions[row].cellClasses[col].indexOf("italic") > -1 ? 1 : "",
-      //   is_indent : data.predicted.predictions[row].cellClasses[col].indexOf("indent") > -1 ? 1 : "",
-      //   is_empty_row : row_terms[0] == row_terms.join("") ? 1 : "",
-      //   is_empty_row_p : row_terms.length > 2 && (row_terms[0]+row_terms[row_terms.length-1] == row_terms.join("")) ? 1 : "",  // this one is a crude estimation of P values structure. Assume the row has P value if multiple columns are detected but only first and last are populated.
-      //   label : cols[col] ? cols[col].descriptors : (rows[row] ? rows[row].descriptors : ""),
-      //   cuis: cui_data.cui_concept[clean_concept],
-      //   semanticTypes: getSemanticTypes(cui_data.cui_concept[clean_concept],cui_data).join(";"),
-      // }
-      // debugger
+
       return (predictions)
 }
 
