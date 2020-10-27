@@ -13,11 +13,9 @@ function refreshDocuments() {
 }
 
 function _refreshDocuments() {
-  _refreshDocuments = (0, _asyncToGenerator2.default)(
-  /*#__PURE__*/
-  _regenerator.default.mark(function _callee() {
+  _refreshDocuments = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee() {
     var res;
-    return _regenerator.default.wrap(function _callee$(_context) {
+    return _regenerator["default"].wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
@@ -35,7 +33,7 @@ function _refreshDocuments() {
             return _context.stop();
         }
       }
-    }, _callee, this);
+    }, _callee);
   }));
   return _refreshDocuments.apply(this, arguments);
 }

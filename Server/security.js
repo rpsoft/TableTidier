@@ -8,7 +8,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.initialiseUsers = initialiseUsers;
 exports.createUser = createUser;
 exports.getUserHash = getUserHash;
-exports.default = void 0;
+exports["default"] = void 0;
 
 var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
 
@@ -20,7 +20,7 @@ var passport = require('passport');
 
 var crypto = require('crypto');
 
-var CustomStrategy = _passportCustom.default.Strategy;
+var CustomStrategy = _passportCustom["default"].Strategy;
 global.records = [//   { id: 1, username: 'jack', password: 'secret', displayName: 'Jack', email: 'jack@example.com', registered : "1588283579685", role: "viewer" }
   // , { id: 2, username: 'jill', password: 'birthday', displayName: 'Jill', email:'jill@example.com', registered : "1588283575644", role: "user" }
   // , { id: 3, username: 'suso', password: 'me', displayName: 'Jesus', email: 'suso@example.com', registered : "1588283589667", role: "admin" }
@@ -31,11 +31,9 @@ function initialiseUsers() {
 }
 
 function _initialiseUsers() {
-  _initialiseUsers = (0, _asyncToGenerator2.default)(
-  /*#__PURE__*/
-  _regenerator.default.mark(function _callee() {
+  _initialiseUsers = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee() {
     var client, result;
-    return _regenerator.default.wrap(function _callee$(_context) {
+    return _regenerator["default"].wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
@@ -57,7 +55,7 @@ function _initialiseUsers() {
             return _context.stop();
         }
       }
-    }, _callee, this);
+    }, _callee);
   }));
   return _initialiseUsers.apply(this, arguments);
 }
@@ -67,11 +65,9 @@ function createUser(_x) {
 }
 
 function _createUser() {
-  _createUser = (0, _asyncToGenerator2.default)(
-  /*#__PURE__*/
-  _regenerator.default.mark(function _callee2(userData) {
+  _createUser = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2(userData) {
     var client, result;
-    return _regenerator.default.wrap(function _callee2$(_context2) {
+    return _regenerator["default"].wrap(function _callee2$(_context2) {
       while (1) {
         switch (_context2.prev = _context2.next) {
           case 0:
@@ -97,7 +93,7 @@ function _createUser() {
             return _context2.stop();
         }
       }
-    }, _callee2, this);
+    }, _callee2);
   }));
   return _createUser.apply(this, arguments);
 }
@@ -138,4 +134,4 @@ passport.deserializeUser(function (id, cb) {
   return cb(null, false);
 });
 var _default = passport;
-exports.default = _default;
+exports["default"] = _default;

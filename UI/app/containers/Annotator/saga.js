@@ -112,7 +112,10 @@ export function* getTableContent() {
   // return {collection: "hello"}
 }
 
-export function* getTableResult() {
+export function* getTableResult( payload ) {
+
+   // var hey = payload
+   //  debugger
 
   const credentials = yield select(makeSelectCredentials());
   const locationData = yield select(makeSelectLocation());
@@ -126,7 +129,7 @@ export function* getTableResult() {
       'docid' : parsed.docid,
       'page' : parsed.page,
       'collId' : parsed.collId,
-      'cachedOnly' : true,
+      'cachedOnly' : payload.cachedOnly,
       'action' : 'get',
 
       // 'enablePrediction' : false
@@ -194,7 +197,7 @@ export function* getTableResult() {
 
 // Individual exports for testing
 export default function* annotatorSaga() {
-  // /annotationPreview
+
   yield takeLatest(LOAD_TABLE_CONTENT_ACTION, getTableContent);
   yield takeLatest(LOAD_TABLE_RESULTS_ACTION, getTableResult);
 

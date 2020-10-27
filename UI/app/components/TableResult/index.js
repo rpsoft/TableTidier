@@ -36,8 +36,6 @@ function TableResult({
   loadTableResults,
   tableResult
 }) {
-
-
   var headers = []
   var data = []
 
@@ -65,7 +63,7 @@ function TableResult({
     <div style={{padding:"5px 7px 7px 7px"}} >
         <div style={{textAlign:"right", marginBottom:5}}>
           <div style={{height:35, fontSize:22, float:"left", paddingTop:5}}> 2. Extraction <b> Results </b> </div>
-          <Button variant="outlined" style={{backgroundColor:"lightblue"}} onClick={ () => {loadTableResults()} }> Refresh Results </Button>
+          <Button variant="outlined" style={{backgroundColor:"lightblue"}} onClick={ () => { loadTableResults(false) } }> Refresh Results </Button>
         </div>
 
          {

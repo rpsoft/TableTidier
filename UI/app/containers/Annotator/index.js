@@ -154,7 +154,6 @@ export function Annotator({
   //On component will mount
   React.useEffect(() => {
     loadTableContent()
-    // loadTableResults()
   }, []);
 
 
@@ -178,7 +177,7 @@ export function Annotator({
   React.useEffect(() => {
     // console.log("changed: " + JSON.stringify(location.search))
     loadTableContent()
-    // loadTableResults()
+    loadTableResults()
   }, [location.search]);
 
   // <FormattedMessage {...messages.header} />     console.log("EFFEFCT")
@@ -245,7 +244,7 @@ export function Annotator({
                 "&page="+tables[index].page+
                 "&collId="+tables[index].collection_id;
 
-      console.log(address+" -- "+ prev + " : "+ next);
+      // console.log(address+" -- "+ prev + " : "+ next);
       goToUrl(address);
     }
   }
@@ -422,8 +421,8 @@ export function Annotator({
                   <table className={"bottomTable"}  style={{width:"100%", height:"100%"}}>
                     <tbody>
                       <tr>
-                          <td style={{ textAlign: "center", padding:5, borderRight:"5px solid #e5e5e5", verticalAlign:"top"}}>
-                            <div style={{width:"100%", maxWidth:200}}>
+                          <td style={{ textAlign: "center", padding:5, borderRight:"5px solid #e5e5e5", verticalAlign:"top", width: 200, maxWidth:200}}>
+                            <div style={{width:"100%"}}>
                               <Button variant="outlined" className={classes.bottomButtons} style={{backgroundColor: bottomAnnotations ? "lightgoldenrodyellow" : "" }} onClick={ () => showBottomAnnotations(!bottomAnnotations)}>
                                             1. Annotations { bottomAnnotations ? <VisibilityIcon style={{marginLeft:5}}/> : <VisibilityOffIcon style={{marginLeft:5}}/> }  </Button>
                               <Button variant="outlined" className={classes.bottomButtons} style={{backgroundColor: bottomResults ? "lightsteelblue" : ""  }} onClick={ () => showBottomResults(!bottomResults)}>
@@ -471,7 +470,7 @@ function mapDispatchToProps(dispatch) {
   return {
     dispatch,
     loadTableContent : () => dispatch( loadTableContentAction() ),
-    loadTableResults : () => dispatch ( loadTableResultsAction() ),
+    loadTableResults : (cachedOnly) => dispatch ( loadTableResultsAction(cachedOnly) ),
     goToUrl : (url) => dispatch(push(url))
     // deleteCollection : () => dispatch( deleteCollectionAction() ),
     // updateCollectionData : (collectionData) => dispatch( updateCollectionAction (collectionData)),

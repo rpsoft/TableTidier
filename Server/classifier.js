@@ -12,10 +12,8 @@ var _taggedTemplateLiteral2 = _interopRequireDefault(require("@babel/runtime/hel
 
 var _metamap = require("./metamap.js");
 
-var _pythonShell = require("python-shell");
-
 function _templateObject3() {
-  var data = (0, _taggedTemplateLiteral2.default)(["\n        groupedPredict(", ")\n      "]);
+  var data = (0, _taggedTemplateLiteral2["default"])(["\n        groupedPredict(", ")\n      "]);
 
   _templateObject3 = function _templateObject3() {
     return data;
@@ -25,7 +23,7 @@ function _templateObject3() {
 }
 
 function _templateObject2() {
-  var data = (0, _taggedTemplateLiteral2.default)(["\n        groupedPredict(", ")\n      "]);
+  var data = (0, _taggedTemplateLiteral2["default"])(["\n        groupedPredict(", ")\n      "]);
 
   _templateObject2 = function _templateObject2() {
     return data;
@@ -35,7 +33,7 @@ function _templateObject2() {
 }
 
 function _templateObject() {
-  var data = (0, _taggedTemplateLiteral2.default)(["\n  import warnings\n  warnings.filterwarnings(\"ignore\", category=FutureWarning)\n  warnings.filterwarnings(\"ignore\", category=UserWarning)\n  import pandas as pd\n  import pickle\n  import sys\n\n  model = pickle.load(open(", ", 'rb'))\n\n  def predict(data):\n\n      c = ['clean_concept', 'is_bold', 'is_italic', 'is_indent', 'is_empty_row',\n          'is_empty_row_p', 'cuis', 'semanticTypes']\n\n      customPredict = pd.DataFrame(\n          data = data,\n          columns = c)\n\n      customPredict = customPredict[['clean_concept', 'is_bold', 'is_italic',\n          'is_indent', 'is_empty_row', 'is_empty_row_p', 'semanticTypes']]\n\n      return (model[\"target_codec\"].inverse_transform(model[\"trained_model\"].predict(customPredict)))\n\n  def groupedPredict( data ):\n\n      c = ['clean_concept',\n          'is_bold', 'is_italic', 'is_indent', 'is_empty_row',\n          'is_empty_row_p', 'cuis', 'semanticTypes']\n\n      customPredict = pd.DataFrame(\n          data = data,\n          columns = c)\n\n      predictions = (model[\"target_codec\"].inverse_transform(model[\"trained_model\"].predict(customPredict)))\n\n      terms = []\n      classes = []\n\n      for t in range(0,len(data)):\n          terms.append(data[t][0])\n          classes.append(\";\".join(predictions[t]))\n\n      return({\"terms\": terms, \"classes\" : classes})\n\n  def printAll(data):\n    print(data)\n    return data\n"]);
+  var data = (0, _taggedTemplateLiteral2["default"])(["\n  import warnings\n  warnings.filterwarnings(\"ignore\", category=FutureWarning)\n  warnings.filterwarnings(\"ignore\", category=UserWarning)\n  import pandas as pd\n  import pickle\n  import sys\n\n  model = pickle.load(open(", ", 'rb'))\n\n  def predict(data):\n\n      c = ['clean_concept', 'is_bold', 'is_italic', 'is_indent', 'is_empty_row',\n          'is_empty_row_p', 'cuis', 'semanticTypes']\n\n      customPredict = pd.DataFrame(\n          data = data,\n          columns = c)\n\n      customPredict = customPredict[['clean_concept', 'is_bold', 'is_italic',\n          'is_indent', 'is_empty_row', 'is_empty_row_p', 'semanticTypes']]\n\n      return (model[\"target_codec\"].inverse_transform(model[\"trained_model\"].predict(customPredict)))\n\n  def groupedPredict( data ):\n\n      c = ['clean_concept',\n          'is_bold', 'is_italic', 'is_indent', 'is_empty_row',\n          'is_empty_row_p', 'cuis', 'semanticTypes']\n\n      customPredict = pd.DataFrame(\n          data = data,\n          columns = c)\n\n      predictions = (model[\"target_codec\"].inverse_transform(model[\"trained_model\"].predict(customPredict)))\n\n      terms = []\n      classes = []\n\n      for t in range(0,len(data)):\n          terms.append(data[t][0])\n          classes.append(\";\".join(predictions[t]))\n\n      return({\"terms\": terms, \"classes\" : classes})\n\n  def printAll(data):\n    print(data)\n    return data\n"]);
 
   _templateObject = function _templateObject() {
     return data;
@@ -54,116 +52,7 @@ var python = pythonBridge({
 
 var CONFIG = require('./config.json');
 
-var classifierFile = CONFIG.system_path + "Classifier/trained/umls_full.model"; // const pythonScript = `
-// import warnings
-// warnings.filterwarnings("ignore", category=FutureWarning)
-// warnings.filterwarnings("ignore", category=UserWarning)
-// import pandas as pd
-// import pickle
-// import sys
-//
-// model = pickle.load(open("${classifierFile}", 'rb'))
-//
-// def predict(data):
-//
-//     c = ['clean_concept', 'is_bold', 'is_italic', 'is_indent', 'is_empty_row',
-//         'is_empty_row_p', 'cuis', 'semanticTypes']
-//
-//     customPredict = pd.DataFrame(
-//         data = data,
-//         columns = c)
-//
-//     customPredict = customPredict[['clean_concept', 'is_bold', 'is_italic',
-//         'is_indent', 'is_empty_row', 'is_empty_row_p', 'semanticTypes']]
-//
-//     return (model["target_codec"].inverse_transform(model["trained_model"].predict(customPredict)))
-//
-// def groupedPredict( data ):
-//
-//     c = ['clean_concept',
-//         'is_bold', 'is_italic', 'is_indent', 'is_empty_row',
-//         'is_empty_row_p', 'cuis', 'semanticTypes']
-//
-//     customPredict = pd.DataFrame(
-//         data = data,
-//         columns = c)
-//
-//     predictions = (model["target_codec"].inverse_transform(model["trained_model"].predict(customPredict)))
-//
-//     terms = []
-//     classes = []
-//
-//     for t in range(0,len(data)):
-//         terms.append(data[t][0])
-//         classes.append(";".join(predictions[t]))
-//
-//     return({"terms": terms, "classes" : classes})
-//
-// def printAll(data):
-//   print(data)
-//   return data
-//
-// print("LOADED")
-// `
-//
-// let options = {
-//   mode: 'text',
-//   pythonPath: 'path/to/python',
-//   pythonOptions: ['-u'], // get print results in real-time
-//   scriptPath: 'path/to/my/scripts',
-//   args: ['value1', 'value2', 'value3']
-// };
-//
-// PythonShell.runString( pythonScript, null, function (err, results) {
-//   if (err) throw err;
-//   console.log('finished');
-//
-//   console.log('results: %j', results);
-// });
-//groupedPredict(${["gender","age"]})
-// let shell = new PythonShell('src/classifier.py', { mode: 'json'});
-// shell.send({ command: `
-// printAll
-// `, args: ["gender","age"] });
-//
-// shell.on('message', function (message) {
-//   // received a message sent from the Python script (a simple "print" statement)
-//   console.log(message);
-// });
-//
-// shell.receive( function (message) {
-//   console.log(message)
-// })
-//
-// shell.end(function (err,code,signal) {
-//   if (err) throw err;
-//   console.log('The exit code was: ' + code);
-//   console.log('The exit signal was: ' + signal);
-//   console.log('finished');
-// });
-//
-// let pyshell = new PythonShell('src/classifier.py');
-//
-// // sends a message to the Python script via stdin
-// 'clean_concept',
-//       'is_bold', 'is_italic', 'is_indent', 'is_empty_row',
-//       'is_empty_row_p', 'cuis', 'semanticTypes'
-//
-// pyshell.send([ ["sex",0,0,0,0,0,"",""], ["gender",0,0,0,0,0,"",""] ]);
-//
-// pyshell.on('message', function (message) {
-//   // received a message sent from the Python script (a simple "print" statement)
-//   console.log("HERE: "+message);
-// });
-//
-// // end the input stream and allow the process to exit
-// pyshell.end(function (err,code,signal) {
-//   if (err) throw err;
-//   console.log('The exit code was: ' + code);
-//   console.log('The exit signal was: ' + signal);
-//   console.log('finished');
-// });
-// For python debugging remove this.
+var classifierFile = CONFIG.system_path + "Classifier/trained/umls_full.model"; // For python debugging remove this.
 
 python.ex(_templateObject(), classifierFile);
 
@@ -172,11 +61,9 @@ function classify(_x) {
 }
 
 function _classify() {
-  _classify = (0, _asyncToGenerator2.default)(
-  /*#__PURE__*/
-  _regenerator.default.mark(function _callee(terms) {
+  _classify = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(terms) {
     var result;
-    return _regenerator.default.wrap(function _callee$(_context) {
+    return _regenerator["default"].wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
@@ -184,7 +71,7 @@ function _classify() {
               if (terms.length > 0) {
                 python(_templateObject2(), terms).then(function (x) {
                   return resolve(x);
-                }).catch(python.Exception, function (e) {
+                })["catch"](python.Exception, function (e) {
                   console.log("python error: " + e);
                   resolve({});
                 });
@@ -211,7 +98,7 @@ function _classify() {
             return _context.stop();
         }
       }
-    }, _callee, this);
+    }, _callee);
   }));
   return _classify.apply(this, arguments);
 }
@@ -221,11 +108,9 @@ function grouped_predictor(_x2) {
 }
 
 function _grouped_predictor() {
-  _grouped_predictor = (0, _asyncToGenerator2.default)(
-  /*#__PURE__*/
-  _regenerator.default.mark(function _callee2(terms) {
+  _grouped_predictor = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2(terms) {
     var res, t, result;
-    return _regenerator.default.wrap(function _callee2$(_context2) {
+    return _regenerator["default"].wrap(function _callee2$(_context2) {
       while (1) {
         switch (_context2.prev = _context2.next) {
           case 0:
@@ -239,7 +124,7 @@ function _grouped_predictor() {
               if (res.length > 0) {
                 python(_templateObject3(), res).then(function (x) {
                   return resolve(x);
-                }).catch(python.Exception, function (e) {
+                })["catch"](python.Exception, function (e) {
                   return console.log("python error: " + e);
                 });
               } else {
@@ -253,7 +138,7 @@ function _grouped_predictor() {
             return _context2.stop();
         }
       }
-    }, _callee2, this);
+    }, _callee2);
   }));
   return _grouped_predictor.apply(this, arguments);
 }
@@ -263,11 +148,9 @@ function feature_extraction(_x3) {
 }
 
 function _feature_extraction() {
-  _feature_extraction = (0, _asyncToGenerator2.default)(
-  /*#__PURE__*/
-  _regenerator.default.mark(function _callee3(lines) {
+  _feature_extraction = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee3(lines) {
     var predictions, allowedFormatKeys, l, currentLine, terms, cellClasses, cellClass, total_cols, terms_features, c, term, currentTDclass, childrenClasses, is_bold, is_italic, is_indent, cuis, semanticTypes, mm, feats, emptyRow, comb, emptyRow_pvalue, pred_class;
-    return _regenerator.default.wrap(function _callee3$(_context3) {
+    return _regenerator["default"].wrap(function _callee3$(_context3) {
       while (1) {
         switch (_context3.prev = _context3.next) {
           case 0:
@@ -299,11 +182,11 @@ function _feature_extraction() {
 
             term = term.replace(/([^A-z0-9 ])/g, " ").replace(/[0-9]+/g, ' $nmbr$ ').replace(/ +/g, " ").replace(/nmbr/g, "$nmbr$").trim().toLowerCase();
             terms[terms.length] = term;
-            currentTDclass = (currentLine.children()[c].attribs.class || "").replace(/[0-9]+/g, '').split(" ");
+            currentTDclass = (currentLine.children()[c].attribs["class"] || "").replace(/[0-9]+/g, '').split(" ");
             childrenClasses = Array.from(new Set(cheerio(currentLine.children()[c]).find("*").toArray().map(function (i, el) {
-              return i.attribs.class || "";
+              return i.attribs["class"] || "";
             }).join(" ").replace(/[0-9]+/g, '').split(" ")));
-            cellClass = Array.from(new Set((0, _toConsumableArray2.default)(currentTDclass).concat((0, _toConsumableArray2.default)(childrenClasses)))).filter(function (el) {
+            cellClass = Array.from(new Set([].concat((0, _toConsumableArray2["default"])(currentTDclass), (0, _toConsumableArray2["default"])(childrenClasses)))).filter(function (el) {
               return el.length > 0;
             });
             cellClass = cellClass.filter(function (el) {
@@ -374,7 +257,7 @@ function _feature_extraction() {
             emptyRow_pvalue = terms.join("") == comb && comb.length > terms[0].length;
             cellClasses[0] = (cellClasses[0].length > 0 ? cellClasses[0] + " " : "") + ((emptyRow ? " empty_row" : "") + (emptyRow_pvalue ? " empty_row_with_p_value" : "")).trim();
             terms_features = terms_features.map(function (item) {
-              return (0, _toConsumableArray2.default)(item.slice(0, 4)).concat([emptyRow ? 1 : 0, emptyRow_pvalue ? 1 : 0], (0, _toConsumableArray2.default)(item.slice(4, 6)));
+              return [].concat((0, _toConsumableArray2["default"])(item.slice(0, 4)), [emptyRow ? 1 : 0, emptyRow_pvalue ? 1 : 0], (0, _toConsumableArray2["default"])(item.slice(4, 6)));
             });
             _context3.next = 44;
             return classify(terms_features);
@@ -401,7 +284,7 @@ function _feature_extraction() {
             return _context3.stop();
         }
       }
-    }, _callee3, this);
+    }, _callee3);
   }));
   return _feature_extraction.apply(this, arguments);
 }
@@ -411,22 +294,16 @@ function attempt_predictions(_x4) {
 }
 
 function _attempt_predictions() {
-  _attempt_predictions = (0, _asyncToGenerator2.default)(
-  /*#__PURE__*/
-  _regenerator.default.mark(function _callee5(actual_table) {
+  _attempt_predictions = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee5(actual_table) {
     var result;
-    return _regenerator.default.wrap(function _callee5$(_context5) {
+    return _regenerator["default"].wrap(function _callee5$(_context5) {
       while (1) {
         switch (_context5.prev = _context5.next) {
           case 0:
-            result = new Promise(
-            /*#__PURE__*/
-            function () {
-              var _ref = (0, _asyncToGenerator2.default)(
-              /*#__PURE__*/
-              _regenerator.default.mark(function _callee4(resolve, reject) {
+            result = new Promise( /*#__PURE__*/function () {
+              var _ref = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee4(resolve, reject) {
                 var a, lines, predictions;
-                return _regenerator.default.wrap(function _callee4$(_context4) {
+                return _regenerator["default"].wrap(function _callee4$(_context4) {
                   while (1) {
                     switch (_context4.prev = _context4.next) {
                       case 0:
@@ -444,7 +321,7 @@ function _attempt_predictions() {
                         return _context4.stop();
                     }
                   }
-                }, _callee4, this);
+                }, _callee4);
               }));
 
               return function (_x5, _x6) {
@@ -458,7 +335,7 @@ function _attempt_predictions() {
             return _context5.stop();
         }
       }
-    }, _callee5, this);
+    }, _callee5);
   }));
   return _attempt_predictions.apply(this, arguments);
 }

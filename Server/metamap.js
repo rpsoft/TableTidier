@@ -54,11 +54,9 @@ function metamap(_x) {
 }
 
 function _metamap() {
-  _metamap = (0, _asyncToGenerator2.default)(
-  /*#__PURE__*/
-  _regenerator.default.mark(function _callee(term) {
+  _metamap = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(term) {
     var mm_concepts;
-    return _regenerator.default.wrap(function _callee$(_context) {
+    return _regenerator["default"].wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
@@ -90,7 +88,7 @@ function _metamap() {
             return _context.stop();
         }
       }
-    }, _callee, this);
+    }, _callee);
   }));
   return _metamap.apply(this, arguments);
 }

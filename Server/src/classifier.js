@@ -1,8 +1,5 @@
 import { metamap } from "./metamap.js"
 
-import {PythonShell} from 'python-shell';
-
-
 let assert = require('assert');
 let pythonBridge = require('python-bridge');
 
@@ -10,120 +7,9 @@ let python = pythonBridge({
     python: 'python3'
 });
 
-
-var CONFIG = require('./config.json')
+const CONFIG = require('./config.json')
 
 var classifierFile = CONFIG.system_path+"Classifier/trained/umls_full.model"
-
-// const pythonScript = `
-// import warnings
-// warnings.filterwarnings("ignore", category=FutureWarning)
-// warnings.filterwarnings("ignore", category=UserWarning)
-// import pandas as pd
-// import pickle
-// import sys
-//
-// model = pickle.load(open("${classifierFile}", 'rb'))
-//
-// def predict(data):
-//
-//     c = ['clean_concept', 'is_bold', 'is_italic', 'is_indent', 'is_empty_row',
-//         'is_empty_row_p', 'cuis', 'semanticTypes']
-//
-//     customPredict = pd.DataFrame(
-//         data = data,
-//         columns = c)
-//
-//     customPredict = customPredict[['clean_concept', 'is_bold', 'is_italic',
-//         'is_indent', 'is_empty_row', 'is_empty_row_p', 'semanticTypes']]
-//
-//     return (model["target_codec"].inverse_transform(model["trained_model"].predict(customPredict)))
-//
-// def groupedPredict( data ):
-//
-//     c = ['clean_concept',
-//         'is_bold', 'is_italic', 'is_indent', 'is_empty_row',
-//         'is_empty_row_p', 'cuis', 'semanticTypes']
-//
-//     customPredict = pd.DataFrame(
-//         data = data,
-//         columns = c)
-//
-//     predictions = (model["target_codec"].inverse_transform(model["trained_model"].predict(customPredict)))
-//
-//     terms = []
-//     classes = []
-//
-//     for t in range(0,len(data)):
-//         terms.append(data[t][0])
-//         classes.append(";".join(predictions[t]))
-//
-//     return({"terms": terms, "classes" : classes})
-//
-// def printAll(data):
-//   print(data)
-//   return data
-//
-// print("LOADED")
-// `
-//
-// let options = {
-//   mode: 'text',
-//   pythonPath: 'path/to/python',
-//   pythonOptions: ['-u'], // get print results in real-time
-//   scriptPath: 'path/to/my/scripts',
-//   args: ['value1', 'value2', 'value3']
-// };
-//
-// PythonShell.runString( pythonScript, null, function (err, results) {
-//   if (err) throw err;
-//   console.log('finished');
-//
-//   console.log('results: %j', results);
-// });
-//groupedPredict(${["gender","age"]})
-// let shell = new PythonShell('src/classifier.py', { mode: 'json'});
-// shell.send({ command: `
-// printAll
-// `, args: ["gender","age"] });
-//
-// shell.on('message', function (message) {
-//   // received a message sent from the Python script (a simple "print" statement)
-//   console.log(message);
-// });
-//
-// shell.receive( function (message) {
-//   console.log(message)
-// })
-//
-// shell.end(function (err,code,signal) {
-//   if (err) throw err;
-//   console.log('The exit code was: ' + code);
-//   console.log('The exit signal was: ' + signal);
-//   console.log('finished');
-// });
-//
-// let pyshell = new PythonShell('src/classifier.py');
-//
-// // sends a message to the Python script via stdin
-// 'clean_concept',
-//       'is_bold', 'is_italic', 'is_indent', 'is_empty_row',
-//       'is_empty_row_p', 'cuis', 'semanticTypes'
-//
-// pyshell.send([ ["sex",0,0,0,0,0,"",""], ["gender",0,0,0,0,0,"",""] ]);
-//
-// pyshell.on('message', function (message) {
-//   // received a message sent from the Python script (a simple "print" statement)
-//   console.log("HERE: "+message);
-// });
-//
-// // end the input stream and allow the process to exit
-// pyshell.end(function (err,code,signal) {
-//   if (err) throw err;
-//   console.log('The exit code was: ' + code);
-//   console.log('The exit signal was: ' + signal);
-//   console.log('finished');
-// });
 
 // For python debugging remove this.
 python.ex`

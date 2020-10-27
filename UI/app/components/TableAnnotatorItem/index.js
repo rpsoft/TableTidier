@@ -96,7 +96,7 @@ function TableAnnotatorItem({
             {enableDelete ? <Fab style={{height:25, width:35, marginRight:20, backgroundColor:"#ffa3a3"}} onClick={ () => { deleteAnnotation(id) } } ><DeleteIcon style={{height:20}}/> </Fab> : ""}
 
 
-          <DragIndicatorIcon style={{cursor:"grab"}}/>
+          <DragIndicatorIcon style={{cursor:"pointer"}}/>
           <span>
 
             <RaisedButton style={{minWidth: "auto", width: 30, marginLeft: 5}} onClick={() => {editAnnotation( id, "subAnnotation", false)}}> <KeyboardArrowLeftIcon /> </RaisedButton>

@@ -52,10 +52,10 @@ export function updateTableAnnotationsAction(annotations) {
 }
 
 // Table Results
-export function loadTableResultsAction(docid, page, collId) {
+export function loadTableResultsAction(cachedOnly) {
   return {
     type: LOAD_TABLE_RESULTS_ACTION,
-    docid, page, collId
+    cachedOnly //docid, page, collId,
   };
 }
 

@@ -11,11 +11,9 @@ function updateClusterAnnotation(_x, _x2, _x3, _x4, _x5) {
 }
 
 function _updateClusterAnnotation() {
-  _updateClusterAnnotation = (0, _asyncToGenerator2.default)(
-  /*#__PURE__*/
-  _regenerator.default.mark(function _callee14(cn, concept, cuis, isdefault, cn_override) {
+  _updateClusterAnnotation = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee14(cn, concept, cuis, isdefault, cn_override) {
     var client, done;
-    return _regenerator.default.wrap(function _callee14$(_context14) {
+    return _regenerator["default"].wrap(function _callee14$(_context14) {
       while (1) {
         switch (_context14.prev = _context14.next) {
           case 0:
@@ -27,7 +25,7 @@ function _updateClusterAnnotation() {
             _context14.next = 5;
             return client.query('INSERT INTO clusters VALUES($1,$2,$3,$4,$5) ON CONFLICT (concept) DO UPDATE SET isdefault = $4, cn_override = $5;', [cn, concept, cuis, isdefault.toLowerCase() == 'true', cn_override]).then(function (result) {
               return console.log("insert: " + result);
-            }).catch(function (e) {
+            })["catch"](function (e) {
               return console.error(e.stack);
             }).then(function () {
               return client.release();
@@ -41,30 +39,22 @@ function _updateClusterAnnotation() {
             return _context14.stop();
         }
       }
-    }, _callee14, this);
+    }, _callee14);
   }));
   return _updateClusterAnnotation.apply(this, arguments);
 }
 
-app.get('/api/allClusterAnnotations',
-/*#__PURE__*/
-function () {
-  var _ref = (0, _asyncToGenerator2.default)(
-  /*#__PURE__*/
-  _regenerator.default.mark(function _callee2(req, res) {
+app.get('/api/allClusterAnnotations', /*#__PURE__*/function () {
+  var _ref = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2(req, res) {
     var allClusterAnnotations;
-    return _regenerator.default.wrap(function _callee2$(_context2) {
+    return _regenerator["default"].wrap(function _callee2$(_context2) {
       while (1) {
         switch (_context2.prev = _context2.next) {
           case 0:
-            allClusterAnnotations =
-            /*#__PURE__*/
-            function () {
-              var _ref2 = (0, _asyncToGenerator2.default)(
-              /*#__PURE__*/
-              _regenerator.default.mark(function _callee() {
+            allClusterAnnotations = /*#__PURE__*/function () {
+              var _ref2 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee() {
                 var client, result;
-                return _regenerator.default.wrap(function _callee$(_context) {
+                return _regenerator["default"].wrap(function _callee$(_context) {
                   while (1) {
                     switch (_context.prev = _context.next) {
                       case 0:
@@ -86,7 +76,7 @@ function () {
                         return _context.stop();
                     }
                   }
-                }, _callee, this);
+                }, _callee);
               }));
 
               return function allClusterAnnotations() {
@@ -108,7 +98,7 @@ function () {
             return _context2.stop();
         }
       }
-    }, _callee2, this);
+    }, _callee2);
   }));
 
   return function (_x6, _x7) {
@@ -116,25 +106,17 @@ function () {
   };
 }());
 cleanTerm;
-app.get('/api/allClusters',
-/*#__PURE__*/
-function () {
-  var _ref3 = (0, _asyncToGenerator2.default)(
-  /*#__PURE__*/
-  _regenerator.default.mark(function _callee4(req, res) {
+app.get('/api/allClusters', /*#__PURE__*/function () {
+  var _ref3 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee4(req, res) {
     var getAllClusters;
-    return _regenerator.default.wrap(function _callee4$(_context4) {
+    return _regenerator["default"].wrap(function _callee4$(_context4) {
       while (1) {
         switch (_context4.prev = _context4.next) {
           case 0:
-            getAllClusters =
-            /*#__PURE__*/
-            function () {
-              var _ref4 = (0, _asyncToGenerator2.default)(
-              /*#__PURE__*/
-              _regenerator.default.mark(function _callee3() {
+            getAllClusters = /*#__PURE__*/function () {
+              var _ref4 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee3() {
                 var client, result;
-                return _regenerator.default.wrap(function _callee3$(_context3) {
+                return _regenerator["default"].wrap(function _callee3$(_context3) {
                   while (1) {
                     switch (_context3.prev = _context3.next) {
                       case 0:
@@ -156,7 +138,7 @@ function () {
                         return _context3.stop();
                     }
                   }
-                }, _callee3, this);
+                }, _callee3);
               }));
 
               return function getAllClusters() {
@@ -178,32 +160,24 @@ function () {
             return _context4.stop();
         }
       }
-    }, _callee4, this);
+    }, _callee4);
   }));
 
   return function (_x8, _x9) {
     return _ref3.apply(this, arguments);
   };
 }());
-app.get('/api/getCUIMods',
-/*#__PURE__*/
-function () {
-  var _ref5 = (0, _asyncToGenerator2.default)(
-  /*#__PURE__*/
-  _regenerator.default.mark(function _callee6(req, res) {
+app.get('/api/getCUIMods', /*#__PURE__*/function () {
+  var _ref5 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee6(req, res) {
     var getCUIMods;
-    return _regenerator.default.wrap(function _callee6$(_context6) {
+    return _regenerator["default"].wrap(function _callee6$(_context6) {
       while (1) {
         switch (_context6.prev = _context6.next) {
           case 0:
-            getCUIMods =
-            /*#__PURE__*/
-            function () {
-              var _ref6 = (0, _asyncToGenerator2.default)(
-              /*#__PURE__*/
-              _regenerator.default.mark(function _callee5() {
+            getCUIMods = /*#__PURE__*/function () {
+              var _ref6 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee5() {
                 var client, result;
-                return _regenerator.default.wrap(function _callee5$(_context5) {
+                return _regenerator["default"].wrap(function _callee5$(_context5) {
                   while (1) {
                     switch (_context5.prev = _context5.next) {
                       case 0:
@@ -225,7 +199,7 @@ function () {
                         return _context5.stop();
                     }
                   }
-                }, _callee5, this);
+                }, _callee5);
               }));
 
               return function getCUIMods() {
@@ -247,32 +221,24 @@ function () {
             return _context6.stop();
         }
       }
-    }, _callee6, this);
+    }, _callee6);
   }));
 
   return function (_x10, _x11) {
     return _ref5.apply(this, arguments);
   };
 }());
-app.get('/api/setCUIMod',
-/*#__PURE__*/
-function () {
-  var _ref7 = (0, _asyncToGenerator2.default)(
-  /*#__PURE__*/
-  _regenerator.default.mark(function _callee8(req, res) {
+app.get('/api/setCUIMod', /*#__PURE__*/function () {
+  var _ref7 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee8(req, res) {
     var setCUIMod;
-    return _regenerator.default.wrap(function _callee8$(_context8) {
+    return _regenerator["default"].wrap(function _callee8$(_context8) {
       while (1) {
         switch (_context8.prev = _context8.next) {
           case 0:
-            setCUIMod =
-            /*#__PURE__*/
-            function () {
-              var _ref8 = (0, _asyncToGenerator2.default)(
-              /*#__PURE__*/
-              _regenerator.default.mark(function _callee7(cui, type) {
+            setCUIMod = /*#__PURE__*/function () {
+              var _ref8 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee7(cui, type) {
                 var client, done;
-                return _regenerator.default.wrap(function _callee7$(_context7) {
+                return _regenerator["default"].wrap(function _callee7$(_context7) {
                   while (1) {
                     switch (_context7.prev = _context7.next) {
                       case 0:
@@ -284,7 +250,7 @@ function () {
                         _context7.next = 5;
                         return client.query('INSERT INTO modifiers VALUES($1,$2) ON CONFLICT (cui) DO UPDATE SET type = $2;', [cui, type]).then(function (result) {
                           return console.log("insert: " + new Date());
-                        }).catch(function (e) {
+                        })["catch"](function (e) {
                           return console.error(e.stack);
                         }).then(function () {
                           return client.release();
@@ -298,7 +264,7 @@ function () {
                         return _context7.stop();
                     }
                   }
-                }, _callee7, this);
+                }, _callee7);
               }));
 
               return function setCUIMod(_x14, _x15) {
@@ -319,32 +285,24 @@ function () {
             return _context8.stop();
         }
       }
-    }, _callee8, this);
+    }, _callee8);
   }));
 
   return function (_x12, _x13) {
     return _ref7.apply(this, arguments);
   };
 }());
-app.get('/api/getClusterData',
-/*#__PURE__*/
-function () {
-  var _ref9 = (0, _asyncToGenerator2.default)(
-  /*#__PURE__*/
-  _regenerator.default.mark(function _callee10(req, res) {
+app.get('/api/getClusterData', /*#__PURE__*/function () {
+  var _ref9 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee10(req, res) {
     var getClusterData;
-    return _regenerator.default.wrap(function _callee10$(_context10) {
+    return _regenerator["default"].wrap(function _callee10$(_context10) {
       while (1) {
         switch (_context10.prev = _context10.next) {
           case 0:
-            getClusterData =
-            /*#__PURE__*/
-            function () {
-              var _ref10 = (0, _asyncToGenerator2.default)(
-              /*#__PURE__*/
-              _regenerator.default.mark(function _callee9() {
+            getClusterData = /*#__PURE__*/function () {
+              var _ref10 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee9() {
                 var client, result;
-                return _regenerator.default.wrap(function _callee9$(_context9) {
+                return _regenerator["default"].wrap(function _callee9$(_context9) {
                   while (1) {
                     switch (_context9.prev = _context9.next) {
                       case 0:
@@ -366,7 +324,7 @@ function () {
                         return _context9.stop();
                     }
                   }
-                }, _callee9, this);
+                }, _callee9);
               }));
 
               return function getClusterData() {
@@ -388,34 +346,26 @@ function () {
             return _context10.stop();
         }
       }
-    }, _callee10, this);
+    }, _callee10);
   }));
 
   return function (_x16, _x17) {
     return _ref9.apply(this, arguments);
   };
 }());
-app.get('/api/setClusterData',
-/*#__PURE__*/
-function () {
-  var _ref11 = (0, _asyncToGenerator2.default)(
-  /*#__PURE__*/
-  _regenerator.default.mark(function _callee12(req, res) {
+app.get('/api/setClusterData', /*#__PURE__*/function () {
+  var _ref11 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee12(req, res) {
     var setClusterData;
-    return _regenerator.default.wrap(function _callee12$(_context12) {
+    return _regenerator["default"].wrap(function _callee12$(_context12) {
       while (1) {
         switch (_context12.prev = _context12.next) {
           case 0:
             console.log("Processing Request: " + JSON.stringify(req.query));
 
-            setClusterData =
-            /*#__PURE__*/
-            function () {
-              var _ref12 = (0, _asyncToGenerator2.default)(
-              /*#__PURE__*/
-              _regenerator.default.mark(function _callee11(cn, rep_cuis, excluded_cuis, status, proposed_name) {
+            setClusterData = /*#__PURE__*/function () {
+              var _ref12 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee11(cn, rep_cuis, excluded_cuis, status, proposed_name) {
                 var p_name, client, done;
-                return _regenerator.default.wrap(function _callee11$(_context11) {
+                return _regenerator["default"].wrap(function _callee11$(_context11) {
                   while (1) {
                     switch (_context11.prev = _context11.next) {
                       case 0:
@@ -428,7 +378,7 @@ function () {
                         _context11.next = 6;
                         return client.query('INSERT INTO clusterdata VALUES($1,$2,$3,$4) ON CONFLICT (cn) DO UPDATE SET rep_cuis = $2, excluded_cuis = $3, status = $4, proposed_name = $5 ;', [cn, rep_cuis, excluded_cuis, status, p_name]).then(function (result) {
                           return console.log("insert: " + JSON.stringify(result));
-                        }).catch(function (e) {
+                        })["catch"](function (e) {
                           return console.error(e.stack);
                         }).then(function () {
                           return client.release();
@@ -442,7 +392,7 @@ function () {
                         return _context11.stop();
                     }
                   }
-                }, _callee11, this);
+                }, _callee11);
               }));
 
               return function setClusterData(_x20, _x21, _x22, _x23, _x24) {
@@ -466,20 +416,16 @@ function () {
             return _context12.stop();
         }
       }
-    }, _callee12, this);
+    }, _callee12);
   }));
 
   return function (_x18, _x19) {
     return _ref11.apply(this, arguments);
   };
 }());
-app.get('/api/recordClusterAnnotation',
-/*#__PURE__*/
-function () {
-  var _ref13 = (0, _asyncToGenerator2.default)(
-  /*#__PURE__*/
-  _regenerator.default.mark(function _callee13(req, res) {
-    return _regenerator.default.wrap(function _callee13$(_context13) {
+app.get('/api/recordClusterAnnotation', /*#__PURE__*/function () {
+  var _ref13 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee13(req, res) {
+    return _regenerator["default"].wrap(function _callee13$(_context13) {
       while (1) {
         switch (_context13.prev = _context13.next) {
           case 0:
@@ -501,7 +447,7 @@ function () {
             return _context13.stop();
         }
       }
-    }, _callee13, this);
+    }, _callee13);
   }));
 
   return function (_x25, _x26) {

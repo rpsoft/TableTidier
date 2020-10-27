@@ -18,12 +18,8 @@ var path = require('path');
 
 console.log("Loading Classifier");
 
-var readyTable =
-/*#__PURE__*/
-function () {
-  var _ref = (0, _asyncToGenerator2.default)(
-  /*#__PURE__*/
-  _regenerator.default.mark(function _callee2(docname, page, collection_id) {
+var readyTable = /*#__PURE__*/function () {
+  var _ref = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2(docname, page, collection_id) {
     var enablePrediction,
         docid,
         htmlFolder,
@@ -31,7 +27,7 @@ function () {
         file_exists,
         result,
         _args2 = arguments;
-    return _regenerator.default.wrap(function _callee2$(_context2) {
+    return _regenerator["default"].wrap(function _callee2$(_context2) {
       while (1) {
         switch (_context2.prev = _context2.next) {
           case 0:
@@ -57,14 +53,10 @@ function () {
               try {
                 fs.readFile(path.join(htmlFolder, htmlFile), //already has collection_id in html_folder
                 "utf8", function (err, data) {
-                  fs.readFile(path.join(global.cssFolder, "stylesheet.css"), "utf8",
-                  /*#__PURE__*/
-                  function () {
-                    var _ref2 = (0, _asyncToGenerator2.default)(
-                    /*#__PURE__*/
-                    _regenerator.default.mark(function _callee(err2, data_ss) {
+                  fs.readFile(path.join(global.cssFolder, "stylesheet.css"), "utf8", /*#__PURE__*/function () {
+                    var _ref2 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(err2, data_ss) {
                       var tablePage, tableEdited, firstColContent, spaceRow, htmlHeader, findHeader, possible_tags_for_title, t, htmlHeaderText, actual_table, colum_with_numbers, styles, formattedPage, predicted;
-                      return _regenerator.default.wrap(function _callee$(_context) {
+                      return _regenerator["default"].wrap(function _callee$(_context) {
                         while (1) {
                           switch (_context.prev = _context.next) {
                             case 0:
@@ -181,7 +173,7 @@ function () {
                               };
 
                               possible_tags_for_title = [".headers", ".caption", ".captions", ".article-table-caption"];
-                              _context.t1 = _regenerator.default.keys(possible_tags_for_title);
+                              _context.t1 = _regenerator["default"].keys(possible_tags_for_title);
 
                             case 22:
                               if ((_context.t2 = _context.t1()).done) {
@@ -252,7 +244,7 @@ function () {
                               return _context.stop();
                           }
                         }
-                      }, _callee, this, [[0, 13]]);
+                      }, _callee, null, [[0, 13]]);
                     }));
 
                     return function (_x4, _x5) {
@@ -284,7 +276,7 @@ function () {
             return _context2.stop();
         }
       }
-    }, _callee2, this, [[1, 14]]);
+    }, _callee2, null, [[1, 14]]);
   }));
 
   return function readyTable(_x, _x2, _x3) {
@@ -292,14 +284,10 @@ function () {
   };
 }();
 
-var attemptPrediction =
-/*#__PURE__*/
-function () {
-  var _ref3 = (0, _asyncToGenerator2.default)(
-  /*#__PURE__*/
-  _regenerator.default.mark(function _callee3(actual_table) {
+var attemptPrediction = /*#__PURE__*/function () {
+  var _ref3 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee3(actual_table) {
     var predictions, terms_matrix, preds_matrix, format_matrix, feature_matrix, content_type_matrix, cleanModifier, isTermNumber, getColumnAsArray, getFreqs, getMatchingIndices, getElementsByIndices, getTopDescriptors, isMostlyNumbers, max_col, max_row, col_top_descriptors, row_top_descriptors, format_units, f, format_key, format_unit, col, col_array, indices_w_format, pred_array, predictions_w_format, content_array, descriptors, row, row_predictions, rowFirstCellEmpty, is_empty_or_P, sanitiseItemRepetition, reduceFormatRedundancy, predicted;
-    return _regenerator.default.wrap(function _callee3$(_context3) {
+    return _regenerator["default"].wrap(function _callee3$(_context3) {
       while (1) {
         switch (_context3.prev = _context3.next) {
           case 0:
@@ -452,7 +440,7 @@ function () {
             col_top_descriptors = [];
             row_top_descriptors = [];
             format_units = Array.from(new Set(format_matrix.flat()));
-            _context3.t0 = _regenerator.default.keys(format_units);
+            _context3.t0 = _regenerator["default"].keys(format_units);
 
           case 22:
             if ((_context3.t1 = _context3.t0()).done) {
@@ -661,7 +649,7 @@ function () {
             return _context3.stop();
         }
       }
-    }, _callee3, this);
+    }, _callee3);
   }));
 
   return function attemptPrediction(_x6) {
@@ -669,14 +657,10 @@ function () {
   };
 }();
 
-var prepareAvailableDocuments =
-/*#__PURE__*/
-function () {
-  var _ref4 = (0, _asyncToGenerator2.default)(
-  /*#__PURE__*/
-  _regenerator.default.mark(function _callee4(collection_id) {
+var prepareAvailableDocuments = /*#__PURE__*/function () {
+  var _ref4 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee4(collection_id) {
     var ftop, ftyp, fgroup, flgroup, hua, type_lookup, i, filtered_docs_ttype, allAnnotations, all_annotated_docids, ordered_Splits, ordered_docs_to_label, allLabelled, selected_group_docs, group_index, selected_label_docs, label_index, results;
-    return _regenerator.default.wrap(function _callee4$(_context4) {
+    return _regenerator["default"].wrap(function _callee4$(_context4) {
       while (1) {
         switch (_context4.prev = _context4.next) {
           case 0:
@@ -735,7 +719,7 @@ function () {
             } else {
               for (i in fgroup) {
                 group_index = parseInt(fgroup[i]) - 1;
-                selected_group_docs = (0, _toConsumableArray2.default)(selected_group_docs).concat((0, _toConsumableArray2.default)(ordered_Splits[group_index]));
+                selected_group_docs = [].concat((0, _toConsumableArray2["default"])(selected_group_docs), (0, _toConsumableArray2["default"])(ordered_Splits[group_index]));
               }
             }
 
@@ -746,7 +730,7 @@ function () {
             } else {
               for (i in flgroup) {
                 label_index = parseInt(flgroup[i]) - 1;
-                selected_label_docs = (0, _toConsumableArray2.default)(selected_label_docs).concat((0, _toConsumableArray2.default)(ordered_docs_to_label[label_index]));
+                selected_label_docs = [].concat((0, _toConsumableArray2["default"])(selected_label_docs), (0, _toConsumableArray2["default"])(ordered_docs_to_label[label_index]));
               }
             }
 
@@ -806,9 +790,9 @@ function () {
                   };
                   var st_b = {
                     docid: b[1],
-                    page: b[2] // debugger
+                    page: b[2]
+                  }; // debugger
 
-                  };
                   var dd = st_a.docid.localeCompare(st_b.docid);
                   return dd == 0 ? parseInt(st_a.page) - parseInt(st_b.page) : dd;
                 });
@@ -922,7 +906,7 @@ function () {
             return _context4.stop();
         }
       }
-    }, _callee4, this);
+    }, _callee4);
   }));
 
   return function prepareAvailableDocuments(_x7) {

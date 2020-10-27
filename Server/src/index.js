@@ -39,7 +39,6 @@ global.PRED_METHOD = "grouped_predictor"
 
 global.umls_data_buffer = {};
 
-
 // TTidier subsystems load.
 console.log("Loading Files Management")
 import {refreshDocuments} from "./files.js"
@@ -47,7 +46,7 @@ import {refreshDocuments} from "./files.js"
 console.log("Loading Security")
 import passport, {initialiseUsers, createUser, getUserHash}  from "./security.js"
 
-console.log("Loadicorsng Table Libs")
+console.log("Loading Table Libs")
 import { readyTable, prepareAvailableDocuments } from "./table.js"
 
 console.log("Loading MetaMap Docker Comms Module")
@@ -88,14 +87,7 @@ app.use(bodyParser.urlencoded({
   extended: true
 }));
 
-// app.use('/images', express.static(path.join(__dirname, 'images')))
-// app.use('/pdfs', express.static(path.join(__dirname, 'pdfs')))
-// app.engine('html', require('ejs').renderFile);
-// app.set('view engine', 'ejs');
-
-// app.use(require('body-parser').urlencoded({ extended: true }));
 app.use(passport.initialize());
-
 
 app.post('/login', function(req, res, next) {
   passport.authenticate('custom', function(err, user, info) {
@@ -123,25 +115,6 @@ app.post('/api/createUser', async function(req, res) {
 
 });
 
-app.get('/api/test', async function(req,res){
-  console.log("GET /api/test")
-  res.send("testing this worked!")
-});
-
-app.get('/test', async function(req,res){
-  console.log("GET /test")
-  res.send("testing this worked!")
-});
-
-app.post('/api/test', async function(req,res){
-  console.log("/api/test")
-  res.send("testing this worked!")
-});
-
-app.post('/test', async function(req,res){
-  console.log("/test")
-  res.send("testing this worked!")
-});
 
 // const storage = multer.memoryStorage();
 const storage = multer.diskStorage({
@@ -152,24 +125,6 @@ const storage = multer.diskStorage({
     cb(null, file.originalname )
   }
 })
-
-
-// app.post('/api/tableUploader', async function(req,res){
-//   console.log("TESTING")
-//     res.send("testing this worked!")
-// });
-//
-// app.post('/tableUploader', async function(req,res){
-//   console.log("TESTING SIMPLR")
-//     res.send("testing this worked!")
-// });
-
-// app.post('/tableuploader', async function(req,res){
-//   console.log("TESTING_SIMPLE")
-//     res.send("testing this worked!")
-// });
-
-// const upload = multer({ storage: storage });
 
 const moveFileToCollection = (filedata, coll) => {
   const fs = require('fs');
@@ -1033,79 +988,80 @@ app.post('/annotationPreview',async function(req,res){
               `SELECT tid, "tableResult" FROM result WHERE tid = $1`,[tid]
             )
 
-            //
-            // tableResult = tableResult.rows.length > 0 ? tableResult.rows[0].tableResult : []
-            //
-            // if ( req.body.cachedOnly === 'true' ){
-            //
-            //   if ( tableResult.length > 0){
-            //     res.json( {"state" : "good", result : tableResult } )
-            //   } else {
-            //     res.json( {"state" : "good", result : [] } )
-            //   }
-            //
-            //   console.log( "tableResult: "+ tableResult.length )
-            //   return;
-            // }
+            client.release()
 
-            // var final_annotations = {}
-            //
-            // /**
-            // * There are multiple versions of the annotations. When calling reading the results from the database, here we will return only the latest/ most complete version of the annotation.
-            // * Independently from the author of it. Completeness here measured as the result with the highest number of annotations and the highest index number (I.e. Newest, but only if it has more information/annotations).
-            // * May not be the best in some cases.
-            // *
-            // */
-            //
-            // for ( var r in annotations.rows){
-            //   var ann = annotations.rows[r]
-            //   var existing = final_annotations[ann.docid+"_"+ann.page]
-            //   if ( existing ){
-            //     if ( ann.N > existing.N && ann.annotation.annotations.length >= existing.annotation.annotations.length ){
-            //           final_annotations[ann.docid+"_"+ann.page] = ann
-            //     }
-            //   } else { // Didn't exist so add it.
-            //     final_annotations[ann.docid+"_"+ann.page] = ann
-            //   }
-            // }
-            //
-            // var final_annotations_array = []
-            // for (  var r in final_annotations ){
-            //   var ann = final_annotations[r]
-            //   final_annotations_array[final_annotations_array.length] = ann
-            // }
+            tableResult = tableResult && (tableResult.rows.length > 0) ? tableResult.rows[0].tableResult : []
 
-            // if( final_annotations_array.length > 0){
-            //
-            //       var entry = final_annotations_array[0]
-            //           entry.annotation = entry.annotation.annotations.map( (v,i) => {var ann = v; ann.content = Object.keys(ann.content).join(";"); ann.qualifiers = Object.keys(ann.qualifiers).join(";"); return ann} )
-            //
-            //       request({
-            //               url: 'http://localhost:6666/preview',
-            //               method: "POST",
-            //               json: {
-            //                 anns: entry,
-            //                 collId: req.body.collId
-            //               }
-            //         }, async function (error, response, body) {
-            //
-            //           var insertResult = async (tid, tableResult) => {
-            //                 var client = await pool.connect()
-            //                 var done = await client.query('INSERT INTO result(tid, "tableResult") VALUES ($1, $2) ON CONFLICT (tid) DO UPDATE SET "tableResult" = $2',  [tid, tableResult])
-            //                   .then(result => console.log("insert result: "+ new Date()))
-            //                   .catch(e => console.error(e.stack))
-            //                   .then(() => client.release())
-            //           }
-            //           if ( body.tableResult.length > 0){
-            //               await insertResult(body.ann.tid[0], body.tableResult)
-            //           }
-            //           // res.json( {"state" : "good", result : body.tableResult, "anns" : body.ann} )
-            //           res.json( {"state" : "good", result : body.tableResult} )
-            //       });
-            //       res.json( {"state" : "good2", result : body.tableResult} )
-            // } else {
-            //   res.json({"state" : "empty"})
-            // }
+            if ( req.body.cachedOnly === 'true' ){
+
+              if ( tableResult.length > 0){
+                res.json( {"state" : "good", result : tableResult } )
+              } else {
+                res.json( {"state" : "good", result : [] } )
+              }
+
+              return;
+            }
+
+            var final_annotations = {}
+
+            /**
+            * There are multiple versions of the annotations. When calling reading the results from the database, here we will return only the latest/ most complete version of the annotation.
+            * Independently from the author of it. Completeness here measured as the result with the highest number of annotations and the highest index number (I.e. Newest, but only if it has more information/annotations).
+            * May not be the best in some cases.
+            *
+            */
+
+            for ( var r in annotations.rows){
+              var ann = annotations.rows[r]
+              var existing = final_annotations[ann.docid+"_"+ann.page]
+              if ( existing ){
+                if ( ann.N > existing.N && ann.annotation.annotations.length >= existing.annotation.annotations.length ){
+                      final_annotations[ann.docid+"_"+ann.page] = ann
+                }
+              } else { // Didn't exist so add it.
+                final_annotations[ann.docid+"_"+ann.page] = ann
+              }
+            }
+
+            var final_annotations_array = []
+            for (  var r in final_annotations ){
+              var ann = final_annotations[r]
+              final_annotations_array[final_annotations_array.length] = ann
+            }
+
+            if( final_annotations_array.length > 0){
+
+                  var entry = final_annotations_array[0]
+                      entry.annotation = entry.annotation.annotations.map( (v,i) => {var ann = v; ann.content = Object.keys(ann.content).join(";"); ann.qualifiers = Object.keys(ann.qualifiers).join(";"); return ann} )
+                  console.log(entry)
+                  request({
+                          url: 'http://localhost:6666/preview',
+                          method: "POST",
+                          json: {
+                            anns: entry,
+                            collId: req.body.collId
+                          }
+                    }, async function (error, response, body) {
+
+                      var insertResult = async (tid, tableResult) => {
+                            var client = await pool.connect()
+                            var done = await client.query('INSERT INTO result(tid, "tableResult") VALUES ($1, $2) ON CONFLICT (tid) DO UPDATE SET "tableResult" = $2',  [tid, tableResult])
+                              .then(result => console.log("insert result: "+ new Date()))
+                              .catch(e => console.error(e.stack))
+                              .then(() => client.release())
+                      }
+                      if ( body.tableResult.length > 0){
+                          await insertResult(body.ann.tid[0], body.tableResult)
+                      }
+                      // res.json( {"state" : "good", result : body.tableResult, "anns" : body.ann} )
+                      console.log("tableresults: "+body.tableResult.length)
+                      res.json( {"state" : "good", result : body.tableResult} )
+                  });
+                  // res.json( {"state" : "good2", result : body.tableResult} )
+            } else {
+              res.json({"state" : "empty"})
+            }
 
           } else {
             res.json({status: "wrong parameters", body : req.body})
@@ -1119,8 +1075,7 @@ app.post('/annotationPreview',async function(req,res){
       } else {
         res.json([])
       }
-
-      res.json( {"state" : "reached end", result : []} )
+      // res.json( {"state" : "reached end", result : []} )
 });
 
 // Returns all annotations for all document/tables.
@@ -1183,24 +1138,24 @@ app.get('/api/formattedResults', async function (req,res){
       }
 })
 
-app.get('/api/abs_index',function(req,res){
+// app.get('/api/abs_index',function(req,res){
+//
+//   var output = "";
+//   for (var i in abs_index){
+//
+//     output = output + i
+//               +","+abs_index[i].docid
+//               +","+abs_index[i].page
+//               +"\n";
+//
+//   }
+//
+//   res.send(output)
+// });
 
-  var output = "";
-  for (var i in abs_index){
-
-    output = output + i
-              +","+abs_index[i].docid
-              +","+abs_index[i].page
-              +"\n";
-
-  }
-
-  res.send(output)
-});
-
-app.get('/api/totalTables',function(req,res){
-  res.send({total : DOCS.length})
-});
+// app.get('/api/totalTables',function(req,res){
+//   res.send({total : DOCS.length})
+// });
 
 
 app.get('/api/getMMatch',async function(req,res){
@@ -1352,35 +1307,9 @@ app.get('/api/getAnnotationByID',async function(req,res){
     var user = req.query.user && (req.query.user.length > 0) ? req.query.user : ""
     var collId = req.query.collId && (req.query.collId.length > 0) ? req.query.collId : ""
 
-    // debugger
     var annotations = await getAnnotationByID(req.query.docid,page,collId)
 
     var final_annotations = {}
-
-    /**
-    * There are multiple versions of the annotations. When calling reading the results from the database, here we will return only the latest/ most complete version of the annotation.
-    * Independently from the author of it. Completeness here measured as the result with the highest number of annotations and the highest index number (I.e. Newest, but only if it has more information/annotations).
-    * May not be the best in some cases.
-    *
-    */
-    //
-    // for ( var r in annotations.rows){
-    //   var ann = annotations.rows[r]
-    //   var existing = final_annotations[ann.docid+"_"+ann.page]
-    //   if ( existing ){
-    //     if ( ann.N > existing.N && ann.annotation.annotations.length >= existing.annotation.annotations.length ){
-    //           final_annotations[ann.docid+"_"+ann.page] = ann
-    //     }
-    //   } else { // Didn't exist so add it.
-    //     final_annotations[ann.docid+"_"+ann.page] = ann
-    //   }
-    // }
-    //
-    // var final_annotations_array = []
-    // for (  var r in final_annotations ){
-    //   var ann = final_annotations[r]
-    //   final_annotations_array[final_annotations_array.length] = ann
-    // }
 
     if( annotations.rows.length > 0){ // Should really be just one.
         var entry = annotations.rows[annotations.rows.length-1]
@@ -1394,7 +1323,6 @@ app.get('/api/getAnnotationByID',async function(req,res){
   }
 
 });
-
 
 
 app.get('/api/recordAnnotation',async function(req,res){
