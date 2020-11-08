@@ -34,8 +34,8 @@ const annotatorReducer = (state = initialState, action) =>
     switch (action.type) {
       case UPDATE_TABLE_CONTENT_ACTION:
         draft.tableData = action.tableData;
-        draft.results = []
-        draft.metadata = {}
+        // draft.results = []
+        // draft.metadata = {}
         break;
       case UPDATE_TABLE_ANNOTATIONS_ACTION:
         draft.annotations = action.annotations;

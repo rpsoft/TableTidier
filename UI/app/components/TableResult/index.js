@@ -34,7 +34,8 @@ import messages from './messages';
 
 function TableResult({
   loadTableResults,
-  tableResult
+  tableResult,
+  tableAnnotations
 }) {
   var headers = []
   var data = []
@@ -50,19 +51,32 @@ function TableResult({
     }
 
   if ( tableResult && tableResult.length > 0 ){
-    // debugger
-    headers = Object.keys(tableResult[0]).reduce ( (acc,item,i) => {
-                  if( item.indexOf("docid_page") < 0 )
-                    acc.push({Header:item, accessor:item, width: getColumnWidth(tableResult, item, item)})
-                  return acc
-                }, [])
+
+    headers = Array.from(
+                    new Set(
+                      tableResult.map(
+                        (heads) => Object.keys(heads)
+                      ).flat()
+                    ))
+
+    headers = headers.filter(e => e !== 'docid_page');
+    //
+    // var ordered_headers = tableAnnotations.reduce( (acc, item) => {acc.push(Object.keys(item.content).join(";")); return acc} , [] )
+    //
+    // // debugger
+
+    headers = headers.map(
+      (item) => {
+        return {Header:item, accessor:item, width: getColumnWidth(tableResult, item, item)}
+      })
+
     data = tableResult
   }
 
   return (
     <div style={{padding:"5px 7px 7px 7px"}} >
         <div style={{textAlign:"right", marginBottom:5}}>
-          <div style={{height:35, fontSize:22, float:"left", paddingTop:5}}> 2. Extraction <b> Results </b> </div>
+          <div style={{height:35, fontSize:22, float:"left", paddingTop:5}}> 3. Extraction <b> Results </b> </div>
           <Button variant="outlined" style={{backgroundColor:"lightblue"}} onClick={ () => { loadTableResults(false) } }> Refresh Results </Button>
         </div>
 

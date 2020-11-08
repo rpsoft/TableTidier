@@ -67,6 +67,7 @@ import TableAnnotator from 'components/TableAnnotator'
 import TableEditor from 'components/TableEditor'
 import TableResult from 'components/TableResult'
 import TableMetadata from 'components/TableMetadata'
+import TableNotes from 'components/TableNotes'
 
 
 
@@ -133,6 +134,8 @@ export function Annotator({
 
   const [ bottomEnabled, setBottomEnabled ] = React.useState(true);
   const [ bottomSize, setBottomSize ] = React.useState(400);
+
+  const [ bottomNotes, showBottomNotes ] = React.useState(true);
   const [ bottomAnnotations, showBottomAnnotations ] = React.useState(true);
   const [ bottomResults, showBottomResults ] = React.useState(true);
   const [ bottomMetadata, showBottomMetadata ] = React.useState(true);
@@ -143,17 +146,52 @@ export function Annotator({
   const [ N_tables, setN_tables ] = React.useState(0)
   const [ tablePosition, setTablePosition] = React.useState(-1)
 
+  // const [ tablePositionInput, setTablePositionInput] = React.useState(1)
+
   const [ tableData, setTableData ] = React.useState( {...annotator.tableData });
   const [ annotations, setAnnotations ] = React.useState( annotator.annotations );
   const [ results, setResults ] = React.useState(  annotator.results );
   const [ metadata, setMetadata ] = React.useState( {} );
 
+  const [ notesData, setNotesData ] = React.useState({ tableType:"", tableStatus:"", textNotes: "" });
+
   const [ editorEnabled, setEditorEnabled ] = React.useState(false);
+
+  const [ windowSize, setWindowSize ] = React.useState({
+    width: undefined,
+    height: undefined,
+  });
+
 
 
   //On component will mount
   React.useEffect(() => {
     loadTableContent()
+    loadTableResults(true)
+    //console.log("WILL MOUNT")
+
+    // Handler to call on window resize
+    function handleResize() {
+      // Set window width/height to state
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+
+      setBottomSize( (windowSize.height*0.80) < bottomSize ? windowSize.height*0.80 : bottomSize )
+
+    }
+
+    // Add event listener
+    window.addEventListener("resize", handleResize);
+
+    // Call handler right away so state gets updated with initial window size
+    handleResize();
+
+    // Remove event listener on cleanup
+    return () => window.removeEventListener("resize", handleResize);
+
+
   }, []);
 
 
@@ -166,6 +204,11 @@ export function Annotator({
         setN_tables(parseInt(annotator.tableData.collectionData.tables.length))
         setTablePosition(parseInt(annotator.tableData.tablePosition))
         setResults(annotator.results)
+
+        var annData = annotator.tableData.annotationData
+        if ( annData ){
+          setNotesData({ tableType: annData.tableType || "", tableStatus: annData.completion || "" , textNotes: annData.notes })
+        }
       }
     }, [annotator])
 
@@ -177,7 +220,8 @@ export function Annotator({
   React.useEffect(() => {
     // console.log("changed: " + JSON.stringify(location.search))
     loadTableContent()
-    loadTableResults()
+    loadTableResults(true)
+    //console.log("ADDRESS CHANGE")
   }, [location.search]);
 
   // <FormattedMessage {...messages.header} />     console.log("EFFEFCT")
@@ -209,14 +253,15 @@ export function Annotator({
 
   const table_annotator =  annotations ? <TableAnnotator annotations={annotations} setAnnotations={ (anns) => {setAnnotations(anns)}}  /> : ""
 
-
   var cols = []  //columns.map( (v,i) => { var col = {Header: v, accessor : v}; if( v == "col" || v == "row"){ col.width = 70 }; if( v == "value" ){ col.width = 200 }; return col } )
 
-  const table_results = <TableResult loadTableResults={loadTableResults} tableResult={results} />
+  const table_notes = <TableNotes notesData={notesData} setNotesData={setNotesData} />
 
-  const table_metadata = <TableMetadata />
+  const table_results = <TableResult loadTableResults={loadTableResults} tableResult={results} tableAnnotations={annotations}/>
 
-  const bottom_elements = [table_annotator, table_results, table_metadata]
+  const table_metadata = <TableMetadata tableResults={results}/>
+
+  const bottom_elements = [table_notes, table_annotator, table_results, table_metadata]
 
   const changeTableData = (key,data) => {
 
@@ -227,38 +272,45 @@ export function Annotator({
   }
 
   // Preparing navigation variables here.
-  const prepare_nav_link  = (tables, index, prev, next) => {
+  const prepare_nav_link  = (tables, ind) => {
 
-
-    if (!tables ){
+    if ( !tables ){
       return () => {}
     }
 
-    // console.log(prevNumber+" "+nextNumber+" "+table.docid+" "+table.page)
-    // debugger
+    var index = ind - 1
+
+    if ( index < 0) {
+      index = 0
+    }
+
+    if ( index > (tables.length-1) ){
+      index = (tables.length-1)
+    }
 
     return () => {
-      // debugger
       var address = "/table?"+
                 "docid="+tables[index].docid+
                 "&page="+tables[index].page+
                 "&collId="+tables[index].collection_id;
 
-      // console.log(address+" -- "+ prev + " : "+ next);
       goToUrl(address);
     }
   }
 
-  // debugger
-
   const prevNumber = ((tablePosition-1) >= 0) ? (tablePosition-1) : 0
-  const nextNumber = ((tablePosition+1) > (N_tables-1)) ? (N_tables-1) : (tablePosition+1)
+  const nextNumber = ((tablePosition+1) > (N_tables)) ? (N_tables) : (tablePosition+1)
 
   // annotator.tableData.collectionData.tables
-  const goPrev = annotator.tableData ? prepare_nav_link(annotator.tableData.collectionData.tables,prevNumber, prevNumber, nextNumber) : () => {}
-  const goNext = annotator.tableData ? prepare_nav_link(annotator.tableData.collectionData.tables,nextNumber, prevNumber, nextNumber) : () => {}
+  const goPrev = annotator.tableData ? prepare_nav_link(annotator.tableData.collectionData.tables, prevNumber) : () => {}
+  const goNext = annotator.tableData ? prepare_nav_link(annotator.tableData.collectionData.tables, nextNumber) : () => {}
 
-  const docid = annotator.tableData && annotator.tableData.collectionData.tables.length > 0 && tablePosition > -1  ? annotator.tableData.collectionData.tables[tablePosition].docid : ""
+  const goToTable = (number) => { return annotator.tableData ? prepare_nav_link(annotator.tableData.collectionData.tables, number) : () => {} }
+
+  // debugger
+  const docid = annotator.tableData ? annotator.tableData.docid : ""
+  // annotator.tableData && annotator.tableData.collectionData.tables.length > 0 && tablePosition && (tablePosition > -1)
+  // ? annotator.tableData.collectionData.tables[tablePosition-1].docid : ""
 
   return (
 
@@ -287,11 +339,19 @@ export function Annotator({
 
             <hr />
 
-            <TableEditor editorID={"table_title_editor"} textContent={tableData ? tableData.tableTitle : ""} editorEnabled={editorEnabled} saveTextChanges={ (newText) => { changeTableData("tableTitle", newText) } }/>
+            <TableEditor editorID={"table_title_editor"}
+                         textContent={tableData ? tableData.tableTitle : ""}
+                         editorEnabled={editorEnabled}
+                         saveTextChanges={ (newText) => { changeTableData("tableTitle", newText) } }
+                         height={200}/>
 
             <hr />
 
-            <TableEditor editorID={"table_content_editor"} textContent={tableData ? tableData.tableBody : ""} editorEnabled={editorEnabled} saveTextChanges={ (newText) => { changeTableData("tableBody", newText) } }/>
+            <TableEditor editorID={"table_content_editor"}
+                         textContent={tableData ? tableData.tableBody : ""}
+                         editorEnabled={editorEnabled}
+                         saveTextChanges={ (newText) => { changeTableData("tableBody", newText) } }
+                         height={800}/>
         </div>
 
            <Drawer
@@ -313,7 +373,25 @@ export function Annotator({
                   <NavigateBeforeIcon style={{fontSize:20}} />
                 </Button>
                 <div style={{display:"inline", border:"1px solid #e5e5e5", borderRadius:5, height:30, verticalAlign:"center", width:"100% ", textAlign:"center", padding:2, fontSize:15}}>
-                  <input readOnly style={{width:70, marginRight:5, textAlign:"right"}} type="number" value={tablePosition > -1 ? tablePosition+1 : -1}/>
+                  <input style={{width:70, marginRight:5, textAlign:"right"}}
+                         type="number"
+                         value={ tablePosition && (parseInt(tablePosition) > -1) ? tablePosition : tablePosition }
+                         onKeyDown={ (event) => {
+                           if(event.key === 'Enter'){
+                             goToTable(tablePosition)()
+                              // (event.target.value > (tablePosition+1)) ? goNext() : goPrev()
+                           } else {
+                             // event.target.value ? setTablePosition( ( event.target.value > 0 ? event.target.value -1 : 0 ) ) : event.target.value
+                             setTablePosition( parseInt(event.target.value) ? (parseInt(event.target.value) ) : "" )
+                           }
+                         }}
+                         onChange={ (event) => {
+
+                           setTablePosition( parseInt(event.target.value) ? (parseInt(event.target.value) ) : "" )
+                           // event.target.value ? setTablePosition( ( event.target.value > 0 ? event.target.value -1 : 0 ) ) : event.target.value
+                         } }
+
+                         />
                   <div style={{display:"inline-block"}}> / {N_tables} </div>
                 </div>
                 <Button variant="outlined" size="small" style={{minWidth: "auto", width:30}} onClick={ goNext }>
@@ -407,44 +485,57 @@ export function Annotator({
                 var nextSize = startBottomSize + (dragStartY - dragY)
                 // debugger
 
-                setBottomSize( (nextSize < 0) || (nextSize > window.innerHeight*0.75) ? window.innerHeight*0.75 : nextSize);
+                setBottomSize( (nextSize < 0) || (nextSize > window.innerHeight*0.85) ? window.innerHeight*0.85 : nextSize);
                 // e.preventDefault()
               }
             }}
           > </div>
 
           <div style={{width:"100%", minWidth:800, height: bottomEnabled ? bottomSize : 65, backgroundColor:"#e5e5e5"}}>
-            <Button variant="outlined" style={{float:"right", backgroundColor:"#ffffff", top:5, right:5}} onClick={ () => setBottomEnabled(!bottomEnabled) }> { bottomEnabled ? <ArrowDropDown style={{fontSize:35}} /> : <ArrowDropUp style={{fontSize:35}} /> }</Button>
+            { !bottomEnabled ? <Button variant="outlined" style={{float:"right", backgroundColor:"#ffffff", top:5, right:5}} onClick={ () => setBottomEnabled(!bottomEnabled) }> { bottomEnabled ? <ArrowDropDown style={{fontSize:35}} /> : <ArrowDropUp style={{fontSize:35}} /> }</Button> : ""}
             {
               !bottomEnabled ||
-               <div style={{height:"100%", backgroundColor:"#ffffff",paddingRight:70}}>
+               <div style={{height:"100%", backgroundColor:"#ffffff"}}>
                   <table className={"bottomTable"}  style={{width:"100%", height:"100%"}}>
                     <tbody>
                       <tr>
                           <td style={{ textAlign: "center", padding:5, borderRight:"5px solid #e5e5e5", verticalAlign:"top", width: 200, maxWidth:200}}>
                             <div style={{width:"100%"}}>
+                              <Button variant="outlined" className={classes.bottomButtons} style={{backgroundColor: bottomNotes ? "#dde6ff" : "" }} onClick={ () => showBottomNotes(!bottomNotes)}>
+                                            1. Notes { bottomNotes ? <VisibilityIcon style={{marginLeft:5}}/> : <VisibilityOffIcon style={{marginLeft:5}}/> }  </Button>
                               <Button variant="outlined" className={classes.bottomButtons} style={{backgroundColor: bottomAnnotations ? "lightgoldenrodyellow" : "" }} onClick={ () => showBottomAnnotations(!bottomAnnotations)}>
-                                            1. Annotations { bottomAnnotations ? <VisibilityIcon style={{marginLeft:5}}/> : <VisibilityOffIcon style={{marginLeft:5}}/> }  </Button>
+                                            2. Annotations { bottomAnnotations ? <VisibilityIcon style={{marginLeft:5}}/> : <VisibilityOffIcon style={{marginLeft:5}}/> }  </Button>
                               <Button variant="outlined" className={classes.bottomButtons} style={{backgroundColor: bottomResults ? "lightsteelblue" : ""  }} onClick={ () => showBottomResults(!bottomResults)}>
-                                            2. Results { bottomResults ? <VisibilityIcon style={{ marginLeft:5}}/> : <VisibilityOffIcon style={{marginLeft:5}}/> } </Button>
+                                            3. Results { bottomResults ? <VisibilityIcon style={{ marginLeft:5}}/> : <VisibilityOffIcon style={{marginLeft:5}}/> } </Button>
                               <Button variant="outlined" className={classes.bottomButtons} style={{backgroundColor: bottomMetadata ? "lightpink" : ""  }} onClick={ () => showBottomMetadata(!bottomMetadata)}>
-                                            3. Metadata { bottomMetadata ? <VisibilityIcon style={{ marginLeft:5}}/> : <VisibilityOffIcon style={{marginLeft:5}}/> } </Button>
+                                            4. Metadata { bottomMetadata ? <VisibilityIcon style={{ marginLeft:5}}/> : <VisibilityOffIcon style={{marginLeft:5}}/> } </Button>
                             </div>
                           </td>
-                          <td style={{ padding:5, verticalAlign:"top"}}>
-                            <div style={{overflowY:"scroll",height:"100%"}}>
-                              <table style={{width:"100%", height:"100%"}}>
-                                <tbody>
-                                  { [bottomAnnotations, bottomResults, bottomMetadata].map( (elm, i) => elm ?
-                                      <tr key={"tr_"+i} style={{width:"100%", verticalAlign:"top", borderBottom:"1px #acacac solid"}}>
-                                        <td style={{paddingBottom:20}}>
-                                          { bottom_elements[i] }
-                                        </td>
-                                      </tr> : undefined )
-                                  }
-                                  </tbody>
-                               </table>
-                             </div>
+
+                          <td style={{ padding:5, verticalAlign:"top" }}>
+
+                              <div style={{overflowY:"scroll",height:"100%"}}>
+                                <table style={{width:"100%", height:"100%"}}>
+                                  <tbody>
+                                    { [bottomNotes, bottomAnnotations, bottomResults, bottomMetadata].map( (elm, i) => elm ?
+                                        <tr key={"tr_"+i} style={{width:"100%", verticalAlign:"top", borderBottom:"1px #acacac solid"}}>
+                                          <td style={{paddingBottom:20}}>
+
+                                            { bottom_elements[i] }
+
+                                          </td>
+                                        </tr> : undefined )
+                                    }
+                                    </tbody>
+                                 </table>
+                               </div>
+
+                           </td>
+                           <td style={{ padding:5, verticalAlign:"top", width:70}}>
+                              <Button variant="outlined"
+                                      style={{float:"right", backgroundColor:"#ffffff", top:5, right:5}}
+                                      onClick={ () => setBottomEnabled(!bottomEnabled) }> { bottomEnabled ? <ArrowDropDown style={{fontSize:35}} /> : <ArrowDropUp style={{fontSize:35}} /> }
+                                      </Button>
                            </td>
                         </tr>
                     </tbody>
@@ -471,7 +562,12 @@ function mapDispatchToProps(dispatch) {
     dispatch,
     loadTableContent : () => dispatch( loadTableContentAction() ),
     loadTableResults : (cachedOnly) => dispatch ( loadTableResultsAction(cachedOnly) ),
-    goToUrl : (url) => dispatch(push(url))
+    saveNoteChanges : () => dispatch(),
+    saveAnnotationChanges : () => dispatch(),
+    saveTableChanges : () => dispatch(),
+    saveMetadataChanges : () => dispatch(),
+    goToUrl : (url) => dispatch(push(url)),
+
     // deleteCollection : () => dispatch( deleteCollectionAction() ),
     // updateCollectionData : (collectionData) => dispatch( updateCollectionAction (collectionData)),
   };

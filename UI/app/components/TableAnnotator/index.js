@@ -78,7 +78,7 @@ function TableAnnotator({
 
 
   return (
-    <div style={{padding:"0px 7px 7px 7px"}} >
+    <div style={{padding:"7px 7px 7px 7px"}} >
         <div style={{height:35, fontSize:22}}>
 
           <Button variant="outlined" style={{backgroundColor:"lightblue", float:"right"}} onClick={ () => {} }> save annotation changes </Button>
@@ -96,7 +96,7 @@ function TableAnnotator({
                 }}
               />
           </span>
-          <div style={{paddingTop:5}}> 1. Table <b> Annotations </b> </div>
+          <div style={{paddingTop:5}}> 2. Table <b> Annotations </b> </div>
 
         </div>
 

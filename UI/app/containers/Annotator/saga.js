@@ -79,12 +79,14 @@ export function* getTableContent() {
 
       response.collectionData.tables = response.collectionData.tables.sort( (a,b) => (a.docid+"_"+a.page).localeCompare((b.docid+"_"+b.page)))
 
+      // debugger
+
       response.tablePosition = response.collectionData.tables.reduce( (i, table, index) => {
                                             if ( (table.docid+"_"+table.page).localeCompare(parsed.docid+"_"+parsed.page) == 0){
                                                return index
                                             } else{
                                                return i
-                                            }; }, -1)
+                                            }; }, -1) + 1
 
       // debugger
       // response.tablePosition_prev = response.tablePosition > -1 ? response.collectionData.tables[response.tablePosition-1] : false
@@ -109,13 +111,10 @@ export function* getTableContent() {
   }
 
   return {}
-  // return {collection: "hello"}
+
 }
 
 export function* getTableResult( payload ) {
-
-   // var hey = payload
-   //  debugger
 
   const credentials = yield select(makeSelectCredentials());
   const locationData = yield select(makeSelectLocation());
@@ -148,7 +147,7 @@ export function* getTableResult( payload ) {
       // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
 
     } else {
-        // debugger
+        debugger
 
 
         yield put( yield updateTableResultsAction(response.result) );
@@ -193,7 +192,47 @@ export function* getTableResult( payload ) {
   // return {collection: "hello"}
 }
 
+export function* getTableMetadata( payload ) {
 
+  const credentials = yield select(makeSelectCredentials());
+  const locationData = yield select(makeSelectLocation());
+
+  const parsed = queryString.parse(location.search);
+  const requestURL = `http://`+locationData.host+`:`+locationData.server_port+`/metadata`;
+
+  const params = new URLSearchParams({
+      'hash' : credentials.hash,
+      'username' :  credentials.username,
+      'docid' : parsed.docid,
+      'page' : parsed.page,
+      'collId' : parsed.collId,
+      'cachedOnly' : payload.cachedOnly,
+      'action' : 'get'
+      // get  delete  edit
+    });
+
+  const options = {
+    method: 'POST',
+    body: params
+  }
+
+  try {
+    const response = yield call(request, requestURL, options);
+
+    if ( response.status && response.status == "unauthorised"){
+      // COUld probably redirect to /
+      // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
+
+    } else {
+        yield put( yield updateTableResultsAction(response.result) );
+    }
+  } catch (err) {
+    console.log(err)
+  }
+
+  return {}
+  // return {collection: "hello"}
+}
 
 // Individual exports for testing
 export default function* annotatorSaga() {

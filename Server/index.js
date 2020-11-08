@@ -274,11 +274,11 @@ function UMLSData() {
 }
 
 function _UMLSData() {
-  _UMLSData = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee55() {
+  _UMLSData = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee56() {
     var semtypes, cui_def, cui_concept;
-    return _regenerator["default"].wrap(function _callee55$(_context55) {
+    return _regenerator["default"].wrap(function _callee56$(_context56) {
       while (1) {
-        switch (_context55.prev = _context55.next) {
+        switch (_context56.prev = _context56.next) {
           case 0:
             semtypes = new Promise(function (resolve, reject) {
               var inputStream = fs.createReadStream(CONFIG.system_path + "Tools/metamap_api/" + 'cui_def.csv', 'utf8');
@@ -297,11 +297,11 @@ function _UMLSData() {
                 resolve(result);
               });
             });
-            _context55.next = 3;
+            _context56.next = 3;
             return semtypes;
 
           case 3:
-            semtypes = _context55.sent;
+            semtypes = _context56.sent;
             cui_def = new Promise(function (resolve, reject) {
               var inputStream = fs.createReadStream(CONFIG.system_path + "Tools/metamap_api/" + 'cui_def.csv', 'utf8');
               var result = {};
@@ -322,11 +322,11 @@ function _UMLSData() {
                 resolve(result);
               });
             });
-            _context55.next = 7;
+            _context56.next = 7;
             return cui_def;
 
           case 7:
-            cui_def = _context55.sent;
+            cui_def = _context56.sent;
             cui_concept = new Promise(function (resolve, reject) {
               var inputStream = fs.createReadStream(CONFIG.system_path + "Tools/metamap_api/" + 'cui_concept.csv', 'utf8');
               var result = {};
@@ -342,12 +342,12 @@ function _UMLSData() {
                 resolve(result);
               });
             });
-            _context55.next = 11;
+            _context56.next = 11;
             return cui_concept;
 
           case 11:
-            cui_concept = _context55.sent;
-            return _context55.abrupt("return", {
+            cui_concept = _context56.sent;
+            return _context56.abrupt("return", {
               semtypes: semtypes,
               cui_def: cui_def,
               cui_concept: cui_concept
@@ -355,10 +355,10 @@ function _UMLSData() {
 
           case 13:
           case "end":
-            return _context55.stop();
+            return _context56.stop();
         }
       }
-    }, _callee55);
+    }, _callee56);
   }));
   return _UMLSData.apply(this, arguments);
 }
@@ -369,22 +369,22 @@ function CUIData() {
 
 
 function _CUIData() {
-  _CUIData = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee56() {
+  _CUIData = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee57() {
     var umlsData, results, rres;
-    return _regenerator["default"].wrap(function _callee56$(_context56) {
+    return _regenerator["default"].wrap(function _callee57$(_context57) {
       while (1) {
-        switch (_context56.prev = _context56.next) {
+        switch (_context57.prev = _context57.next) {
           case 0:
-            _context56.next = 2;
+            _context57.next = 2;
             return UMLSData();
 
           case 2:
-            umlsData = _context56.sent;
-            _context56.next = 5;
+            umlsData = _context57.sent;
+            _context57.next = 5;
             return (0, _network_functions.getAnnotationResults)();
 
           case 5:
-            results = _context56.sent;
+            results = _context57.sent;
             rres = results.rows.reduce(function (acc, ann, i) {
               var annots = ann.annotation.annotations;
               annots = annots.reduce(function (acc, ann) {
@@ -409,7 +409,7 @@ function _CUIData() {
               };
               return acc;
             }, {});
-            return _context56.abrupt("return", {
+            return _context57.abrupt("return", {
               cui_def: umlsData.cui_def,
               cui_concept: umlsData.cui_concept,
               actual_results: rres,
@@ -418,10 +418,10 @@ function _CUIData() {
 
           case 8:
           case "end":
-            return _context56.stop();
+            return _context57.stop();
         }
       }
-    }, _callee56);
+    }, _callee57);
   }));
   return _CUIData.apply(this, arguments);
 }
@@ -432,41 +432,7 @@ function getMetadataLabellers() {
 
 
 function _getMetadataLabellers() {
-  _getMetadataLabellers = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee57() {
-    var client, result;
-    return _regenerator["default"].wrap(function _callee57$(_context57) {
-      while (1) {
-        switch (_context57.prev = _context57.next) {
-          case 0:
-            _context57.next = 2;
-            return pool.connect();
-
-          case 2:
-            client = _context57.sent;
-            _context57.next = 5;
-            return client.query("select distinct docid, page, labeller from metadata");
-
-          case 5:
-            result = _context57.sent;
-            client.release();
-            return _context57.abrupt("return", result);
-
-          case 8:
-          case "end":
-            return _context57.stop();
-        }
-      }
-    }, _callee57);
-  }));
-  return _getMetadataLabellers.apply(this, arguments);
-}
-
-function getAnnotationByID(_x6, _x7, _x8) {
-  return _getAnnotationByID.apply(this, arguments);
-}
-
-function _getAnnotationByID() {
-  _getAnnotationByID = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee58(docid, page, collId) {
+  _getMetadataLabellers = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee58() {
     var client, result;
     return _regenerator["default"].wrap(function _callee58$(_context58) {
       while (1) {
@@ -478,7 +444,7 @@ function _getAnnotationByID() {
           case 2:
             client = _context58.sent;
             _context58.next = 5;
-            return client.query("\n                  select * from \"table\",annotations where \"table\".tid = annotations.tid\n                  AND docid=$1 AND page=$2 AND collection_id = $3 ", [docid, page, collId]);
+            return client.query("select distinct docid, page, labeller from metadata");
 
           case 5:
             result = _context58.sent;
@@ -491,6 +457,40 @@ function _getAnnotationByID() {
         }
       }
     }, _callee58);
+  }));
+  return _getMetadataLabellers.apply(this, arguments);
+}
+
+function getAnnotationByID(_x6, _x7, _x8) {
+  return _getAnnotationByID.apply(this, arguments);
+}
+
+function _getAnnotationByID() {
+  _getAnnotationByID = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee59(docid, page, collId) {
+    var client, result;
+    return _regenerator["default"].wrap(function _callee59$(_context59) {
+      while (1) {
+        switch (_context59.prev = _context59.next) {
+          case 0:
+            _context59.next = 2;
+            return pool.connect();
+
+          case 2:
+            client = _context59.sent;
+            _context59.next = 5;
+            return client.query("\n                  select * from \"table\",annotations where \"table\".tid = annotations.tid\n                  AND docid=$1 AND page=$2 AND collection_id = $3 ", [docid, page, collId]);
+
+          case 5:
+            result = _context59.sent;
+            client.release();
+            return _context59.abrupt("return", result);
+
+          case 8:
+          case "end":
+            return _context59.stop();
+        }
+      }
+    }, _callee59);
   }));
   return _getAnnotationByID.apply(this, arguments);
 }
@@ -533,29 +533,29 @@ function main() {
 }
 
 function _main() {
-  _main = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee59() {
-    return _regenerator["default"].wrap(function _callee59$(_context59) {
+  _main = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee60() {
+    return _regenerator["default"].wrap(function _callee60$(_context60) {
       while (1) {
-        switch (_context59.prev = _context59.next) {
+        switch (_context60.prev = _context60.next) {
           case 0:
-            _context59.next = 2;
+            _context60.next = 2;
             return rebuildSearchIndex();
 
           case 2:
-            _context59.next = 4;
+            _context60.next = 4;
             return UMLSData();
 
           case 4:
-            umls_data_buffer = _context59.sent;
-            _context59.next = 7;
+            umls_data_buffer = _context60.sent;
+            _context60.next = 7;
             return (0, _security.initialiseUsers)();
 
           case 7:
           case "end":
-            return _context59.stop();
+            return _context60.stop();
         }
       }
-    }, _callee59);
+    }, _callee60);
   }));
   return _main.apply(this, arguments);
 }
@@ -1453,29 +1453,77 @@ app.post('/collections', /*#__PURE__*/function () {
   return function (_x55, _x56) {
     return _ref25.apply(this, arguments);
   };
-}()); // Tables
-
-var createTable = /*#__PURE__*/function () {
-  var _ref26 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee26(docid, page, user, collection_id, file_path) {
-    var client, result;
+}());
+app.post('/metadata', /*#__PURE__*/function () {
+  var _ref26 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee26(req, res) {
+    var validate_user, result;
     return _regenerator["default"].wrap(function _callee26$(_context26) {
       while (1) {
         switch (_context26.prev = _context26.next) {
           case 0:
-            _context26.next = 2;
-            return pool.connect();
+            if (!(req.body && !req.body.action)) {
+              _context26.next = 3;
+              break;
+            }
 
-          case 2:
-            client = _context26.sent;
-            _context26.next = 5;
-            return client.query("INSERT INTO public.\"table\"(\n\t       docid, page, \"user\", notes, collection_id, file_path, \"tableType\")\n\t     VALUES ($1, $2, $3, $4, $5, $6, $7);", [docid, page, user, "", collection_id, file_path, ""]);
+            res.json({
+              status: "undefined",
+              received: req.query
+            });
+            return _context26.abrupt("return");
 
-          case 5:
-            result = _context26.sent;
-            client.release();
-            return _context26.abrupt("return", result);
+          case 3:
+            validate_user = validateUser(req.body.username, req.body.hash);
+
+            if (!validate_user) {
+              _context26.next = 17;
+              break;
+            }
+
+            _context26.t0 = req.body.action;
+            _context26.next = _context26.t0 === "get" ? 8 : _context26.t0 === "delete" ? 10 : _context26.t0 === "edit" ? 12 : 14;
+            break;
 
           case 8:
+            // result = await getCollection(req.body.collection_id);
+            res.json({
+              status: "success",
+              data: result
+            });
+            return _context26.abrupt("break", 15);
+
+          case 10:
+            // await deleteCollection(req.body.collection_id);
+            res.json({
+              status: "success",
+              data: {}
+            });
+            return _context26.abrupt("break", 15);
+
+          case 12:
+            // var allCollectionData = JSON.parse( req.body.collectionData )
+            res.json({
+              status: "success",
+              data: result
+            });
+            return _context26.abrupt("break", 15);
+
+          case 14:
+            res.json({
+              status: "failed"
+            });
+
+          case 15:
+            _context26.next = 18;
+            break;
+
+          case 17:
+            res.json({
+              status: "unauthorised",
+              payload: null
+            });
+
+          case 18:
           case "end":
             return _context26.stop();
         }
@@ -1483,24 +1531,57 @@ var createTable = /*#__PURE__*/function () {
     }, _callee26);
   }));
 
-  return function createTable(_x57, _x58, _x59, _x60, _x61) {
+  return function (_x57, _x58) {
     return _ref26.apply(this, arguments);
+  };
+}()); // Tables
+
+var createTable = /*#__PURE__*/function () {
+  var _ref27 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee27(docid, page, user, collection_id, file_path) {
+    var client, result;
+    return _regenerator["default"].wrap(function _callee27$(_context27) {
+      while (1) {
+        switch (_context27.prev = _context27.next) {
+          case 0:
+            _context27.next = 2;
+            return pool.connect();
+
+          case 2:
+            client = _context27.sent;
+            _context27.next = 5;
+            return client.query("INSERT INTO public.\"table\"(\n\t       docid, page, \"user\", notes, collection_id, file_path, \"tableType\")\n\t     VALUES ($1, $2, $3, $4, $5, $6, $7);", [docid, page, user, "", collection_id, file_path, ""]);
+
+          case 5:
+            result = _context27.sent;
+            client.release();
+            return _context27.abrupt("return", result);
+
+          case 8:
+          case "end":
+            return _context27.stop();
+        }
+      }
+    }, _callee27);
+  }));
+
+  return function createTable(_x59, _x60, _x61, _x62, _x63) {
+    return _ref27.apply(this, arguments);
   };
 }();
 
 var removeTables = /*#__PURE__*/function () {
-  var _ref27 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee27(tables, collection_id) {
+  var _ref28 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee28(tables, collection_id) {
     var fromSelect,
         client,
         i,
         result,
         filename,
-        _args27 = arguments;
-    return _regenerator["default"].wrap(function _callee27$(_context27) {
+        _args28 = arguments;
+    return _regenerator["default"].wrap(function _callee28$(_context28) {
       while (1) {
-        switch (_context27.prev = _context27.next) {
+        switch (_context28.prev = _context28.next) {
           case 0:
-            fromSelect = _args27.length > 2 && _args27[2] !== undefined ? _args27[2] : false;
+            fromSelect = _args28.length > 2 && _args28[2] !== undefined ? _args28[2] : false;
 
             if (!fromSelect) {
               tables = tables.map(function (tab) {
@@ -1516,24 +1597,24 @@ var removeTables = /*#__PURE__*/function () {
               });
             }
 
-            _context27.next = 4;
+            _context28.next = 4;
             return pool.connect();
 
           case 4:
-            client = _context27.sent;
+            client = _context28.sent;
             i = 0;
 
           case 6:
             if (!(i < tables.length)) {
-              _context27.next = 15;
+              _context28.next = 15;
               break;
             }
 
-            _context27.next = 9;
+            _context28.next = 9;
             return client.query("DELETE FROM public.\"table\"\n        \tWHERE docid = $1 AND page = $2 AND collection_id = $3;", [tables[i].docid, tables[i].page, collection_id]);
 
           case 9:
-            result = _context27.sent;
+            result = _context28.sent;
             filename = tables[i].docid + "_" + tables[i].page + ".html";
 
             try {
@@ -1547,32 +1628,32 @@ var removeTables = /*#__PURE__*/function () {
 
           case 12:
             i++;
-            _context27.next = 6;
+            _context28.next = 6;
             break;
 
           case 15:
             client.release();
-            return _context27.abrupt("return", result);
+            return _context28.abrupt("return", result);
 
           case 17:
           case "end":
-            return _context27.stop();
+            return _context28.stop();
         }
       }
-    }, _callee27);
+    }, _callee28);
   }));
 
-  return function removeTables(_x62, _x63) {
-    return _ref27.apply(this, arguments);
+  return function removeTables(_x64, _x65) {
+    return _ref28.apply(this, arguments);
   };
 }();
 
 var moveTables = /*#__PURE__*/function () {
-  var _ref28 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee28(tables, collection_id, target_collection_id) {
+  var _ref29 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee29(tables, collection_id, target_collection_id) {
     var client, i, result, filename;
-    return _regenerator["default"].wrap(function _callee28$(_context28) {
+    return _regenerator["default"].wrap(function _callee29$(_context29) {
       while (1) {
-        switch (_context28.prev = _context28.next) {
+        switch (_context29.prev = _context29.next) {
           case 0:
             tables = tables.map(function (tab) {
               var _tab$split3 = tab.split("_"),
@@ -1586,24 +1667,24 @@ var moveTables = /*#__PURE__*/function () {
               };
             }); // debugger
 
-            _context28.next = 3;
+            _context29.next = 3;
             return pool.connect();
 
           case 3:
-            client = _context28.sent;
+            client = _context29.sent;
             i = 0;
 
           case 5:
             if (!(i < tables.length)) {
-              _context28.next = 14;
+              _context29.next = 14;
               break;
             }
 
-            _context28.next = 8;
+            _context29.next = 8;
             return client.query("UPDATE public.\"table\"\n\t       SET collection_id=$4\n         WHERE docid = $1 AND page = $2 AND collection_id = $3;", [tables[i].docid, tables[i].page, collection_id, target_collection_id]);
 
           case 8:
-            result = _context28.sent;
+            result = _context29.sent;
             filename = tables[i].docid + "_" + tables[i].page + ".html";
 
             try {
@@ -1617,35 +1698,35 @@ var moveTables = /*#__PURE__*/function () {
 
           case 11:
             i++;
-            _context28.next = 5;
+            _context29.next = 5;
             break;
 
           case 14:
             client.release();
-            return _context28.abrupt("return", result);
+            return _context29.abrupt("return", result);
 
           case 16:
           case "end":
-            return _context28.stop();
+            return _context29.stop();
         }
       }
-    }, _callee28);
+    }, _callee29);
   }));
 
-  return function moveTables(_x64, _x65, _x66) {
-    return _ref28.apply(this, arguments);
+  return function moveTables(_x66, _x67, _x68) {
+    return _ref29.apply(this, arguments);
   };
 }();
 
 app.post('/tables', /*#__PURE__*/function () {
-  var _ref29 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee29(req, res) {
+  var _ref30 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee30(req, res) {
     var validate_user, result;
-    return _regenerator["default"].wrap(function _callee29$(_context29) {
+    return _regenerator["default"].wrap(function _callee30$(_context30) {
       while (1) {
-        switch (_context29.prev = _context29.next) {
+        switch (_context30.prev = _context30.next) {
           case 0:
             if (!(req.body && !req.body.action)) {
-              _context29.next = 3;
+              _context30.next = 3;
               break;
             }
 
@@ -1653,48 +1734,48 @@ app.post('/tables', /*#__PURE__*/function () {
               status: "undefined",
               received: req.query
             });
-            return _context29.abrupt("return");
+            return _context30.abrupt("return");
 
           case 3:
             validate_user = validateUser(req.body.username, req.body.hash);
 
             if (!validate_user) {
-              _context29.next = 23;
+              _context30.next = 23;
               break;
             }
 
             result = {};
-            _context29.t0 = req.body.action;
-            _context29.next = _context29.t0 === "remove" ? 9 : _context29.t0 === "move" ? 13 : _context29.t0 === "list" ? 17 : 17;
+            _context30.t0 = req.body.action;
+            _context30.next = _context30.t0 === "remove" ? 9 : _context30.t0 === "move" ? 13 : _context30.t0 === "list" ? 17 : 17;
             break;
 
           case 9:
-            _context29.next = 11;
+            _context30.next = 11;
             return removeTables(JSON.parse(req.body.tablesList), req.body.collection_id);
 
           case 11:
-            result = _context29.sent;
-            return _context29.abrupt("break", 17);
+            result = _context30.sent;
+            return _context30.abrupt("break", 17);
 
           case 13:
-            _context29.next = 15;
+            _context30.next = 15;
             return moveTables(JSON.parse(req.body.tablesList), req.body.collection_id, req.body.targetCollectionID);
 
           case 15:
-            result = _context29.sent;
-            return _context29.abrupt("break", 17);
+            result = _context30.sent;
+            return _context30.abrupt("break", 17);
 
           case 17:
-            _context29.next = 19;
+            _context30.next = 19;
             return getCollection(req.body.collection_id);
 
           case 19:
-            result = _context29.sent;
+            result = _context30.sent;
             res.json({
               status: "success",
               data: result
             });
-            _context29.next = 24;
+            _context30.next = 24;
             break;
 
           case 23:
@@ -1705,22 +1786,22 @@ app.post('/tables', /*#__PURE__*/function () {
 
           case 24:
           case "end":
-            return _context29.stop();
+            return _context30.stop();
         }
       }
-    }, _callee29);
+    }, _callee30);
   }));
 
-  return function (_x67, _x68) {
-    return _ref29.apply(this, arguments);
+  return function (_x69, _x70) {
+    return _ref30.apply(this, arguments);
   };
 }());
 app.post('/search', /*#__PURE__*/function () {
-  var _ref30 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee30(req, res) {
+  var _ref31 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee31(req, res) {
     var bod, type, validate_user, search_results;
-    return _regenerator["default"].wrap(function _callee30$(_context30) {
+    return _regenerator["default"].wrap(function _callee31$(_context31) {
       while (1) {
-        switch (_context30.prev = _context30.next) {
+        switch (_context31.prev = _context31.next) {
           case 0:
             bod = req.body.searchContent;
             type = JSON.parse(req.body.searchType);
@@ -1741,57 +1822,57 @@ app.post('/search', /*#__PURE__*/function () {
 
           case 4:
           case "end":
-            return _context30.stop();
+            return _context31.stop();
         }
       }
-    }, _callee30);
+    }, _callee31);
   }));
 
-  return function (_x69, _x70) {
-    return _ref30.apply(this, arguments);
+  return function (_x71, _x72) {
+    return _ref31.apply(this, arguments);
   };
 }());
 app.post('/getTableContent', /*#__PURE__*/function () {
-  var _ref31 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee31(req, res) {
+  var _ref32 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee32(req, res) {
     var bod, validate_user, collection_data, tableData, annotation;
-    return _regenerator["default"].wrap(function _callee31$(_context31) {
+    return _regenerator["default"].wrap(function _callee32$(_context32) {
       while (1) {
-        switch (_context31.prev = _context31.next) {
+        switch (_context32.prev = _context32.next) {
           case 0:
             bod = req.body.searchContent;
             validate_user = validateUser(req.body.username, req.body.hash);
 
             if (!validate_user) {
-              _context31.next = 29;
+              _context32.next = 29;
               break;
             }
 
-            _context31.prev = 3;
+            _context32.prev = 3;
 
             if (!(req.body.docid && req.body.page && req.body.collId)) {
-              _context31.next = 19;
+              _context32.next = 19;
               break;
             }
 
-            _context31.next = 7;
+            _context32.next = 7;
             return getCollection(req.body.collId);
 
           case 7:
-            collection_data = _context31.sent;
-            _context31.next = 10;
+            collection_data = _context32.sent;
+            _context32.next = 10;
             return (0, _table.readyTable)(req.body.docid, req.body.page, req.body.collId, JSON.parse(req.body.enablePrediction));
 
           case 10:
-            tableData = _context31.sent;
-            _context31.next = 13;
+            tableData = _context32.sent;
+            _context32.next = 13;
             return getAnnotationByID(req.body.docid, req.body.page, req.body.collId);
 
           case 13:
-            annotation = _context31.sent;
+            annotation = _context32.sent;
             tableData.collectionData = collection_data;
             tableData.annotationData = annotation && annotation.rows.length > 0 ? annotation.rows[0] : {};
             res.json(tableData);
-            _context31.next = 20;
+            _context32.next = 20;
             break;
 
           case 19:
@@ -1801,13 +1882,13 @@ app.post('/getTableContent', /*#__PURE__*/function () {
             });
 
           case 20:
-            _context31.next = 27;
+            _context32.next = 27;
             break;
 
           case 22:
-            _context31.prev = 22;
-            _context31.t0 = _context31["catch"](3);
-            console.log(_context31.t0);
+            _context32.prev = 22;
+            _context32.t0 = _context32["catch"](3);
+            console.log(_context32.t0);
             debugger;
             res.json({
               status: "getTableContent: probably page out of bounds, or document does not exist",
@@ -1815,7 +1896,7 @@ app.post('/getTableContent', /*#__PURE__*/function () {
             });
 
           case 27:
-            _context31.next = 30;
+            _context32.next = 30;
             break;
 
           case 29:
@@ -1823,44 +1904,44 @@ app.post('/getTableContent', /*#__PURE__*/function () {
 
           case 30:
           case "end":
-            return _context31.stop();
+            return _context32.stop();
         }
       }
-    }, _callee31, null, [[3, 22]]);
+    }, _callee32, null, [[3, 22]]);
   }));
 
-  return function (_x71, _x72) {
-    return _ref31.apply(this, arguments);
+  return function (_x73, _x74) {
+    return _ref32.apply(this, arguments);
   };
 }()); ///// Probably vintage from here on.
 
 app.get('/api/allInfo', /*#__PURE__*/function () {
-  var _ref32 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee32(req, res) {
+  var _ref33 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee33(req, res) {
     var labellers, result, available_documents_temp, abs_index_temp, DOCS_temp;
-    return _regenerator["default"].wrap(function _callee32$(_context32) {
+    return _regenerator["default"].wrap(function _callee33$(_context33) {
       while (1) {
-        switch (_context32.prev = _context32.next) {
+        switch (_context33.prev = _context33.next) {
           case 0:
-            _context32.next = 2;
+            _context33.next = 2;
             return getMetadataLabellers();
 
           case 2:
-            labellers = _context32.sent;
+            labellers = _context33.sent;
             labellers = labellers.rows.reduce(function (acc, item) {
               acc[item.docid + "_" + item.page] = item.labeller;
               return acc;
             }, {});
 
             if (!(req.query && req.query.collId)) {
-              _context32.next = 14;
+              _context33.next = 14;
               break;
             }
 
-            _context32.next = 7;
+            _context33.next = 7;
             return (0, _table.prepareAvailableDocuments)(req.query.collId);
 
           case 7:
-            result = _context32.sent;
+            result = _context33.sent;
             available_documents_temp = result.available_documents;
             abs_index_temp = result.abs_index;
             DOCS_temp = result.DOCS;
@@ -1871,7 +1952,7 @@ app.get('/api/allInfo', /*#__PURE__*/function () {
               msh_categories: msh_categories,
               labellers: labellers
             });
-            _context32.next = 15;
+            _context33.next = 15;
             break;
 
           case 14:
@@ -1885,14 +1966,14 @@ app.get('/api/allInfo', /*#__PURE__*/function () {
 
           case 15:
           case "end":
-            return _context32.stop();
+            return _context33.stop();
         }
       }
-    }, _callee32);
+    }, _callee33);
   }));
 
-  return function (_x73, _x74) {
-    return _ref32.apply(this, arguments);
+  return function (_x75, _x76) {
+    return _ref33.apply(this, arguments);
   };
 }()); // Extracts all recommended CUIs from the DB and formats them as per the "recommend_cuis" variable a the bottom of the function.
 
@@ -1901,51 +1982,51 @@ function getRecommendedCUIS() {
 }
 
 function _getRecommendedCUIS() {
-  _getRecommendedCUIS = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee61() {
+  _getRecommendedCUIS = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee62() {
     var cuiRecommend, recommend_cuis, rec_cuis, splitConcepts;
-    return _regenerator["default"].wrap(function _callee61$(_context61) {
+    return _regenerator["default"].wrap(function _callee62$(_context62) {
       while (1) {
-        switch (_context61.prev = _context61.next) {
+        switch (_context62.prev = _context62.next) {
           case 0:
             cuiRecommend = /*#__PURE__*/function () {
-              var _ref55 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee60() {
+              var _ref56 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee61() {
                 var client, result;
-                return _regenerator["default"].wrap(function _callee60$(_context60) {
+                return _regenerator["default"].wrap(function _callee61$(_context61) {
                   while (1) {
-                    switch (_context60.prev = _context60.next) {
+                    switch (_context61.prev = _context61.next) {
                       case 0:
-                        _context60.next = 2;
+                        _context61.next = 2;
                         return pool.connect();
 
                       case 2:
-                        client = _context60.sent;
-                        _context60.next = 5;
+                        client = _context61.sent;
+                        _context61.next = 5;
                         return client.query("select * from cuis_recommend");
 
                       case 5:
-                        result = _context60.sent;
+                        result = _context61.sent;
                         client.release();
-                        return _context60.abrupt("return", result);
+                        return _context61.abrupt("return", result);
 
                       case 8:
                       case "end":
-                        return _context60.stop();
+                        return _context61.stop();
                     }
                   }
-                }, _callee60);
+                }, _callee61);
               }));
 
               return function cuiRecommend() {
-                return _ref55.apply(this, arguments);
+                return _ref56.apply(this, arguments);
               };
             }();
 
             recommend_cuis = {};
-            _context61.next = 4;
+            _context62.next = 4;
             return cuiRecommend();
 
           case 4:
-            rec_cuis = _context61.sent.rows;
+            rec_cuis = _context62.sent.rows;
 
             splitConcepts = function splitConcepts(c) {
               if (c == null) {
@@ -1974,130 +2055,130 @@ function _getRecommendedCUIS() {
                 cc: item.cc
               };
             }) : "";
-            return _context61.abrupt("return", recommend_cuis);
+            return _context62.abrupt("return", recommend_cuis);
 
           case 8:
           case "end":
-            return _context61.stop();
+            return _context62.stop();
         }
       }
-    }, _callee61);
+    }, _callee62);
   }));
   return _getRecommendedCUIS.apply(this, arguments);
 }
 
 app.get('/api/cuiRecommend', /*#__PURE__*/function () {
-  var _ref33 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee33(req, res) {
+  var _ref34 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee34(req, res) {
     var cuirec;
-    return _regenerator["default"].wrap(function _callee33$(_context33) {
+    return _regenerator["default"].wrap(function _callee34$(_context34) {
       while (1) {
-        switch (_context33.prev = _context33.next) {
+        switch (_context34.prev = _context34.next) {
           case 0:
-            _context33.next = 2;
+            _context34.next = 2;
             return getRecommendedCUIS();
 
           case 2:
-            cuirec = _context33.sent;
+            cuirec = _context34.sent;
             res.send(cuirec);
 
           case 4:
           case "end":
-            return _context33.stop();
+            return _context34.stop();
         }
       }
-    }, _callee33);
-  }));
-
-  return function (_x75, _x76) {
-    return _ref33.apply(this, arguments);
-  };
-}());
-app.get('/api/allMetadata', /*#__PURE__*/function () {
-  var _ref34 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee35(req, res) {
-    var allMetadataAnnotations;
-    return _regenerator["default"].wrap(function _callee35$(_context35) {
-      while (1) {
-        switch (_context35.prev = _context35.next) {
-          case 0:
-            allMetadataAnnotations = /*#__PURE__*/function () {
-              var _ref35 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee34() {
-                var client, result;
-                return _regenerator["default"].wrap(function _callee34$(_context34) {
-                  while (1) {
-                    switch (_context34.prev = _context34.next) {
-                      case 0:
-                        _context34.next = 2;
-                        return pool.connect();
-
-                      case 2:
-                        client = _context34.sent;
-                        _context34.next = 5;
-                        return client.query("select * from metadata");
-
-                      case 5:
-                        result = _context34.sent;
-                        client.release();
-                        return _context34.abrupt("return", result);
-
-                      case 8:
-                      case "end":
-                        return _context34.stop();
-                    }
-                  }
-                }, _callee34);
-              }));
-
-              return function allMetadataAnnotations() {
-                return _ref35.apply(this, arguments);
-              };
-            }();
-
-            _context35.t0 = res;
-            _context35.next = 4;
-            return allMetadataAnnotations();
-
-          case 4:
-            _context35.t1 = _context35.sent;
-
-            _context35.t0.send.call(_context35.t0, _context35.t1);
-
-          case 6:
-          case "end":
-            return _context35.stop();
-        }
-      }
-    }, _callee35);
+    }, _callee34);
   }));
 
   return function (_x77, _x78) {
     return _ref34.apply(this, arguments);
   };
 }());
-app.get('/api/cuisIndex', /*#__PURE__*/function () {
-  var _ref36 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee37(req, res) {
-    var getCUISIndex;
-    return _regenerator["default"].wrap(function _callee37$(_context37) {
+app.get('/api/allMetadata', /*#__PURE__*/function () {
+  var _ref35 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee36(req, res) {
+    var allMetadataAnnotations;
+    return _regenerator["default"].wrap(function _callee36$(_context36) {
       while (1) {
-        switch (_context37.prev = _context37.next) {
+        switch (_context36.prev = _context36.next) {
+          case 0:
+            allMetadataAnnotations = /*#__PURE__*/function () {
+              var _ref36 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee35() {
+                var client, result;
+                return _regenerator["default"].wrap(function _callee35$(_context35) {
+                  while (1) {
+                    switch (_context35.prev = _context35.next) {
+                      case 0:
+                        _context35.next = 2;
+                        return pool.connect();
+
+                      case 2:
+                        client = _context35.sent;
+                        _context35.next = 5;
+                        return client.query("select * from metadata");
+
+                      case 5:
+                        result = _context35.sent;
+                        client.release();
+                        return _context35.abrupt("return", result);
+
+                      case 8:
+                      case "end":
+                        return _context35.stop();
+                    }
+                  }
+                }, _callee35);
+              }));
+
+              return function allMetadataAnnotations() {
+                return _ref36.apply(this, arguments);
+              };
+            }();
+
+            _context36.t0 = res;
+            _context36.next = 4;
+            return allMetadataAnnotations();
+
+          case 4:
+            _context36.t1 = _context36.sent;
+
+            _context36.t0.send.call(_context36.t0, _context36.t1);
+
+          case 6:
+          case "end":
+            return _context36.stop();
+        }
+      }
+    }, _callee36);
+  }));
+
+  return function (_x79, _x80) {
+    return _ref35.apply(this, arguments);
+  };
+}());
+app.get('/api/cuisIndex', /*#__PURE__*/function () {
+  var _ref37 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee38(req, res) {
+    var getCUISIndex;
+    return _regenerator["default"].wrap(function _callee38$(_context38) {
+      while (1) {
+        switch (_context38.prev = _context38.next) {
           case 0:
             getCUISIndex = /*#__PURE__*/function () {
-              var _ref37 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee36() {
+              var _ref38 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee37() {
                 var cuis, client, result;
-                return _regenerator["default"].wrap(function _callee36$(_context36) {
+                return _regenerator["default"].wrap(function _callee37$(_context37) {
                   while (1) {
-                    switch (_context36.prev = _context36.next) {
+                    switch (_context37.prev = _context37.next) {
                       case 0:
                         cuis = {};
-                        _context36.next = 3;
+                        _context37.next = 3;
                         return pool.connect();
 
                       case 3:
-                        client = _context36.sent;
-                        _context36.next = 6;
+                        client = _context37.sent;
+                        _context37.next = 6;
                         return client.query("select * from cuis_index");
 
                       case 6:
-                        result = _context36.sent;
+                        result = _context37.sent;
                         client.release();
                         result.rows.map(function (row) {
                           cuis[row.cui] = {
@@ -2107,64 +2188,64 @@ app.get('/api/cuisIndex', /*#__PURE__*/function () {
                             adminApproved: row.admin_approved
                           };
                         });
-                        return _context36.abrupt("return", cuis);
+                        return _context37.abrupt("return", cuis);
 
                       case 10:
                       case "end":
-                        return _context36.stop();
+                        return _context37.stop();
                     }
                   }
-                }, _callee36);
+                }, _callee37);
               }));
 
               return function getCUISIndex() {
-                return _ref37.apply(this, arguments);
+                return _ref38.apply(this, arguments);
               };
             }();
 
-            _context37.t0 = res;
-            _context37.next = 4;
+            _context38.t0 = res;
+            _context38.next = 4;
             return getCUISIndex();
 
           case 4:
-            _context37.t1 = _context37.sent;
+            _context38.t1 = _context38.sent;
 
-            _context37.t0.send.call(_context37.t0, _context37.t1);
+            _context38.t0.send.call(_context38.t0, _context38.t1);
 
           case 6:
           case "end":
-            return _context37.stop();
+            return _context38.stop();
         }
       }
-    }, _callee37);
+    }, _callee38);
   }));
 
-  return function (_x79, _x80) {
-    return _ref36.apply(this, arguments);
+  return function (_x81, _x82) {
+    return _ref37.apply(this, arguments);
   };
 }());
 app.get('/api/cuisIndexAdd', /*#__PURE__*/function () {
-  var _ref38 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee39(req, res) {
+  var _ref39 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee40(req, res) {
     var insertCUI;
-    return _regenerator["default"].wrap(function _callee39$(_context39) {
+    return _regenerator["default"].wrap(function _callee40$(_context40) {
       while (1) {
-        switch (_context39.prev = _context39.next) {
+        switch (_context40.prev = _context40.next) {
           case 0:
             console.log(JSON.stringify(req.query));
 
             insertCUI = /*#__PURE__*/function () {
-              var _ref39 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee38(cui, preferred, hasMSH) {
+              var _ref40 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee39(cui, preferred, hasMSH) {
                 var client, done;
-                return _regenerator["default"].wrap(function _callee38$(_context38) {
+                return _regenerator["default"].wrap(function _callee39$(_context39) {
                   while (1) {
-                    switch (_context38.prev = _context38.next) {
+                    switch (_context39.prev = _context39.next) {
                       case 0:
-                        _context38.next = 2;
+                        _context39.next = 2;
                         return pool.connect();
 
                       case 2:
-                        client = _context38.sent;
-                        _context38.next = 5;
+                        client = _context39.sent;
+                        _context39.next = 5;
                         return client.query('INSERT INTO cuis_index(cui,preferred,"hasMSH",user_defined,admin_approved) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (cui) DO UPDATE SET preferred = $2, "hasMSH" = $3, user_defined = $4, admin_approved = $5', [cui, preferred, hasMSH, true, false]).then(function (result) {
                           return console.log("insert: " + new Date());
                         })["catch"](function (e) {
@@ -2174,27 +2255,27 @@ app.get('/api/cuisIndexAdd', /*#__PURE__*/function () {
                         });
 
                       case 5:
-                        done = _context38.sent;
+                        done = _context39.sent;
 
                       case 6:
                       case "end":
-                        return _context38.stop();
+                        return _context39.stop();
                     }
                   }
-                }, _callee38);
+                }, _callee39);
               }));
 
-              return function insertCUI(_x83, _x84, _x85) {
-                return _ref39.apply(this, arguments);
+              return function insertCUI(_x85, _x86, _x87) {
+                return _ref40.apply(this, arguments);
               };
             }();
 
             if (!(req.query && req.query.cui.length > 0 && req.query.preferred.length > 0 && req.query.hasMSH.length > 0)) {
-              _context39.next = 5;
+              _context40.next = 5;
               break;
             }
 
-            _context39.next = 5;
+            _context40.next = 5;
             return insertCUI(req.query.cui, req.query.preferred, req.query.hasMSH);
 
           case 5:
@@ -2202,48 +2283,48 @@ app.get('/api/cuisIndexAdd', /*#__PURE__*/function () {
 
           case 6:
           case "end":
-            return _context39.stop();
+            return _context40.stop();
         }
       }
-    }, _callee39);
+    }, _callee40);
   }));
 
-  return function (_x81, _x82) {
-    return _ref38.apply(this, arguments);
+  return function (_x83, _x84) {
+    return _ref39.apply(this, arguments);
   };
 }()); // Generates the results table live preview, connecting to the R API.
 
 app.post('/annotationPreview', /*#__PURE__*/function () {
-  var _ref40 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee42(req, res) {
+  var _ref41 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee43(req, res) {
     var bod, validate_user, annotations, tid, client, tableResult, final_annotations, r, ann, existing, final_annotations_array, entry;
-    return _regenerator["default"].wrap(function _callee42$(_context42) {
+    return _regenerator["default"].wrap(function _callee43$(_context43) {
       while (1) {
-        switch (_context42.prev = _context42.next) {
+        switch (_context43.prev = _context43.next) {
           case 0:
             bod = req.body.searchContent;
             validate_user = validateUser(req.body.username, req.body.hash);
 
             if (!validate_user) {
-              _context42.next = 39;
+              _context43.next = 40;
               break;
             }
 
-            _context42.prev = 3;
+            _context43.prev = 3;
 
             if (!(req.body.docid && req.body.page && req.body.collId)) {
-              _context42.next = 30;
+              _context43.next = 31;
               break;
             }
 
-            _context42.next = 7;
+            _context43.next = 7;
             return getAnnotationByID(req.body.docid, req.body.page, req.body.collId);
 
           case 7:
-            annotations = _context42.sent;
+            annotations = _context43.sent;
             tid = annotations.rows.length > 0 ? annotations.rows[0].tid : -1;
 
             if (!(tid < 0)) {
-              _context42.next = 12;
+              _context43.next = 12;
               break;
             }
 
@@ -2251,27 +2332,28 @@ app.post('/annotationPreview', /*#__PURE__*/function () {
               status: "wrong parameters (missing tid)",
               body: req.body
             });
-            return _context42.abrupt("return");
+            return _context43.abrupt("return");
 
           case 12:
-            _context42.next = 14;
+            _context43.next = 14;
             return pool.connect();
 
           case 14:
-            client = _context42.sent;
-            _context42.next = 17;
+            client = _context43.sent;
+            _context43.next = 17;
             return client.query("SELECT tid, \"tableResult\" FROM result WHERE tid = $1", [tid]);
 
           case 17:
-            tableResult = _context42.sent;
+            tableResult = _context43.sent;
             client.release();
             tableResult = tableResult && tableResult.rows.length > 0 ? tableResult.rows[0].tableResult : [];
 
             if (!(req.body.cachedOnly === 'true')) {
-              _context42.next = 23;
+              _context43.next = 24;
               break;
             }
 
+            // debugger
             if (tableResult.length > 0) {
               res.json({
                 "state": "good",
@@ -2284,9 +2366,10 @@ app.post('/annotationPreview', /*#__PURE__*/function () {
               });
             }
 
-            return _context42.abrupt("return");
+            console.log("Fast reload: " + req.body.docid + " - " + req.body.page + " - " + req.body.collId);
+            return _context43.abrupt("return");
 
-          case 23:
+          case 24:
             final_annotations = {};
             /**
             * There are multiple versions of the annotations. When calling reading the results from the database, here we will return only the latest/ most complete version of the annotation.
@@ -2324,7 +2407,8 @@ app.post('/annotationPreview', /*#__PURE__*/function () {
                 ann.qualifiers = Object.keys(ann.qualifiers).join(";");
                 return ann;
               });
-              console.log(entry);
+              console.log(entry); // debugger
+
               request({
                 url: 'http://localhost:6666/preview',
                 method: "POST",
@@ -2333,25 +2417,26 @@ app.post('/annotationPreview', /*#__PURE__*/function () {
                   collId: req.body.collId
                 }
               }, /*#__PURE__*/function () {
-                var _ref41 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee41(error, response, body) {
+                var _ref42 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee42(error, response, body) {
                   var insertResult;
-                  return _regenerator["default"].wrap(function _callee41$(_context41) {
+                  return _regenerator["default"].wrap(function _callee42$(_context42) {
                     while (1) {
-                      switch (_context41.prev = _context41.next) {
+                      switch (_context42.prev = _context42.next) {
                         case 0:
+                          // debugger
                           insertResult = /*#__PURE__*/function () {
-                            var _ref42 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee40(tid, tableResult) {
+                            var _ref43 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee41(tid, tableResult) {
                               var client, done;
-                              return _regenerator["default"].wrap(function _callee40$(_context40) {
+                              return _regenerator["default"].wrap(function _callee41$(_context41) {
                                 while (1) {
-                                  switch (_context40.prev = _context40.next) {
+                                  switch (_context41.prev = _context41.next) {
                                     case 0:
-                                      _context40.next = 2;
+                                      _context41.next = 2;
                                       return pool.connect();
 
                                     case 2:
-                                      client = _context40.sent;
-                                      _context40.next = 5;
+                                      client = _context41.sent;
+                                      _context41.next = 5;
                                       return client.query('INSERT INTO result(tid, "tableResult") VALUES ($1, $2) ON CONFLICT (tid) DO UPDATE SET "tableResult" = $2', [tid, tableResult]).then(function (result) {
                                         return console.log("insert result: " + new Date());
                                       })["catch"](function (e) {
@@ -2361,27 +2446,27 @@ app.post('/annotationPreview', /*#__PURE__*/function () {
                                       });
 
                                     case 5:
-                                      done = _context40.sent;
+                                      done = _context41.sent;
 
                                     case 6:
                                     case "end":
-                                      return _context40.stop();
+                                      return _context41.stop();
                                   }
                                 }
-                              }, _callee40);
+                              }, _callee41);
                             }));
 
-                            return function insertResult(_x91, _x92) {
-                              return _ref42.apply(this, arguments);
+                            return function insertResult(_x93, _x94) {
+                              return _ref43.apply(this, arguments);
                             };
                           }();
 
                           if (!(body.tableResult.length > 0)) {
-                            _context41.next = 4;
+                            _context42.next = 4;
                             break;
                           }
 
-                          _context41.next = 4;
+                          _context42.next = 4;
                           return insertResult(body.ann.tid[0], body.tableResult);
 
                         case 4:
@@ -2394,14 +2479,14 @@ app.post('/annotationPreview', /*#__PURE__*/function () {
 
                         case 6:
                         case "end":
-                          return _context41.stop();
+                          return _context42.stop();
                       }
                     }
-                  }, _callee41);
+                  }, _callee42);
                 }));
 
-                return function (_x88, _x89, _x90) {
-                  return _ref41.apply(this, arguments);
+                return function (_x90, _x91, _x92) {
+                  return _ref42.apply(this, arguments);
                 };
               }()); // res.json( {"state" : "good2", result : body.tableResult} )
             } else {
@@ -2410,60 +2495,60 @@ app.post('/annotationPreview', /*#__PURE__*/function () {
               });
             }
 
-            _context42.next = 31;
+            _context43.next = 32;
             break;
 
-          case 30:
+          case 31:
             res.json({
               status: "wrong parameters",
               body: req.body
             });
 
-          case 31:
-            _context42.next = 37;
+          case 32:
+            _context43.next = 38;
             break;
 
-          case 33:
-            _context42.prev = 33;
-            _context42.t0 = _context42["catch"](3);
-            console.log(_context42.t0);
+          case 34:
+            _context43.prev = 34;
+            _context43.t0 = _context43["catch"](3);
+            console.log(_context43.t0);
             res.json({
               status: "annotationPreview : probably page out of bounds, or document does not exist",
               body: req.body
             });
 
-          case 37:
-            _context42.next = 40;
+          case 38:
+            _context43.next = 41;
             break;
 
-          case 39:
+          case 40:
             res.json([]);
 
-          case 40:
+          case 41:
           case "end":
-            return _context42.stop();
+            return _context43.stop();
         }
       }
-    }, _callee42, null, [[3, 33]]);
+    }, _callee43, null, [[3, 34]]);
   }));
 
-  return function (_x86, _x87) {
-    return _ref40.apply(this, arguments);
+  return function (_x88, _x89) {
+    return _ref41.apply(this, arguments);
   };
 }()); // Returns all annotations for all document/tables.
 
 app.get('/api/formattedResults', /*#__PURE__*/function () {
-  var _ref43 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee43(req, res) {
+  var _ref44 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee44(req, res) {
     var results, finalResults, r, ann, existing, finalResults_array, formattedRes;
-    return _regenerator["default"].wrap(function _callee43$(_context43) {
+    return _regenerator["default"].wrap(function _callee44$(_context44) {
       while (1) {
-        switch (_context43.prev = _context43.next) {
+        switch (_context44.prev = _context44.next) {
           case 0:
-            _context43.next = 2;
+            _context44.next = 2;
             return (0, _network_functions.getAnnotationResults)();
 
           case 2:
-            results = _context43.sent;
+            results = _context44.sent;
 
             if (results) {
               finalResults = {};
@@ -2511,14 +2596,14 @@ app.get('/api/formattedResults', /*#__PURE__*/function () {
 
           case 4:
           case "end":
-            return _context43.stop();
+            return _context44.stop();
         }
       }
-    }, _callee43);
+    }, _callee44);
   }));
 
-  return function (_x93, _x94) {
-    return _ref43.apply(this, arguments);
+  return function (_x95, _x96) {
+    return _ref44.apply(this, arguments);
   };
 }()); // app.get('/api/abs_index',function(req,res){
 //
@@ -2539,18 +2624,18 @@ app.get('/api/formattedResults', /*#__PURE__*/function () {
 // });
 
 app.get('/api/getMMatch', /*#__PURE__*/function () {
-  var _ref44 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee45(req, res) {
+  var _ref45 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee46(req, res) {
     var getMMatch, mm_match;
-    return _regenerator["default"].wrap(function _callee45$(_context45) {
+    return _regenerator["default"].wrap(function _callee46$(_context46) {
       while (1) {
-        switch (_context45.prev = _context45.next) {
+        switch (_context46.prev = _context46.next) {
           case 0:
             getMMatch = /*#__PURE__*/function () {
-              var _ref45 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee44(phrase) {
+              var _ref46 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee45(phrase) {
                 var result;
-                return _regenerator["default"].wrap(function _callee44$(_context44) {
+                return _regenerator["default"].wrap(function _callee45$(_context45) {
                   while (1) {
-                    switch (_context44.prev = _context44.next) {
+                    switch (_context45.prev = _context45.next) {
                       case 0:
                         console.log("LOOKING FOR: " + phrase);
                         result = new Promise(function (resolve, reject) {
@@ -2571,35 +2656,35 @@ app.get('/api/getMMatch', /*#__PURE__*/function () {
                             resolve(body.slice(start, end));
                           });
                         });
-                        return _context44.abrupt("return", result);
+                        return _context45.abrupt("return", result);
 
                       case 3:
                       case "end":
-                        return _context44.stop();
+                        return _context45.stop();
                     }
                   }
-                }, _callee44);
+                }, _callee45);
               }));
 
-              return function getMMatch(_x97) {
-                return _ref45.apply(this, arguments);
+              return function getMMatch(_x99) {
+                return _ref46.apply(this, arguments);
               };
             }();
 
-            _context45.prev = 1;
+            _context46.prev = 1;
 
             if (!(req.query && req.query.phrase)) {
-              _context45.next = 9;
+              _context46.next = 9;
               break;
             }
 
-            _context45.next = 5;
+            _context46.next = 5;
             return getMMatch(req.query.phrase);
 
           case 5:
-            mm_match = _context45.sent;
+            mm_match = _context46.sent;
             res.send(mm_match);
-            _context45.next = 10;
+            _context46.next = 10;
             break;
 
           case 9:
@@ -2609,24 +2694,24 @@ app.get('/api/getMMatch', /*#__PURE__*/function () {
             });
 
           case 10:
-            _context45.next = 15;
+            _context46.next = 15;
             break;
 
           case 12:
-            _context45.prev = 12;
-            _context45.t0 = _context45["catch"](1);
-            console.log(_context45.t0);
+            _context46.prev = 12;
+            _context46.t0 = _context46["catch"](1);
+            console.log(_context46.t0);
 
           case 15:
           case "end":
-            return _context45.stop();
+            return _context46.stop();
         }
       }
-    }, _callee45, null, [[1, 12]]);
+    }, _callee46, null, [[1, 12]]);
   }));
 
-  return function (_x95, _x96) {
-    return _ref44.apply(this, arguments);
+  return function (_x97, _x98) {
+    return _ref45.apply(this, arguments);
   };
 }()); // POST method route
 
@@ -2638,22 +2723,22 @@ app.post('/saveTableOverride', function (req, res) {
   res.send("alles gut!");
 });
 app.get('/api/removeOverrideTable', /*#__PURE__*/function () {
-  var _ref46 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee46(req, res) {
+  var _ref47 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee47(req, res) {
     var file_exists;
-    return _regenerator["default"].wrap(function _callee46$(_context46) {
+    return _regenerator["default"].wrap(function _callee47$(_context47) {
       while (1) {
-        switch (_context46.prev = _context46.next) {
+        switch (_context47.prev = _context47.next) {
           case 0:
             if (!(req.query && req.query.docid && req.query.page)) {
-              _context46.next = 8;
+              _context47.next = 8;
               break;
             }
 
-            _context46.next = 3;
+            _context47.next = 3;
             return fs.existsSync(global.tables_folder_override + "/" + req.query.docid + "_" + req.query.page + ".html");
 
           case 3:
-            file_exists = _context46.sent;
+            file_exists = _context47.sent;
 
             if (file_exists) {
               fs.unlink(global.tables_folder_override + "/" + req.query.docid + "_" + req.query.page + ".html", function (err) {
@@ -2665,7 +2750,7 @@ app.get('/api/removeOverrideTable', /*#__PURE__*/function () {
             res.send({
               status: "override removed"
             });
-            _context46.next = 9;
+            _context47.next = 9;
             break;
 
           case 8:
@@ -2674,42 +2759,6 @@ app.get('/api/removeOverrideTable', /*#__PURE__*/function () {
             });
 
           case 9:
-          case "end":
-            return _context46.stop();
-        }
-      }
-    }, _callee46);
-  }));
-
-  return function (_x98, _x99) {
-    return _ref46.apply(this, arguments);
-  };
-}());
-app.get('/api/classify', /*#__PURE__*/function () {
-  var _ref47 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee47(req, res) {
-    return _regenerator["default"].wrap(function _callee47$(_context47) {
-      while (1) {
-        switch (_context47.prev = _context47.next) {
-          case 0:
-            if (!(req.query && req.query.terms)) {
-              _context47.next = 8;
-              break;
-            }
-
-            console.log(req.query.terms);
-            _context47.t0 = res;
-            _context47.next = 5;
-            return classify(req.query.terms.split(","));
-
-          case 5:
-            _context47.t1 = _context47.sent;
-            _context47.t2 = {
-              results: _context47.t1
-            };
-
-            _context47.t0.send.call(_context47.t0, _context47.t2);
-
-          case 8:
           case "end":
             return _context47.stop();
         }
@@ -2720,29 +2769,65 @@ app.get('/api/classify', /*#__PURE__*/function () {
   return function (_x100, _x101) {
     return _ref47.apply(this, arguments);
   };
-}()); //
-
-app.get('/api/getTable', /*#__PURE__*/function () {
+}());
+app.get('/api/classify', /*#__PURE__*/function () {
   var _ref48 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee48(req, res) {
-    var tableData;
     return _regenerator["default"].wrap(function _callee48$(_context48) {
       while (1) {
         switch (_context48.prev = _context48.next) {
           case 0:
-            _context48.prev = 0;
-
-            if (!(req.query && req.query.docid && req.query.page && req.query.collId)) {
+            if (!(req.query && req.query.terms)) {
               _context48.next = 8;
               break;
             }
 
-            _context48.next = 4;
+            console.log(req.query.terms);
+            _context48.t0 = res;
+            _context48.next = 5;
+            return classify(req.query.terms.split(","));
+
+          case 5:
+            _context48.t1 = _context48.sent;
+            _context48.t2 = {
+              results: _context48.t1
+            };
+
+            _context48.t0.send.call(_context48.t0, _context48.t2);
+
+          case 8:
+          case "end":
+            return _context48.stop();
+        }
+      }
+    }, _callee48);
+  }));
+
+  return function (_x102, _x103) {
+    return _ref48.apply(this, arguments);
+  };
+}()); //
+
+app.get('/api/getTable', /*#__PURE__*/function () {
+  var _ref49 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee49(req, res) {
+    var tableData;
+    return _regenerator["default"].wrap(function _callee49$(_context49) {
+      while (1) {
+        switch (_context49.prev = _context49.next) {
+          case 0:
+            _context49.prev = 0;
+
+            if (!(req.query && req.query.docid && req.query.page && req.query.collId)) {
+              _context49.next = 8;
+              break;
+            }
+
+            _context49.next = 4;
             return (0, _table.readyTable)(req.query.docid, req.query.page, req.query.collId, false);
 
           case 4:
-            tableData = _context48.sent;
+            tableData = _context49.sent;
             res.send(tableData);
-            _context48.next = 9;
+            _context49.next = 9;
             break;
 
           case 8:
@@ -2752,13 +2837,13 @@ app.get('/api/getTable', /*#__PURE__*/function () {
             });
 
           case 9:
-            _context48.next = 15;
+            _context49.next = 15;
             break;
 
           case 11:
-            _context48.prev = 11;
-            _context48.t0 = _context48["catch"](0);
-            console.log(_context48.t0);
+            _context49.prev = 11;
+            _context49.t0 = _context49["catch"](0);
+            console.log(_context49.t0);
             res.send({
               status: "getTable: probably page out of bounds, or document does not exist",
               query: req.query
@@ -2766,66 +2851,66 @@ app.get('/api/getTable', /*#__PURE__*/function () {
 
           case 15:
           case "end":
-            return _context48.stop();
-        }
-      }
-    }, _callee48, null, [[0, 11]]);
-  }));
-
-  return function (_x102, _x103) {
-    return _ref48.apply(this, arguments);
-  };
-}());
-app.get('/api/getAvailableTables', function (req, res) {
-  res.send(available_documents);
-});
-app.get('/api/getAnnotations', /*#__PURE__*/function () {
-  var _ref49 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee49(req, res) {
-    return _regenerator["default"].wrap(function _callee49$(_context49) {
-      while (1) {
-        switch (_context49.prev = _context49.next) {
-          case 0:
-            _context49.t0 = res;
-            _context49.next = 3;
-            return (0, _network_functions.getAnnotationResults)();
-
-          case 3:
-            _context49.t1 = _context49.sent;
-
-            _context49.t0.send.call(_context49.t0, _context49.t1);
-
-          case 5:
-          case "end":
             return _context49.stop();
         }
       }
-    }, _callee49);
+    }, _callee49, null, [[0, 11]]);
   }));
 
   return function (_x104, _x105) {
     return _ref49.apply(this, arguments);
   };
 }());
-app.get('/api/deleteAnnotation', /*#__PURE__*/function () {
-  var _ref50 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee51(req, res) {
-    var deleteAnnotation;
-    return _regenerator["default"].wrap(function _callee51$(_context51) {
+app.get('/api/getAvailableTables', function (req, res) {
+  res.send(available_documents);
+});
+app.get('/api/getAnnotations', /*#__PURE__*/function () {
+  var _ref50 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee50(req, res) {
+    return _regenerator["default"].wrap(function _callee50$(_context50) {
       while (1) {
-        switch (_context51.prev = _context51.next) {
+        switch (_context50.prev = _context50.next) {
+          case 0:
+            _context50.t0 = res;
+            _context50.next = 3;
+            return (0, _network_functions.getAnnotationResults)();
+
+          case 3:
+            _context50.t1 = _context50.sent;
+
+            _context50.t0.send.call(_context50.t0, _context50.t1);
+
+          case 5:
+          case "end":
+            return _context50.stop();
+        }
+      }
+    }, _callee50);
+  }));
+
+  return function (_x106, _x107) {
+    return _ref50.apply(this, arguments);
+  };
+}());
+app.get('/api/deleteAnnotation', /*#__PURE__*/function () {
+  var _ref51 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee52(req, res) {
+    var deleteAnnotation;
+    return _regenerator["default"].wrap(function _callee52$(_context52) {
+      while (1) {
+        switch (_context52.prev = _context52.next) {
           case 0:
             deleteAnnotation = /*#__PURE__*/function () {
-              var _ref51 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee50(docid, page, user) {
+              var _ref52 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee51(docid, page, user) {
                 var client, done;
-                return _regenerator["default"].wrap(function _callee50$(_context50) {
+                return _regenerator["default"].wrap(function _callee51$(_context51) {
                   while (1) {
-                    switch (_context50.prev = _context50.next) {
+                    switch (_context51.prev = _context51.next) {
                       case 0:
-                        _context50.next = 2;
+                        _context51.next = 2;
                         return pool.connect();
 
                       case 2:
-                        client = _context50.sent;
-                        _context50.next = 5;
+                        client = _context51.sent;
+                        _context51.next = 5;
                         return client.query('DELETE FROM annotations WHERE docid = $1 AND page = $2 AND "user" = $3', [docid, page, user]).then(function (result) {
                           return console.log("Annotation deleted: " + new Date());
                         })["catch"](function (e) {
@@ -2835,32 +2920,32 @@ app.get('/api/deleteAnnotation', /*#__PURE__*/function () {
                         });
 
                       case 5:
-                        done = _context50.sent;
+                        done = _context51.sent;
 
                       case 6:
                       case "end":
-                        return _context50.stop();
+                        return _context51.stop();
                     }
                   }
-                }, _callee50);
+                }, _callee51);
               }));
 
-              return function deleteAnnotation(_x108, _x109, _x110) {
-                return _ref51.apply(this, arguments);
+              return function deleteAnnotation(_x110, _x111, _x112) {
+                return _ref52.apply(this, arguments);
               };
             }();
 
             if (!(req.query && req.query.docid && req.query.page && req.query.user)) {
-              _context51.next = 7;
+              _context52.next = 7;
               break;
             }
 
-            _context51.next = 4;
+            _context52.next = 4;
             return deleteAnnotation(req.query.docid, req.query.page, req.query.user);
 
           case 4:
             res.send("done");
-            _context51.next = 8;
+            _context52.next = 8;
             break;
 
           case 7:
@@ -2868,36 +2953,36 @@ app.get('/api/deleteAnnotation', /*#__PURE__*/function () {
 
           case 8:
           case "end":
-            return _context51.stop();
+            return _context52.stop();
         }
       }
-    }, _callee51);
+    }, _callee52);
   }));
 
-  return function (_x106, _x107) {
-    return _ref50.apply(this, arguments);
+  return function (_x108, _x109) {
+    return _ref51.apply(this, arguments);
   };
 }());
 app.get('/api/getAnnotationByID', /*#__PURE__*/function () {
-  var _ref52 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee52(req, res) {
+  var _ref53 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee53(req, res) {
     var page, user, collId, annotations, final_annotations, entry;
-    return _regenerator["default"].wrap(function _callee52$(_context52) {
+    return _regenerator["default"].wrap(function _callee53$(_context53) {
       while (1) {
-        switch (_context52.prev = _context52.next) {
+        switch (_context53.prev = _context53.next) {
           case 0:
             if (!(req.query && req.query.docid && req.query.docid.length > 0)) {
-              _context52.next = 11;
+              _context53.next = 11;
               break;
             }
 
             page = req.query.page && req.query.page.length > 0 ? req.query.page : 1;
             user = req.query.user && req.query.user.length > 0 ? req.query.user : "";
             collId = req.query.collId && req.query.collId.length > 0 ? req.query.collId : "";
-            _context52.next = 6;
+            _context53.next = 6;
             return getAnnotationByID(req.query.docid, page, collId);
 
           case 6:
-            annotations = _context52.sent;
+            annotations = _context53.sent;
             final_annotations = {};
 
             if (annotations.rows.length > 0) {
@@ -2908,7 +2993,7 @@ app.get('/api/getAnnotationByID', /*#__PURE__*/function () {
               res.send({});
             }
 
-            _context52.next = 12;
+            _context53.next = 12;
             break;
 
           case 11:
@@ -2918,38 +3003,38 @@ app.get('/api/getAnnotationByID', /*#__PURE__*/function () {
 
           case 12:
           case "end":
-            return _context52.stop();
+            return _context53.stop();
         }
       }
-    }, _callee52);
+    }, _callee53);
   }));
 
-  return function (_x111, _x112) {
-    return _ref52.apply(this, arguments);
+  return function (_x113, _x114) {
+    return _ref53.apply(this, arguments);
   };
 }());
 app.get('/api/recordAnnotation', /*#__PURE__*/function () {
-  var _ref53 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee54(req, res) {
+  var _ref54 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee55(req, res) {
     var insertAnnotation;
-    return _regenerator["default"].wrap(function _callee54$(_context54) {
+    return _regenerator["default"].wrap(function _callee55$(_context55) {
       while (1) {
-        switch (_context54.prev = _context54.next) {
+        switch (_context55.prev = _context55.next) {
           case 0:
             console.log("Recording Annotation: " + JSON.stringify(req.query));
 
             insertAnnotation = /*#__PURE__*/function () {
-              var _ref54 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee53(docid, page, user, annotation, corrupted, tableType, corrupted_text) {
+              var _ref55 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee54(docid, page, user, annotation, corrupted, tableType, corrupted_text) {
                 var client, done;
-                return _regenerator["default"].wrap(function _callee53$(_context53) {
+                return _regenerator["default"].wrap(function _callee54$(_context54) {
                   while (1) {
-                    switch (_context53.prev = _context53.next) {
+                    switch (_context54.prev = _context54.next) {
                       case 0:
-                        _context53.next = 2;
+                        _context54.next = 2;
                         return pool.connect();
 
                       case 2:
-                        client = _context53.sent;
-                        _context53.next = 5;
+                        client = _context54.sent;
+                        _context54.next = 5;
                         return client.query('INSERT INTO annotations VALUES($1,$2,$3,$4,$5,$6,$7) ON CONFLICT (docid, page,"user") DO UPDATE SET annotation = $4, corrupted = $5, "tableType" = $6, "corrupted_text" = $7 ;', [docid, page, user, annotation, corrupted, tableType, corrupted_text]).then(function (result) {
                           return console.log("insert: " + result);
                         })["catch"](function (e) {
@@ -2959,27 +3044,27 @@ app.get('/api/recordAnnotation', /*#__PURE__*/function () {
                         });
 
                       case 5:
-                        done = _context53.sent;
+                        done = _context54.sent;
 
                       case 6:
                       case "end":
-                        return _context53.stop();
+                        return _context54.stop();
                     }
                   }
-                }, _callee53);
+                }, _callee54);
               }));
 
-              return function insertAnnotation(_x115, _x116, _x117, _x118, _x119, _x120, _x121) {
-                return _ref54.apply(this, arguments);
+              return function insertAnnotation(_x117, _x118, _x119, _x120, _x121, _x122, _x123) {
+                return _ref55.apply(this, arguments);
               };
             }();
 
             if (!(req.query && req.query.docid.length > 0 && req.query.page.length > 0 && req.query.user.length > 0 && req.query.annotation.length > 0)) {
-              _context54.next = 5;
+              _context55.next = 5;
               break;
             }
 
-            _context54.next = 5;
+            _context55.next = 5;
             return insertAnnotation(req.query.docid, req.query.page, req.query.user, {
               annotations: JSON.parse(req.query.annotation)
             }, req.query.corrupted, req.query.tableType, req.query.corrupted_text);
@@ -2989,14 +3074,14 @@ app.get('/api/recordAnnotation', /*#__PURE__*/function () {
 
           case 6:
           case "end":
-            return _context54.stop();
+            return _context55.stop();
         }
       }
-    }, _callee54);
+    }, _callee55);
   }));
 
-  return function (_x113, _x114) {
-    return _ref53.apply(this, arguments);
+  return function (_x115, _x116) {
+    return _ref54.apply(this, arguments);
   };
 }());
 app.listen(CONFIG.port, function () {

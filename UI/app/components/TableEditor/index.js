@@ -25,6 +25,7 @@ function TableEditor({
   textContent,
   saveTextChanges,
   editorEnabled,
+  height,
 }) {
 
   const [editorContent, setEditorContent] = React.useState(textContent);
@@ -103,7 +104,7 @@ function TableEditor({
                             // { name: 'others', items: [ '-' ] },
                             // { name: 'about', items: [ 'About' ] }
                           ],
-
+                height: height ? height : 300
             }}
 
             data={ textContent || "" }
@@ -116,6 +117,7 @@ function TableEditor({
 
             onKey={ (event, editor) => {
             }}
+
 
       />
     }</div>

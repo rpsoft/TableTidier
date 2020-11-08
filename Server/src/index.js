@@ -649,6 +649,44 @@ app.post('/collections', async function(req,res){
 });
 
 
+
+app.post('/metadata', async function(req,res){
+
+  if ( req.body && ( ! req.body.action ) ){
+    res.json({status: "undefined", received : req.query})
+    return
+  }
+
+  var validate_user = validateUser(req.body.username, req.body.hash);
+
+  if ( validate_user ){
+
+    var result;
+
+    switch (req.body.action) {
+      case "get":
+        // result = await getCollection(req.body.collection_id);
+        res.json({status: "success", data: result})
+        break;
+      case "delete":
+        // await deleteCollection(req.body.collection_id);
+        res.json({status: "success", data: {}})
+        break;
+      case "edit":
+        // var allCollectionData = JSON.parse( req.body.collectionData )
+
+        res.json({status: "success", data: result})
+        break;
+      default:
+        res.json({status: "failed"})
+    }
+
+  } else {
+    res.json({status:"unauthorised", payload: null})
+  }
+});
+
+
 // Tables
 const createTable = async (docid,page,user,collection_id,file_path) => {
 
@@ -993,13 +1031,14 @@ app.post('/annotationPreview',async function(req,res){
             tableResult = tableResult && (tableResult.rows.length > 0) ? tableResult.rows[0].tableResult : []
 
             if ( req.body.cachedOnly === 'true' ){
-
+              // debugger
               if ( tableResult.length > 0){
                 res.json( {"state" : "good", result : tableResult } )
               } else {
                 res.json( {"state" : "good", result : [] } )
               }
 
+              console.log("Fast reload: "+ req.body.docid +" - "+ req.body.page +" - "+ req.body.collId)
               return;
             }
 
@@ -1035,6 +1074,8 @@ app.post('/annotationPreview',async function(req,res){
                   var entry = final_annotations_array[0]
                       entry.annotation = entry.annotation.annotations.map( (v,i) => {var ann = v; ann.content = Object.keys(ann.content).join(";"); ann.qualifiers = Object.keys(ann.qualifiers).join(";"); return ann} )
                   console.log(entry)
+
+                  // debugger
                   request({
                           url: 'http://localhost:6666/preview',
                           method: "POST",
@@ -1044,6 +1085,7 @@ app.post('/annotationPreview',async function(req,res){
                           }
                     }, async function (error, response, body) {
 
+                      // debugger
                       var insertResult = async (tid, tableResult) => {
                             var client = await pool.connect()
                             var done = await client.query('INSERT INTO result(tid, "tableResult") VALUES ($1, $2) ON CONFLICT (tid) DO UPDATE SET "tableResult" = $2',  [tid, tableResult])
