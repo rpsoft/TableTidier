@@ -431,65 +431,74 @@ app.get('/api/getMetadataForCUI', async function(req,res){
 
 });
 
-app.get('/api/clearMetadata', async function(req,res){
 
-  var setMetadata = async (docid, page, user) => {
-      var client = await pool.connect()
-
-      var done = await client.query('DELETE FROM metadata WHERE docid = $1 AND page = $2 AND "user" = $3', [docid, page, user ])
-        .then(result => console.log("deleted: "+ new Date()))
-        .catch(e => console.error(e.stack))
-        .then(() => client.release())
-
-  }
-
-  if ( req.query && req.query.docid && req.query.page && req.query.user){
-    await setMetadata(req.query.docid , req.query.page, req.query.user)
-    res.send("done")
-  } else {
-    res.send("clear failed");
-  }
-
-});
-
-app.get('/api/setMetadata', async function(req,res){
-
-  // Setting the Metadata. The Metadata includes the labelling of terms in headings by assigning CUIs.
-  var setMetadata = async (docid, page, concept, cuis, qualifiers, cuis_selected, qualifiers_selected, user, istitle, labeller ) => {
-      var client = await pool.connect()
-
-     var done = await client.query('INSERT INTO metadata(docid, page, concept, cuis, qualifiers, "user", cuis_selected, qualifiers_selected, istitle, labeller ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) ON CONFLICT (docid, page, concept, "user") DO UPDATE SET cuis = $4, qualifiers = $5, cuis_selected = $7, qualifiers_selected = $8, istitle = $9, labeller = $10', [docid, page, concept, cuis, qualifiers, user, cuis_selected, qualifiers_selected, istitle, labeller ])
-        .then(result => console.log("insert: "+ new Date()))
-        .catch(e => console.error(e.stack))
-        .then(() => client.release())
-
-  }
-
-  if ( req.query && req.query.docid && req.query.page && req.query.concept && req.query.user){
-    await setMetadata(req.query.docid , req.query.page , req.query.concept , req.query.cuis || "", req.query.qualifiers || "", req.query.cuis_selected || "", req.query.qualifiers_selected || "" , req.query.user, req.query.istitle, req.query.labeller)
-    res.send("done")
-  } else {
-    res.send("insert failed");
-  }
-
-});
-
-app.get('/api/getMetadata', async function(req,res){
-
-  var getMetadata = async ( docid,page, user) => {
+const clearMetadata = async (tid) => {
     var client = await pool.connect()
-    var result = await client.query(`SELECT docid, page, concept, cuis, cuis_selected, qualifiers, qualifiers_selected, "user",istitle, labeller FROM metadata WHERE docid = $1 AND page = $2 AND "user" = $3`,[docid,page,user])
-          client.release()
-    return result
+
+    var done = await client.query('DELETE FROM metadata WHERE tid = $1', [tid])
+      .then(result => console.log("deleted: "+ new Date()))
+      .catch(e => console.error(e.stack))
+      .then(() => client.release())
+
+}
+
+const setMetadata = async (docid, page, concept, cuis, qualifiers, cuis_selected, qualifiers_selected, user, istitle, labeller ) => {
+    var client = await pool.connect()
+
+   var done = await client.query('INSERT INTO metadata(docid, page, concept, cuis, qualifiers, "user", cuis_selected, qualifiers_selected, istitle, labeller ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) ON CONFLICT (docid, page, concept, "user") DO UPDATE SET cuis = $4, qualifiers = $5, cuis_selected = $7, qualifiers_selected = $8, istitle = $9, labeller = $10', [docid, page, concept, cuis, qualifiers, user, cuis_selected, qualifiers_selected, istitle, labeller ])
+      .then(result => console.log("insert: "+ new Date()))
+      .catch(e => console.error(e.stack))
+      .then(() => client.release())
+
+}
+
+const getMetadata = async ( tid ) => {
+  var client = await pool.connect()
+  var result = await client.query(`SELECT * FROM metadata WHERE tid = $1`,[tid])
+        client.release()
+  return result
+}
+
+app.post('/metadata', async function(req,res){
+
+  if ( req.body && ( ! req.body.action ) ){
+    res.json({status: "undefined", received : req.query})
+    return
   }
 
-  if ( req.query && req.query.docid && req.query.page && req.query.user ){
-    res.send( await getMetadata(req.query.docid , req.query.page , req.query.user) )
+  var validate_user = validateUser(req.body.username, req.body.hash);
+
+  if ( validate_user ){
+
+    var result = {};
+
+    switch (req.body.action) {
+      case "clear":
+        result = await clearMetadata(req.query.tid)
+        break;
+      case "set":
+        result = await setMetadata(req.query.docid, req.query.page, req.query.concept,
+                                   req.query.cuis || "",
+                                   req.query.qualifiers || "",
+                                   req.query.cuis_selected || "",
+                                   req.query.qualifiers_selected || "" ,
+                                   req.query.user, req.query.istitle, req.query.labeller)
+        break;
+      case "get":
+        result = await getMetadata(req.query.tid) 
+
+      default:
+    }
+    // Always return the updated collection details
+    result = await getCollection(req.body.collection_id);
+    res.json({status: "success", data: result})
   } else {
-    res.send( { error : "getMetadata_badquery" } )
+    res.json({status:"unauthorised", payload: null})
   }
 
 });
+
+
 
 app.get('/',function(req,res){
   res.send("TTidier Server running.")
@@ -1208,77 +1217,86 @@ app.get('/api/formattedResults', async function (req,res){
 // });
 
 
-app.get('/api/getMMatch',async function(req,res){
+const getMMatch = async (phrase) => {
 
-  var getMMatch = async (phrase) => {
+  console.log("Asking MM for: "+ phrase)
 
-    console.log("Asking MM for: "+ phrase)
+  var result = new Promise(function(resolve, reject) {
 
-    var result = new Promise(function(resolve, reject) {
+    request.post({
+        headers: {'content-type' : 'application/x-www-form-urlencoded'},
+        url:     'http://localhost:8080/form',
+        body:    "input="+phrase+" &args=-AsI+ --JSONn -E"
+      }, (error, res, body) => {
+      if (error) {
+        reject(error)
+        return
+      }
 
-      request.post({
-          headers: {'content-type' : 'application/x-www-form-urlencoded'},
-          url:     'http://localhost:8080/form',
-          body:    "input="+phrase+" &args=-AsI+ --JSONn -E"
-        }, (error, res, body) => {
-        if (error) {
-          reject(error)
-          return
-        }
+      var start = body.indexOf('{"AllDocuments"')
+      var end = body.indexOf("'EOT'.")
 
-        var start = body.indexOf('{"AllDocuments"')
-        var end = body.indexOf("'EOT'.")
-
-        resolve(body.slice(start, end))
-      })
+      resolve(body.slice(start, end))
+    })
 
 
-    });
+  });
 
-    return result
-  }
+  var mm_match = await result
 
   try{
-   if(req.query && req.query.phrase ){
 
+    var r = JSON.parse(mm_match).AllDocuments[0].Document.Utterances.map(
+                    utterances => utterances.Phrases.map(
+                      phrases => phrases.Mappings.map(
+                        mappings => mappings.MappingCandidates.map(
+                          candidate => ({
+                                    CUI:candidate.CandidateCUI,
+                                    score: candidate.CandidateScore,
+                                    matchedText: candidate.CandidateMatched,
+                                    preferred: candidate.CandidatePreferred,
+                                    hasMSH: candidate.Sources.indexOf("MSH") > -1
+                                 })
+                               )
+                             )
+                           )
+                         )
+
+    // // This removes duplicate cuis
+    // r = r.reduce( (acc,el) => {if ( acc.cuis.indexOf(el.CUI) < 0 ){acc.cuis.push(el.CUI); acc.data.push(el)}; return acc }, {cuis: [], data: []} ).data
+    r = r.flat().flat().flat().reduce( (acc,el) => {if ( acc.cuis.indexOf(el.CUI) < 0 ){acc.cuis.push(el.CUI); acc.data.push(el)}; return acc }, {cuis: [], data: []} ).data
+    r = r.sort( (a,b) => a.score - b.score)
+
+    return r
+  } catch (e){
+    return []
+  }
+
+  // return result
+}
+
+app.post('/getMMatch',async function(req,res){
+  try{
+   if(req.body && req.body.phrase ){
      var mm_match = await getMMatch(req.query.phrase)
-
-     try{
-
-       var r = JSON.parse(mm_match).AllDocuments[0].Document.Utterances.map(
-                       utterances => utterances.Phrases.map(
-                         phrases => phrases.Mappings.map(
-                           mappings => mappings.MappingCandidates.map(
-                             candidate => ({
-                                       CUI:candidate.CandidateCUI,
-                                       score: candidate.CandidateScore,
-                                       matchedText: candidate.CandidateMatched,
-                                       preferred: candidate.CandidatePreferred,
-                                       hasMSH: candidate.Sources.indexOf("MSH") > -1
-                                    })
-                                  )
-                                )
-                              )
-                            )
-
-       // // This removes duplicate cuis
-       // r = r.reduce( (acc,el) => {if ( acc.cuis.indexOf(el.CUI) < 0 ){acc.cuis.push(el.CUI); acc.data.push(el)}; return acc }, {cuis: [], data: []} ).data
-       r = r.flat().flat().flat().reduce( (acc,el) => {if ( acc.cuis.indexOf(el.CUI) < 0 ){acc.cuis.push(el.CUI); acc.data.push(el)}; return acc }, {cuis: [], data: []} ).data
-       r = r.sort( (a,b) => a.score - b.score)
-
-       res.send( r )
-     } catch (e){
-       console.log(e)
-       res.send( [] )
-       // return []
-     }
-
-
-
+     res.send( mm_match )
    } else {
      res.send({status: "wrong parameters", query : req.query})
    }
- }catch (e){
+ } catch(e){
+   console.log(e)
+ }
+});
+
+app.get('/api/getMMatch',async function(req,res){
+  try{
+   if(req.query && req.query.phrase ){
+     var mm_match = await getMMatch(req.query.phrase)
+     res.send( mm_match )
+   } else {
+     res.send({status: "wrong parameters", query : req.query})
+   }
+ } catch(e){
    console.log(e)
  }
 });
@@ -1307,7 +1325,6 @@ app.post('/notes', async function (req, res) {
 
       await updateNotes(req.body.docid, req.body.page, req.body.collId, notesData.textNotes, notesData.tableType, notesData.tableStatus)
       res.json({status:"Successful", payload: null})
-
     } else {
       res.json({status:"unauthorised", payload: null})
     }

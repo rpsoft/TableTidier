@@ -40,7 +40,7 @@ function TableMetadata({
 
   if ( tableResults){
     var sorted_results = tableResults.sort( (a,b) => {return a.row - b.row} )
-    // debugger
+
     var allHeaders = Array.from(new Set( sorted_results .reduce(
         (acc,item) => {
           acc.push(Object.keys(item));
@@ -54,22 +54,7 @@ function TableMetadata({
     } , [] ) )
 
     all_concepts = Array.from(new Set(all_concepts.flat()))
-// debugger
   }
-
-  // tableResults.reduce(
-  //   (acc,res,i) => {
-  //     headerData.headers.map(
-  //       (header,h) => {
-  //         if (acc[header]){
-  //           acc[header].push(res[header])
-  //         } else {
-  //           acc[header] = [res[header]]
-  //         }
-  //       });
-  //       return acc;
-  //     }, {}
-  //   )
 
   if(!headerData.headers || headerData.headers.length < 1 ){
     return <div> Results Not ready </div>
@@ -137,39 +122,6 @@ function TableMetadata({
     return mcon
   },{})
 
-  // // const spread = (meta_concepts) => {
-  //
-  // var distinctArrays = (arr) => {
-  //
-  //   return arr.reduce ( (acc, item, i) => {
-  //
-  //     for ( var j = 0; j < item.length; j++){
-  //
-  //       acc.push(item.slice(0,j+1))
-  //
-  //     }
-  //     return acc
-  //   }, [])
-  //
-  // }
-  //
-  //   Object.keys(meta_concepts).map ( (concept_grp) => {
-  //
-  //       return meta_concepts[concept_grp].map( (concepts,j) => {
-  //
-  //           return concepts.reduce( (acc, cs, c) => {
-  //               acc.push(concepts.slice(0,c+1))
-  //               return acc
-  //           },[])
-  //           // all_concepts.push(concepts)
-  //       }).flat();
-  //
-  //   })
-  //
-  // // }
-  //
-  // meta_concepts["characteristic_name@1,characteristic_level@1"][0].slice(0)
-
   const unfoldConcepts = (concepts) => {
     return concepts.reduce ( (stor, elm, i) => {
 
@@ -191,18 +143,10 @@ function TableMetadata({
     }, { unfolded:[], alreadyThere:[] }).unfolded
   }
 
-
-
-  // if ( meta_concepts["characteristic_level@1,arms@1,other@1"]){
-
   meta_concepts = Object.keys(meta_concepts).reduce( (acc,mcon,j) => { acc[mcon] = unfoldConcepts(meta_concepts[mcon]); return acc},{} )
 
-    // var hey = unfoldConcepts(meta_concepts["characteristic_name@1,characteristic_level@2"])
-     //
-
-     // debugger
-  // }
-
+  // debugger
+  // console.log("LOADING METADATA")
 
   return (
     <div style={{padding:"5px 7px 7px 7px"}} >
@@ -216,6 +160,7 @@ function TableMetadata({
             return <div key={j}> <h3>{ann_groups}</h3><div>{ meta_concepts[ann_groups].map(
               (item,i) => <TableMetadataItem
                                 key={i}
+                                tableConcept={item}
                                 itemData={{concept: item, proposed:"", proposed_user:"", selected:""}}
                                 />
             )} </div></div>
