@@ -580,7 +580,7 @@ function(req, anns = "" ) {
   #
   #write_rds(anns, paste0(baseFolder,"last_out_other.rds"))
   #
-  # anns <- read_rds(paste0(baseFolder,"last_out_other.rds"))
+ #  anns <- read_rds(paste0(baseFolder,"last_out_other.rds"))
   
   annotations <- anns$annotation %>%
     as.data.frame() %>%

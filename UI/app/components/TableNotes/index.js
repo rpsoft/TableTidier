@@ -34,7 +34,8 @@ import {
 function TableNotes(
   {
     notesData,
-    setNotesData
+    setNotesData,
+    saveNoteChanges,
   }
 ) {
 
@@ -49,11 +50,13 @@ function TableNotes(
 
   const NA_to_empty = (term) => (term && term == "NA") ? "" : term // Dealing with legacy NA values.
 
+  // debugger
+
   return (
     <div style={{padding:"5px 7px 7px 7px"}} >
       <div style={{textAlign:"right", marginBottom:5}}>
         <div style={{height:35, fontSize:22, float:"left", paddingTop:5}}> 1. Table <b> Notes </b> </div>
-        <Button variant="outlined" style={{backgroundColor:"lightblue"}} onClick={ ()=> {} }> Save Notes Changes </Button>
+        <Button variant="outlined" style={{backgroundColor:"lightblue"}} onClick={ ()=> {saveNoteChanges(notesData)} }> Save Notes Changes </Button>
       </div>
 
       <hr style={{borderTop:"1px #acacac dashed"}}/>
@@ -90,7 +93,7 @@ function TableNotes(
           <span style={heading}> Additional Notes: </span>
           <TextField
               multiline
-              style={{width: "50%"}}
+              style={{width: "50%"}}              
               value={notesData.textNotes}
               onChange={(event)=> { modifyNotes("textNotes",event.target.value) }}
               />

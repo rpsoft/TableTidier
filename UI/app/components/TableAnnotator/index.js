@@ -8,6 +8,8 @@ import React, { memo } from 'react';
 // import PropTypes from 'prop-types';
 // import styled from 'styled-components';
 
+import Fade from '@material-ui/core/Fade';
+
 import { FormattedMessage } from 'react-intl';
 import messages from './messages';
 
@@ -42,6 +44,9 @@ const useStyles = makeStyles((theme) => ({
 function TableAnnotator({
   annotations,
   setAnnotations,
+  saveAnnotationChanges,
+  tid,
+  loadTableResults,
 }) {
   const classes = useStyles();
 
@@ -76,12 +81,11 @@ function TableAnnotator({
       </div>}
     />: ""
 
-
   return (
     <div style={{padding:"7px 7px 7px 7px"}} >
         <div style={{height:35, fontSize:22}}>
 
-          <Button variant="outlined" style={{backgroundColor:"lightblue", float:"right"}} onClick={ () => {} }> save annotation changes </Button>
+          <Button variant="outlined" style={{backgroundColor:"lightblue", float:"right"}} onClick={ () => {saveAnnotationChanges(tid, annotations); loadTableResults();} }> save annotation changes </Button>
           <Button variant="outlined" style={{backgroundColor:"lightblue", float:"right", marginRight:20}} onClick={ () => {} }> Auto Annotate <AdbIcon /></Button>
 
           <span style={{float:"right", marginRight:20, fontSize:17, border:"1px #acacac solid", borderRadius:10, paddingLeft:10}}>

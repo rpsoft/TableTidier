@@ -21,7 +21,11 @@ import saga from './saga';
 import messages from './messages';
 import {
   loadTableContentAction,
-  loadTableResultsAction
+  loadTableResultsAction,
+  saveTableTextAction,
+  saveTableNoteAction,
+  saveTableAnnotationAction,
+  saveTableMetadataAction,
 } from './actions'
 
 import { useCookies } from 'react-cookie';
@@ -68,7 +72,7 @@ import TableEditor from 'components/TableEditor'
 import TableResult from 'components/TableResult'
 import TableMetadata from 'components/TableMetadata'
 import TableNotes from 'components/TableNotes'
-
+import PopAlert from 'components/PopAlert'
 
 
 import {
@@ -120,9 +124,12 @@ export function Annotator({
   annotator,
   loadTableContent,
   loadTableResults,
-  goToUrl
+  goToUrl,
+  saveTextChanges,
+  saveNoteChanges,
+  saveAnnotationChanges,
+  saveMetadataChanges,
 }) {
-  // console.log(annotator)
 
   useInjectReducer({ key: 'annotator', reducer });
   useInjectSaga({ key: 'annotator', saga });
@@ -135,9 +142,9 @@ export function Annotator({
   const [ bottomEnabled, setBottomEnabled ] = React.useState(true);
   const [ bottomSize, setBottomSize ] = React.useState(400);
 
-  const [ bottomNotes, showBottomNotes ] = React.useState(true);
-  const [ bottomAnnotations, showBottomAnnotations ] = React.useState(true);
-  const [ bottomResults, showBottomResults ] = React.useState(true);
+  const [ bottomNotes, showBottomNotes ] = React.useState(false);
+  const [ bottomAnnotations, showBottomAnnotations ] = React.useState(false);
+  const [ bottomResults, showBottomResults ] = React.useState(false);
   const [ bottomMetadata, showBottomMetadata ] = React.useState(true);
 
   const [ startBottomSize, setStartBottomSize ] = React.useState(0);
@@ -150,8 +157,15 @@ export function Annotator({
 
   const [ tableData, setTableData ] = React.useState( {...annotator.tableData });
   const [ annotations, setAnnotations ] = React.useState( annotator.annotations );
+  const [ annotationHeaders, setAnnotationHeaders ] = React.useState([])
+
+
   const [ results, setResults ] = React.useState(  annotator.results );
   const [ metadata, setMetadata ] = React.useState( {} );
+  const [ headerData, setHeaderData ] = React.useState( {} );
+
+  const [ alertData, setAlertData]  = React.useState( { open: false, message: "", isError: false } );
+
 
   const [ notesData, setNotesData ] = React.useState({ tableType:"", tableStatus:"", textNotes: "" });
 
@@ -166,8 +180,8 @@ export function Annotator({
 
   //On component will mount
   React.useEffect(() => {
-    loadTableContent()
-    loadTableResults(true)
+    // loadTableContent()
+    // loadTableResults(true)
     //console.log("WILL MOUNT")
 
     // Handler to call on window resize
@@ -196,19 +210,44 @@ export function Annotator({
 
 
   React.useEffect(() => {
-    // debugger
-    // console.log(JSON.stringify(annotator.tableData))
-      if( annotator.tableData){
+
+      if( annotator.tableData ){
         setAnnotations(annotator.annotations)
+
+        var header_data = annotator.annotations.map( ann => { return {head: Object.keys(ann.content).join(";"), sub: ann.subAnnotation } })
+
+        header_data = header_data.reduce( (acc, header,i) => {
+                                acc.count[header.head] = acc.count[header.head] ? acc.count[header.head]+1 : 1;
+                                acc.headers.push(header.head+"@"+acc.count[header.head]);
+                                acc.subs.push(header.sub);
+                                return acc;
+                              }, {count:{},headers:[],subs:[]} )
+
+        setHeaderData(header_data);
+
+        //     //
+        //     // headers = headers.reduce( (acc, header,i) => {
+        //     //                     acc.count[header] = acc.count[header] ? acc.count[header]+1 : 1;
+        //     //                     acc.headers.push(header+"@"+acc.count[header]);
+        //     //                     return acc;
+        //     //                   }, {count:{},headers:[]} ).headers
+        //
+        // debugger
+
+        setAnnotationHeaders([ "docid_page", "row", "col", "value", ...header_data.headers ])
+
         setTableData(annotator.tableData)
         setN_tables(parseInt(annotator.tableData.collectionData.tables.length))
         setTablePosition(parseInt(annotator.tableData.tablePosition))
         setResults(annotator.results)
+        setAlertData(annotator.alertData)
 
-        var annData = annotator.tableData.annotationData
-        if ( annData ){
-          setNotesData({ tableType: annData.tableType || "", tableStatus: annData.completion || "" , textNotes: annData.notes })
-        }
+        // debugger
+        setNotesData({
+          tableType: annotator.tableData.tableType || "",
+          tableStatus: annotator.tableData.tableStatus || "" ,
+          textNotes: annotator.tableData.textNotes || "",
+        })
       }
     }, [annotator])
 
@@ -224,42 +263,22 @@ export function Annotator({
     //console.log("ADDRESS CHANGE")
   }, [location.search]);
 
-  // <FormattedMessage {...messages.header} />     console.log("EFFEFCT")
-  // <div>Logged in as {cookies.username}</div>
-  // <div>{cookies.hash}</div>
-
   const openMargin = bottomEnabled ? bottomSize : 65;
 
-  // const moveToBottom = () => {
-  //   var element = document.getElementById("bottom");
-  //   element.scrollIntoView({behavior: "smooth"});
-  // }
-  //
-  // const handleMultiChoice = (variable,values) => {
-  //
-  //
-  //   // var prevState = this.state
-  //   //     prevState[variable] = values
-  //   //
-  //   // console.log(prevState)
-  //   // this.setState(prevState)
-  //   //
-  //   //
-  //   // this.props.addAnnotation(this.state)
-  // }
-  //
-  // const staticTransform = `translate(0px, 0px)`
-  //
+  const table_notes = <TableNotes notesData={notesData} setNotesData={setNotesData} saveNoteChanges={saveNoteChanges}/>
 
-  const table_annotator =  annotations ? <TableAnnotator annotations={annotations} setAnnotations={ (anns) => {setAnnotations(anns)}}  /> : ""
+  const table_annotator =  annotations ? <TableAnnotator annotations={annotations}
+                                                         setAnnotations={ (anns) => {setAnnotations(anns)}}
+                                                         tid={tableData.annotationData ? tableData.annotationData.tid : ""}
+                                                         saveAnnotationChanges={saveAnnotationChanges}
+                                                         loadTableResults={ () => { loadTableResults(false); loadTableContent()  }}
+                                                         /> : ""
 
   var cols = []  //columns.map( (v,i) => { var col = {Header: v, accessor : v}; if( v == "col" || v == "row"){ col.width = 70 }; if( v == "value" ){ col.width = 200 }; return col } )
 
-  const table_notes = <TableNotes notesData={notesData} setNotesData={setNotesData} />
+  const table_results = <TableResult loadTableResults={ () => { loadTableResults(false); loadTableContent()  }} tableResult={results} sortedHeaders={annotationHeaders}/>
 
-  const table_results = <TableResult loadTableResults={loadTableResults} tableResult={results} tableAnnotations={annotations}/>
-
-  const table_metadata = <TableMetadata tableResults={results}/>
+  const table_metadata = <TableMetadata tableResults={results} headerData={headerData}/>
 
   const bottom_elements = [table_notes, table_annotator, table_results, table_metadata]
 
@@ -274,7 +293,7 @@ export function Annotator({
   // Preparing navigation variables here.
   const prepare_nav_link  = (tables, ind) => {
 
-    if ( !tables ){
+    if ( !tables ){uhtgfuytfuytfjhg
       return () => {}
     }
 
@@ -307,17 +326,14 @@ export function Annotator({
 
   const goToTable = (number) => { return annotator.tableData ? prepare_nav_link(annotator.tableData.collectionData.tables, number) : () => {} }
 
-  // debugger
   const docid = annotator.tableData ? annotator.tableData.docid : ""
-  // annotator.tableData && annotator.tableData.collectionData.tables.length > 0 && tablePosition && (tablePosition > -1)
-  // ? annotator.tableData.collectionData.tables[tablePosition-1].docid : ""
 
   return (
 
       <Card style={{marginTop:10, marginBottom: openMargin, minHeight:"85vh", marginRight:250}}>
+        <PopAlert alertData={alertData} setAlertData={setAlertData} />
 
         <div className={classes.root}>
-
           <div className={classes.content}>
 
             <div style={{width:"100%",textAlign:"right"}}>
@@ -326,15 +342,24 @@ export function Annotator({
               </div>
 
               <div>
-              <EditIcon/> {editorEnabled ? "Disable" : "Enable"} Editing
-              <Switch
-                  checked={editorEnabled}
-                  onChange={() => { setEditorEnabled(!editorEnabled);}}
-                  name="checkedA"
-                  inputProps={{ 'aria-label': 'secondary checkbox' }}
-                />
+                {editorEnabled ? "Disable" : "Enable"} Editing
+                <Switch
+                    checked={editorEnabled}
+                    onChange={() => { setEditorEnabled(!editorEnabled);}}
+                    name="checkedA"
+                    inputProps={{ 'aria-label': 'secondary checkbox' }}
+                  />
+                  {editorEnabled ? <Button variant="outlined"
+                                           style={{backgroundColor:"#ffdbdb"}}
+                                           onClick={ () => {
+                                              saveTextChanges(tableData.tableTitle, tableData.tableBody);
+                                              setEditorEnabled(false);
+                                              loadTableContent();
+                                              loadTableResults(false);
+                                            } }>
+                                           Save Edit Changes <EditIcon style={{marginLeft:5}}/>
+                                   </Button> : "" }
               </div>
-
             </div>
 
             <hr />
@@ -562,10 +587,10 @@ function mapDispatchToProps(dispatch) {
     dispatch,
     loadTableContent : () => dispatch( loadTableContentAction() ),
     loadTableResults : (cachedOnly) => dispatch ( loadTableResultsAction(cachedOnly) ),
-    saveNoteChanges : () => dispatch(),
-    saveAnnotationChanges : () => dispatch(),
-    saveTableChanges : () => dispatch(),
-    saveMetadataChanges : () => dispatch(),
+    saveTextChanges : (tableTitle, tableBody) => dispatch( saveTableTextAction(tableTitle, tableBody) ),
+    saveNoteChanges : (notes) => dispatch( saveTableNoteAction(notes)  ),
+    saveAnnotationChanges : (tid, annotations) => dispatch( saveTableAnnotationAction(tid, annotations)  ),
+    saveMetadataChanges : (metadata) => dispatch( saveTableMetadataAction(metadata) ),
     goToUrl : (url) => dispatch(push(url)),
 
     // deleteCollection : () => dispatch( deleteCollectionAction() ),

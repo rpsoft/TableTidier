@@ -35,7 +35,7 @@ import messages from './messages';
 function TableResult({
   loadTableResults,
   tableResult,
-  tableAnnotations
+  sortedHeaders
 }) {
   var headers = []
   var data = []
@@ -60,15 +60,13 @@ function TableResult({
                     ))
 
     headers = headers.filter(e => e !== 'docid_page');
-    //
-    // var ordered_headers = tableAnnotations.reduce( (acc, item) => {acc.push(Object.keys(item.content).join(";")); return acc} , [] )
-    //
-    // // debugger
 
     headers = headers.map(
       (item) => {
         return {Header:item, accessor:item, width: getColumnWidth(tableResult, item, item)}
       })
+
+    headers = headers.sort( (a,b) => sortedHeaders.indexOf(a.Header) - sortedHeaders.indexOf(b.Header) )
 
     data = tableResult
   }
@@ -77,7 +75,7 @@ function TableResult({
     <div style={{padding:"5px 7px 7px 7px"}} >
         <div style={{textAlign:"right", marginBottom:5}}>
           <div style={{height:35, fontSize:22, float:"left", paddingTop:5}}> 3. Extraction <b> Results </b> </div>
-          <Button variant="outlined" style={{backgroundColor:"lightblue"}} onClick={ () => { loadTableResults(false) } }> Refresh Results </Button>
+          <Button variant="outlined" style={{backgroundColor:"lightblue"}} onClick={ () => { loadTableResults() } }> Refresh Results </Button>
         </div>
 
          {

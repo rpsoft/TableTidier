@@ -11,9 +11,9 @@ import {
   UPDATE_TABLE_RESULTS_ACTION,
   UPDATE_TABLE_METADATA_ACTION,
 
-  SAVE_TABLE_CONTENT_ACTION,
+  SAVE_TABLE_TEXT_ACTION,
+  SAVE_TABLE_NOTES_ACTION,
   SAVE_TABLE_ANNOTATIONS_ACTION,
-  SAVE_TABLE_RESULTS_ACTION,
   SAVE_TABLE_METADATA_ACTION,
 } from './constants';
 
@@ -25,6 +25,7 @@ import {
   updateTableContentAction,
   updateTableAnnotationsAction,
   updateTableResultsAction,
+  issueAlertAction,
 } from './actions';
 
 import makeSelectAnnotator from './selectors';
@@ -79,8 +80,6 @@ export function* getTableContent() {
 
       response.collectionData.tables = response.collectionData.tables.sort( (a,b) => (a.docid+"_"+a.page).localeCompare((b.docid+"_"+b.page)))
 
-      // debugger
-
       response.tablePosition = response.collectionData.tables.reduce( (i, table, index) => {
                                             if ( (table.docid+"_"+table.page).localeCompare(parsed.docid+"_"+parsed.page) == 0){
                                                return index
@@ -88,25 +87,30 @@ export function* getTableContent() {
                                                return i
                                             }; }, -1) + 1
 
-      // debugger
+                                                // debugger
+
+      response.tableStatus = response.annotationData.completion
+      response.tableType = response.annotationData.tableType
+      response.textNotes = response.annotationData.notes
+
       // response.tablePosition_prev = response.tablePosition > -1 ? response.collectionData.tables[response.tablePosition-1] : false
       // response.current = response.tablePosition > -1 ? response.collectionData.tables[response.tablePosition] : false
       // response.tablePosition_next = response.tablePosition < (response.collectionData.tables.length-1) ? response.collectionData.tables[response.tablePosition+1] : false
-
+      // debugger
       yield put( yield updateTableContentAction(response) );
 
-
-      var annotations = _.isEmpty(response.annotationData) ? [] : response.annotationData.annotation.annotations.map(
+      // debugger
+      var annotations = (!_.isEmpty(response.annotationData)) && response.annotationData.annotation ? response.annotationData.annotation.annotations.map(
         (item,id) => {
-          // item.id = id;
           item.subAnnotation = item.subAnnotation ? item.subAnnotation : false; // this is to preserve compatibility with previous annotations that don't have subAnnotation
           return item
-        })
+        }) : []
 
       yield put( yield updateTableAnnotationsAction(annotations) );
 
     }
   } catch (err) {
+    debugger
     console.log(err)
   }
 
@@ -147,41 +151,8 @@ export function* getTableResult( payload ) {
       // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
 
     } else {
-        debugger
-
 
         yield put( yield updateTableResultsAction(response.result) );
-
-
-    // LOAD_TABLE_RESULTS_ACTION
-    // UPDATE_TABLE_RESULTS_ACTION
-
-      // response.docid = parsed.docid
-      // response.page = parsed.page
-      // response.collId = parsed.collId
-      //
-      // response.tablePosition = response.collectionData.tables.reduce( (i, table, index) => {
-      //                                       if (table.docid.localeCompare(parsed.docid) == 0){
-      //                                          return index
-      //                                       } else{
-      //                                          return i
-      //                                       }; }, -1)
-      //
-      // response.tablePosition_prev = response.tablePosition > 0 ? response.collectionData.tables[response.tablePosition-1] : false
-      // response.current = response.tablePosition > 0 ? response.collectionData.tables[response.tablePosition] : false
-      // response.tablePosition_next = response.tablePosition < (response.collectionData.tables.length-1) ? response.collectionData.tables[response.tablePosition+1] : false
-      //
-      // yield put( yield updateTableContentAction(response) );
-      //
-      //
-      // var annotations = _.isEmpty(response.annotationData) ? [] : response.annotationData.annotation.annotations.map(
-      //   (item,id) => {
-      //     // item.id = id;
-      //     item.subAnnotation = item.subAnnotation ? item.subAnnotation : false; // this is to preserve compatibility with previous annotations that don't have subAnnotation
-      //     return item
-      //   })
-      //
-      // yield put( yield updateTableAnnotationsAction(annotations) );
 
     }
   } catch (err) {
@@ -234,11 +205,111 @@ export function* getTableMetadata( payload ) {
   // return {collection: "hello"}
 }
 
+export function* saveChanges ( payload ) {
+
+    const credentials = yield select(makeSelectCredentials());
+    const locationData = yield select(makeSelectLocation());
+
+    const parsed = queryString.parse(location.search);
+
+    var requestURL = `http://`+locationData.host+`:`+locationData.server_port;
+
+    var pre_params = {
+        'hash' : credentials.hash,
+        'username' :  credentials.username,
+        'docid' : parsed.docid,
+        'page' : parsed.page,
+        'collId' : parsed.collId,
+      }
+
+    switch( payload.type ) {
+      case SAVE_TABLE_TEXT_ACTION:
+        requestURL = requestURL+`/text`
+
+        pre_params = {...pre_params,
+                  'action' : 'save',
+                  'target' : 'text', // table / notes / annotation / metadata,
+                  'payload' : JSON.stringify({tableTitle: payload.tableTitle, tableBody: payload.tableBody}),
+              }
+
+        break;
+      case SAVE_TABLE_NOTES_ACTION:
+        requestURL = requestURL+`/notes`
+
+        pre_params = {...pre_params,
+                  'action' : 'save',
+                  'target' : 'notes', // table / notes / annotation / metadata,
+                  'payload' : JSON.stringify(payload.notes),
+              }
+
+        break;
+      case SAVE_TABLE_ANNOTATIONS_ACTION:
+        requestURL = requestURL+`/saveAnnotation`
+
+        pre_params = {...pre_params,
+                  'action' : 'save',
+                  'target' : 'annotation', // table / notes / annotation / metadata,
+                  'payload' : JSON.stringify({tid: payload.tid, annotations: payload.annotations}),
+              }
+
+        break;
+      case SAVE_TABLE_METADATA_ACTION:
+        requestURL = requestURL+`/metadata`
+        debugger
+        break;
+    }
+
+    const params = new URLSearchParams( pre_params )
+
+    const options = {
+      method: 'POST',
+      body: params
+    }
+
+    try {
+      const response = yield call(request, requestURL, options);
+
+      if ( response.status && response.status == "unauthorised"){
+        // COUld probably redirect to /
+        // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
+        // alert("unauthorised action")
+        yield put( yield issueAlertAction({ open: true, message: "unauthorised action", isError: true }))
+      } else {
+        // debugger
+          // yield put( yield updateTableResultsAction(response.result) );
+          switch( payload.type ) {
+            case SAVE_TABLE_TEXT_ACTION:
+              yield put( yield issueAlertAction({ open: true, message: "Table Successfully Saved", isError: false }))
+              break;
+            case SAVE_TABLE_NOTES_ACTION:
+              yield put( yield issueAlertAction({ open: true, message: "Notes Successfully Saved", isError: false }))
+              break;
+            case SAVE_TABLE_ANNOTATIONS_ACTION:
+              yield put( yield issueAlertAction({ open: true, message: "Annotations Successfully Saved", isError: false }))
+              break;
+            case SAVE_TABLE_METADATA_ACTION:
+              yield put( yield issueAlertAction({ open: true, message: "Metadata Successfully Saved", isError: false }))
+              break;
+          }
+      }
+    } catch (err) {
+      console.log(err)
+    }
+
+    return {}
+}
+
+
 // Individual exports for testing
 export default function* annotatorSaga() {
 
   yield takeLatest(LOAD_TABLE_CONTENT_ACTION, getTableContent);
   yield takeLatest(LOAD_TABLE_RESULTS_ACTION, getTableResult);
+
+  yield takeLatest(SAVE_TABLE_TEXT_ACTION, saveChanges);
+  yield takeLatest(SAVE_TABLE_NOTES_ACTION, saveChanges);
+  yield takeLatest(SAVE_TABLE_ANNOTATIONS_ACTION, saveChanges);
+  yield takeLatest(SAVE_TABLE_METADATA_ACTION, saveChanges);
 
   // yield takeLatest(LOAD_TABLE_CONTENT_ACTION, getTableContent);
   // See example in containers/HomePage/saga.js

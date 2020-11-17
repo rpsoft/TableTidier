@@ -19,11 +19,10 @@ function TableMetadataItem(
 ) {
   return (
     <div>
-      <div> { itemData.concept } </div>
-      <div> { itemData.concept } </div>
-      <div> { JSON.stringify(itemData.proposed) } </div>
-      <div> { JSON.stringify(itemData.proposed_user) } </div>
-      <div> { JSON.stringify(itemData.selected) } </div>
+      <span> { itemData.concept } </span>
+      <span> { JSON.stringify(itemData.proposed) } </span>
+      <span> { JSON.stringify(itemData.proposed_user) } </span>
+      <span> { JSON.stringify(itemData.selected) } </span>
     </div>
   );
 }
