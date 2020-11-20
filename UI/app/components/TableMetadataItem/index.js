@@ -15,7 +15,8 @@ import messages from './messages';
 function TableMetadataItem(
   {
     tableConcept,
-    itemData
+    itemData,
+
   }
 ) {
 
@@ -23,10 +24,10 @@ function TableMetadataItem(
   var concept = tableConcept.slice(tableConcept.length-1)
 
   return (
-    <div>
+    <div style={{ marginTop: (root.length > 0 ? 0 : 5) }}>
 
       {
-        <span style={{marginLeft: root.length > 0 ? 20 : 0 }}> { concept } </span>
+        <span style={{ marginLeft: (root.length > 0 ? 20 : 0) }}> { concept } </span>
       }
 
       <span> { JSON.stringify(itemData.proposed) } </span>

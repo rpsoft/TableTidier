@@ -74,6 +74,7 @@ import TableMetadata from 'components/TableMetadata'
 import TableNotes from 'components/TableNotes'
 import PopAlert from 'components/PopAlert'
 
+import prepareMetadata from './metadataUtil'
 
 import {
   GetApp as DownloadIcon,
@@ -223,7 +224,11 @@ export function Annotator({
                                 return acc;
                               }, {count:{},headers:[],subs:[]} )
 
-        setHeaderData(header_data);
+
+        //
+        // headerData
+        //
+
 
         //     //
         //     // headers = headers.reduce( (acc, header,i) => {
@@ -240,6 +245,9 @@ export function Annotator({
         setN_tables(parseInt(annotator.tableData.collectionData.tables.length))
         setTablePosition(parseInt(annotator.tableData.tablePosition))
         setResults(annotator.results)
+        setHeaderData( prepareMetadata(header_data, annotator.results) );
+
+        
         setAlertData(annotator.alertData)
 
         // debugger
