@@ -21,6 +21,12 @@ import {
   SAVE_TABLE_METADATA_ACTION,
 
   ISSUE_ALERT_ACTION,
+
+  LOAD_CUIS_INDEX_ACTION,
+  UPDATE_CUIS_INDEX_ACTION,
+  INSERT_CUIS_INDEX_ACTION,
+  DELETE_CUIS_INDEX_ACTION,
+
 } from './constants';
 
 // Table Data
@@ -69,10 +75,18 @@ export function updateTableResultsAction(results) {
 }
 
 // Table Metadata
-export function loadTableMetadataAction(docid, page, collId) {
+export function loadTableMetadataAction(tid) {
   return {
     type: LOAD_TABLE_METADATA_ACTION,
-    docid, page, collId
+    tid,
+  };
+}
+
+
+export function updateTableMetadataAction(metadata) {
+  return {
+    type: UPDATE_TABLE_METADATA_ACTION,
+    metadata,
   };
 }
 
@@ -118,5 +132,19 @@ export function issueAlertAction(alertData) {
   return {
     type: ISSUE_ALERT_ACTION,
     alertData
+  };
+}
+
+// CUIS Handling.
+export function updateCuisIndexAction(cuis_index) {
+  return {
+    type: UPDATE_CUIS_INDEX_ACTION,
+    cuis_index
+  };
+}
+
+export function loadCuisIndexAction() {
+  return {
+    type: LOAD_CUIS_INDEX_ACTION
   };
 }

@@ -13,11 +13,18 @@ import {
   UPDATE_TABLE_ANNOTATIONS_ACTION,
   UPDATE_TABLE_RESULTS_ACTION,
   UPDATE_TABLE_METADATA_ACTION,
+
   SAVE_TABLE_TEXT_ACTION,
   SAVE_TABLE_NOTES_ACTION,
   SAVE_TABLE_ANNOTATIONS_ACTION,
   SAVE_TABLE_METADATA_ACTION,
+
   ISSUE_ALERT_ACTION,
+
+  LOAD_CUIS_INDEX_ACTION,
+  UPDATE_CUIS_INDEX_ACTION,
+  INSERT_CUIS_INDEX_ACTION,
+  DELETE_CUIS_INDEX_ACTION,
 } from './constants';
 
 export const initialState = {
@@ -44,6 +51,7 @@ export const initialState = {
   results : [],
   metadata : {},
   alertData: { open: false, message: "", isError: false },
+  cuis_index: {},
 };
 
 // annotations: [ { location: "Row" , content:[], qualifiers:[], number:1, subAnnotation:false },
@@ -52,14 +60,10 @@ export const initialState = {
 /* eslint-disable default-case, no-param-reassign */
 const annotatorReducer = (state = initialState, action) =>
   produce(state, draft => {
-
-    console.log( (new Date).getTime()+" : "+action.type)
+    // console.log( (new Date).getTime()+" : "+action.type)
     switch (action.type) {
       case UPDATE_TABLE_CONTENT_ACTION:
-        // debugger
         draft.tableData = action.tableData;
-        // draft.results = []
-        // draft.metadata = {}
         break;
 
       case UPDATE_TABLE_ANNOTATIONS_ACTION:
@@ -70,19 +74,25 @@ const annotatorReducer = (state = initialState, action) =>
         draft.results = action.results;
         break;
 
+      case UPDATE_TABLE_METADATA_ACTION:
+      // debugger
+        draft.metadata = action.metadata;
+        break;
+
       case ISSUE_ALERT_ACTION:
-        // debugger
         draft.alertData = action.alertData
+        break;
+
+      case UPDATE_CUIS_INDEX_ACTION:
+        draft.cuis_index = action.cuis_index
         break;
 
       case SAVE_TABLE_TEXT_ACTION:
       case SAVE_TABLE_NOTES_ACTION:
-
         draft.tableData = {...draft.tableData,...action.notes}
         // draft.tableData.tableStatus = action.tableStatus
         // draft.tableData.tableType = action.tableType
         // draft.tableData.textNotes = action.textNotes
-
 
       case SAVE_TABLE_ANNOTATIONS_ACTION:
       case SAVE_TABLE_METADATA_ACTION:

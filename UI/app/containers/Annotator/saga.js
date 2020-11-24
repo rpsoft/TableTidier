@@ -15,6 +15,12 @@ import {
   SAVE_TABLE_NOTES_ACTION,
   SAVE_TABLE_ANNOTATIONS_ACTION,
   SAVE_TABLE_METADATA_ACTION,
+
+  LOAD_CUIS_INDEX_ACTION,
+  UPDATE_CUIS_INDEX_ACTION,
+  INSERT_CUIS_INDEX_ACTION,
+  DELETE_CUIS_INDEX_ACTION,
+
 } from './constants';
 
 import {
@@ -25,7 +31,10 @@ import {
   updateTableContentAction,
   updateTableAnnotationsAction,
   updateTableResultsAction,
+  updateTableMetadataAction,
   issueAlertAction,
+  updateCuisIndexAction,
+  loadCuisIndexAction,
 } from './actions';
 
 import makeSelectAnnotator from './selectors';
@@ -151,7 +160,7 @@ export function* getTableResult( payload ) {
       // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
 
     } else {
-
+        // debugger
         yield put( yield updateTableResultsAction(response.result) );
 
     }
@@ -162,6 +171,45 @@ export function* getTableResult( payload ) {
   return {}
   // return {collection: "hello"}
 }
+
+export function* getCUISIndex( payload ) {
+
+  const credentials = yield select(makeSelectCredentials());
+  const locationData = yield select(makeSelectLocation());
+
+  const parsed = queryString.parse(location.search);
+  const requestURL = `http://`+locationData.host+`:`+locationData.server_port+`/cuis`;
+
+  const params = new URLSearchParams({
+      'hash' : credentials.hash,
+      'username' :  credentials.username,
+      'action' : 'get' // get  delete  edit
+    });
+
+  const options = {
+    method: 'POST',
+    body: params
+  }
+
+  try {
+    const response = yield call(request, requestURL, options);
+
+    if ( response.status && response.status == "unauthorised"){
+      yield put( yield updateCuisIndexAction({}) );
+      // debugger
+      // COUld probably redirect to /
+      // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
+    } else {
+      // debugger
+      yield put( yield updateCuisIndexAction(response.data) );
+    }
+  } catch (err) {
+    console.log(err)
+  }
+
+  return {}
+}
+
 
 export function* getTableMetadata( payload ) {
 
@@ -177,9 +225,8 @@ export function* getTableMetadata( payload ) {
       'docid' : parsed.docid,
       'page' : parsed.page,
       'collId' : parsed.collId,
-      'cachedOnly' : payload.cachedOnly,
-      'action' : 'get'
-      // get  delete  edit
+      'tid' : payload.tid,
+      'action' : 'get' // get  delete  edit
     });
 
   const options = {
@@ -191,18 +238,33 @@ export function* getTableMetadata( payload ) {
     const response = yield call(request, requestURL, options);
 
     if ( response.status && response.status == "unauthorised"){
+       debugger
       // COUld probably redirect to /
       // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
-
     } else {
-        yield put( yield updateTableResultsAction(response.result) );
+
+      var metadata = response.data.reduce(
+        (acc, meta_item, i) => {
+          var mItem = {...meta_item}
+
+          mItem.cuis = mItem.cuis && mItem.cuis.length > 0 ? Array.from(new Set(mItem.cuis.split(";"))) : []
+          mItem.cuis_selected = mItem.cuis_selected && mItem.cuis_selected.length > 0 ? Array.from(new Set(mItem.cuis_selected.split(";"))) : []
+
+          mItem.cuis.sort( (a,b) => mItem.cuis_selected.indexOf(b) - mItem.cuis_selected.indexOf(a) )
+
+          mItem.qualifiers = Array.from(new Set(mItem.qualifiers.split(";")))
+          mItem.qualifiers_selected = Array.from(new Set(mItem.qualifiers_selected.split(";")))
+
+          acc[meta_item.concept.toLowerCase()] = mItem;
+          return acc
+        }, {} )
+      yield put( yield updateTableMetadataAction(metadata) );
     }
   } catch (err) {
     console.log(err)
   }
 
   return {}
-  // return {collection: "hello"}
 }
 
 export function* saveChanges ( payload ) {
@@ -255,7 +317,13 @@ export function* saveChanges ( payload ) {
         break;
       case SAVE_TABLE_METADATA_ACTION:
         requestURL = requestURL+`/metadata`
-        debugger
+
+        pre_params = {...pre_params,
+                  'action' : 'save',
+                  'target' : 'metadata', // table / notes / annotation / metadata,
+                  'payload' : JSON.stringify({tid: payload.tid, metadata: payload.metadata}),
+              }
+        // debugger
         break;
     }
 
@@ -299,12 +367,13 @@ export function* saveChanges ( payload ) {
     return {}
 }
 
-
 // Individual exports for testing
 export default function* annotatorSaga() {
 
   yield takeLatest(LOAD_TABLE_CONTENT_ACTION, getTableContent);
   yield takeLatest(LOAD_TABLE_RESULTS_ACTION, getTableResult);
+  yield takeLatest(LOAD_TABLE_METADATA_ACTION, getTableMetadata);
+  yield takeLatest(LOAD_CUIS_INDEX_ACTION, getCUISIndex);
 
   yield takeLatest(SAVE_TABLE_TEXT_ACTION, saveChanges);
   yield takeLatest(SAVE_TABLE_NOTES_ACTION, saveChanges);

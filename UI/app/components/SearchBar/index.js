@@ -95,9 +95,6 @@ function SearchBar({
           <SearchIcon />
         </IconButton>
 
-
-
-
       </Paper>
 
       <div style={{width:"100%",textAlign:"center"}}>

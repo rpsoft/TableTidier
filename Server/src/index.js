@@ -442,14 +442,33 @@ const clearMetadata = async (tid) => {
 
 }
 
-const setMetadata = async (docid, page, concept, cuis, qualifiers, cuis_selected, qualifiers_selected, user, istitle, labeller ) => {
-    var client = await pool.connect()
+const setMetadata = async ( metadata ) => {
 
-   var done = await client.query('INSERT INTO metadata(docid, page, concept, cuis, qualifiers, "user", cuis_selected, qualifiers_selected, istitle, labeller ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) ON CONFLICT (docid, page, concept, "user") DO UPDATE SET cuis = $4, qualifiers = $5, cuis_selected = $7, qualifiers_selected = $8, istitle = $9, labeller = $10', [docid, page, concept, cuis, qualifiers, user, cuis_selected, qualifiers_selected, istitle, labeller ])
-      .then(result => console.log("insert: "+ new Date()))
-      .catch(e => console.error(e.stack))
-      .then(() => client.release())
+  var results = []
 
+  for ( var m = 0; m < Object.keys(metadata).length; m++){
+
+      var key = Object.keys(metadata)[m]
+
+      var client = await pool.connect()
+
+      var done = await client.query(`
+                INSERT INTO metadata(concept_source, concept_root, concept, cuis, cuis_selected, qualifiers, qualifiers_selected, istitle, labeller, tid)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                ON CONFLICT (concept_source, concept_root, concept, tid)
+                DO UPDATE SET cuis = $4, cuis_selected = $5, qualifiers = $6, qualifiers_selected = $7, istitle = $8, labeller = $9`,
+                [ metadata[key].concept_source, metadata[key].concept_root, metadata[key].concept,
+                  metadata[key].cuis.join(";"), metadata[key].cuis_selected.join(";"), metadata[key].qualifiers.join(";"), metadata[key].qualifiers_selected.join(";"),
+                  metadata[key].istitle, metadata[key].labeller, metadata[key].tid ])
+
+          .then(result => console.log("insert: "+ new Date()))
+          .catch(e => console.error(e.stack))
+          .then(() => client.release())
+
+      results.push(done);
+  }
+
+  return results
 }
 
 const getMetadata = async ( tid ) => {
@@ -459,10 +478,87 @@ const getMetadata = async ( tid ) => {
   return result
 }
 
+const getTid = async ( docid, page, collId ) => {
+  var client = await pool.connect()
+  var result = await client.query(`SELECT tid FROM public."table" WHERE docid = $1 AND page = $2 AND collection_id = $3`,[docid, page, collId])
+        client.release()
+
+  var tid
+
+  if ( result.rows && result.rows.length > 0 ){
+    tid = result.rows[0].tid
+  }
+
+  return tid
+}
+
 app.post('/metadata', async function(req,res){
+  // debugger
+  if ( req.body && ( ! req.body.action ) ){
+    res.json({status: "undefined", received : req.body})
+    return
+  }
+
+  var validate_user = validateUser(req.body.username, req.body.hash);
+
+  if ( validate_user ){
+
+     // debugger
+    var tid = req.body.tid
+    if ( tid == "undefined" ){
+      tid = await getTid( req.body.docid, req.body.page, req.body.collId )
+    }
+
+    var result = {};
+
+    switch (req.body.action) {
+      case "clear":
+        result = await clearMetadata(tid)
+        break;
+      case "save":
+
+        var metadata = JSON.parse(req.body.payload).metadata
+        result = await setMetadata(metadata)
+        break;
+      case "get":
+        result = (await getMetadata(tid)).rows //req.body.docid, req.body.page, req.body.collId,
+        // debugger
+
+      default:
+    }
+    // Always return the updated collection details
+    // result = await getCollection(req.body.collection_id);
+    res.json({status: "success", data: result})
+  } else {
+    res.json({status:"unauthorised", payload: null})
+  }
+
+});
+
+
+
+
+
+const getCUISIndex = async () => {
+
+  var cuis = {}
+
+  var client = await pool.connect()
+  var result = await client.query(`select * from cuis_index`)
+        client.release()
+
+  result.rows.map( row => {
+    cuis[row.cui] = {preferred : row.preferred, hasMSH: row.hasMSH, userDefined: row.user_defined, adminApproved: row.admin_approved}
+  })
+
+  return cuis
+}
+
+
+app.post('/cuis', async function(req,res){
 
   if ( req.body && ( ! req.body.action ) ){
-    res.json({status: "undefined", received : req.query})
+    res.json({status: "undefined", received : req.body})
     return
   }
 
@@ -473,27 +569,25 @@ app.post('/metadata', async function(req,res){
     var result = {};
 
     switch (req.body.action) {
-      case "clear":
-        result = await clearMetadata(req.query.tid)
-        break;
-      case "set":
-        result = await setMetadata(req.query.docid, req.query.page, req.query.concept,
-                                   req.query.cuis || "",
-                                   req.query.qualifiers || "",
-                                   req.query.cuis_selected || "",
-                                   req.query.qualifiers_selected || "" ,
-                                   req.query.user, req.query.istitle, req.query.labeller)
-        break;
+      // case "clear":
+      //   result = await clearMetadata(tid)
+      //   break;
+      // case "set":
+      //   result = await setMetadata(req.body.docid, req.body.page, req.body.concept,
+      //                              req.body.cuis || "",
+      //                              req.body.qualifiers || "",
+      //                              req.body.cuis_selected || "",
+      //                              req.body.qualifiers_selected || "" ,
+      //                              req.body.user, req.body.istitle, req.body.labeller)
+      //   break;
       case "get":
-        result = await getMetadata(req.query.tid) 
-
+        result = await getCUISIndex() //req.body.docid, req.body.page, req.body.collId,
       default:
+
     }
-    // Always return the updated collection details
-    result = await getCollection(req.body.collection_id);
     res.json({status: "success", data: result})
   } else {
-    res.json({status:"unauthorised", payload: null})
+    res.json({status: "unauthorised", payload: null})
   }
 
 });
@@ -840,7 +934,6 @@ app.post('/getTableContent',async function(req,res){
 
           var annotation = await getAnnotationByID(req.body.docid, req.body.page, req.body.collId)
 
-          // debugger
           tableData.collectionData = collection_data
           tableData.annotationData = annotation && annotation.rows.length > 0 ? annotation.rows[0] : {}
 
@@ -951,8 +1044,7 @@ app.get('/api/cuiRecommend', async function(req,res){
   res.send( cuirec )
 
 });
-//
-//
+
 // app.get('/api/allMetadata', async function(req,res){
 //
 //   var allMetadataAnnotations = async () => {
@@ -965,49 +1057,55 @@ app.get('/api/cuiRecommend', async function(req,res){
 //   res.send( await allMetadataAnnotations() )
 //
 // });
+//
+//
+// app.post('/cuis',async function(req,res){
+//
+//       debugger
+//
+//       var getCUISIndex = async () => {
+//
+//         var cuis = {}
+//
+//         var client = await pool.connect()
+//         var result = await client.query(`select * from cuis_index`)
+//               client.release()
+//
+//         result.rows.map( row => {
+//           cuis[row.cui] = {preferred : row.preferred, hasMSH: row.hasMSH, userDefined: row.user_defined, adminApproved: row.admin_approved}
+//         })
+//
+//         return cuis
+//       }
+//
+//       debugger
+//       res.json( { data: await getCUISIndex() } )
+//
+// });
+
+//
+// app.get('/cuisIndexAdd',async function(req,res){
+//
+//   console.log(JSON.stringify(req.query))
+//
+  // var insertCUI = async (cui,preferred,hasMSH) => {
+  //     var client = await pool.connect()
+  //     var done = await client.query('INSERT INTO cuis_index(cui,preferred,"hasMSH",user_defined,admin_approved) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (cui) DO UPDATE SET preferred = $2, "hasMSH" = $3, user_defined = $4, admin_approved = $5',  [cui,preferred,hasMSH,true,false])
+  //       .then(result => console.log("insert: "+ new Date()))
+  //       .catch(e => console.error(e.stack))
+  //       .then(() => client.release())
+  // }
+//
+//   if(req.query && req.query.cui.length > 0
+//               && req.query.preferred.length > 0
+//               && req.query.hasMSH.length > 0
+//               ){
+//               await insertCUI( req.query.cui , req.query.preferred, req.query.hasMSH );
+//   }
+//   res.send("saved annotation: "+JSON.stringify(req.query))
+// });
 
 
-app.get('/api/cuisIndex',async function(req,res){
-
-      var getCUISIndex = async () => {
-
-        var cuis = {}
-
-        var client = await pool.connect()
-        var result = await client.query(`select * from cuis_index`)
-              client.release()
-
-        result.rows.map( row => {
-          cuis[row.cui] = {preferred : row.preferred, hasMSH: row.hasMSH, userDefined: row.user_defined, adminApproved: row.admin_approved}
-        })
-
-        return cuis
-      }
-
-      res.send( await getCUISIndex() )
-
-});
-
-app.get('/api/cuisIndexAdd',async function(req,res){
-
-  console.log(JSON.stringify(req.query))
-
-  var insertCUI = async (cui,preferred,hasMSH) => {
-      var client = await pool.connect()
-      var done = await client.query('INSERT INTO cuis_index(cui,preferred,"hasMSH",user_defined,admin_approved) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (cui) DO UPDATE SET preferred = $2, "hasMSH" = $3, user_defined = $4, admin_approved = $5',  [cui,preferred,hasMSH,true,false])
-        .then(result => console.log("insert: "+ new Date()))
-        .catch(e => console.error(e.stack))
-        .then(() => client.release())
-  }
-
-  if(req.query && req.query.cui.length > 0
-              && req.query.preferred.length > 0
-              && req.query.hasMSH.length > 0
-              ){
-              await insertCUI( req.query.cui , req.query.preferred, req.query.hasMSH );
-  }
-  res.send("saved annotation: "+JSON.stringify(req.query))
-});
 
 
 // Generates the results table live preview, connecting to the R API.

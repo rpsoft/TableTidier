@@ -12,21 +12,7 @@ import ReactTable from 'react-table'
 import 'react-table/react-table.css'
 
 import {
-  // Card, Checkbox,
-  // Select as SelectField,
-  // TextField,
   Button,
-  // Paper,
-  // Drawer,
-  // Divider,
-  // List,
-  // ListItem,
-  // ListItemIcon,
-  // ListItemText,
-  // AppBar,
-  // Toolbar,
-  // Typography,
-  // Switch,
 } from '@material-ui/core';
 
 import { FormattedMessage } from 'react-intl';
@@ -86,7 +72,7 @@ function TableResult({
                                   marginBottom: 10,
                                   backgroundColor:"#f6f5f5"
                                 }}
-                                defaultPageSize={data.length}
+                                defaultPageSize={20}
                               /> : <div> No results produced </div>
           }
       </div>

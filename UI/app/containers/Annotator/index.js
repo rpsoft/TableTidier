@@ -22,10 +22,13 @@ import messages from './messages';
 import {
   loadTableContentAction,
   loadTableResultsAction,
+  loadTableMetadataAction,
   saveTableTextAction,
   saveTableNoteAction,
   saveTableAnnotationAction,
   saveTableMetadataAction,
+  loadCuisIndexAction,
+  updateTableMetadataAction,
 } from './actions'
 
 import { useCookies } from 'react-cookie';
@@ -125,11 +128,17 @@ export function Annotator({
   annotator,
   loadTableContent,
   loadTableResults,
+  loadTableMetadata,
+
+  loadCuisIndex,
+
   goToUrl,
   saveTextChanges,
   saveNoteChanges,
   saveAnnotationChanges,
   saveMetadataChanges,
+
+  updateTableMetadata,
 }) {
 
   useInjectReducer({ key: 'annotator', reducer });
@@ -143,9 +152,9 @@ export function Annotator({
   const [ bottomEnabled, setBottomEnabled ] = React.useState(true);
   const [ bottomSize, setBottomSize ] = React.useState(400);
 
-  const [ bottomNotes, showBottomNotes ] = React.useState(false);
-  const [ bottomAnnotations, showBottomAnnotations ] = React.useState(false);
-  const [ bottomResults, showBottomResults ] = React.useState(false);
+  const [ bottomNotes, showBottomNotes ] = React.useState(true);
+  const [ bottomAnnotations, showBottomAnnotations ] = React.useState(true);
+  const [ bottomResults, showBottomResults ] = React.useState(true);
   const [ bottomMetadata, showBottomMetadata ] = React.useState(true);
 
   const [ startBottomSize, setStartBottomSize ] = React.useState(0);
@@ -164,6 +173,8 @@ export function Annotator({
   const [ results, setResults ] = React.useState(  annotator.results );
   const [ metadata, setMetadata ] = React.useState( {} );
   const [ headerData, setHeaderData ] = React.useState( {} );
+
+  const [ cuisIndex, setCuisIndex ] = React.useState( {} );
 
   const [ alertData, setAlertData]  = React.useState( { open: false, message: "", isError: false } );
 
@@ -224,33 +235,21 @@ export function Annotator({
                                 return acc;
                               }, {count:{},headers:[],subs:[]} )
 
-
-        //
-        // headerData
-        //
-
-
-        //     //
-        //     // headers = headers.reduce( (acc, header,i) => {
-        //     //                     acc.count[header] = acc.count[header] ? acc.count[header]+1 : 1;
-        //     //                     acc.headers.push(header+"@"+acc.count[header]);
-        //     //                     return acc;
-        //     //                   }, {count:{},headers:[]} ).headers
-        //
-        // debugger
-
         setAnnotationHeaders([ "docid_page", "row", "col", "value", ...header_data.headers ])
 
         setTableData(annotator.tableData)
         setN_tables(parseInt(annotator.tableData.collectionData.tables.length))
         setTablePosition(parseInt(annotator.tableData.tablePosition))
         setResults(annotator.results)
+
+        setMetadata(annotator.metadata)
+
+        setCuisIndex(annotator.cuis_index)
+
         setHeaderData( prepareMetadata(header_data, annotator.results) );
 
-        
         setAlertData(annotator.alertData)
 
-        // debugger
         setNotesData({
           tableType: annotator.tableData.tableType || "",
           tableStatus: annotator.tableData.tableStatus || "" ,
@@ -265,10 +264,11 @@ export function Annotator({
   // }, [cookies.hash]);
 
   React.useEffect(() => {
-    // console.log("changed: " + JSON.stringify(location.search))
+    loadCuisIndex()
     loadTableContent()
     loadTableResults(true)
-    //console.log("ADDRESS CHANGE")
+    loadTableMetadata()
+
   }, [location.search]);
 
   const openMargin = bottomEnabled ? bottomSize : 65;
@@ -286,7 +286,14 @@ export function Annotator({
 
   const table_results = <TableResult loadTableResults={ () => { loadTableResults(false); loadTableContent()  }} tableResult={results} sortedHeaders={annotationHeaders}/>
 
-  const table_metadata = <TableMetadata tableResults={results} headerData={headerData}/>
+  const table_metadata = <TableMetadata tid={tableData.annotationData ? tableData.annotationData.tid : ""}
+                                        tableResults={results}
+                                        headerData={headerData}
+                                        metadata={metadata}
+                                        cuisIndex={cuisIndex}
+                                        updateTableMetadata={updateTableMetadata}
+                                        saveMetadataChanges={saveMetadataChanges}
+                                        />
 
   const bottom_elements = [table_notes, table_annotator, table_results, table_metadata]
 
@@ -595,11 +602,14 @@ function mapDispatchToProps(dispatch) {
     dispatch,
     loadTableContent : () => dispatch( loadTableContentAction() ),
     loadTableResults : (cachedOnly) => dispatch ( loadTableResultsAction(cachedOnly) ),
+    loadTableMetadata : (tid) => dispatch ( loadTableMetadataAction(tid) ),
+    loadCuisIndex : () => dispatch( loadCuisIndexAction() ),
     saveTextChanges : (tableTitle, tableBody) => dispatch( saveTableTextAction(tableTitle, tableBody) ),
     saveNoteChanges : (notes) => dispatch( saveTableNoteAction(notes)  ),
     saveAnnotationChanges : (tid, annotations) => dispatch( saveTableAnnotationAction(tid, annotations)  ),
     saveMetadataChanges : (metadata) => dispatch( saveTableMetadataAction(metadata) ),
     goToUrl : (url) => dispatch(push(url)),
+    updateTableMetadata : (metadata) => dispatch( updateTableMetadataAction(metadata) ),
 
     // deleteCollection : () => dispatch( deleteCollectionAction() ),
     // updateCollectionData : (collectionData) => dispatch( updateCollectionAction (collectionData)),

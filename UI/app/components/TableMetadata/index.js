@@ -32,28 +32,123 @@ import {
 import TableMetadataItem from 'components/TableMetadataItem'
 
 function TableMetadata({
+  tid,
   tableResults,
-  headerData
+  headerData,
+  metadata,
+  cuisIndex,
+  updateTableMetadata,
+  saveMetadataChanges
 }) {
 
-  // return <div> Results Not ready </div>
+  const [ enableDelete, setEnableDelete ] = React.useState(false)
+
+  const toggleCui = (key, cui) => {
+
+    var cuipos = metadata[key].cuis_selected.indexOf(cui)
+
+    if ( cuipos > -1){
+      metadata[key].cuis_selected.splice(cuipos,1)
+    } else {
+      metadata[key].cuis_selected.push(cui)
+    }
+
+    updateTableMetadata(Object.assign({}, metadata))
+  }
+
+
+  const addCuis = (key, cuis, conceptData) => {
+
+    // debugger
+    cuis.map( cui => {
+
+      if (!metadata[key]){
+
+        var tres = tableResults
+
+        // metadata concept has not been annotated yet.
+        metadata[key] = {
+          concept: conceptData.concept,
+          concept_root: conceptData.root,
+          concept_source: "", // This legacy.
+          cuis: [],
+          cuis_selected: [],
+          istitle: false,
+          labeller: "",
+          qualifiers: ["Presence-absense"],
+          qualifiers_selected: ["Presence-absense"],
+          tid: tid,
+        }
+      }
+
+      var cuipos = metadata[key].cuis.indexOf(cui)
+
+      if ( cuipos < 0 ){
+          metadata[key].cuis.push(cui)
+          metadata[key].cuis_selected.push(cui)
+      }
+    })
+
+    updateTableMetadata(Object.assign({}, metadata))
+  }
+
+
+
+  const deleteCui = (key, cui) => {
+    var cuipos = metadata[key].cuis_selected.indexOf(cui)
+
+    if ( cuipos > -1){
+      metadata[key].cuis_selected.splice(cuipos,1)
+    }
+
+    cuipos = metadata[key].cuis.indexOf(cui)
+
+    if ( cuipos > -1){
+      metadata[key].cuis.splice(cuipos,1)
+    }
+
+    updateTableMetadata(Object.assign({}, metadata))
+  }
 
   return (
     <div style={{padding:"5px 7px 7px 7px"}} >
+
       <div style={{textAlign:"right", marginBottom:5}}>
         <div style={{height:35, fontSize:22, float:"left", paddingTop:5}}> 4. <b> Metadata </b> Linking </div>
-        <Button variant="outlined" style={{backgroundColor:"lightblue"}} onClick={ () => {} }> Save Metadata Changes </Button>
+
+        <Button variant="outlined" style={{backgroundColor:"lightblue"}} onClick={ () => { saveMetadataChanges(metadata);} }> Save Metadata Changes </Button>
+
+        <div style={{float:"right"}}><div style={{marginRight:20, fontSize:17, border:"1px #acacac solid", borderRadius:10, paddingLeft:10}}>
+          Enable Delete
+          <Switch
+              checked={enableDelete}
+              onChange={() => { setEnableDelete(!enableDelete) }}
+              name="checkedA"
+              inputProps={{ 'aria-label': 'secondary checkbox' }}
+
+            />
+        </div></div>
+
+
       </div>
 
       {
         Object.keys(headerData).map( (ann_groups,j) => {
-            return <div key={j}> <h3>{ann_groups}</h3><div>{ headerData[ann_groups].map(
-              (item,i) => <TableMetadataItem
-                                key={i}
-                                tableConcept={item}
-                                itemData={{concept: item, proposed:"", proposed_user:"", selected:""}}
-                                />
-            )} </div></div>
+            return <div key={j}> <h3>{ann_groups}</h3><div>{
+              headerData[ann_groups].map(
+                (item, i) => {
+                  // debugger
+                  return <TableMetadataItem
+                                  key={ i }
+                                  tableConcept={ item }
+                                  metadata={ metadata }
+                                  cuisIndex={ cuisIndex }
+                                  toggleCui={ toggleCui }
+                                  addCuis={ addCuis }
+                                  deleteCui={ deleteCui }
+                                  enableDelete={ enableDelete }
+                              />}
+              )} </div></div>
         })
       }
 
