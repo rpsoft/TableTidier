@@ -1235,7 +1235,7 @@ app.post('/annotationPreview',async function(req,res){
                   }, {})
 
                   request({
-                          url: 'http://localhost:6666/preview',
+                          url: 'http://localhost:7666/preview',
                           method: "POST",
                           json: {
                             anns: entry,

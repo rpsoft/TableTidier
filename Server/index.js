@@ -2445,7 +2445,7 @@ app.post('/annotationPreview', /*#__PURE__*/function () {
                 return acc;
               }, {});
               request({
-                url: 'http://localhost:6666/preview',
+                url: 'http://localhost:7666/preview',
                 method: "POST",
                 json: {
                   anns: entry,
