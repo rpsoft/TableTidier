@@ -135,6 +135,8 @@ function TableMetadataItem(
           return cuiEntry(cui, style)
         };
 
+  debugger
+
   return (
     <div style={{ marginTop: (root.length > 0 ? 5 : 10) }} >
 
