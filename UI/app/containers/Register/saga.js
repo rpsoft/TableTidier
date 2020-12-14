@@ -8,11 +8,18 @@ import makeSelectRegister from './selectors';
 
 import request from '../../utils/request';
 
+import makeSelectLocation from '../App/selectors'
+
+
 export function* doRegister() {
 
   const login_details = yield select(makeSelectRegister());
 
-  const requestURL = `/api/createUser`;
+  const locationData = yield select(makeSelectLocation());
+
+    // const parsed = queryString.parse(location.search);
+
+  const requestURL = `http://`+locationData.host+`:`+locationData.server_port+`/createUser`;
 
   const params = new URLSearchParams( {
     'username': login_details.userData.username,
@@ -20,6 +27,8 @@ export function* doRegister() {
     'displayName': login_details.userData.displayName,
     'email': login_details.userData.email,
   });
+
+  debugger
 
   const options = {
     method: 'POST',

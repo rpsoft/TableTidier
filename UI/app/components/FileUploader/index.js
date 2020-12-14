@@ -40,6 +40,7 @@ function FileUploader({
 
     const transferFiles = (acceptedFiles) => {
 
+      debugger
       const req = request.post( ( baseURL ? baseURL : "http://localhost:6541") +'/api/tableUploader')
 
       acceptedFiles.forEach(file => {

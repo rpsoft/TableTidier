@@ -94,8 +94,8 @@ export function App({
               }
               <Route path="/register" component={Register}></Route>
               <Route path="/collection" component={CollectionView}></Route>
-              <Route path="/landing" component={HomePage}></Route>
-              <Route path="/" component={Dashboard}></Route>
+              <Route path="/dashboard" component={Dashboard}></Route>
+              <Route path="/" component={HomePage}></Route>
             </Switch>
           </div>
 

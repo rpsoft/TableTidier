@@ -24,13 +24,17 @@ import { FixedSizeList } from 'react-window';
 
 import { loadCollectionAction, updateCollectionAction,
          editCollectionAction, removeTablesAction,
-         moveTablesAction, deleteCollectionAction } from './actions'
+         moveTablesAction, deleteCollectionAction,
+         downloadDataAction } from './actions'
 
 import { push } from 'connected-react-router'
 
 import './pagination.css';
 //
 // import { useLocation } from 'react-router-dom';
+import CsvDownloader from 'react-csv-downloader';
+import csv from 'react-csv-downloader/dist/lib/csv';
+
 
 import {
   Card, Checkbox,
@@ -60,6 +64,15 @@ import PeopleAltIcon from '@material-ui/icons/PeopleAlt';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import DeleteIcon from '@material-ui/icons/Delete';
 import SaveIcon from '@material-ui/icons/Save';
+
+
+import {
+  GetApp as DownloadIcon,
+  // NavigateBefore as NavigateBeforeIcon,
+  // NavigateNext as NavigateNextIcon,
+  // Link as LinkIcon,
+  // Edit as EditIcon,
+} from '@material-ui/icons';
 
 
 import SearchBar from 'Checkbox../../components/SearchBar'
@@ -126,7 +139,8 @@ export function CollectionView({
   removeTables,
   moveTables,
   collectionView,
-  goToUrl
+  goToUrl,
+  downloadData
 }) {
   useInjectReducer({ key: 'collectionView', reducer });
   useInjectSaga({ key: 'collectionView', saga });
@@ -194,6 +208,8 @@ export function CollectionView({
     setCheckedTables({})
     setVisibility(collectionView.visibility)
     setCompletion(collectionView.completion)
+
+    // debugger
   }, [collectionView])
 
   const prepareCollectionData = () => {
@@ -215,8 +231,15 @@ export function CollectionView({
       editCollectionData();
   }
 
+  // const isNull = (value) => typeof value === "object" && !value
+
   const Row = ({ index, style }) => {
           var table_key = collectionView.tables[index].docid+"_"+collectionView.tables[index].page
+
+          var notes = collectionView.tables[index].notes ? collectionView.tables[index].notes : ""
+          var user = collectionView.tables[index].user ? collectionView.tables[index].user : ""
+
+
           return <div style={{...style, display: "flex", alignItems: "center"}}>
             <Checkbox checked={checkedTables[table_key]}
                 onChange={() => {toggleCheckBox(table_key)}}
@@ -224,7 +247,7 @@ export function CollectionView({
                 />
                 <span> -- </span>
             <SearchResult
-                  text={ table_key+" -- "+collectionView.tables[index].user+" -- "+collectionView.tables[index].notes }
+                  text={ table_key+" -- "+user+" -- "+notes }
                   type={"table"}
                   onClick={ () => {
                     goToUrl("/table?"+
@@ -234,13 +257,31 @@ export function CollectionView({
                             )
                 }}/>
           </div>
-        };
+        }
+        //
+        // var downloadData = async (filename, columns, data) => {
+        //   var stuffhere = await csv(
+        //     {filename, separator:";", wrapColumnChar:"'", columns, data}
+        //   )
+        //   var data = new Blob([stuffhere], {type: 'text/csv'});
+        //   var csvURL = window.URL.createObjectURL(data);
+        //   var tempLink = document.createElement('a');
+        //   tempLink.href = csvURL;
+        //   tempLink.setAttribute('download', filename);
+        //   tempLink.click();
+        // }
+        //
+        // test( "collection_metadata.csv", [
+        //   {id: "id", displayName: "id"},{id: "data", displayName: "data"}
+        // ], [
+        //   {id: "1", data: 10},{id: "2", displayName: 20}
+        // ])
 
   return (
     <div style={{margin:10, minHeight: "84vh"}}>
             <Helmet>
-              <title>CollectionView</title>
-              <meta name="description" content="Description of CollectionView" />
+              <title>TT - Collections</title>
+              <meta name="description" content="Description of Collections" />
             </Helmet>
 
             <div className={classes.root}>
@@ -377,12 +418,12 @@ export function CollectionView({
                   <Card style={{padding:10}}>
                     <div>
 
-                    <div className={classes.buttonHolder}>
-                          <FileUploader baseURL={undefined}
-                                        collection_id={collection_id}
-                                        username_uploader={owner_username}
-                                        updaterCallBack= { getCollectionData }/>
-                    </div>
+                      <div className={classes.buttonHolder}>
+                            <FileUploader baseURL={undefined}
+                                          collection_id={ collection_id }
+                                          username_uploader={ owner_username}
+                                          updaterCallBack= { getCollectionData }/>
+                      </div>
 
                       <div className={classes.buttonHolder}>
                         <Button variant="contained"   disabled = { noTables == 0 } onClick={() => { setMoveDialogOpen(true); }} > Move Tables <OpenInNewIcon style={{marginLeft:5}}/> </Button>
@@ -446,6 +487,39 @@ export function CollectionView({
                                 open={deleteDialog} />
                         </div>
 
+                      <hr/>
+
+                      <div className={classes.buttonHolder}>
+                        {
+                          <Button variant="contained" onClick={ () => { downloadData("results", tables.map( t => t.tid ) )}}> Data CSV <DownloadIcon/></Button>
+                          // <CsvDownloader
+                          //   filename={"collection_data.csv"}
+                          //   separator=";"
+                          //   wrapColumnChar="'"
+                          //   columns={[]}
+                          //   datas={[]}
+                          // >
+                          // <Button variant="contained" disabled = { noTables == 0 }> Data CSV <DownloadIcon/></Button>
+                          // </CsvDownloader>
+                        }
+                        </div>
+
+                      <div className={classes.buttonHolder}>
+                        {
+                          // <CsvDownloader
+                          //   filename={"collection_metadata.csv"}
+                          //   separator=";"
+                          //   wrapColumnChar="'"
+                          //   columns={[]}
+                          //   datas={[]}
+                          // >
+                          //   <Button variant="contained" disabled = { noTables == 0 }> Metadata CSV <DownloadIcon/></Button>
+                          // </CsvDownloader>
+                          }
+                          <Button variant="contained" onClick={ () => { downloadData("metadata", tables.map( t => t.tid ) )}}> Metadata CSV <DownloadIcon/></Button>
+                        </div>
+
+
 
 
                   </div>
@@ -480,6 +554,7 @@ function mapDispatchToProps(dispatch) {
     editCollectionData : () => dispatch( editCollectionAction() ),
     removeTables : (tablesList, collectionData) => dispatch( removeTablesAction(tablesList, collectionData) ),
     moveTables : (tablesList, targetCollectionID ) => dispatch ( moveTablesAction (tablesList, targetCollectionID) ),
+    downloadData : (target, tids) => dispatch ( downloadDataAction(target, tids) ),
     goToUrl : (url) => dispatch(push(url))
   };
 }

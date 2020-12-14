@@ -27,6 +27,8 @@ import {
   INSERT_CUIS_INDEX_ACTION,
   DELETE_CUIS_INDEX_ACTION,
 
+  AUTO_LABEL_HEADERS_ACTION,
+
 } from './constants';
 
 // Table Data
@@ -146,5 +148,13 @@ export function updateCuisIndexAction(cuis_index) {
 export function loadCuisIndexAction() {
   return {
     type: LOAD_CUIS_INDEX_ACTION
+  };
+}
+
+export function autoLabelHeadersAction(headers,tid) {
+  return {
+    type: AUTO_LABEL_HEADERS_ACTION,
+    headers,
+    tid
   };
 }

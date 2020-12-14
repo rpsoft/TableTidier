@@ -103,10 +103,11 @@ app.post('/login', function(req, res, next) {
     })(req, res, next)
   });
 
-app.post('/api/createUser', async function(req, res) {
-
+app.post('/createUser', async function(req, res) {
+  debugger
   var result;
   try{
+    debugger
     result = await createUser(req.body)
     res.json({status:"success", payload: result })
   } catch (e){
@@ -149,7 +150,18 @@ app.post('/api/tableUploader', async function(req, res) {
      for (index = 0, len = files.length; index < len; ++index) {
        try{
          moveFileToCollection(files[index], req.body.collection_id )
-         const [docid, page] = files[index].originalname.split(".")[0].split("_")
+         // var [docid, page] = files[index].originalname.split(".")[0].split("_")
+
+         var file_elements = files[index].originalname.split(".")
+
+         var extension = file_elements.pop()
+
+             file_elements = file_elements.join(".").split("_")
+
+         var page = file_elements.pop()
+         var docid = file_elements.join("_")
+
+         // debugger
          await createTable(docid,page,req.body.username_uploader,req.body.collection_id,files[index].originalname)
          results.push({filename: files[index].originalname, status:"success"})
 
@@ -276,6 +288,10 @@ async function getMetadataLabellers(){
 
 // Returns the annotation for a single document/table
 async function getAnnotationByID(docid,page,collId){
+
+  if ( docid == "undefined" || page == "undefined" || collId == "undefined" ){
+    return {rows:[]}
+  }
 
   var client = await pool.connect()
   var result = await client.query(`
@@ -460,8 +476,7 @@ const setMetadata = async ( metadata ) => {
                 [ metadata[key].concept_source, metadata[key].concept_root, metadata[key].concept,
                   metadata[key].cuis.join(";"), metadata[key].cuis_selected.join(";"), metadata[key].qualifiers.join(";"), metadata[key].qualifiers_selected.join(";"),
                   metadata[key].istitle, metadata[key].labeller, metadata[key].tid ])
-
-          .then(result => console.log("insert: "+ new Date()))
+          // .then(result => console.log("insert: "+key+" -- "+ new Date()))
           .catch(e => console.error(e.stack))
           .then(() => client.release())
 
@@ -471,14 +486,19 @@ const setMetadata = async ( metadata ) => {
   return results
 }
 
-const getMetadata = async ( tid ) => {
+const getMetadata = async ( tids ) => {
   var client = await pool.connect()
-  var result = await client.query(`SELECT * FROM metadata WHERE tid = $1`,[tid])
+  var result = await client.query(`SELECT * FROM metadata WHERE tid = ANY ($1)`,[tids])
         client.release()
   return result
 }
 
 const getTid = async ( docid, page, collId ) => {
+
+  if ( docid == "undefined" || page == "undefined" || collId == "undefined" ){
+    return -1
+  }
+
   var client = await pool.connect()
   var result = await client.query(`SELECT tid FROM public."table" WHERE docid = $1 AND page = $2 AND collection_id = $3`,[docid, page, collId])
         client.release()
@@ -521,7 +541,11 @@ app.post('/metadata', async function(req,res){
         result = await setMetadata(metadata)
         break;
       case "get":
-        result = (await getMetadata(tid)).rows //req.body.docid, req.body.page, req.body.collId,
+        result = (await getMetadata([tid])).rows //req.body.docid, req.body.page, req.body.collId,
+        break;
+      case "get_multiple":
+        result = (await getMetadata(req.body.tids)).rows //req.body.docid, req.body.page, req.body.collId,
+        break;
         // debugger
 
       default:
@@ -544,7 +568,7 @@ const getCUISIndex = async () => {
   var cuis = {}
 
   var client = await pool.connect()
-  var result = await client.query(`select * from cuis_index`)
+  var result = await client.query(`select * from cuis_index ORDER BY preferred ASC`)
         client.release()
 
   result.rows.map( row => {
@@ -691,6 +715,12 @@ var deleteCollection = async (collection_id) => {
   client.release()
 }
 
+const getResults = async ( tids ) => {
+  var client = await pool.connect()
+  var result = await client.query(`SELECT * FROM "result" WHERE tid = ANY ($1)`,[tids])
+        client.release()
+  return result
+}
 
 app.post('/collections', async function(req,res){
 
@@ -741,6 +771,18 @@ app.post('/collections', async function(req,res){
         result = await getCollection(req.body.collection_id);
         res.json({status: "success", data: result})
         break;
+
+      case "download":
+        var tids = JSON.parse(req.body.tid);
+
+        if ( req.body.target.indexOf("results") > -1 ){
+          result = await getResults( tids );
+        } else {
+          result = await getMetadata( tids );
+        }
+
+        res.json({status: "success", data: result})
+        break;
       default:
         res.json({status: "failed"})
     }
@@ -754,42 +796,42 @@ app.post('/collections', async function(req,res){
 });
 
 
-
-app.post('/metadata', async function(req,res){
-
-  if ( req.body && ( ! req.body.action ) ){
-    res.json({status: "undefined", received : req.query})
-    return
-  }
-
-  var validate_user = validateUser(req.body.username, req.body.hash);
-
-  if ( validate_user ){
-
-    var result;
-
-    switch (req.body.action) {
-      case "get":
-        // result = await getCollection(req.body.collection_id);
-        res.json({status: "success", data: result})
-        break;
-      case "delete":
-        // await deleteCollection(req.body.collection_id);
-        res.json({status: "success", data: {}})
-        break;
-      case "edit":
-        // var allCollectionData = JSON.parse( req.body.collectionData )
-
-        res.json({status: "success", data: result})
-        break;
-      default:
-        res.json({status: "failed"})
-    }
-
-  } else {
-    res.json({status:"unauthorised", payload: null})
-  }
-});
+//
+// app.post('/metadata', async function(req,res){
+//
+//   if ( req.body && ( ! req.body.action ) ){
+//     res.json({status: "undefined", received : req.query})
+//     return
+//   }
+//
+//   var validate_user = validateUser(req.body.username, req.body.hash);
+//
+//   if ( validate_user ){
+//
+//     var result;
+//
+//     switch (req.body.action) {
+//       case "get":
+//         // result = await getCollection(req.body.collection_id);
+//         res.json({status: "success", data: result})
+//         break;
+//       case "delete":
+//         // await deleteCollection(req.body.collection_id);
+//         res.json({status: "success", data: {}})
+//         break;
+//       case "edit":
+//         // var allCollectionData = JSON.parse( req.body.collectionData )
+//
+//         res.json({status: "success", data: result})
+//         break;
+//       default:
+//         res.json({status: "failed"})
+//     }
+//
+//   } else {
+//     res.json({status:"unauthorised", payload: null})
+//   }
+// });
 
 
 // Tables
@@ -834,7 +876,7 @@ const removeTables = async (tables, collection_id, fromSelect = false) => {
 
 const moveTables = async (tables, collection_id, target_collection_id) => {
     tables = tables.map( (tab) => { const [docid, page] = tab.split("_"); return {docid,page} })
-    // debugger
+
     var client = await pool.connect()
 
     for ( var i = 0; i < tables.length; i++){
@@ -943,7 +985,7 @@ app.post('/getTableContent',async function(req,res){
         }
       } catch (e){
         console.log(e)
-        debugger
+        // debugger
         res.json({status: "getTableContent: probably page out of bounds, or document does not exist", body : req.body})
       }
 
@@ -1182,7 +1224,8 @@ app.post('/annotationPreview',async function(req,res){
             if( final_annotations_array.length > 0){
 
                   var entry = final_annotations_array[0]
-                      entry.annotation = entry.annotation.annotations.map( (v,i) => {var ann = v; ann.content = Object.keys(ann.content).join(";"); ann.qualifiers = Object.keys(ann.qualifiers).join(";"); return ann} )
+                      entry.annotation = !entry.annotation ? [] : entry.annotation.annotations.map( (v,i) => {var ann = v; ann.content = Object.keys(ann.content).join(";"); ann.qualifiers = Object.keys(ann.qualifiers).join(";"); return ann} )
+
                   console.log(entry)
 
                   entry.annotation.reduce( (acc, entry, i) => {
@@ -1208,12 +1251,20 @@ app.post('/annotationPreview',async function(req,res){
                               .catch(e => console.error(e.stack))
                               .then(() => client.release())
                       }
-                      if ( body.tableResult && body.tableResult.length > 0){
-                          await insertResult(body.ann.tid[0], body.tableResult)
+
+                      // debugger
+                      if ( body && body.tableResult && body.tableResult.length > 0){
+                        await insertResult(body.ann.tid[0], body.tableResult)
+                        console.log("tableresults: "+body.tableResult.length)
+                        res.json( {"state" : "good", result : body.tableResult} )
+                      } else {
+                        console.log("tableresults: empty. Is plumber/R API running, or annotation empty?")
+                        res.json( {"state" : "good", result : []} )
                       }
+                      // console.log("tableresults: "+body.tableResult.length)
+
                       // res.json( {"state" : "good", result : body.tableResult, "anns" : body.ann} )
-                      console.log("tableresults: "+body.tableResult.length)
-                      res.json( {"state" : "good", result : body.tableResult} )
+
                   });
                   // res.json( {"state" : "good2", result : body.tableResult} )
             } else {
@@ -1317,6 +1368,8 @@ app.get('/api/formattedResults', async function (req,res){
 
 const getMMatch = async (phrase) => {
 
+  phrase = phrase.trim().replace(/[^A-Za-z 0-9 \.,\?""!@#\$%\^&\*\(\)-_=\+;:<>\/\\\|\}\{\[\]`~]*/g, '') //.replace(/[\W_]+/g," ");
+
   console.log("Asking MM for: "+ phrase)
 
   var result = new Promise(function(resolve, reject) {
@@ -1373,11 +1426,47 @@ const getMMatch = async (phrase) => {
   // return result
 }
 
-app.post('/getMMatch',async function(req,res){
+app.post('/auto', async function(req,res){
   try{
-   if(req.body && req.body.phrase ){
-     var mm_match = await getMMatch(req.query.phrase)
-     res.send( mm_match )
+   if(req.body && req.body.headers ){
+
+     var cuis_index = await getCUISIndex()
+
+     // {preferred : row.preferred, hasMSH: row.hasMSH, userDefined: row.user_defined, adminApproved: row.admin_approved}
+     // debugger
+
+     var headers = JSON.parse(req.body.headers)
+
+     var all_concepts = Array.from(new Set(Object.values(headers).flat().flat().flat().flat()))
+
+     var results = await Promise.all(all_concepts.map( async (concept,i) => {
+                                   var mm_match = await getMMatch(concept.toLowerCase())
+                                   return mm_match
+                                 }))
+
+
+
+     var insertCUI = async (cui,preferred,hasMSH) => {
+         var client = await pool.connect()
+         var done = await client.query('INSERT INTO cuis_index(cui,preferred,"hasMSH",user_defined,admin_approved) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (cui) DO UPDATE SET preferred = $2, "hasMSH" = $3, user_defined = $4, admin_approved = $5',  [cui,preferred,hasMSH,true,false])
+           // .then(result => console.log("insert: "+ new Date()))
+           .catch(e => console.error(e.stack))
+           .then(() => client.release())
+     }
+
+     await Promise.all(results.flat().flat().map( async (cuiData,i) => {
+
+          if ( cuis_index[cuiData.CUI] ){
+              return
+          } else {
+              return await insertCUI(cuiData.CUI, cuiData.preferred, cuiData.hasMSH)
+          }
+     }))
+
+      // debugger
+     results = all_concepts.reduce( (acc,con,i) => {acc[con.toLowerCase().trim()] = {concept:con.trim(), labels:results[i]}; return acc},{})
+
+     res.send({autoLabels : results})
    } else {
      res.send({status: "wrong parameters", query : req.query})
    }

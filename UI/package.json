@@ -93,6 +93,7 @@
     "prop-types": "15.7.2",
     "react": "16.8.6",
     "react-cookie": "^4.0.3",
+    "react-csv-downloader": "^2.2.0",
     "react-dom": "16.8.6",
     "react-draggable": "^4.4.3",
     "react-helmet": "6.0.0-beta",

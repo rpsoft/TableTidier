@@ -111,10 +111,15 @@ export function Dashboard({
   var table_search_results = <div>
     {
       dashboard.search_results.map( (result,i) => {
+
+        // debugger
         var elems = result.doc.replace(".html","").split("_")
-        var docname = elems[0]
+        var docname = elems[0].split("/")[1]
         var page = elems[1]
-        var url = "/table?docid="+docname+"&page="+page
+        var collId = elems[0].split("/")[0]
+
+
+        var url = "/table?docid="+docname+"&page="+page+"&collId="+collId
         return <SearchResult key={i} text={docname+"_"+page} type={"table"} onClick={ ()=> { goToUrl(url) }}/>
       })
     }

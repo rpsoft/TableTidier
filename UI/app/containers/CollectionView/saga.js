@@ -1,6 +1,8 @@
 import { take, call, put, select, takeLatest } from 'redux-saga/effects';
 
-import { LOAD_COLLECTION_ACTION, EDIT_COLLECTION_ACTION, REMOVE_TABLES_ACTION, MOVE_TABLES_ACTION, DELETE_COLLECTION_ACTION} from './constants';
+import { LOAD_COLLECTION_ACTION, EDIT_COLLECTION_ACTION,
+  REMOVE_TABLES_ACTION, MOVE_TABLES_ACTION,
+  DELETE_COLLECTION_ACTION, DOWNLOAD_DATA_ACTION} from './constants';
 
 import { loadCollectionAction, updateCollectionAction } from './actions';
 
@@ -9,6 +11,8 @@ import makeSelectCollectionView, {  makeSelectCredentials } from './selectors';
 import makeSelectLocation from '../App/selectors'
 
 const queryString = require('query-string');
+
+import csv from 'react-csv-downloader/dist/lib/csv';
 
 import request from '../../utils/request';
 
@@ -219,6 +223,115 @@ export function* deleteCollection() {
   // return {collection: "hello"}
 }
 
+//
+
+
+
+
+export function* downloadTids({target, tids}) {
+
+// debugger
+  const credentials = yield select(makeSelectCredentials());
+  const locationData = yield select(makeSelectLocation());
+  const collectionState = yield select(makeSelectCollectionView());
+
+  const parsed = queryString.parse(location.search);
+
+  // const requestURL = `http://`+locationData.host+`:`+locationData.server_port+`/metadata`;
+  //
+  // const params = new URLSearchParams({
+  //     'hash' : credentials.hash,
+  //     'username' :  credentials.username,
+  //     'docid' : parsed.docid,
+  //     'page' : parsed.page,
+  //     'collId' : parsed.collId,
+  //     'tid' : payload.tid,
+  //     'action' : 'get' // get  delete  edit
+  //   });
+
+  const requestURL = `http://`+locationData.host+`:`+locationData.server_port+'/collections';
+
+  // +( target.indexOf("metadata") > -1 ? "metadata" : ""
+
+  const params = new URLSearchParams({
+      'hash' : credentials.hash,
+      'username' :  credentials.username,
+      'collection_id' : parsed.collId,
+      'action' : 'download',
+      'target' : target,
+      'tid' : JSON.stringify(tids),
+    });
+
+  const options = {
+    method: 'POST',
+    body: params
+  }
+
+  var downloadData = async (filename, columns, datas) => {
+    var stuffhere = await csv(
+      {filename, separator:";", wrapColumnChar:"'", columns, datas}
+    )
+    var data = new Blob([stuffhere], {type: 'text/csv'});
+    var csvURL = window.URL.createObjectURL(data);
+    var tempLink = document.createElement('a');
+    tempLink.href = csvURL;
+    tempLink.setAttribute('download', filename);
+    tempLink.click();
+  }
+
+  // downloadData( "ction_metadata.csv", [
+  //   {id: "id", displayName: "id"},{id: "data", displayName: "data"}
+  // ], [
+  //   {id: "1", data: [`thingsd , dom,ethign " else '`, `hello fudfa vjdf`].join(",")},{id: "2", data: JSON.stringify([2043,32,423,52,23,4,5,4])}
+  // ])
+
+
+  try {
+    const response = yield call(request, requestURL, options);
+
+    if ( response.status && response.status == "unauthorised"){
+      // debugger
+    } else {
+
+      if ( target.indexOf("result") > -1 ){
+        var result = response.data.rows.reduce(
+          (acc, tableData, i) => {
+            tableData.tableResult.map(
+              (tres) => {
+                acc.data.push( {tid: tableData.tid, ...tres} );
+                acc.headers = Array.from( new Set([...acc.headers,... Object.keys(tres)]));
+              }); return acc;
+            }, {data:[],headers:[]})
+
+        var headers = result.headers.map( heads => { return {id: heads, displayName: heads} } )
+        var data = result.data
+        data = data.map( (item) => {var headers = Object.keys(item); headers.map( head => { if (typeof item[head] === 'string'){ item[head] = item[head].trim() }  }); return item  } )
+
+        // debugger
+
+        downloadData("collection_"+parsed.collId+"_results.csv", headers, data)
+      } else {
+        var result = response.data.rows.reduce(
+                  (acc, tableData, i) => {
+                        acc.data.push( {tid: tableData.tid, ...tableData} );
+                        acc.headers = Array.from( new Set([...acc.headers,... Object.keys(tableData)]));
+                      return acc;
+                    }, {data:[],headers:[]})
+        var headers = result.headers.map( heads => { return {id: heads, displayName: heads} } )
+        var data = result.data.map( (item) => {var headers = Object.keys(item); headers.map( head => { if (typeof item[head] === 'string'){ item[head] = item[head].trim() }  }); return item  } )
+
+        // debugger
+        downloadData("collection_"+parsed.collId+"_metadata.csv", headers, data)
+      }
+
+      // debugger
+    }
+  } catch (err) {
+    console.log(err)
+  }
+  return {}
+}
+
 
 // Individual exports for testing
 export default function* collectionViewSaga() {
@@ -227,6 +340,6 @@ export default function* collectionViewSaga() {
   yield takeLatest(DELETE_COLLECTION_ACTION, deleteCollection);
   yield takeLatest(REMOVE_TABLES_ACTION, removeCollectionTables);
   yield takeLatest(MOVE_TABLES_ACTION, moveCollectionTables);
-
+  yield takeLatest(DOWNLOAD_DATA_ACTION, downloadTids);
 
 }

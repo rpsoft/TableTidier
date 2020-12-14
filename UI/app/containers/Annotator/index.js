@@ -29,6 +29,7 @@ import {
   saveTableMetadataAction,
   loadCuisIndexAction,
   updateTableMetadataAction,
+  autoLabelHeadersAction,
 } from './actions'
 
 import { useCookies } from 'react-cookie';
@@ -39,6 +40,8 @@ import { ArrowDropUp, ArrowDropDown }from '@material-ui/icons';
 import { push } from 'connected-react-router'
 
 // import {browserHistory} from 'react-router';
+
+import CsvDownloader from 'react-csv-downloader';
 
 import {
   Card, Checkbox,
@@ -139,6 +142,8 @@ export function Annotator({
   saveMetadataChanges,
 
   updateTableMetadata,
+
+  autoLabel,
 }) {
 
   useInjectReducer({ key: 'annotator', reducer });
@@ -169,7 +174,6 @@ export function Annotator({
   const [ annotations, setAnnotations ] = React.useState( annotator.annotations );
   const [ annotationHeaders, setAnnotationHeaders ] = React.useState([])
 
-
   const [ results, setResults ] = React.useState(  annotator.results );
   const [ metadata, setMetadata ] = React.useState( {} );
   const [ headerData, setHeaderData ] = React.useState( {} );
@@ -178,6 +182,7 @@ export function Annotator({
 
   const [ alertData, setAlertData]  = React.useState( { open: false, message: "", isError: false } );
 
+  const [ tid, setTid ] = React.useState("")
 
   const [ notesData, setNotesData ] = React.useState({ tableType:"", tableStatus:"", textNotes: "" });
 
@@ -250,6 +255,8 @@ export function Annotator({
 
         setAlertData(annotator.alertData)
 
+        setTid(tableData.annotationData ? tableData.annotationData.tid : "")
+
         setNotesData({
           tableType: annotator.tableData.tableType || "",
           tableStatus: annotator.tableData.tableStatus || "" ,
@@ -277,7 +284,7 @@ export function Annotator({
 
   const table_annotator =  annotations ? <TableAnnotator annotations={annotations}
                                                          setAnnotations={ (anns) => {setAnnotations(anns)}}
-                                                         tid={tableData.annotationData ? tableData.annotationData.tid : ""}
+                                                         tid={tid}
                                                          saveAnnotationChanges={saveAnnotationChanges}
                                                          loadTableResults={ () => { loadTableResults(false); loadTableContent()  }}
                                                          /> : ""
@@ -286,13 +293,16 @@ export function Annotator({
 
   const table_results = <TableResult loadTableResults={ () => { loadTableResults(false); loadTableContent()  }} tableResult={results} sortedHeaders={annotationHeaders}/>
 
-  const table_metadata = <TableMetadata tid={tableData.annotationData ? tableData.annotationData.tid : ""}
+   // debugger
+
+  const table_metadata = <TableMetadata tid={tid}
                                         tableResults={results}
                                         headerData={headerData}
                                         metadata={metadata}
                                         cuisIndex={cuisIndex}
                                         updateTableMetadata={updateTableMetadata}
                                         saveMetadataChanges={saveMetadataChanges}
+                                        autoLabel={ () => { autoLabel(headerData, tid ) } }
                                         />
 
   const bottom_elements = [table_notes, table_annotator, table_results, table_metadata]
@@ -342,10 +352,19 @@ export function Annotator({
   const goToTable = (number) => { return annotator.tableData ? prepare_nav_link(annotator.tableData.collectionData.tables, number) : () => {} }
 
   const docid = annotator.tableData ? annotator.tableData.docid : ""
+  const page = annotator.tableData ? annotator.tableData.page : ""
+  const collId = annotator.tableData ? annotator.tableData.collId : ""
+
+  const fileNameRoot = () => [docid,page,collId].join("_")
+
 
   return (
 
       <Card style={{marginTop:10, marginBottom: openMargin, minHeight:"85vh", marginRight:250}}>
+        <Helmet>
+          <title>TT - Annotations</title>
+          <meta name="description" content="Description of Annotations" />
+        </Helmet>
         <PopAlert alertData={alertData} setAlertData={setAlertData} />
 
         <div className={classes.root}>
@@ -466,23 +485,38 @@ export function Annotator({
                 //     />
                 // </ListItem>
                 }
+
                 <ListItem button>
-                  <ListItemIcon><DownloadIcon/></ListItemIcon>
-                  <ListItemText primary={"Download CSV Data"} />
+                  <CsvDownloader
+                    filename={fileNameRoot()+"_table_data.csv"}
+                    separator=";"
+                    wrapColumnChar="'"
+                    columns={annotationHeaders.map( item => { return {id: item, displayName: item} } )}
+                    datas={results}
+                  >
+                    <ListItemIcon><DownloadIcon/></ListItemIcon>
+                    <ListItemText primary={"Download CSV Data"} />
+                  </CsvDownloader>
                 </ListItem>
+
                 <ListItem button>
-                  <ListItemIcon><LinkIcon/></ListItemIcon>
-                  <ListItemText primary={"Link to Document"} />
+                  <CsvDownloader
+                    filename={fileNameRoot()+"_table_metadata.csv"}
+                    separator=";"
+                    wrapColumnChar="'"
+                    columns={ Object.values(metadata)[0] ? Object.keys(Object.values(metadata)[0]).map( item => { return {id: item, displayName: item} } ) : []}
+                    datas={Object.values(metadata)}
+                  >
+                    <ListItemIcon><DownloadIcon/></ListItemIcon>
+                    <ListItemText primary={"Download CSV Metadata"} />
+                  </CsvDownloader>
                 </ListItem>
+
                 {
-                // <ListItem button>
-                //   <ListItemIcon><DownloadIcon/></ListItemIcon>
-                //   <ListItemText primary={"Download CSV Data"} />
-                // </ListItem>
-                // <ListItem button>
-                //   <ListItemIcon><DownloadIcon/></ListItemIcon>
-                //   <ListItemText primary={"Download CSV Data"} />
-                // </ListItem>
+                  // <ListItem button>
+                  //   <ListItemIcon><LinkIcon/></ListItemIcon>
+                  //   <ListItemText primary={"Link to Document"} />
+                  // </ListItem>
                 }
               </List>
             </Drawer>
@@ -610,6 +644,7 @@ function mapDispatchToProps(dispatch) {
     saveMetadataChanges : (metadata) => dispatch( saveTableMetadataAction(metadata) ),
     goToUrl : (url) => dispatch(push(url)),
     updateTableMetadata : (metadata) => dispatch( updateTableMetadataAction(metadata) ),
+    autoLabel : (headers,tid) => dispatch( autoLabelHeadersAction(headers,tid) ),
 
     // deleteCollection : () => dispatch( deleteCollectionAction() ),
     // updateCollectionData : (collectionData) => dispatch( updateCollectionAction (collectionData)),

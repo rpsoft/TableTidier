@@ -29,6 +29,9 @@ import {
   Switch,
 } from '@material-ui/core';
 
+
+import AdbIcon from '@material-ui/icons/Adb';
+
 import TableMetadataItem from 'components/TableMetadataItem'
 
 function TableMetadata({
@@ -38,7 +41,8 @@ function TableMetadata({
   metadata,
   cuisIndex,
   updateTableMetadata,
-  saveMetadataChanges
+  saveMetadataChanges,
+  autoLabel
 }) {
 
   const [ enableDelete, setEnableDelete ] = React.useState(false)
@@ -92,8 +96,6 @@ function TableMetadata({
     updateTableMetadata(Object.assign({}, metadata))
   }
 
-
-
   const deleteCui = (key, cui) => {
     var cuipos = metadata[key].cuis_selected.indexOf(cui)
 
@@ -113,12 +115,14 @@ function TableMetadata({
   return (
     <div style={{padding:"5px 7px 7px 7px"}} >
 
-      <div style={{textAlign:"right", marginBottom:5}}>
+      <div style={{marginBottom:45}}>
         <div style={{height:35, fontSize:22, float:"left", paddingTop:5}}> 4. <b> Metadata </b> Linking </div>
 
-        <Button variant="outlined" style={{backgroundColor:"lightblue"}} onClick={ () => { saveMetadataChanges(metadata);} }> Save Metadata Changes </Button>
+        <Button variant="outlined" style={{backgroundColor:"lightblue", height: 40, float:"right"}} onClick={ () => { saveMetadataChanges(metadata);} }> Save Metadata Changes </Button>
 
-        <div style={{float:"right"}}><div style={{marginRight:20, fontSize:17, border:"1px #acacac solid", borderRadius:10, paddingLeft:10}}>
+        <Button variant="outlined" style={{backgroundColor:"lightblue", marginRight:10, height: 40, float:"right"}} onClick={ () => { autoLabel(); } }> Auto Label <AdbIcon /> </Button>
+
+        <span style={{float:"right"}}><div style={{marginRight:10, fontSize:17, border:"1px #acacac solid", borderRadius:10, paddingLeft:10}}>
           Enable Delete
           <Switch
               checked={enableDelete}
@@ -127,10 +131,11 @@ function TableMetadata({
               inputProps={{ 'aria-label': 'secondary checkbox' }}
 
             />
-        </div></div>
-
+        </div></span>
 
       </div>
+
+      <hr style={{borderTop:"1px #acacac dashed"}}/>
 
       {
         Object.keys(headerData).map( (ann_groups,j) => {

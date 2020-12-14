@@ -63,7 +63,7 @@ function TableResult({
           <div style={{height:35, fontSize:22, float:"left", paddingTop:5}}> 3. Extraction <b> Results </b> </div>
           <Button variant="outlined" style={{backgroundColor:"lightblue"}} onClick={ () => { loadTableResults() } }> Refresh Results </Button>
         </div>
-
+        <hr style={{borderTop:"1px #acacac dashed"}}/>
          {
            data.length > 0 ? <ReactTable
                                 data={data}

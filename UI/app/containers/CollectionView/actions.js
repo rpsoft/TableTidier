@@ -6,7 +6,7 @@
 
 import { LOAD_COLLECTION_ACTION, UPDATE_COLLECTION_ACTION, DELETE_COLLECTION_ACTION,
          EDIT_COLLECTION_ACTION, REMOVE_TABLES_ACTION,
-         MOVE_TABLES_ACTION } from './constants';
+         MOVE_TABLES_ACTION, DOWNLOAD_DATA_ACTION } from './constants';
 
 export function loadCollectionAction() {
   return {
@@ -46,5 +46,14 @@ export function moveTablesAction(tablesList, targetCollectionID) {
 export function deleteCollectionAction() {
   return {
     type: DELETE_COLLECTION_ACTION,
+  };
+}
+
+
+export function downloadDataAction(target, tids) {
+  return {
+    type: DOWNLOAD_DATA_ACTION,
+    target: target,
+    tids: tids
   };
 }

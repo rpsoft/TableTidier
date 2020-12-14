@@ -86,9 +86,9 @@ function TableAnnotator({
         <div style={{height:35, fontSize:22}}>
 
           <Button variant="outlined" style={{backgroundColor:"lightblue", float:"right"}} onClick={ () => {saveAnnotationChanges(tid, annotations); loadTableResults();} }> save annotation changes </Button>
-          <Button variant="outlined" style={{backgroundColor:"lightblue", float:"right", marginRight:20}} onClick={ () => {} }> Auto Annotate <AdbIcon /></Button>
+          <Button variant="outlined" style={{backgroundColor:"lightblue", float:"right", marginRight:10}} onClick={ () => {} }> Auto Annotate <AdbIcon /></Button>
 
-          <span style={{float:"right", marginRight:20, fontSize:17, border:"1px #acacac solid", borderRadius:10, paddingLeft:10}}>
+          <span style={{float:"right", marginRight:10, fontSize:17, border:"1px #acacac solid", borderRadius:10, paddingLeft:10}}>
             Enable Delete
             <Switch
                 checked={enableDelete}

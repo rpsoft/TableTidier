@@ -21,6 +21,8 @@ import {
   INSERT_CUIS_INDEX_ACTION,
   DELETE_CUIS_INDEX_ACTION,
 
+  AUTO_LABEL_HEADERS_ACTION,
+
 } from './constants';
 
 import {
@@ -73,7 +75,7 @@ export function* getTableContent() {
     method: 'POST',
     body: params
   }
-
+// debugger
   try {
     const response = yield call(request, requestURL, options);
 
@@ -250,6 +252,7 @@ export function* getTableMetadata( payload ) {
           mItem.cuis = mItem.cuis && mItem.cuis.length > 0 ? Array.from(new Set(mItem.cuis.split(";"))) : []
           mItem.cuis_selected = mItem.cuis_selected && mItem.cuis_selected.length > 0 ? Array.from(new Set(mItem.cuis_selected.split(";"))) : []
 
+
           mItem.cuis.sort( (a,b) => mItem.cuis_selected.indexOf(b) - mItem.cuis_selected.indexOf(a) )
 
           mItem.qualifiers = Array.from(new Set(mItem.qualifiers.split(";")))
@@ -367,6 +370,87 @@ export function* saveChanges ( payload ) {
     return {}
 }
 
+
+export function* getAutoLabels( payload ) {
+
+  const credentials = yield select(makeSelectCredentials());
+  const locationData = yield select(makeSelectLocation());
+
+  const parsed = queryString.parse(location.search);
+  const requestURL = `http://`+locationData.host+`:`+locationData.server_port+`/auto`;
+
+  const params = new URLSearchParams({
+      'hash' : credentials.hash,
+      'username' :  credentials.username,
+      'docid' : parsed.docid,
+      'page' : parsed.page,
+      'collId' : parsed.collId,
+      'tid' : payload.tid,
+      'headers' : JSON.stringify(payload.headers),
+      'action' : 'label' // get  delete  edit
+    });
+
+  const options = {
+    method: 'POST',
+    body: params
+  }
+
+  yield put( yield issueAlertAction({ open: true, message: "Labelling, please wait...", isError: false }))
+
+  try {
+    const response = yield call(request, requestURL, options);
+
+    if ( response.status && response.status == "unauthorised"){
+      // debugger
+      // COUld probably redirect to /
+      // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
+    } else {
+      // debugger
+
+      var metadata = Object.keys(response.autoLabels).reduce(
+        (acc, key, i) => {
+
+          var mItem = {}
+
+          mItem.concept_source = ""
+          mItem.concept = response.autoLabels[key].concept
+          mItem.concept_root = response.autoLabels[key].concept
+
+          mItem.cuis = response.autoLabels[key].labels.map( item => item.CUI )
+          // debugger
+
+          mItem.cuis_selected = mItem.cuis && mItem.cuis.length > 0 ? [mItem.cuis[0]] : []
+
+          mItem.cuis.sort( (a,b) => mItem.cuis_selected.indexOf(b) - mItem.cuis_selected.indexOf(a) )
+
+          mItem.qualifiers = [] //Array.from(new Set(mItem.qualifiers.split(";")))
+          mItem.qualifiers_selected = [] //Array.from(new Set(mItem.qualifiers_selected.split(";")))
+
+          mItem.istitle = false
+          mItem.labeller = credentials.username
+          mItem.tid = payload.tid
+
+          acc[key] = mItem;
+          return acc
+
+        }, {} )
+
+      // debugger
+      yield put( yield updateTableMetadataAction(metadata) );
+
+      yield put( yield loadCuisIndexAction());
+
+      yield put( yield issueAlertAction({ open: true, message: "Labels assigned", isError: false }))
+
+      // yield put( yield updateTableMetadataAction(metadata) );
+    }
+  } catch (err) {
+    console.log(err)
+  }
+
+  return {}
+}
+
 // Individual exports for testing
 export default function* annotatorSaga() {
 
@@ -379,6 +463,8 @@ export default function* annotatorSaga() {
   yield takeLatest(SAVE_TABLE_NOTES_ACTION, saveChanges);
   yield takeLatest(SAVE_TABLE_ANNOTATIONS_ACTION, saveChanges);
   yield takeLatest(SAVE_TABLE_METADATA_ACTION, saveChanges);
+
+  yield takeLatest(AUTO_LABEL_HEADERS_ACTION, getAutoLabels);
 
   // yield takeLatest(LOAD_TABLE_CONTENT_ACTION, getTableContent);
   // See example in containers/HomePage/saga.js
