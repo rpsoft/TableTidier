@@ -117,9 +117,17 @@ function TableMetadataItem(
       if ( isSelected ) {
         selected_style = {}
       }
+      var preferred = "";
+
+      try {
+        preferred = cuisIndex[cui].preferred
+      } catch (e) {
+        console.log(e)
+        preferred = ""
+      }
 
       return <div key={cui} style={{ ...style, marginBottom:5, paddingLeft:5, cursor:"pointer", ...selected_style }}
-                  onClick={ () => {toggleDialogCui(cui)} }> {cui+" -- "+cuisIndex[cui] ? cuisIndex[cui].preferred : ""} </div>
+                  onClick={ () => {toggleDialogCui(cui)} }> {cui+" -- "+preferred} </div>
   }
 
   const Row = ({ index, style }) => {
