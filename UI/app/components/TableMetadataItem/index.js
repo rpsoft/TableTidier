@@ -50,7 +50,7 @@ function TableMetadataItem(
       concept = concept.trim()
 
   var key = concept.toLowerCase()
-  
+
   var itemData = metadata[key]
 
   var cuis = []
@@ -119,7 +119,7 @@ function TableMetadataItem(
       }
 
       return <div key={cui} style={{ ...style, marginBottom:5, paddingLeft:5, cursor:"pointer", ...selected_style }}
-                  onClick={ () => {toggleDialogCui(cui)} }> {cui+" -- "+cuisIndex[cui].preferred} </div>
+                  onClick={ () => {toggleDialogCui(cui)} }> {cui+" -- "+cuisIndex[cui] ? cuisIndex[cui].preferred : ""} </div>
   }
 
   const Row = ({ index, style }) => {
