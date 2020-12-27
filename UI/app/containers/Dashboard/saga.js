@@ -13,6 +13,8 @@ import { push } from 'connected-react-router';
 
 const queryString = require('query-string');
 
+import { URL_BASE } from '../../links'
+
 
 export function* doSearch() {
   // debugger
@@ -20,7 +22,7 @@ export function* doSearch() {
 
   const locationData = yield select(makeSelectLocation());
 
-  const requestURL = `http://`+locationData.host+`:`+locationData.server_port+`/search`;
+  const requestURL = `http://`+locationData.ui_host+(locationData.server_port ? `:`+locationData.server_port : "")+URL_BASE+`search`;
 
   const params = new URLSearchParams({
       'searchContent': dashboard_state.searchContent,
@@ -56,7 +58,7 @@ export function* listCollections() {
 
   const parsed = queryString.parse(location.search);
 
-  const requestURL = `http://`+locationData.host+`:`+locationData.server_port+`/collections`;
+  const requestURL = `http://`+locationData.ui_host+(locationData.server_port ? `:`+locationData.server_port : "")+URL_BASE+`collections`;
 
   const params = new URLSearchParams({
       'hash' : credentials.hash,
@@ -90,7 +92,7 @@ export function* createCollection() {
 
   const parsed = queryString.parse(location.search);
 
-  const requestURL = `http://`+locationData.host+`:`+locationData.server_port+`/collections`;
+  const requestURL = `http://`+locationData.ui_host+(locationData.server_port ? `:`+locationData.server_port : "")+URL_BASE+`collections`;
 
   const params = new URLSearchParams({
       'hash' : credentials.hash,

@@ -64,8 +64,6 @@ const useStyles = makeStyles((theme) => ({
  },
 }));
 
-//import FileUploader from "../../components/FileUploader"; //      <FileUploader />
-
 export function Login({
   token,
   doLogin,

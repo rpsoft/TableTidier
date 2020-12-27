@@ -117,17 +117,18 @@ export function Register({
 
       <Card style={{padding:30,marginTop:10,width:400, marginLeft:"auto", marginRight:"auto"}}>
 
+        {
+          //<TextField
+          //   id="fullname"
+          //   value={fullname }
+          //   placeholder="Full name"
+          //   onChange={ (evt) => { setFullname(evt.currentTarget.value)} }
+          //   onKeyDown ={() => {}}
+          //   />
+          //
+          // <br />
+        }
         { !registered ? <div><h2> Register your Account </h2>
-
-                                  <TextField
-                                    id="fullname"
-                                    value={fullname }
-                                    placeholder="Full name"
-                                    onChange={ (evt) => { setFullname(evt.currentTarget.value)} }
-                                    onKeyDown ={() => {}}
-                                    />
-
-                                  <br />
 
                                   <TextField
                                     id="email"

@@ -41,8 +41,8 @@
     "prettify": "prettier --write",
     "start:tunnel": "cross-env NODE_ENV=development ENABLE_TUNNEL=true node server",
     "start:production": "npm run test && npm run build && npm run start:prod",
-    "start": "cross-env NODE_ENV=development REACT_APP_SERVER_PORT=$PORT_SERVER REACT_APP_WEBSITE_NAME=$DOMAIN REACT_APP_WEBSITE_PORT=$PORT_UI node server --port=$PORT_UI",
-    "start:prod": "cross-env NODE_ENV=production REACT_APP_SERVER_PORT=$PORT_SERVER REACT_APP_WEBSITE_NAME=$DOMAIN REACT_APP_WEBSITE_PORT=$PORT_UI node server --port=$PORT_UI"
+    "start": "cross-env NODE_ENV=development API_DOMAIN=$API_DOMAIN API_PORT=$API_PORT API_BASE=$API_BASE UI_PORT=$UI_PORT UI_DOMAIN=$UI_DOMAIN node server --port=$UI_PORT",
+    "start:prod": "cross-env NODE_ENV=production API_DOMAIN=$API_DOMAIN API_PORT=$API_PORT API_BASE=$API_BASE UI_PORT=$UI_PORT UI_DOMAIN=$UI_DOMAIN node server --port=$UI_PORT"
   },
   "browserslist": [
     "last 2 versions",

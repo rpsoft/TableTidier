@@ -92,6 +92,13 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import ReactPaginate from 'react-paginate';
 
+
+import makeSelectLocation from '../App/selectors'
+
+import {
+  URL_BASE,
+} from '../../links'
+
 const queryString = require('query-string');
 
 const useStyles = makeStyles((theme) => ({
@@ -140,8 +147,10 @@ export function CollectionView({
   moveTables,
   collectionView,
   goToUrl,
-  downloadData
+  downloadData,
+  locationData
 }) {
+
   useInjectReducer({ key: 'collectionView', reducer });
   useInjectSaga({ key: 'collectionView', saga });
 
@@ -419,7 +428,7 @@ export function CollectionView({
                     <div>
 
                       <div className={classes.buttonHolder}>
-                            <FileUploader baseURL={undefined}
+                            <FileUploader baseURL={("http://"+locationData.ui_host+(locationData.server_port ? `:`+locationData.server_port : "") + URL_BASE + 'tableUploader')}
                                           collection_id={ collection_id }
                                           username_uploader={ owner_username}
                                           updaterCallBack= { getCollectionData }/>
@@ -541,8 +550,11 @@ CollectionView.propTypes = {
   dispatch: PropTypes.func.isRequired,
 };
 
+
+
 const mapStateToProps = createStructuredSelector({
   collectionView : makeSelectCollectionView(),
+  locationData : makeSelectLocation(),
 });
 
 function mapDispatchToProps(dispatch) {

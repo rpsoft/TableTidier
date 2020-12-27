@@ -3,9 +3,13 @@
 SESSION=$USER
 
 #Import configurations from config.json.
-export PORT_UI=$(cat config.json | jq '.port_ui')
-export PORT_SERVER=$(cat config.json | jq '.port')
-export DOMAIN=$(cat config.json | jq '.host')
+export API_PORT=$(cat config.json | jq '.api_port')
+export API_BASE=$(cat config.json | jq '.api_base_url')
+export API_DOMAIN=$(cat config.json | jq '.api_host')
+
+export UI_PORT=$(cat config.json | jq '.ui_port')
+export UI_DOMAIN=$(cat config.json | jq '.ui_host')
+
 
 # -2: forces 256 colors,
 byobu-tmux -2 new-session -d -s $SESSION

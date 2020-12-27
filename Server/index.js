@@ -102,7 +102,7 @@ app.use(bodyParser.urlencoded({
   extended: true
 }));
 app.use(_security["default"].initialize());
-app.post('/login', function (req, res, next) {
+app.post(CONFIG.api_base_url + '/login', function (req, res, next) {
   _security["default"].authenticate('custom', function (err, user, info) {
     // console.log("login_req",JSON.stringify(req))
     if (err) {
@@ -123,7 +123,7 @@ app.post('/login', function (req, res, next) {
     }
   })(req, res, next);
 });
-app.post('/createUser', /*#__PURE__*/function () {
+app.post(CONFIG.api_base_url + '/createUser', /*#__PURE__*/function () {
   var _ref = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(req, res) {
     var result;
     return _regenerator["default"].wrap(function _callee$(_context) {
@@ -183,7 +183,10 @@ var moveFileToCollection = function moveFileToCollection(filedata, coll) {
   fs.renameSync(filedata.path, path.join(tables_folder_target, coll, filedata.originalname));
 };
 
-app.post('/api/tableUploader', /*#__PURE__*/function () {
+app.get("/api/test", function (req, res) {
+  res.send("here we are");
+});
+app.post(CONFIG.api_base_url + '/tableUploader', /*#__PURE__*/function () {
   var _ref2 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee3(req, res) {
     var upload;
     return _regenerator["default"].wrap(function _callee3$(_context3) {
@@ -576,7 +579,7 @@ function _main() {
 }
 
 main();
-app.get('/api/deleteTable', /*#__PURE__*/function () {
+app.get(CONFIG.api_base_url + '/deleteTable', /*#__PURE__*/function () {
   var _ref5 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee5(req, res) {
     var filename, delprom;
     return _regenerator["default"].wrap(function _callee5$(_context5) {
@@ -624,7 +627,7 @@ app.get('/api/deleteTable', /*#__PURE__*/function () {
     return _ref5.apply(this, arguments);
   };
 }());
-app.get('/api/recoverTable', /*#__PURE__*/function () {
+app.get(CONFIG.api_base_url + '/recoverTable', /*#__PURE__*/function () {
   var _ref6 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee6(req, res) {
     var filename;
     return _regenerator["default"].wrap(function _callee6$(_context6) {
@@ -653,7 +656,7 @@ app.get('/api/recoverTable', /*#__PURE__*/function () {
     return _ref6.apply(this, arguments);
   };
 }());
-app.get('/api/listDeletedTables', /*#__PURE__*/function () {
+app.get(CONFIG.api_base_url + '/listDeletedTables', /*#__PURE__*/function () {
   var _ref7 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee7(req, res) {
     return _regenerator["default"].wrap(function _callee7$(_context7) {
       while (1) {
@@ -679,7 +682,7 @@ app.get('/api/listDeletedTables', /*#__PURE__*/function () {
     return _ref7.apply(this, arguments);
   };
 }());
-app.get('/api/modifyCUIData', /*#__PURE__*/function () {
+app.get(CONFIG.api_base_url + '/modifyCUIData', /*#__PURE__*/function () {
   var _ref8 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee9(req, res) {
     var modifyCUIData, result;
     return _regenerator["default"].wrap(function _callee9$(_context9) {
@@ -762,7 +765,7 @@ app.get('/api/modifyCUIData', /*#__PURE__*/function () {
     return _ref8.apply(this, arguments);
   };
 }());
-app.get('/api/cuiDeleteIndex', /*#__PURE__*/function () {
+app.get(CONFIG.api_base_url + '/cuiDeleteIndex', /*#__PURE__*/function () {
   var _ref10 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee11(req, res) {
     var cuiDeleteIndex;
     return _regenerator["default"].wrap(function _callee11$(_context11) {
@@ -834,7 +837,7 @@ app.get('/api/cuiDeleteIndex', /*#__PURE__*/function () {
     return _ref10.apply(this, arguments);
   };
 }());
-app.get('/api/getMetadataForCUI', /*#__PURE__*/function () {
+app.get(CONFIG.api_base_url + '/getMetadataForCUI', /*#__PURE__*/function () {
   var _ref12 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee13(req, res) {
     var getCuiTables, meta;
     return _regenerator["default"].wrap(function _callee13$(_context13) {
@@ -1075,7 +1078,7 @@ var getTid = /*#__PURE__*/function () {
   };
 }();
 
-app.post('/metadata', /*#__PURE__*/function () {
+app.post(CONFIG.api_base_url + '/metadata', /*#__PURE__*/function () {
   var _ref18 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee18(req, res) {
     var validate_user, tid, result, metadata;
     return _regenerator["default"].wrap(function _callee18$(_context18) {
@@ -1225,7 +1228,7 @@ var getCUISIndex = /*#__PURE__*/function () {
   };
 }();
 
-app.post('/cuis', /*#__PURE__*/function () {
+app.post(CONFIG.api_base_url + '/cuis', /*#__PURE__*/function () {
   var _ref20 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee20(req, res) {
     var validate_user, result;
     return _regenerator["default"].wrap(function _callee20$(_context20) {
@@ -1289,7 +1292,7 @@ app.post('/cuis', /*#__PURE__*/function () {
     return _ref20.apply(this, arguments);
   };
 }());
-app.get('/', function (req, res) {
+app.get(CONFIG.api_base_url + '/', function (req, res) {
   res.send("TTidier Server running.");
 }); // Simple validation
 
@@ -1543,7 +1546,7 @@ var getResults = /*#__PURE__*/function () {
   };
 }();
 
-app.post('/collections', /*#__PURE__*/function () {
+app.post(CONFIG.api_base_url + '/collections', /*#__PURE__*/function () {
   var _ref27 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee27(req, res) {
     var validate_user, result, allCollectionData, tids;
     return _regenerator["default"].wrap(function _callee27$(_context27) {
@@ -1917,7 +1920,7 @@ var moveTables = /*#__PURE__*/function () {
   };
 }();
 
-app.post('/tables', /*#__PURE__*/function () {
+app.post(CONFIG.api_base_url + '/tables', /*#__PURE__*/function () {
   var _ref31 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee31(req, res) {
     var validate_user, result;
     return _regenerator["default"].wrap(function _callee31$(_context31) {
@@ -1995,7 +1998,7 @@ app.post('/tables', /*#__PURE__*/function () {
     return _ref31.apply(this, arguments);
   };
 }());
-app.post('/search', /*#__PURE__*/function () {
+app.post(CONFIG.api_base_url + '/search', /*#__PURE__*/function () {
   var _ref32 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee32(req, res) {
     var bod, type, validate_user, search_results;
     return _regenerator["default"].wrap(function _callee32$(_context32) {
@@ -2031,7 +2034,7 @@ app.post('/search', /*#__PURE__*/function () {
     return _ref32.apply(this, arguments);
   };
 }());
-app.post('/getTableContent', /*#__PURE__*/function () {
+app.post(CONFIG.api_base_url + '/getTableContent', /*#__PURE__*/function () {
   var _ref33 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee33(req, res) {
     var bod, validate_user, collection_data, tableData, annotation;
     return _regenerator["default"].wrap(function _callee33$(_context33) {
@@ -2240,7 +2243,7 @@ function _getRecommendedCUIS() {
   return _getRecommendedCUIS.apply(this, arguments);
 }
 
-app.get('/api/cuiRecommend', /*#__PURE__*/function () {
+app.get(CONFIG.api_base_url + '/cuiRecommend', /*#__PURE__*/function () {
   var _ref34 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee34(req, res) {
     var cuirec;
     return _regenerator["default"].wrap(function _callee34$(_context34) {
@@ -2325,7 +2328,7 @@ app.get('/api/cuiRecommend', /*#__PURE__*/function () {
 // });
 // Generates the results table live preview, connecting to the R API.
 
-app.post('/annotationPreview', /*#__PURE__*/function () {
+app.post(CONFIG.api_base_url + '/annotationPreview', /*#__PURE__*/function () {
   var _ref35 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee37(req, res) {
     var bod, validate_user, annotations, tid, client, tableResult, final_annotations, r, ann, existing, final_annotations_array, entry;
     return _regenerator["default"].wrap(function _callee37$(_context37) {
@@ -2581,7 +2584,7 @@ app.post('/annotationPreview', /*#__PURE__*/function () {
   };
 }()); // Returns all annotations for all document/tables.
 
-app.get('/api/formattedResults', /*#__PURE__*/function () {
+app.get(CONFIG.api_base_url + '/formattedResults', /*#__PURE__*/function () {
   var _ref38 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee38(req, res) {
     var results, finalResults, r, ann, existing, finalResults_array, formattedRes;
     return _regenerator["default"].wrap(function _callee38$(_context38) {
@@ -2753,7 +2756,7 @@ var getMMatch = /*#__PURE__*/function () {
   };
 }();
 
-app.post('/auto', /*#__PURE__*/function () {
+app.post(CONFIG.api_base_url + '/auto', /*#__PURE__*/function () {
   var _ref40 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee43(req, res) {
     var cuis_index, headers, all_concepts, results, insertCUI;
     return _regenerator["default"].wrap(function _callee43$(_context43) {
@@ -2919,7 +2922,7 @@ app.post('/auto', /*#__PURE__*/function () {
     return _ref40.apply(this, arguments);
   };
 }());
-app.get('/api/getMMatch', /*#__PURE__*/function () {
+app.get(CONFIG.api_base_url + '/getMMatch', /*#__PURE__*/function () {
   var _ref44 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee44(req, res) {
     var mm_match;
     return _regenerator["default"].wrap(function _callee44$(_context44) {
@@ -2969,7 +2972,7 @@ app.get('/api/getMMatch', /*#__PURE__*/function () {
     return _ref44.apply(this, arguments);
   };
 }());
-app.post('/notes', /*#__PURE__*/function () {
+app.post(CONFIG.api_base_url + '/notes', /*#__PURE__*/function () {
   var _ref45 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee46(req, res) {
     var validate_user, notesData, updateNotes;
     return _regenerator["default"].wrap(function _callee46$(_context46) {
@@ -3062,9 +3065,8 @@ app.post('/notes', /*#__PURE__*/function () {
   return function (_x85, _x86) {
     return _ref45.apply(this, arguments);
   };
-}()); // POST method route
-
-app.post('/text', /*#__PURE__*/function () {
+}());
+app.post(CONFIG.api_base_url + '/text', /*#__PURE__*/function () {
   var _ref47 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee47(req, res) {
     var validate_user, result, folder_exists, titleText, bodyText, start_body_index, last_body_index, body, completeFile;
     return _regenerator["default"].wrap(function _callee47$(_context47) {
@@ -3143,7 +3145,7 @@ app.post('/text', /*#__PURE__*/function () {
     return _ref47.apply(this, arguments);
   };
 }());
-app.get('/api/removeOverrideTable', /*#__PURE__*/function () {
+app.get(CONFIG.api_base_url + '/removeOverrideTable', /*#__PURE__*/function () {
   var _ref48 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee48(req, res) {
     var file_exists;
     return _regenerator["default"].wrap(function _callee48$(_context48) {
@@ -3191,7 +3193,7 @@ app.get('/api/removeOverrideTable', /*#__PURE__*/function () {
     return _ref48.apply(this, arguments);
   };
 }());
-app.get('/api/classify', /*#__PURE__*/function () {
+app.get(CONFIG.api_base_url + '/classify', /*#__PURE__*/function () {
   var _ref49 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee49(req, res) {
     return _regenerator["default"].wrap(function _callee49$(_context49) {
       while (1) {
@@ -3227,7 +3229,7 @@ app.get('/api/classify', /*#__PURE__*/function () {
     return _ref49.apply(this, arguments);
   };
 }());
-app.get('/api/getTable', /*#__PURE__*/function () {
+app.get(CONFIG.api_base_url + '/getTable', /*#__PURE__*/function () {
   var _ref50 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee50(req, res) {
     var tableData;
     return _regenerator["default"].wrap(function _callee50$(_context50) {
@@ -3335,7 +3337,7 @@ app.get('/api/getTable', /*#__PURE__*/function () {
 //
 // });
 
-app.post('/saveAnnotation', /*#__PURE__*/function () {
+app.post(CONFIG.api_base_url + '/saveAnnotation', /*#__PURE__*/function () {
   var _ref51 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee52(req, res) {
     var validate_user, insertAnnotation, annotationData;
     return _regenerator["default"].wrap(function _callee52$(_context52) {
@@ -3443,7 +3445,10 @@ app.post('/saveAnnotation', /*#__PURE__*/function () {
   return function (_x101, _x102) {
     return _ref51.apply(this, arguments);
   };
-}());
-app.listen(CONFIG.port, function () {
-  console.log('Table Tidier Server running on port ' + CONFIG.port + ' ' + new Date().toISOString());
+}()); // api_host
+// ui_port
+// ui_host
+
+app.listen(CONFIG.api_port, function () {
+  console.log('Table Tidier Server running on port ' + CONFIG.api_port + ' with base: ' + CONFIG.api_base_url + "  :: " + new Date().toISOString());
 });

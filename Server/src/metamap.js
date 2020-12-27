@@ -33,7 +33,7 @@ function extractMMData (r) {
 
 async function metamap(term){
   // removing single characters in the term/phrase
-    
+
   term = term.split(" ").map( item => item.length > 1 && item !== "$nmbr$" ? item : "" ).join("")
     // debugger
   var mm_concepts = new Promise( function (resolve, reject) {

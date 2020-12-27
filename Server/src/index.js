@@ -25,7 +25,6 @@ var cors = require('cors');
 
 // I want to access cheerio from everywhere.
 global.cheerio = require('cheerio');
-
 global.CONFIG = require('./config.json')
 global.available_documents = {}
 global.abs_index = []
@@ -71,6 +70,9 @@ global.pool = new Pool({
 //Network functions
 import { getAnnotationResults } from "./network_functions.js"
 
+
+
+
 console.log("Configuring Server")
 var app = express();
 
@@ -89,7 +91,7 @@ app.use(bodyParser.urlencoded({
 
 app.use(passport.initialize());
 
-app.post('/login', function(req, res, next) {
+app.post(CONFIG.api_base_url+'/login', function(req, res, next) {
   passport.authenticate('custom', function(err, user, info) {
     // console.log("login_req",JSON.stringify(req))
     if ( err ){
@@ -103,7 +105,7 @@ app.post('/login', function(req, res, next) {
     })(req, res, next)
   });
 
-app.post('/createUser', async function(req, res) {
+app.post(CONFIG.api_base_url+'/createUser', async function(req, res) {
   debugger
   var result;
   try{
@@ -135,7 +137,11 @@ const moveFileToCollection = (filedata, coll) => {
 
 }
 
-app.post('/api/tableUploader', async function(req, res) {
+app.get("/api/test", function(req,res){
+  res.send("here we are")
+})
+
+app.post(CONFIG.api_base_url+'/tableUploader', async function(req, res) {
 
  let upload = multer({ storage: storage }).array('fileNames');
 
@@ -329,7 +335,7 @@ async function main(){
 main();
 
 
-app.get('/api/deleteTable', async function(req,res){
+app.get(CONFIG.api_base_url+'/deleteTable', async function(req,res){
 
   if ( req.query && req.query.docid && req.query.page ){
 
@@ -353,7 +359,7 @@ app.get('/api/deleteTable', async function(req,res){
 
 });
 
-app.get('/api/recoverTable', async function(req,res){
+app.get(CONFIG.api_base_url+'/recoverTable', async function(req,res){
     if ( req.query && req.query.docid && req.query.page ){
 
       var filename = req.query.docid+"_"+req.query.page+".html"
@@ -367,7 +373,7 @@ app.get('/api/recoverTable', async function(req,res){
     res.send("table recovered")
 });
 
-app.get('/api/listDeletedTables', async function(req,res){
+app.get(CONFIG.api_base_url+'/listDeletedTables', async function(req,res){
 
   fs.readdir( tables_folder_deleted, function(err, items) {
 
@@ -381,7 +387,7 @@ app.get('/api/listDeletedTables', async function(req,res){
 
 });
 
-app.get('/api/modifyCUIData', async function(req,res){
+app.get(CONFIG.api_base_url+'/modifyCUIData', async function(req,res){
 
   var modifyCUIData = async (cui, preferred, adminApproved, prevcui) => {
       var client = await pool.connect()
@@ -407,7 +413,7 @@ app.get('/api/modifyCUIData', async function(req,res){
 
 });
 
-app.get('/api/cuiDeleteIndex', async function(req,res){
+app.get(CONFIG.api_base_url+'/cuiDeleteIndex', async function(req,res){
 
   var cuiDeleteIndex = async (cui) => {
       var client = await pool.connect()
@@ -428,7 +434,7 @@ app.get('/api/cuiDeleteIndex', async function(req,res){
 
 });
 
-app.get('/api/getMetadataForCUI', async function(req,res){
+app.get(CONFIG.api_base_url+'/getMetadataForCUI', async function(req,res){
 
   var getCuiTables = async (cui) => {
       var client = await pool.connect()
@@ -512,7 +518,7 @@ const getTid = async ( docid, page, collId ) => {
   return tid
 }
 
-app.post('/metadata', async function(req,res){
+app.post(CONFIG.api_base_url+'/metadata', async function(req,res){
   // debugger
   if ( req.body && ( ! req.body.action ) ){
     res.json({status: "undefined", received : req.body})
@@ -579,7 +585,7 @@ const getCUISIndex = async () => {
 }
 
 
-app.post('/cuis', async function(req,res){
+app.post(CONFIG.api_base_url+'/cuis', async function(req,res){
 
   if ( req.body && ( ! req.body.action ) ){
     res.json({status: "undefined", received : req.body})
@@ -618,7 +624,7 @@ app.post('/cuis', async function(req,res){
 
 
 
-app.get('/',function(req,res){
+app.get(CONFIG.api_base_url+'/',function(req,res){
   res.send("TTidier Server running.")
 });
 
@@ -722,8 +728,9 @@ const getResults = async ( tids ) => {
   return result
 }
 
-app.post('/collections', async function(req,res){
+app.post(CONFIG.api_base_url+'/collections', async function(req,res){
 
+  // console.log("HEEEYYY")
   // SELECT * FROM (
 	// SELECT username, name, description, unnest("groups") as g_id, group_id
 	// FROM public.users, public."usersGroup"
@@ -900,7 +907,7 @@ const moveTables = async (tables, collection_id, target_collection_id) => {
 
 
 
-app.post('/tables', async function(req,res){
+app.post(CONFIG.api_base_url+'/tables', async function(req,res){
 
   if ( req.body && ( ! req.body.action ) ){
     res.json({status: "undefined", received : req.query})
@@ -934,7 +941,7 @@ app.post('/tables', async function(req,res){
 
 
 
-app.post('/search', async function(req,res){
+app.post(CONFIG.api_base_url+'/search', async function(req,res){
 
   var bod = req.body.searchContent
   var type = JSON.parse(req.body.searchType)
@@ -959,7 +966,7 @@ app.post('/search', async function(req,res){
 });
 
 
-app.post('/getTableContent',async function(req,res){
+app.post(CONFIG.api_base_url+'/getTableContent',async function(req,res){
 
     var bod = req.body.searchContent
 
@@ -1079,7 +1086,7 @@ async function getRecommendedCUIS(){
   return recommend_cuis
 }
 
-app.get('/api/cuiRecommend', async function(req,res){
+app.get(CONFIG.api_base_url+'/cuiRecommend', async function(req,res){
 
   var cuirec = await getRecommendedCUIS()
 
@@ -1151,7 +1158,7 @@ app.get('/api/cuiRecommend', async function(req,res){
 
 
 // Generates the results table live preview, connecting to the R API.
-app.post('/annotationPreview',async function(req,res){
+app.post(CONFIG.api_base_url+'/annotationPreview',async function(req,res){
 
       var bod = req.body.searchContent
 
@@ -1287,7 +1294,7 @@ app.post('/annotationPreview',async function(req,res){
 });
 
 // Returns all annotations for all document/tables.
-app.get('/api/formattedResults', async function (req,res){
+app.get(CONFIG.api_base_url+'/formattedResults', async function (req,res){
 
        var results = await getAnnotationResults()
 
@@ -1426,7 +1433,7 @@ const getMMatch = async (phrase) => {
   // return result
 }
 
-app.post('/auto', async function(req,res){
+app.post(CONFIG.api_base_url+'/auto', async function(req,res){
   try{
    if(req.body && req.body.headers ){
 
@@ -1475,7 +1482,7 @@ app.post('/auto', async function(req,res){
  }
 });
 
-app.get('/api/getMMatch',async function(req,res){
+app.get(CONFIG.api_base_url+'/getMMatch',async function(req,res){
   try{
    if(req.query && req.query.phrase ){
      var mm_match = await getMMatch(req.query.phrase)
@@ -1489,7 +1496,7 @@ app.get('/api/getMMatch',async function(req,res){
 });
 
 
-app.post('/notes', async function (req, res) {
+app.post(CONFIG.api_base_url+'/notes', async function (req, res) {
 
     if ( req.body && ( ! req.body.action ) ){
       res.json({status: "undefined", received : req.query})
@@ -1518,9 +1525,7 @@ app.post('/notes', async function (req, res) {
 
 })
 
-
-// POST method route
-app.post('/text', async function (req, res) {
+app.post(CONFIG.api_base_url+'/text', async function (req, res) {
 
     if ( req.body && ( ! req.body.action ) ){
       res.json({status: "undefined", received : req.query})
@@ -1568,7 +1573,7 @@ app.post('/text', async function (req, res) {
 
 })
 
-app.get('/api/removeOverrideTable', async function(req,res){
+app.get(CONFIG.api_base_url+'/removeOverrideTable', async function(req,res){
 
   if(req.query && req.query.docid && req.query.page ){
 
@@ -1588,7 +1593,7 @@ app.get('/api/removeOverrideTable', async function(req,res){
   }
 });
 
-app.get('/api/classify', async function(req,res){
+app.get(CONFIG.api_base_url+'/classify', async function(req,res){
 
   if(req.query && req.query.terms){
     console.log(req.query.terms)
@@ -1599,7 +1604,7 @@ app.get('/api/classify', async function(req,res){
 
 });
 
-app.get('/api/getTable',async function(req,res){
+app.get(CONFIG.api_base_url+'/getTable',async function(req,res){
 
    try{
 
@@ -1676,7 +1681,7 @@ app.get('/api/getTable',async function(req,res){
 // });
 
 
-app.post('/saveAnnotation',async function(req,res){
+app.post(CONFIG.api_base_url+'/saveAnnotation',async function(req,res){
 
 
   if ( req.body && ( ! req.body.action ) ){
@@ -1721,6 +1726,10 @@ app.post('/saveAnnotation',async function(req,res){
   }
 });
 
-app.listen(CONFIG.port, function () {
-  console.log('Table Tidier Server running on port '+CONFIG.port+' ' + new Date().toISOString());
+
+// api_host
+// ui_port
+// ui_host
+app.listen(CONFIG.api_port, function () {
+  console.log('Table Tidier Server running on port '+CONFIG.api_port+' with base: '+ CONFIG.api_base_url + "  :: " + new Date().toISOString());
 });

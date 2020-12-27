@@ -54,29 +54,14 @@ import { useCookies } from 'react-cookie';
 
 
 export function App({
-  appData,
+  // appData,
   setLoginCredentials,
 }) {
 
+  // debugger
   const [ cookies, setCookie, removeCookie ] = useCookies();
 
   setLoginCredentials(cookies)
-
-  // useEffect(() => {
-  //
-  //   // If authentication token is available and it's different from the cookie token it will be set in the cookies.
-  //   // if ( token ){
-  //   //   handleLoginToggle(); // close on successful login.
-  //   //   setCookie("hash", token) // 86400 seconds in a day. Login will expire after a day.
-  //   //   setCookie("username", username)
-  //   // }
-  //
-  //   setLoginCredentials(cookies)
-  //
-  // }, [cookies.hash]);
-
-  // debugger
-  //style={{maxWidth:1600, marginLeft:"auto", marginRight:"auto" }}
 
   return (
     <div style={{marginLeft:"auto", marginRight:"auto", minWidth:800, maxWidth:1400, width:"100%", minHeight:"100vh"}}>
@@ -106,7 +91,7 @@ export function App({
 }
 
 const mapStateToProps = createStructuredSelector({
-  appData : makeSelectLocation(),
+  // appData : makeSelectLocation(),
 });
 
 function mapDispatchToProps(dispatch) {

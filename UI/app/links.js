@@ -1,5 +1,5 @@
 // const urlBase = "/ohoc/"
-const urlBase = "/"
+const urlBase = "/api/"
 
 export const URL_BASE = urlBase
 export const URL_VIEW_RECORD = urlBase + 'record/'

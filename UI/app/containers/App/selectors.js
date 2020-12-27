@@ -3,7 +3,7 @@ import { initialState } from './reducer';
 
 
 // const selectRouter = state => state.router;
-const selectApp = state => state.app || initialState;
+const selectApp = state => { return state.app || initialState; }
 // const selectDashboardDomain = state => state.dashboard
 
 const selectCredentials = state => state.app.credentials || {};
@@ -15,6 +15,7 @@ const makeSelectCredentials = () =>
   );
 
 const makeSelectLocation = () =>
+
   createSelector(
     // selectRouter,
     selectApp,

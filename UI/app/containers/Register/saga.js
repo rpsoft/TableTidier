@@ -10,6 +10,8 @@ import request from '../../utils/request';
 
 import makeSelectLocation from '../App/selectors'
 
+import { URL_BASE } from '../../links'
+
 
 export function* doRegister() {
 
@@ -19,7 +21,7 @@ export function* doRegister() {
 
     // const parsed = queryString.parse(location.search);
 
-  const requestURL = `http://`+locationData.host+`:`+locationData.server_port+`/createUser`;
+  const requestURL = `http://`+locationData.ui_host+(locationData.server_port ? `:`+locationData.server_port : "")+`/createUser`;
 
   const params = new URLSearchParams( {
     'username': login_details.userData.username,

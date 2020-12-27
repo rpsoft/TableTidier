@@ -8,8 +8,6 @@
 // Needed for redux-saga es6 generator support
 import '@babel/polyfill';
 
-const argv = require('../server/argv');
-
 // Import all the third party stuff
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -37,7 +35,29 @@ import { translationMessages } from './i18n';
 
 // Create redux store with history
 // const initialState = { global :{ host : process.env.REACT_APP_WEBSITE_NAME, server_port: process.env.REACT_APP_SERVER_PORT, ui_port: process.env.REACT_APP_WEBSITE_PORT } };
-const initialState = { app: { host : process.env.REACT_APP_WEBSITE_NAME, server_port: process.env.REACT_APP_SERVER_PORT, ui_port: process.env.REACT_APP_WEBSITE_PORT }}
+//
+// var hfeh = argv
+
+var proc_host_vars = {
+  // "INIT_CWD" : process.env.INIT_CWD,
+  "NODE_ENV" : process.env.NODE_ENV,
+  "UI_DOMAIN" : process.env.UI_DOMAIN,
+  "UI_PORT" : process.env.UI_PORT,
+  "API_PORT" :process.env.UI_PORT, //process.env.API_PORT
+  "API_BASE" :process.env.API_BASE,
+  "API_DOMAIN" :process.env.API_DOMAIN,
+}
+
+const initialState = {
+  app: {
+    ui_host : process.env.UI_DOMAIN,
+    ui_port: process.env.UI_PORT,
+    server_host: process.env.API_DOMAIN,
+    server_port: process.env.UI_PORT, //process.env.API_PORT
+  }
+}
+
+// console.log(initialState)
 
 const store = configureStore(initialState, history);
 const MOUNT_NODE = document.getElementById('app');

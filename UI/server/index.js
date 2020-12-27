@@ -16,30 +16,26 @@ const app = express();
 
 // If you need a backend, e.g. an API, add your custom backend-specific middleware here
 // https://create-react-app.dev/docs/proxying-api-requests-in-development/
-const { createProxyMiddleware } = require('http-proxy-middleware');
 
-var proc_host_vars = {
-  "INIT_CWD" : process.env["INIT_CWD"],
-  "NODE_ENV" : process.env["NODE_ENV"],
-  "REACT_APP_WEBSITE_NAME" : process.env["REACT_APP_WEBSITE_NAME"],
-  "REACT_APP_SERVER_PORT" :process.env["REACT_APP_SERVER_PORT"],
-  "REACT_APP_WEBSITE_PORT" : process.env["REACT_APP_WEBSITE_PORT"],
-}
+// var proc_host_vars = {
+//   "INIT_CWD" : process.env["INIT_CWD"],
+//   "NODE_ENV" : process.env["NODE_ENV"],
+//   "UI_DOMAIN" : process.env["UI_DOMAIN"],
+//   "UI_PORT" : process.env["UI_PORT"],
+//   "API_PORT" :process.env["API_PORT"],
+//   "API_BASE" :process.env["API_BASE"],
+//   "API_DOMAIN" :process.env["API_DOMAIN"],
+// }
+//
+// console.log(proc_host_vars)
 
-var api_server_host = proc_host_vars.REACT_APP_WEBSITE_NAME+":"+proc_host_vars.REACT_APP_SERVER_PORT
-
-app.use(
-  '/api',
-  createProxyMiddleware({
-    target: api_server_host,
-    changeOrigin: true,
-  })
-);
+// debugger
 
 // In production we need to pass these values// console.log(api_server_host) in instead of relying on webpack
 setup(app, {
   outputPath: resolve(process.cwd(), 'build'),
   publicPath: '/',
+  // proc_host_vars
 });
 
 // get the intended host and port number, use localhost and port 3000 if not provided
@@ -53,6 +49,29 @@ app.get('*.js', (req, res, next) => {
   res.set('Content-Encoding', 'gzip');
   next();
 });
+
+
+const { createProxyMiddleware } = require('http-proxy-middleware');
+
+app.use(
+  createProxyMiddleware("/api", {
+    target: "http://"+process.env["API_DOMAIN"]+":"+process.env["API_PORT"],
+    changeOrigin: true,
+  })
+);
+
+// var proxy = require('http-proxy-middleware');
+// debugger
+
+//
+// const proxy = require('http-proxy-middleware');
+// const apiProxy = proxy('/api', { target: 'http://localhost:3000' });
+// app.use('/api', apiProxy);
+// app.dynamicHelpers({
+//   currentUser: function (req, res) {
+//     return req.currentUser;
+//   }
+// });
 
 // Start your app.
 app.listen(port, host, async err => {

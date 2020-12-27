@@ -63,7 +63,6 @@ function TableMetadata({
 
   const addCuis = (key, cuis, conceptData) => {
 
-    // debugger
     cuis.map( cui => {
 
       if (!metadata[key]){
@@ -142,7 +141,7 @@ function TableMetadata({
             return <div key={j}> <h3>{ann_groups}</h3><div>{
               headerData[ann_groups].map(
                 (item, i) => {
-                   debugger
+                  
                   return <TableMetadataItem
                                   key={ i }
                                   tableConcept={ item }

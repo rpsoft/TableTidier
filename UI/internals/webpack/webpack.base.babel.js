@@ -5,7 +5,9 @@
 const path = require('path');
 const webpack = require('webpack');
 
-module.exports = options => ({
+module.exports = options => {
+   console.log(options);
+   return ({
   mode: options.mode,
   entry: options.entry,
   output: Object.assign(
@@ -113,9 +115,13 @@ module.exports = options => ({
     // drop any unreachable code.
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'development',
-      REACT_APP_WEBSITE_NAME: 'localhost',
-      REACT_APP_WEBSITE_PORT: 7531,
-      REACT_APP_SERVER_PORT: 6541,
+      // "INIT_CWD" : process.env["INIT_CWD"],
+      // "NODE_ENV" : process.env["NODE_ENV"],
+      UI_DOMAIN : process.env["UI_DOMAIN"],
+      UI_PORT : process.env["UI_PORT"],
+      API_PORT : process.env["API_PORT"],
+      API_BASE : process.env["API_BASE"],
+      API_DOMAIN : process.env["API_DOMAIN"],
     }),
   ]),
   resolve: {
@@ -126,4 +132,5 @@ module.exports = options => ({
   devtool: options.devtool,
   target: 'web', // Make web variables accessible to webpack, e.g. window
   performance: options.performance || {},
-});
+  })
+};

@@ -39,6 +39,10 @@ import {
   loadCuisIndexAction,
 } from './actions';
 
+import {
+  URL_BASE,
+} from '../../links'
+
 import makeSelectAnnotator from './selectors';
 
 import request from '../../utils/request';
@@ -54,7 +58,7 @@ export function* getTableContent() {
   const locationData = yield select(makeSelectLocation());
 
   const parsed = queryString.parse(location.search);
-  const requestURL = `http://`+locationData.host+`:`+locationData.server_port+`/getTableContent`;
+  const requestURL = `http://`+locationData.ui_host + (locationData.server_port ? `:`+locationData.server_port : "") + URL_BASE+`getTableContent`;
 
   const params = new URLSearchParams({
       'hash' : credentials.hash,
@@ -135,7 +139,7 @@ export function* getTableResult( payload ) {
   const locationData = yield select(makeSelectLocation());
 
   const parsed = queryString.parse(location.search);
-  const requestURL = `http://`+locationData.host+`:`+locationData.server_port+`/annotationPreview`;
+  const requestURL = `http://`+locationData.ui_host+(locationData.server_port ? `:`+locationData.server_port : "")+URL_BASE+`/annotationPreview`;
 
   const params = new URLSearchParams({
       'hash' : credentials.hash,
@@ -180,7 +184,7 @@ export function* getCUISIndex( payload ) {
   const locationData = yield select(makeSelectLocation());
 
   const parsed = queryString.parse(location.search);
-  const requestURL = `http://`+locationData.host+`:`+locationData.server_port+`/cuis`;
+  const requestURL = `http://`+locationData.ui_host+(locationData.server_port ? `:`+locationData.server_port : "")+URL_BASE+`cuis`;
 
   const params = new URLSearchParams({
       'hash' : credentials.hash,
@@ -219,7 +223,7 @@ export function* getTableMetadata( payload ) {
   const locationData = yield select(makeSelectLocation());
 
   const parsed = queryString.parse(location.search);
-  const requestURL = `http://`+locationData.host+`:`+locationData.server_port+`/metadata`;
+  const requestURL = `http://`+locationData.ui_host+(locationData.server_port ? `:`+locationData.server_port : "")+URL_BASE+`metadata`;
 
   const params = new URLSearchParams({
       'hash' : credentials.hash,
@@ -277,7 +281,7 @@ export function* saveChanges ( payload ) {
 
     const parsed = queryString.parse(location.search);
 
-    var requestURL = `http://`+locationData.host+`:`+locationData.server_port;
+    var requestURL = `http://`+locationData.ui_host+(locationData.server_port ? `:`+locationData.server_port : "");
 
     var pre_params = {
         'hash' : credentials.hash,
@@ -289,7 +293,7 @@ export function* saveChanges ( payload ) {
 
     switch( payload.type ) {
       case SAVE_TABLE_TEXT_ACTION:
-        requestURL = requestURL+`/text`
+        requestURL = requestURL+URL_BASE+`text`
 
         pre_params = {...pre_params,
                   'action' : 'save',
@@ -299,7 +303,7 @@ export function* saveChanges ( payload ) {
 
         break;
       case SAVE_TABLE_NOTES_ACTION:
-        requestURL = requestURL+`/notes`
+        requestURL = requestURL+URL_BASE+`notes`
 
         pre_params = {...pre_params,
                   'action' : 'save',
@@ -309,7 +313,7 @@ export function* saveChanges ( payload ) {
 
         break;
       case SAVE_TABLE_ANNOTATIONS_ACTION:
-        requestURL = requestURL+`/saveAnnotation`
+        requestURL = requestURL+URL_BASE+`saveAnnotation`
 
         pre_params = {...pre_params,
                   'action' : 'save',
@@ -319,7 +323,7 @@ export function* saveChanges ( payload ) {
 
         break;
       case SAVE_TABLE_METADATA_ACTION:
-        requestURL = requestURL+`/metadata`
+        requestURL = requestURL+URL_BASE+`metadata`
 
         pre_params = {...pre_params,
                   'action' : 'save',
@@ -377,7 +381,7 @@ export function* getAutoLabels( payload ) {
   const locationData = yield select(makeSelectLocation());
 
   const parsed = queryString.parse(location.search);
-  const requestURL = `http://`+locationData.host+`:`+locationData.server_port+`/auto`;
+  const requestURL = `http://`+locationData.ui_host+(locationData.server_port ? `:`+locationData.server_port : "")+URL_BASE+`auto`;
 
   const params = new URLSearchParams({
       'hash' : credentials.hash,
