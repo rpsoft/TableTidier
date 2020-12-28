@@ -2448,7 +2448,7 @@ app.post(CONFIG.api_base_url + '/annotationPreview', /*#__PURE__*/function () {
                 return acc;
               }, {});
               request({
-                url: 'http://localhost:7666/preview',
+                url: 'http://' + CONFIG.plumber_url + '/preview',
                 method: "POST",
                 json: {
                   anns: entry,
