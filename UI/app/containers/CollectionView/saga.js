@@ -16,10 +16,6 @@ import csv from 'react-csv-downloader/dist/lib/csv';
 
 import request from '../../utils/request';
 
-import {
-  URL_BASE,
-} from '../../links'
-
 export function* getCollectionData() {
 
   const credentials = yield select(makeSelectCredentials());
@@ -27,7 +23,7 @@ export function* getCollectionData() {
 
   const parsed = queryString.parse(location.search);
 
-  const requestURL = `http://`+locationData.ui_host+(locationData.server_port ? `:`+locationData.server_port : "")+URL_BASE+`collections`;
+  const requestURL = locationData.api_url+`collections`;
 
   if ( parsed.collId == "new"){
     yield put( yield updateCollectionAction({title : "", collection_id : "new", description: "", owner_username : ""}) );
@@ -72,7 +68,7 @@ export function* editCollectionData() {
 
   const parsed = queryString.parse(location.search);
 
-  const requestURL = `http://`+locationData.ui_host+(locationData.server_port ? `:`+locationData.server_port : "")+URL_BASE+`collections`;
+  const requestURL = locationData.api_url+`collections`;
   // debugger
   const params = new URLSearchParams({
       'hash' : credentials.hash,
@@ -127,7 +123,7 @@ export function* removeCollectionTables ( payload ) {
   }
   // debugger
   const locationData = yield select(makeSelectLocation());
-  const requestURL = `http://`+locationData.ui_host+(locationData.server_port ? `:`+locationData.server_port : "")+URL_BASE+`tables`;
+  const requestURL = locationData.api_url+`tables`;
   try {
     const response = yield call(request, requestURL, options);
 
@@ -164,7 +160,7 @@ export function* moveCollectionTables ( payload ) {
   }
 
   const locationData = yield select(makeSelectLocation());
-  const requestURL = `http://`+locationData.ui_host+(locationData.server_port ? `:`+locationData.server_port : "")+URL_BASE+`tables`;
+  const requestURL = locationData.api_url+`tables`;
 
   try {
 
@@ -193,7 +189,7 @@ export function* deleteCollection() {
 
   const parsed = queryString.parse(location.search);
 
-  const requestURL = `http://`+locationData.ui_host+(locationData.server_port ? `:`+locationData.server_port : "")+URL_BASE+`collections`;
+  const requestURL = locationData.api_url+`collections`;
 
   const params = new URLSearchParams({
       'hash' : credentials.hash,
@@ -253,7 +249,7 @@ export function* downloadTids({target, tids}) {
   //     'action' : 'get' // get  delete  edit
   //   });
 
-  const requestURL = `http://`+locationData.ui_host+(locationData.server_port ? `:`+locationData.server_port : "")+URL_BASE+'collections';
+  const requestURL = locationData.api_url+'collections';
 
   // +( target.indexOf("metadata") > -1 ? "metadata" : ""
 

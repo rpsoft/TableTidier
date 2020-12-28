@@ -21,7 +21,7 @@ export function* doRegister() {
 
     // const parsed = queryString.parse(location.search);
 
-  const requestURL = `http://`+locationData.ui_host+(locationData.server_port ? `:`+locationData.server_port : "")+`/createUser`;
+  const requestURL = locationData.api_url+`/createUser`;
 
   const params = new URLSearchParams( {
     'username': login_details.userData.username,

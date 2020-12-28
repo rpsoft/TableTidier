@@ -428,7 +428,7 @@ export function CollectionView({
                     <div>
 
                       <div className={classes.buttonHolder}>
-                            <FileUploader baseURL={("http://"+locationData.ui_host+(locationData.server_port ? `:`+locationData.server_port : "") + URL_BASE + 'tableUploader')}
+                            <FileUploader baseURL={(locationData.api_url + 'tableUploader')}
                                           collection_id={ collection_id }
                                           username_uploader={ owner_username}
                                           updaterCallBack= { getCollectionData }/>

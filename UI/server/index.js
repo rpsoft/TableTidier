@@ -73,6 +73,12 @@ app.use(
 //   }
 // });
 
+
+var cors = require('cors');
+
+app.use(cors("*"));
+app.options('*', cors())
+
 // Start your app.
 app.listen(port, host, async err => {
   if (err) {

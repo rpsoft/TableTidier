@@ -5,9 +5,6 @@ import { makeSelectLogin } from './selectors';
 
 import request from '../../utils/request';
 // import HttpClient from '../../network/http-client';
-import { URL_BASE } from '../../links'
-// const urlBase = URL_BASE + 'api/'
-// const httpClient = new HttpClient()
 
 import makeSelectLocation from '../App/selectors'
 
@@ -20,7 +17,7 @@ export function* doLogin() {
   // const parsed = queryString.parse(location.search);
 
   const login_details = yield select(makeSelectLogin());
-  const requestURL = `http://`+locationData.ui_host+(locationData.server_port ? `:`+locationData.server_port : "")+URL_BASE+`login`;
+  const requestURL = locationData.api_url+`login`;
 
   // const requestURL = `http://localhost:6541/login`;(locationData.server_port ? `:`+locationData.server_port : "")
 
