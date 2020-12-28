@@ -29,6 +29,7 @@ import {
   Switch,
 } from '@material-ui/core';
 
+const _ = require('lodash');
 
 import AdbIcon from '@material-ui/icons/Adb';
 
@@ -45,6 +46,9 @@ function TableMetadata({
   autoLabel
 }) {
 
+
+  var hey = _;
+  
   const [ enableDelete, setEnableDelete ] = React.useState(false)
 
   const toggleCui = (key, cui) => {
@@ -141,7 +145,7 @@ function TableMetadata({
             return <div key={j}> <h3>{ann_groups}</h3><div>{
               headerData[ann_groups].map(
                 (item, i) => {
-                  
+
                   return <TableMetadataItem
                                   key={ i }
                                   tableConcept={ item }

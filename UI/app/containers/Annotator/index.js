@@ -3,6 +3,8 @@
  * Annotator
  *
  */
+ const _ = require('lodash');
+
 
 import React, { memo } from 'react';
 import PropTypes from 'prop-types';
@@ -145,7 +147,7 @@ export function Annotator({
 
   autoLabel,
 }) {
-
+   var hey = _;
   useInjectReducer({ key: 'annotator', reducer });
   useInjectSaga({ key: 'annotator', saga });
 

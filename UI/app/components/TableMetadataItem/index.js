@@ -21,7 +21,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Dialog from '@material-ui/core/Dialog';
 import Card from '@material-ui/core/Card';
 
-
+const _ = require('lodash');
 
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 
@@ -38,6 +38,7 @@ function TableMetadataItem(
     enableDelete
   }
 ) {
+  var hey = _;
 
   const [ open, setOpen ] = React.useState(false)
   const [ dialogConcept, setDialogConcept ] = React.useState("")
@@ -122,7 +123,7 @@ function TableMetadataItem(
       try {
         preferred = cuisIndex[cui].preferred
       } catch (e) {
-        console.log(e)
+        // console.log(e)
         preferred = ""
       }
 
@@ -135,7 +136,7 @@ function TableMetadataItem(
           return cuiEntry(cui, style)
         };
 
-  debugger
+  // debugger
 
   return (
     <div style={{ marginTop: (root.length > 0 ? 5 : 10) }} >

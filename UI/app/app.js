@@ -40,19 +40,19 @@ import { translationMessages } from './i18n';
 
 var proc_host_vars = {
   // "INIT_CWD" : process.env.INIT_CWD,
-  "NODE_ENV" : process.env.NODE_ENV,
-  "UI_DOMAIN" : process.env.UI_DOMAIN,
-  "UI_PORT" : process.env.UI_PORT,
-  "API_PORT" :process.env.UI_PORT, //process.env.API_PORT
-  "API_BASE" :process.env.API_BASE,
-  "API_DOMAIN" :process.env.API_DOMAIN,
+  NODE_ENV : process.env.NODE_ENV,
+  UI_DOMAIN : process.env.UI_DOMAIN,
+  UI_PORT : process.env.UI_PORT,
+  API_PORT : process.env.UI_PORT, //process.env.API_PORT
+  API_BASE : process.env.API_BASE,
+  API_DOMAIN : process.env.API_DOMAIN,
 }
 
 const initialState = {
   app: {
-    ui_host : process.env.UI_DOMAIN,
+    ui_host : process.env.UI_DOMAIN ? process.env.UI_DOMAIN.replace(/['"]+/g, '') : "" ,
     ui_port: process.env.UI_PORT,
-    server_host: process.env.API_DOMAIN,
+    server_host: process.env.API_DOMAIN ? process.env.API_DOMAIN.replace(/['"]+/g, '') : "" ,
     server_port: process.env.UI_PORT, //process.env.API_PORT
   }
 }

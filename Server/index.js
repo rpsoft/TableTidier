@@ -2763,23 +2763,24 @@ app.post(CONFIG.api_base_url + '/auto', /*#__PURE__*/function () {
       while (1) {
         switch (_context43.prev = _context43.next) {
           case 0:
-            _context43.prev = 0;
+            console.log("HEY");
+            _context43.prev = 1;
 
             if (!(req.body && req.body.headers)) {
-              _context43.next = 17;
+              _context43.next = 18;
               break;
             }
 
-            _context43.next = 4;
+            _context43.next = 5;
             return getCUISIndex();
 
-          case 4:
+          case 5:
             cuis_index = _context43.sent;
             // {preferred : row.preferred, hasMSH: row.hasMSH, userDefined: row.user_defined, adminApproved: row.admin_approved}
             // debugger
             headers = JSON.parse(req.body.headers);
             all_concepts = Array.from(new Set(Object.values(headers).flat().flat().flat().flat()));
-            _context43.next = 9;
+            _context43.next = 10;
             return Promise.all(all_concepts.map( /*#__PURE__*/function () {
               var _ref41 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee40(concept, i) {
                 var mm_match;
@@ -2807,7 +2808,7 @@ app.post(CONFIG.api_base_url + '/auto', /*#__PURE__*/function () {
               };
             }()));
 
-          case 9:
+          case 10:
             results = _context43.sent;
 
             insertCUI = /*#__PURE__*/function () {
@@ -2846,7 +2847,7 @@ app.post(CONFIG.api_base_url + '/auto', /*#__PURE__*/function () {
               };
             }();
 
-            _context43.next = 13;
+            _context43.next = 14;
             return Promise.all(results.flat().flat().map( /*#__PURE__*/function () {
               var _ref43 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee42(cuiData, i) {
                 return _regenerator["default"].wrap(function _callee42$(_context42) {
@@ -2880,7 +2881,7 @@ app.post(CONFIG.api_base_url + '/auto', /*#__PURE__*/function () {
               };
             }()));
 
-          case 13:
+          case 14:
             // debugger
             results = all_concepts.reduce(function (acc, con, i) {
               acc[con.toLowerCase().trim()] = {
@@ -2892,30 +2893,34 @@ app.post(CONFIG.api_base_url + '/auto', /*#__PURE__*/function () {
             res.send({
               autoLabels: results
             });
-            _context43.next = 18;
+            _context43.next = 19;
             break;
 
-          case 17:
+          case 18:
             res.send({
               status: "wrong parameters",
               query: req.query
             });
 
-          case 18:
-            _context43.next = 23;
+          case 19:
+            _context43.next = 25;
             break;
 
-          case 20:
-            _context43.prev = 20;
-            _context43.t0 = _context43["catch"](0);
+          case 21:
+            _context43.prev = 21;
+            _context43.t0 = _context43["catch"](1);
             console.log(_context43.t0);
+            res.send({
+              status: "error",
+              query: _context43.t0
+            });
 
-          case 23:
+          case 25:
           case "end":
             return _context43.stop();
         }
       }
-    }, _callee43, null, [[0, 20]]);
+    }, _callee43, null, [[1, 21]]);
   }));
 
   return function (_x74, _x75) {

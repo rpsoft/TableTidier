@@ -2,7 +2,7 @@
   "system_path": "/home/suso/ihw/TableTidier/",
   "port": 6541,
   "port_ui": 7531,
-  "host": "sephirhome.ddns.net",
+  "host": "localhost",
   "db" : {
       "user": "postgres",
       "host": "localhost",

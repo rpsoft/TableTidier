@@ -1434,6 +1434,7 @@ const getMMatch = async (phrase) => {
 }
 
 app.post(CONFIG.api_base_url+'/auto', async function(req,res){
+  console.log("HEY")
   try{
    if(req.body && req.body.headers ){
 
@@ -1479,6 +1480,7 @@ app.post(CONFIG.api_base_url+'/auto', async function(req,res){
    }
  } catch(e){
    console.log(e)
+   res.send({status: "error", query : e})
  }
 });
 
