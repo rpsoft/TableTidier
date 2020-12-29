@@ -1627,6 +1627,29 @@ app.get(CONFIG.api_base_url+'/getTable',async function(req,res){
   }
 
 });
+
+app.post(CONFIG.api_base_url+'/getTable',async function(req,res){
+
+   try{
+
+      // && available_documents[req.query.docid]
+      // && available_documents[req.query.docid].pages.indexOf(req.query.page) > -1
+    if(req.body && req.body.docid && req.body.page && req.body.collId ){
+
+      var tableData = await readyTable(req.body.docid, req.body.page, req.body.collId, false)
+
+      res.json( tableData  )
+    } else {
+      res.json({status: "wrong parameters", query : req.body})
+    }
+  } catch (e){
+    console.log(e)
+    res.json({status: "getTable: probably page out of bounds, or document does not exist", query : req.body})
+  }
+
+});
+
+
 //
 // app.get('/api/getAvailableTables',function(req,res){
 //   res.send(available_documents)
@@ -1733,6 +1756,6 @@ app.post(CONFIG.api_base_url+'/saveAnnotation',async function(req,res){
 // api_host
 // ui_port
 // ui_host
-app.listen(CONFIG.api_port, function () {
+app.listen(CONFIG.api_port, '0.0.0.0', function () {
   console.log('Table Tidier Server running on port '+CONFIG.api_port+' with base: '+ CONFIG.api_base_url + "  :: " + new Date().toISOString());
 });
