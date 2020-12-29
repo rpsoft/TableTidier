@@ -2447,6 +2447,7 @@ app.post(CONFIG.api_base_url + '/annotationPreview', /*#__PURE__*/function () {
                 entry.content = entry.content + "@" + acc[entry.content];
                 return acc;
               }, {});
+              console.log("TRY: " + 'http://' + CONFIG.plumber_url + '/preview');
               request({
                 url: 'http://' + CONFIG.plumber_url + '/preview',
                 method: "POST",
@@ -2461,7 +2462,7 @@ app.post(CONFIG.api_base_url + '/annotationPreview', /*#__PURE__*/function () {
                     while (1) {
                       switch (_context36.prev = _context36.next) {
                         case 0:
-                          // debugger
+                          // console.log("pentada"+JSON.stringify(error))
                           insertResult = /*#__PURE__*/function () {
                             var _ref37 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee35(tid, tableResult) {
                               var client, done;
@@ -2497,7 +2498,7 @@ app.post(CONFIG.api_base_url + '/annotationPreview', /*#__PURE__*/function () {
                             return function insertResult(_x69, _x70) {
                               return _ref37.apply(this, arguments);
                             };
-                          }(); // debugger
+                          }(); // console.log(body.tableResult )
 
 
                           if (!(body && body.tableResult && body.tableResult.length > 0)) {

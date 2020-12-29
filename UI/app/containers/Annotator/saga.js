@@ -58,7 +58,7 @@ export function* getTableContent() {
   const locationData = yield select(makeSelectLocation());
 
   const parsed = queryString.parse(location.search);
-  const requestURL = `http://`+locationData.ui_host + (locationData.server_port ? `:`+locationData.server_port : "") + URL_BASE+`getTableContent`;
+  const requestURL = locationData.api_url+`getTableContent`;
 
   const params = new URLSearchParams({
       'hash' : credentials.hash,
@@ -139,7 +139,7 @@ export function* getTableResult( payload ) {
   const locationData = yield select(makeSelectLocation());
 
   const parsed = queryString.parse(location.search);
-  const requestURL = `http://`+locationData.ui_host+(locationData.server_port ? `:`+locationData.server_port : "")+URL_BASE+`/annotationPreview`;
+  const requestURL = locationData.api_url+`/annotationPreview`;
 
   const params = new URLSearchParams({
       'hash' : credentials.hash,
@@ -184,7 +184,7 @@ export function* getCUISIndex( payload ) {
   const locationData = yield select(makeSelectLocation());
 
   const parsed = queryString.parse(location.search);
-  const requestURL = `http://`+locationData.ui_host+(locationData.server_port ? `:`+locationData.server_port : "")+URL_BASE+`cuis`;
+  const requestURL = locationData.api_url+`cuis`;
 
   const params = new URLSearchParams({
       'hash' : credentials.hash,
@@ -223,7 +223,7 @@ export function* getTableMetadata( payload ) {
   const locationData = yield select(makeSelectLocation());
 
   const parsed = queryString.parse(location.search);
-  const requestURL = `http://`+locationData.ui_host+(locationData.server_port ? `:`+locationData.server_port : "")+URL_BASE+`metadata`;
+  const requestURL = locationData.api_url+`metadata`;
 
   const params = new URLSearchParams({
       'hash' : credentials.hash,
@@ -281,7 +281,7 @@ export function* saveChanges ( payload ) {
 
     const parsed = queryString.parse(location.search);
 
-    var requestURL = `http://`+locationData.ui_host+(locationData.server_port ? `:`+locationData.server_port : "");
+    var requestURL = locationData.api_url;
 
     var pre_params = {
         'hash' : credentials.hash,
@@ -293,7 +293,7 @@ export function* saveChanges ( payload ) {
 
     switch( payload.type ) {
       case SAVE_TABLE_TEXT_ACTION:
-        requestURL = requestURL+URL_BASE+`text`
+        requestURL = requestURL+`text`
 
         pre_params = {...pre_params,
                   'action' : 'save',
@@ -303,7 +303,7 @@ export function* saveChanges ( payload ) {
 
         break;
       case SAVE_TABLE_NOTES_ACTION:
-        requestURL = requestURL+URL_BASE+`notes`
+        requestURL = requestURL+`notes`
 
         pre_params = {...pre_params,
                   'action' : 'save',
@@ -313,7 +313,7 @@ export function* saveChanges ( payload ) {
 
         break;
       case SAVE_TABLE_ANNOTATIONS_ACTION:
-        requestURL = requestURL+URL_BASE+`saveAnnotation`
+        requestURL = requestURL+`saveAnnotation`
 
         pre_params = {...pre_params,
                   'action' : 'save',
@@ -323,7 +323,7 @@ export function* saveChanges ( payload ) {
 
         break;
       case SAVE_TABLE_METADATA_ACTION:
-        requestURL = requestURL+URL_BASE+`metadata`
+        requestURL = requestURL+`metadata`
 
         pre_params = {...pre_params,
                   'action' : 'save',
@@ -381,7 +381,7 @@ export function* getAutoLabels( payload ) {
   const locationData = yield select(makeSelectLocation());
 
   const parsed = queryString.parse(location.search);
-  const requestURL = `http://`+locationData.ui_host+(locationData.server_port ? `:`+locationData.server_port : "")+URL_BASE+`auto`;
+  const requestURL = locationData.api_url + `auto`;
 
   const params = new URLSearchParams({
       'hash' : credentials.hash,

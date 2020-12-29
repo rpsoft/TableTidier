@@ -1241,6 +1241,7 @@ app.post(CONFIG.api_base_url+'/annotationPreview',async function(req,res){
                     return acc
                   }, {})
 
+                  console.log("TRY: "+ 'http://'+CONFIG.plumber_url+'/preview')
                   request({
                           url: 'http://'+CONFIG.plumber_url+'/preview',
                           method: "POST",
@@ -1250,7 +1251,7 @@ app.post(CONFIG.api_base_url+'/annotationPreview',async function(req,res){
                           }
                     }, async function (error, response, body) {
 
-                      // debugger
+                      // console.log("pentada"+JSON.stringify(error))
                       var insertResult = async (tid, tableResult) => {
                             var client = await pool.connect()
                             var done = await client.query('INSERT INTO result(tid, "tableResult") VALUES ($1, $2) ON CONFLICT (tid) DO UPDATE SET "tableResult" = $2',  [tid, tableResult])
@@ -1259,7 +1260,7 @@ app.post(CONFIG.api_base_url+'/annotationPreview',async function(req,res){
                               .then(() => client.release())
                       }
 
-                      // debugger
+                     // console.log(body.tableResult )
                       if ( body && body.tableResult && body.tableResult.length > 0){
                         await insertResult(body.ann.tid[0], body.tableResult)
                         console.log("tableresults: "+body.tableResult.length)
