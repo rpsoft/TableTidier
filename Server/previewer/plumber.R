@@ -13,7 +13,7 @@ library(future)
 # Give the input file name to the function.
 config <- fromJSON(file = "../config.json")
 
-requestURL <- config$plumber_url
+requestURL <- paste0(config$ui_host,":",config$api_port,config$api_base_url)
 
 #* @apiTitle live results api
 
