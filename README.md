@@ -22,8 +22,8 @@ Smart Table Data Extraction Tool originally designed to streamline the clinical 
   - [X] Annotations:
     - [X] Allow data manipulation after rendering (Potential work around spreading of labels.)
     - [ ] Show original image of the table, (pre-OCR), so users can fix issues easily
-  - [ ] Exporting functionality
-    - [ ] CSV
+  - [X] Exporting functionality
+    - [X] CSV
     - [ ] XML? (Optional)
     - [ ] Excel? (Optional)
 - [ ] Server Code
