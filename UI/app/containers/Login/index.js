@@ -147,7 +147,10 @@ export function Login({
         <meta name="description" content="Description of Login" />
       </Helmet>
 
-        <Home style={{height:45,width:45, cursor:"pointer", marginRight:15}} onClick={() => goTo('/')}/>
+
+
+        <img src="./tabletidier.png" style={{height:45,width:45, cursor:"pointer", marginRight:15}} onClick={() => goTo('/')}/>
+
         <h2 style={{margin:0}}>TableTidier <div style={{color:"red",display:"inline-block",fontSize:15}}>(beta)</div></h2>
 
         <div style={{marginRight:0, position:"absolute",right:16}} >

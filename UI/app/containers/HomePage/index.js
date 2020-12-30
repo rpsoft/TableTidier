@@ -20,6 +20,7 @@ import {
   Input as TextField,
   Button,
   Paper,
+  Link,
   Switch,
   Dialog,
   DialogContent,
@@ -39,6 +40,11 @@ import { compose } from 'redux';
 import { useInjectSaga } from 'utils/injectSaga';
 import { useInjectReducer } from 'utils/injectReducer';
 
+import PersonAddIcon from '@material-ui/icons/PersonAdd';
+import LaunchIcon from '@material-ui/icons/Launch';
+import ArrowRightIcon from '@material-ui/icons/ArrowRight';
+
+
 export function HomePage({
   goToUrl
 }) {
@@ -47,34 +53,57 @@ export function HomePage({
       <title>TableTidier</title>
       <meta name="description" content="TableTidier" />
     </Helmet>
-    <Card style={{marginTop:20,padding:10,paddingLeft:40,paddingRight:40,height:"100%",minHeight:"80vh"}}>
+    <Card style={{marginTop:20,padding:20,paddingLeft:70,paddingRight:40,height:"100%",minHeight:"80vh", textAlign:"justify"}}>
       <h2 style={{fontSize:35}}> Welcome to TableTidier! </h2>
 
-
-      <div style={{width:"100%"}}>
-          <Button style={{backgroundColor:"#d8d7ff",padding:20, fontSize:25}} size="large" fullWidth={true} onClick={ () => {goToUrl("/dashboard")}}> Access Annotation Dashboard </Button>
-          </div>
-
+      <div style={{maxWidth:800 }}> TableTidier is mainly a web application to support the extraction of structured data from scanned document tables. But it is also crowdsourced repository of publicly available structured data to further support research efforts.
+      </div>
 
       <h4 style={{marginLeft:15}}>
-          If you haven't done so already: <Button style={{backgroundColor:"#c3efbb"}} onClick={ () => {goToUrl("/register")}}> Register Here </Button>
+          <ArrowRightIcon />Ready to use it? : <Button style={{backgroundColor:"#d8d7ff",padding:10}} onClick={ () => {goToUrl("/dashboard")}}> Annotation Dashboard <LaunchIcon style={{marginLeft:5}}/> </Button> </h4>
+
+
+          {
+      // <div style={{width:"100%"}}>
+      //     <Button style={{backgroundColor:"#d8d7ff",padding:20, fontSize:25}} size="large" fullWidth={true} onClick={ () => {goToUrl("/dashboard")}}> Access Annotation Dashboard </Button>
+      //     </div>
+        }
+
+      <h4 style={{marginLeft:15}}>
+          <ArrowRightIcon />If you haven't done so already: <Button style={{backgroundColor:"#c3efbb",padding:10}} onClick={ () => {goToUrl("/register")}}> Register Here <PersonAddIcon style={{marginLeft:5}}/></Button>
           </h4>
 
-      <div style={{paddingRight:300}}>
-      <div>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. In id lorem non lectus porta iaculis nec eget lectus. Nunc mi leo, tincidunt malesuada turpis eget, faucibus volutpat elit. Nunc ligula nisi, volutpat a purus vitae, convallis interdum nisl. Vivamus aliquet auctor erat non tempor. Praesent vitae enim varius, tristique lacus ut, pulvinar arcu. Aliquam fermentum ante sit amet urna iaculis consectetur. Donec fermentum justo urna, dictum faucibus nisi aliquam sed. Proin porttitor lorem vitae purus consequat posuere. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
+
+    <div style={{border: "1px solid  black", padding:15, paddingTop:0,marginRight:30, marginTop:40 }}>
+      <h4>
+        Want to contribute or report issues?
+          <br/>Visit our github repository:
+          <Link
+            component="button"
+            variant="body2"
+            onClick={() => {
+              window.location.href = 'https://github.com/rpsoft/tabletidier';
+            }}
+            style={{fontSize:17,marginLeft:5}}
+          >
+            TableTidier in GitHub
+          </Link>
+          </h4>
+
+        <h4>
+          Contact us:
+          </h4>
+        <div>
+          Jesus A. Rodriguez Perez ( Jesus.RodriguezPerez@glasgow.ac.uk )
+          <br />
+          David McAllister ( David.McAllister@glasgow.ac.uk )
+          </div>
       </div>
 
-      <div style={{marginTop:20}}>
-        Morbi luctus nulla et placerat sagittis. Pellentesque dui enim, tristique eget tristique in, ullamcorper sit amet mi. Praesent et lectus odio. Praesent a eleifend sapien. Ut id aliquet purus. Nam dictum ex id vestibulum pretium. Nunc porttitor est et nisl varius, congue lobortis tellus fermentum. Curabitur vel tincidunt ligula. Cras congue magna leo, et viverra velit ornare eu. Mauris dui nisl, suscipit vel metus nec, feugiat maximus nibh. Etiam vel scelerisque lorem, id porta leo. Etiam cursus faucibus nunc, sit amet ultrices metus. Duis sit amet cursus diam. Mauris feugiat dictum rutrum. Fusce aliquet condimentum massa at scelerisque.
-
-        Ut odio justo, placerat vitae sapien sit amet, malesuada pellentesque nunc. Vestibulum odio leo, mollis eu maximus id, luctus in mauris. Duis venenatis lorem nulla, non vehicula diam condimentum at. Morbi eros dui, sollicitudin nec rutrum faucibus, cursus efficitur elit. Morbi suscipit quam in orci congue, non imperdiet tortor dapibus. Cras posuere fringilla magna, vel tincidunt risus congue in. Nam et tellus ut velit iaculis dignissim vel in turpis. Nam lacinia pulvinar iaculis. Aenean aliquet placerat convallis.
-
-        Duis in volutpat nulla. Phasellus cursus semper gravida. Cras sagittis nunc lacus, in tristique lorem fringilla nec. Praesent non tempor ipsum. Vestibulum et efficitur mauris, et tempus nunc. Quisque molestie auctor aliquet. Aliquam aliquet lectus sapien, ac accumsan metus malesuada malesuada. Ut id enim luctus, lobortis nunc sit amet, imperdiet magna. Duis nibh sem, imperdiet nec leo blandit, imperdiet congue justo. Vivamus sit amet purus sed magna blandit condimentum. Ut hendrerit est in tristique placerat. Praesent volutpat velit enim, ullamcorper feugiat ante placerat ut. Ut non odio nec augue venenatis consectetur. Ut vel sem justo. Donec magna nunc, tristique vitae urna id, malesuada condimentum enim.
-
-        Mauris nec dui arcu. Nam dapibus aliquam tellus, vitae euismod sapien gravida vitae. Curabitur et tortor at orci luctus tristique laoreet vel lorem. Sed velit magna, dapibus nec porta in, faucibus id quam. In tempor pellentesque magna, sed elementum dui. Nullam in lectus imperdiet, dignissim velit sed, auctor dui. Cras ac arcu cursus, aliquam dolor eget, aliquet nisl. Etiam non diam risus. Quisque consequat libero neque, nec molestie lorem tincidunt sit amet. Mauris hendrerit dapibus sapien, eu convallis libero rhoncus vitae. Sed luctus nisl risus, a blandit neque cursus faucibus. Morbi posuere ipsum et tempor tempor. Integer vel risus purus. Mauris id enim sagittis,
-      </div>
-      </div>
+      <div style={{marginTop:80, marginBottom:50,textAlign:"center"}}>
+          <img style={{height: 100  }} src="https://www.gla.ac.uk/3t4/img/marque.svg" />
+          <img style={{height: 100, marginLeft:10  }} src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Wellcome_Trust_logo.svg/200px-Wellcome_Trust_logo.svg.png" />
+          </div>
     </Card>
     </div>
   );

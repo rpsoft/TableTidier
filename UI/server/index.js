@@ -79,6 +79,8 @@ var cors = require('cors');
 app.use(cors("*"));
 app.options('*', cors())
 
+app.use(express.static('../app/images'))
+
 // Start your app.
 app.listen(port, host, async err => {
   if (err) {

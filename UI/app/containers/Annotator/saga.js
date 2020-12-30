@@ -139,7 +139,7 @@ export function* getTableResult( payload ) {
   const locationData = yield select(makeSelectLocation());
 
   const parsed = queryString.parse(location.search);
-  const requestURL = locationData.api_url+`/annotationPreview`;
+  const requestURL = locationData.api_url+`annotationPreview`;
 
   const params = new URLSearchParams({
       'hash' : credentials.hash,
