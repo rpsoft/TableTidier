@@ -314,7 +314,7 @@ async function getAnnotationByID(docid,page,collId){
 const rebuildSearchIndex = async () => {
   var tables = fs.readdirSync(path.join(global.tables_folder)).map( (dir) => path.join(global.tables_folder,dir))
   var tables_folder_override = fs.readdirSync(path.join(global.tables_folder_override)).map( (dir) => path.join(global.tables_folder_override,dir))
-  global.searchIndex = await easysearch.indexFolder( [...tables,...tables_folder_override] )
+  global.searchIndex = await easysearch.indexFolder( [...tables, ...tables_folder_override] )
 }
 
 // preinitialisation of components if needed.
@@ -499,6 +499,7 @@ const getMetadata = async ( tids ) => {
   return result
 }
 
+// important. Use this to recover the table id (tid). tid is used as primary key in many tables. uniquely identifying tables across sql tables.
 const getTid = async ( docid, page, collId ) => {
 
   if ( docid == "undefined" || page == "undefined" || collId == "undefined" ){
@@ -979,12 +980,56 @@ app.post(CONFIG.api_base_url+'/getTableContent',async function(req,res){
         if(req.body.docid && req.body.page && req.body.collId ){
           var collection_data = await getCollection(req.body.collId)
 
-          var tableData = await readyTable(req.body.docid, req.body.page, req.body.collId, JSON.parse(req.body.enablePrediction ) ) // false, predictions are disabled.
+          var enablePrediction = JSON.parse(req.body.enablePrediction)
+
+          var tableData = await readyTable(req.body.docid, req.body.page, req.body.collId, enablePrediction ) // false, predictions are disabled.
 
           var annotation = await getAnnotationByID(req.body.docid, req.body.page, req.body.collId)
 
           tableData.collectionData = collection_data
+
           tableData.annotationData = annotation && annotation.rows.length > 0 ? annotation.rows[0] : {}
+
+          if ( enablePrediction ){
+            var rows = tableData.predictedAnnotation.rows.map( ann  => {
+              return {
+                location: "Row",
+                content: ann.descriptors.reduce( (acc,d) => { acc[d] = true; return acc },{}),
+                number: (ann.c+1)+"",
+                qualifiers: ann.unique_modifier == "" ? {} : ann.unique_modifier.split(";").filter( a => a.length > 1).reduce( (acc,d) => { acc[d] = true; return acc }, {}),
+                subannotation: false }
+              })
+
+            var cols = tableData.predictedAnnotation.cols.map( ann  => {
+              return {
+                location: "Col",
+                content: ann.descriptors.reduce( (acc,d) => { acc[d] = true; return acc },{}),
+                number: (ann.c+1)+"",
+                qualifiers: ann.unique_modifier == "" ? {} : ann.unique_modifier.split(";").filter( a => a.length > 1).reduce( (acc,d) => { acc[d] = true; return acc }, {}),
+                subannotation: false }
+              })
+
+            var predAnnotationData = (tableData.annotationData && tableData.annotationData.annotation) ? tableData.annotationData : {
+              annotation: {
+                  collection_id: req.body.collId,
+                  completion: "",
+                  docid: req.body.docid,
+                  file_path: req.body.docid + "_" + req.body.page + ".html",
+                  notes: "",
+                  page: req.body.page,
+                  tableType: "",
+                  tid: tableData.collectionData.tables.filter( ( table ) => { return table.docid == req.body.docid && table.page == req.body.page } )[0].tid,
+                  user: req.body.username,
+                }
+            }
+
+            // var tData = tableData.collectionData.tables.filter( ( table ) => { return table.docid == req.body.docid && table.page == req.body.page } )
+            predAnnotationData.annotation.annotations = [...rows, ...cols]
+
+            // debugger
+            tableData.annotationData = predAnnotationData
+
+          }
 
           res.json( tableData )
         } else {
@@ -992,7 +1037,7 @@ app.post(CONFIG.api_base_url+'/getTableContent',async function(req,res){
         }
       } catch (e){
         console.log(e)
-        // debugger
+         // debugger
         res.json({status: "getTableContent: probably page out of bounds, or document does not exist", body : req.body})
       }
 
@@ -1000,8 +1045,6 @@ app.post(CONFIG.api_base_url+'/getTableContent',async function(req,res){
       res.json([])
     }
 });
-
-
 
 ///// Probably vintage from here on.
 //
@@ -1435,14 +1478,11 @@ const getMMatch = async (phrase) => {
 }
 
 app.post(CONFIG.api_base_url+'/auto', async function(req,res){
-  console.log("HEY")
+
   try{
    if(req.body && req.body.headers ){
 
      var cuis_index = await getCUISIndex()
-
-     // {preferred : row.preferred, hasMSH: row.hasMSH, userDefined: row.user_defined, adminApproved: row.admin_approved}
-     // debugger
 
      var headers = JSON.parse(req.body.headers)
 
@@ -1472,7 +1512,6 @@ app.post(CONFIG.api_base_url+'/auto', async function(req,res){
           }
      }))
 
-      // debugger
      results = all_concepts.reduce( (acc,con,i) => {acc[con.toLowerCase().trim()] = {concept:con.trim(), labels:results[i]}; return acc},{})
 
      res.send({autoLabels : results})
@@ -1610,9 +1649,6 @@ app.get(CONFIG.api_base_url+'/classify', async function(req,res){
 app.get(CONFIG.api_base_url+'/getTable',async function(req,res){
 
    try{
-
-      // && available_documents[req.query.docid]
-      // && available_documents[req.query.docid].pages.indexOf(req.query.page) > -1
     if(req.query && req.query.docid && req.query.page && req.query.collId ){
 
       var tableData = await readyTable(req.query.docid, req.query.page, req.query.collId, false)
@@ -1631,9 +1667,6 @@ app.get(CONFIG.api_base_url+'/getTable',async function(req,res){
 app.post(CONFIG.api_base_url+'/getTable',async function(req,res){
 
    try{
-
-      // && available_documents[req.query.docid]
-      // && available_documents[req.query.docid].pages.indexOf(req.query.page) > -1
     if(req.body && req.body.docid && req.body.page && req.body.collId ){
 
       var tableData = await readyTable(req.body.docid, req.body.page, req.body.collId, false)
@@ -1649,64 +1682,6 @@ app.post(CONFIG.api_base_url+'/getTable',async function(req,res){
 
 });
 
-
-//
-// app.get('/api/getAvailableTables',function(req,res){
-//   res.send(available_documents)
-// });
-//
-// app.get('/api/getAnnotations',async function(req,res){
-//   res.send( await getAnnotationResults() )
-// });
-
-//
-//
-// app.get('/api/deleteAnnotation', async function(req,res){
-//
-//   var deleteAnnotation = async (docid, page, user) => {
-//       var client = await pool.connect()
-//
-//       var done = await client.query('DELETE FROM annotations WHERE docid = $1 AND page = $2 AND "user" = $3', [docid, page, user ])
-//         .then(result => console.log("Annotation deleted: "+ new Date()))
-//         .catch(e => console.error(e.stack))
-//         .then(() => client.release())
-//   }
-//
-//   if ( req.query && req.query.docid && req.query.page && req.query.user){
-//     await deleteAnnotation(req.query.docid , req.query.page, req.query.user)
-//     res.send("done")
-//   } else {
-//     res.send("delete failed");
-//   }
-//
-// });
-//
-//
-// app.get('/api/getAnnotationByID',async function(req,res){
-//
-//   if(req.query && req.query.docid && req.query.docid.length > 0 ){
-//     var page = req.query.page && (req.query.page.length > 0) ? req.query.page : 1
-//     var user = req.query.user && (req.query.user.length > 0) ? req.query.user : ""
-//     var collId = req.query.collId && (req.query.collId.length > 0) ? req.query.collId : ""
-//
-//     var annotations = await getAnnotationByID(req.query.docid,page,collId)
-//
-//     var final_annotations = {}
-//
-//     if( annotations.rows.length > 0){ // Should really be just one.
-//         var entry = annotations.rows[annotations.rows.length-1]
-//         res.send( entry )
-//     } else {
-//         res.send( {} )
-//     }
-//
-//   } else{
-//     res.send( {error:"failed request"} )
-//   }
-//
-// });
-
-
 app.post(CONFIG.api_base_url+'/saveAnnotation',async function(req,res){
 
 
@@ -1721,6 +1696,8 @@ app.post(CONFIG.api_base_url+'/saveAnnotation',async function(req,res){
 
       console.log("Recording Annotation: "+req.body.docid + "_" +req.body.page + "_" + req.body.collId)
 
+      var tid = await getTid ( req.body.docid, req.body.page, req.body.collId )
+
       var insertAnnotation = async (tid, annotation) => {
 
         var client = await pool.connect()
@@ -1734,7 +1711,7 @@ app.post(CONFIG.api_base_url+'/saveAnnotation',async function(req,res){
 
 
       var annotationData = JSON.parse(req.body.payload)
-      // debugger
+       // debugger
       annotationData.annotations.map( (row) => {
 
         row.content = Array.isArray(row.content) ? row.content.reduce ( (acc,item) => { acc[item] = true; return acc}, {}) : row.content
@@ -1743,8 +1720,9 @@ app.post(CONFIG.api_base_url+'/saveAnnotation',async function(req,res){
         return row
       })
 
-      await insertAnnotation( annotationData.tid, {annotations: annotationData.annotations} )
+      await insertAnnotation( tid, {annotations: annotationData.annotations} )
 
+      // debugger
       res.json({status:"success", payload:""})
 
   } else {

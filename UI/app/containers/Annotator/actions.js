@@ -32,10 +32,10 @@ import {
 } from './constants';
 
 // Table Data
-export function loadTableContentAction(docid, page, collId) {
+export function loadTableContentAction(enablePrediction) {
   return {
     type: LOAD_TABLE_CONTENT_ACTION,
-    docid, page, collId
+    enablePrediction,
   };
 }
 

@@ -50,7 +50,7 @@ function TableAnnotatorItem({
 
   //
   // React.useEffect(() => {
-  //   // debugger
+  //   
   //   setLocation(annotationData.location)
   //   setDescriptors({...annotationData.content})
   //   setFormaters({...annotationData.qualifiers})
@@ -77,7 +77,7 @@ function TableAnnotatorItem({
     // this.props.addAnnotation(this.state)
   }
 
-  // debugger
+  
   // {"location":"Row","content":{"arms":true},"qualifiers":{},"number":"1"}
 
 

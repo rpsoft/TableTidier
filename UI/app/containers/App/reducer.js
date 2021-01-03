@@ -16,10 +16,10 @@ export const initialState = {
 /* eslint-disable default-case, no-param-reassign */
 const appReducer = (state = initialState, action) =>
   produce(state, draft => {
-     // debugger
+     
     switch (action.type) {
       // case APP_SET_GLOBALS:
-      //   // debugger
+      //   
       //   draft.host = action.params.host ? action.params.host : draft.host;
       //   draft.server_port = action.params.ui_port ? action.params.ui_port : draft.server_port;
       //   draft.ui_port = action.params.ui_port ? action.params.ui_port : draft.ui_port;

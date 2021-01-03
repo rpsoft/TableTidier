@@ -112,7 +112,7 @@ export function Dashboard({
     {
       dashboard.search_results.map( (result,i) => {
 
-        // debugger
+
         var elems = result.doc.replace(".html","").split("_")
         var docname = elems[0].split("/")[1]
         var page = elems[1]
@@ -139,7 +139,7 @@ export function Dashboard({
   return (
     <div style={{marginLeft:"2%", marginRight:"2%", minHeight: "84vh"}}>
       <Helmet>
-        <title>Dashboard</title>
+        <title>TableTidier - Dashboard</title>
         <meta name="description" content="Description of Dashboard" />
       </Helmet>
 

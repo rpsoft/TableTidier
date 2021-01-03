@@ -6,7 +6,7 @@ const prepareMetadata = (headerData, tableResults) => {
 
     tableResults = tableResults.sort( (a,b) => a.row-b.row)
 
-    // debugger
+    
 
     var headerDataCopy = JSON.parse(JSON.stringify(headerData))
 

@@ -1030,7 +1030,8 @@ var getMetadata = /*#__PURE__*/function () {
   return function getMetadata(_x29) {
     return _ref16.apply(this, arguments);
   };
-}();
+}(); // important. Use this to recover the table id (tid). tid is used as primary key in many tables. uniquely identifying tables across sql tables.
+
 
 var getTid = /*#__PURE__*/function () {
   var _ref17 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee17(docid, page, collId) {
@@ -2036,7 +2037,7 @@ app.post(CONFIG.api_base_url + '/search', /*#__PURE__*/function () {
 }());
 app.post(CONFIG.api_base_url + '/getTableContent', /*#__PURE__*/function () {
   var _ref33 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee33(req, res) {
-    var bod, validate_user, collection_data, tableData, annotation;
+    var bod, validate_user, collection_data, enablePrediction, tableData, annotation, rows, cols, predAnnotationData;
     return _regenerator["default"].wrap(function _callee33$(_context33) {
       while (1) {
         switch (_context33.prev = _context33.next) {
@@ -2045,14 +2046,14 @@ app.post(CONFIG.api_base_url + '/getTableContent', /*#__PURE__*/function () {
             validate_user = validateUser(req.body.username, req.body.hash);
 
             if (!validate_user) {
-              _context33.next = 28;
+              _context33.next = 30;
               break;
             }
 
             _context33.prev = 3;
 
             if (!(req.body.docid && req.body.page && req.body.collId)) {
-              _context33.next = 19;
+              _context33.next = 21;
               break;
             }
 
@@ -2061,34 +2062,92 @@ app.post(CONFIG.api_base_url + '/getTableContent', /*#__PURE__*/function () {
 
           case 7:
             collection_data = _context33.sent;
-            _context33.next = 10;
-            return (0, _table.readyTable)(req.body.docid, req.body.page, req.body.collId, JSON.parse(req.body.enablePrediction));
+            enablePrediction = JSON.parse(req.body.enablePrediction);
+            _context33.next = 11;
+            return (0, _table.readyTable)(req.body.docid, req.body.page, req.body.collId, enablePrediction);
 
-          case 10:
+          case 11:
             tableData = _context33.sent;
-            _context33.next = 13;
+            _context33.next = 14;
             return getAnnotationByID(req.body.docid, req.body.page, req.body.collId);
 
-          case 13:
+          case 14:
             annotation = _context33.sent;
             tableData.collectionData = collection_data;
             tableData.annotationData = annotation && annotation.rows.length > 0 ? annotation.rows[0] : {};
+
+            if (enablePrediction) {
+              rows = tableData.predictedAnnotation.rows.map(function (ann) {
+                return {
+                  location: "Row",
+                  content: ann.descriptors.reduce(function (acc, d) {
+                    acc[d] = true;
+                    return acc;
+                  }, {}),
+                  number: ann.c + 1 + "",
+                  qualifiers: ann.unique_modifier == "" ? {} : ann.unique_modifier.split(";").filter(function (a) {
+                    return a.length > 1;
+                  }).reduce(function (acc, d) {
+                    acc[d] = true;
+                    return acc;
+                  }, {}),
+                  subannotation: false
+                };
+              });
+              cols = tableData.predictedAnnotation.cols.map(function (ann) {
+                return {
+                  location: "Col",
+                  content: ann.descriptors.reduce(function (acc, d) {
+                    acc[d] = true;
+                    return acc;
+                  }, {}),
+                  number: ann.c + 1 + "",
+                  qualifiers: ann.unique_modifier == "" ? {} : ann.unique_modifier.split(";").filter(function (a) {
+                    return a.length > 1;
+                  }).reduce(function (acc, d) {
+                    acc[d] = true;
+                    return acc;
+                  }, {}),
+                  subannotation: false
+                };
+              });
+              predAnnotationData = tableData.annotationData && tableData.annotationData.annotation ? tableData.annotationData : {
+                annotation: {
+                  collection_id: req.body.collId,
+                  completion: "",
+                  docid: req.body.docid,
+                  file_path: req.body.docid + "_" + req.body.page + ".html",
+                  notes: "",
+                  page: req.body.page,
+                  tableType: "",
+                  tid: tableData.collectionData.tables.filter(function (table) {
+                    return table.docid == req.body.docid && table.page == req.body.page;
+                  })[0].tid,
+                  user: req.body.username
+                }
+              }; // var tData = tableData.collectionData.tables.filter( ( table ) => { return table.docid == req.body.docid && table.page == req.body.page } )
+
+              predAnnotationData.annotation.annotations = [].concat((0, _toConsumableArray2["default"])(rows), (0, _toConsumableArray2["default"])(cols)); // debugger
+
+              tableData.annotationData = predAnnotationData;
+            }
+
             res.json(tableData);
-            _context33.next = 20;
+            _context33.next = 22;
             break;
 
-          case 19:
+          case 21:
             res.json({
               status: "wrong parameters",
               body: req.body
             });
 
-          case 20:
-            _context33.next = 26;
+          case 22:
+            _context33.next = 28;
             break;
 
-          case 22:
-            _context33.prev = 22;
+          case 24:
+            _context33.prev = 24;
             _context33.t0 = _context33["catch"](3);
             console.log(_context33.t0); // debugger
 
@@ -2097,19 +2156,19 @@ app.post(CONFIG.api_base_url + '/getTableContent', /*#__PURE__*/function () {
               body: req.body
             });
 
-          case 26:
-            _context33.next = 29;
+          case 28:
+            _context33.next = 31;
             break;
 
-          case 28:
+          case 30:
             res.json([]);
 
-          case 29:
+          case 31:
           case "end":
             return _context33.stop();
         }
       }
-    }, _callee33, null, [[3, 22]]);
+    }, _callee33, null, [[3, 24]]);
   }));
 
   return function (_x60, _x61) {
@@ -2764,24 +2823,21 @@ app.post(CONFIG.api_base_url + '/auto', /*#__PURE__*/function () {
       while (1) {
         switch (_context43.prev = _context43.next) {
           case 0:
-            console.log("HEY");
-            _context43.prev = 1;
+            _context43.prev = 0;
 
             if (!(req.body && req.body.headers)) {
-              _context43.next = 18;
+              _context43.next = 17;
               break;
             }
 
-            _context43.next = 5;
+            _context43.next = 4;
             return getCUISIndex();
 
-          case 5:
+          case 4:
             cuis_index = _context43.sent;
-            // {preferred : row.preferred, hasMSH: row.hasMSH, userDefined: row.user_defined, adminApproved: row.admin_approved}
-            // debugger
             headers = JSON.parse(req.body.headers);
             all_concepts = Array.from(new Set(Object.values(headers).flat().flat().flat().flat()));
-            _context43.next = 10;
+            _context43.next = 9;
             return Promise.all(all_concepts.map( /*#__PURE__*/function () {
               var _ref41 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee40(concept, i) {
                 var mm_match;
@@ -2809,7 +2865,7 @@ app.post(CONFIG.api_base_url + '/auto', /*#__PURE__*/function () {
               };
             }()));
 
-          case 10:
+          case 9:
             results = _context43.sent;
 
             insertCUI = /*#__PURE__*/function () {
@@ -2848,7 +2904,7 @@ app.post(CONFIG.api_base_url + '/auto', /*#__PURE__*/function () {
               };
             }();
 
-            _context43.next = 14;
+            _context43.next = 13;
             return Promise.all(results.flat().flat().map( /*#__PURE__*/function () {
               var _ref43 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee42(cuiData, i) {
                 return _regenerator["default"].wrap(function _callee42$(_context42) {
@@ -2882,8 +2938,7 @@ app.post(CONFIG.api_base_url + '/auto', /*#__PURE__*/function () {
               };
             }()));
 
-          case 14:
-            // debugger
+          case 13:
             results = all_concepts.reduce(function (acc, con, i) {
               acc[con.toLowerCase().trim()] = {
                 concept: con.trim(),
@@ -2894,34 +2949,34 @@ app.post(CONFIG.api_base_url + '/auto', /*#__PURE__*/function () {
             res.send({
               autoLabels: results
             });
-            _context43.next = 19;
+            _context43.next = 18;
             break;
 
-          case 18:
+          case 17:
             res.send({
               status: "wrong parameters",
               query: req.query
             });
 
-          case 19:
-            _context43.next = 25;
+          case 18:
+            _context43.next = 24;
             break;
 
-          case 21:
-            _context43.prev = 21;
-            _context43.t0 = _context43["catch"](1);
+          case 20:
+            _context43.prev = 20;
+            _context43.t0 = _context43["catch"](0);
             console.log(_context43.t0);
             res.send({
               status: "error",
               query: _context43.t0
             });
 
-          case 25:
+          case 24:
           case "end":
             return _context43.stop();
         }
       }
-    }, _callee43, null, [[1, 21]]);
+    }, _callee43, null, [[0, 20]]);
   }));
 
   return function (_x74, _x75) {
@@ -3342,64 +3397,10 @@ app.post(CONFIG.api_base_url + '/getTable', /*#__PURE__*/function () {
   return function (_x101, _x102) {
     return _ref51.apply(this, arguments);
   };
-}()); //
-// app.get('/api/getAvailableTables',function(req,res){
-//   res.send(available_documents)
-// });
-//
-// app.get('/api/getAnnotations',async function(req,res){
-//   res.send( await getAnnotationResults() )
-// });
-//
-//
-// app.get('/api/deleteAnnotation', async function(req,res){
-//
-//   var deleteAnnotation = async (docid, page, user) => {
-//       var client = await pool.connect()
-//
-//       var done = await client.query('DELETE FROM annotations WHERE docid = $1 AND page = $2 AND "user" = $3', [docid, page, user ])
-//         .then(result => console.log("Annotation deleted: "+ new Date()))
-//         .catch(e => console.error(e.stack))
-//         .then(() => client.release())
-//   }
-//
-//   if ( req.query && req.query.docid && req.query.page && req.query.user){
-//     await deleteAnnotation(req.query.docid , req.query.page, req.query.user)
-//     res.send("done")
-//   } else {
-//     res.send("delete failed");
-//   }
-//
-// });
-//
-//
-// app.get('/api/getAnnotationByID',async function(req,res){
-//
-//   if(req.query && req.query.docid && req.query.docid.length > 0 ){
-//     var page = req.query.page && (req.query.page.length > 0) ? req.query.page : 1
-//     var user = req.query.user && (req.query.user.length > 0) ? req.query.user : ""
-//     var collId = req.query.collId && (req.query.collId.length > 0) ? req.query.collId : ""
-//
-//     var annotations = await getAnnotationByID(req.query.docid,page,collId)
-//
-//     var final_annotations = {}
-//
-//     if( annotations.rows.length > 0){ // Should really be just one.
-//         var entry = annotations.rows[annotations.rows.length-1]
-//         res.send( entry )
-//     } else {
-//         res.send( {} )
-//     }
-//
-//   } else{
-//     res.send( {error:"failed request"} )
-//   }
-//
-// });
-
+}());
 app.post(CONFIG.api_base_url + '/saveAnnotation', /*#__PURE__*/function () {
   var _ref52 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee53(req, res) {
-    var validate_user, insertAnnotation, annotationData;
+    var validate_user, tid, insertAnnotation, annotationData;
     return _regenerator["default"].wrap(function _callee53$(_context53) {
       while (1) {
         switch (_context53.prev = _context53.next) {
@@ -3419,11 +3420,16 @@ app.post(CONFIG.api_base_url + '/saveAnnotation', /*#__PURE__*/function () {
             validate_user = validateUser(req.body.username, req.body.hash);
 
             if (!validate_user) {
-              _context53.next = 14;
+              _context53.next = 17;
               break;
             }
 
             console.log("Recording Annotation: " + req.body.docid + "_" + req.body.page + "_" + req.body.collId);
+            _context53.next = 8;
+            return getTid(req.body.docid, req.body.page, req.body.collId);
+
+          case 8:
+            tid = _context53.sent;
 
             insertAnnotation = /*#__PURE__*/function () {
               var _ref53 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee52(tid, annotation) {
@@ -3475,26 +3481,27 @@ app.post(CONFIG.api_base_url + '/saveAnnotation', /*#__PURE__*/function () {
               }, {}) : row.qualifiers;
               return row;
             });
-            _context53.next = 11;
-            return insertAnnotation(annotationData.tid, {
+            _context53.next = 14;
+            return insertAnnotation(tid, {
               annotations: annotationData.annotations
             });
 
-          case 11:
+          case 14:
+            // debugger
             res.json({
               status: "success",
               payload: ""
             });
-            _context53.next = 15;
+            _context53.next = 18;
             break;
 
-          case 14:
+          case 17:
             res.json({
               status: "unauthorised",
               payload: null
             });
 
-          case 15:
+          case 18:
           case "end":
             return _context53.stop();
         }

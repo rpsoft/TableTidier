@@ -82,7 +82,7 @@ function TableMetadataItem(
           (cuiItem.preferred.toLowerCase().indexOf(query.toLowerCase()) > -1) ||
           (cui.toLowerCase().indexOf(query.toLowerCase()) > -1)
          ){
-           // debugger
+           
         acc.push(cui)
       }
 
@@ -136,7 +136,7 @@ function TableMetadataItem(
           return cuiEntry(cui, style)
         };
 
-  // debugger
+  
 
   return (
     <div style={{ marginTop: (root.length > 0 ? 5 : 10) }} >

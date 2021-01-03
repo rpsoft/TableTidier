@@ -50,7 +50,7 @@ function TableNotes(
 
   const NA_to_empty = (term) => (term && term == "NA") ? "" : term // Dealing with legacy NA values.
 
-  // debugger
+  
 
   return (
     <div style={{padding:"5px 7px 7px 7px"}} >

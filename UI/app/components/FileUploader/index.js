@@ -40,7 +40,7 @@ function FileUploader({
 
     const transferFiles = (acceptedFiles) => {
 
-      // debugger
+      
       const req = request.post( baseURL )
 
       acceptedFiles.forEach(file => {

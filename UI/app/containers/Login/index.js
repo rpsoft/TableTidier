@@ -127,10 +127,10 @@ export function Login({
       setCookie("username", username)
     }
   }, [token]);
-
-  useEffect(() => {
-    document.title = Date.now();
-  });
+  // 
+  // useEffect(() => {
+  //   document.title = Date.now();
+  // });
 
   useInjectReducer({ key: 'login', reducer });
   useInjectSaga({ key: 'login', saga });

@@ -29,7 +29,7 @@ const dashboardReducer = (state = initialState, action) =>
         draft.search_results = action.search_results;
         break;
       case UPDATE_COLLECTIONS_LIST_ACTION:
-        // debugger
+        
         draft.collections = action.collections_list;
         break;
 

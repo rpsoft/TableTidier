@@ -274,7 +274,7 @@ export function Annotator({
 
   React.useEffect(() => {
     loadCuisIndex()
-    loadTableContent()
+    loadTableContent(false)
     loadTableResults(true)
     loadTableMetadata()
 
@@ -288,14 +288,14 @@ export function Annotator({
                                                          setAnnotations={ (anns) => {setAnnotations(anns)}}
                                                          tid={tid}
                                                          saveAnnotationChanges={saveAnnotationChanges}
-                                                         loadTableResults={ () => { loadTableResults(false); loadTableContent()  }}
+                                                         loadTableResults={ (autoAnnotate) => { loadTableContent(autoAnnotate); loadTableResults(false);   }}
                                                          /> : ""
 
   var cols = []  //columns.map( (v,i) => { var col = {Header: v, accessor : v}; if( v == "col" || v == "row"){ col.width = 70 }; if( v == "value" ){ col.width = 200 }; return col } )
 
-  const table_results = <TableResult loadTableResults={ () => { loadTableResults(false); loadTableContent()  }} tableResult={results} sortedHeaders={annotationHeaders}/>
+  const table_results = <TableResult loadTableResults={ () => { loadTableContent(false); loadTableResults(false);  }} tableResult={results} sortedHeaders={annotationHeaders}/>
 
-   // debugger
+
 
   const table_metadata = <TableMetadata tid={tid}
                                         tableResults={results}
@@ -363,10 +363,12 @@ export function Annotator({
   return (
 
       <Card style={{marginTop:10, marginBottom: openMargin, minHeight:"85vh", marginRight:250}}>
+{
         <Helmet>
-          <title>TT - Annotations</title>
+          <title>TableTidier - Annotator</title>
           <meta name="description" content="Description of Annotations" />
         </Helmet>
+}
         <PopAlert alertData={alertData} setAlertData={setAlertData} />
 
         <div className={classes.root}>
@@ -390,7 +392,7 @@ export function Annotator({
                                            onClick={ () => {
                                               saveTextChanges(tableData.tableTitle, tableData.tableBody);
                                               setEditorEnabled(false);
-                                              loadTableContent();
+                                              loadTableContent(false);
                                               loadTableResults(false);
                                             } }>
                                            Save Edit Changes <EditIcon style={{marginLeft:5}}/>
@@ -559,7 +561,7 @@ export function Annotator({
               if ( bottomEnabled ){
                 var dragX = e.pageX, dragY = e.pageY;
                 var nextSize = startBottomSize + (dragStartY - dragY)
-                // debugger
+
 
                 setBottomSize( (nextSize < 0) || (nextSize > window.innerHeight*0.85) ? window.innerHeight*0.85 : nextSize);
                 // e.preventDefault()
@@ -636,7 +638,7 @@ const mapStateToProps = createStructuredSelector({
 function mapDispatchToProps(dispatch) {
   return {
     dispatch,
-    loadTableContent : () => dispatch( loadTableContentAction() ),
+    loadTableContent : (enablePrediction) => dispatch( loadTableContentAction(enablePrediction) ),
     loadTableResults : (cachedOnly) => dispatch ( loadTableResultsAction(cachedOnly) ),
     loadTableMetadata : (tid) => dispatch ( loadTableMetadataAction(tid) ),
     loadCuisIndex : () => dispatch( loadCuisIndexAction() ),

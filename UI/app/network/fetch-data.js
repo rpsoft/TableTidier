@@ -114,7 +114,7 @@ export default class fetchData {
 
   async modifyCUIData(cui,preferred,adminApproved,prevcui){
 
-      // debugger
+
 
       var urlQueryRequest = urlBase+ "modifyCUIData?cui="+encodeURIComponent(cui)+"&preferred="+encodeURIComponent(preferred)+"&adminApproved="+encodeURIComponent(adminApproved)+"&prevcui="+prevcui
 
@@ -155,7 +155,7 @@ export default class fetchData {
   }
 
   async setTableMetadata(docid, page, concept, cuis, cuis_selected, qualifiers, qualifiers_selected, user, istitle, labeller, collId) {
-        // debugger
+
         var urlQueryRequest = urlBase+ "setMetadata?docid="+encodeURIComponent(docid)
                                                 +"&page="+page
                                                 +"&concept="+encodeURIComponent(concept)
@@ -207,7 +207,7 @@ export default class fetchData {
         var urlQueryRequest = urlBase+ "annotationPreview?docid="+encodeURIComponent(docid)+"&page="+page+"&user="+user+"&collId="+collId
 
         var r = await this.getGeneric( urlQueryRequest  )
-        // debugger
+
         return JSON.parse(r)
   }
 
@@ -221,7 +221,7 @@ export default class fetchData {
   }
 
   async getAllInfo(collection_id) {
-      // debugger
+
         // filter = filter == "nofilter" ? null : filter
         var params = []
         //
@@ -312,15 +312,12 @@ export default class fetchData {
   }
 
 
-
-
   async getAllMetadata() {
 
         var urlQueryRequest = urlBase+ "allMetadata"
 
         var r = await this.getGeneric( urlQueryRequest  )
 
-        //debugger
         return JSON.parse(r).rows
 
   }

@@ -36,7 +36,7 @@ cors <- function(req, res) {
 baseFolder <- "~/ihw/tableAnnotator/Server/src/"
 # setwd("~/ihw/tableAnnotator/Server/src")
 
-tablesDirectory <- "~/ihw/tableAnnotator/Server/HTML_TABLES_OVERRIDE/"
+# tablesDirectory <- "~/ihw/tableAnnotator/Server/HTML_TABLES_OVERRIDE/"
 # new_obj <- readRDS(paste0(baseFolder,"Full_set_of_tables_Prepared.Rds"))
 
 html_2_df <- function (pmid, page, collId){
@@ -249,20 +249,19 @@ runAll <- function(annotations, collId){
 
     metadata_noqual[, c("bold","itallic", "plain",
                         "empty_row", "empty_row_with_p_value",
-                        "indented")] <- FALSE
+                        "indent")] <- FALSE
 
     metadata <- bind_rows(metadata_qual, metadata_noqual) %>%
       arrange(docid, page, location, number, desc(richness))
 
-    metadata <- metadata %>% replace_na(list(empty_row = FALSE, bold = FALSE, itallic = FALSE, plain = FALSE, empty_row_with_p_value = FALSE, indented = FALSE))
+    metadata <- metadata %>% replace_na(list(empty_row = FALSE, bold = FALSE, itallic = FALSE, plain = FALSE, empty_row_with_p_value = FALSE, indent = FALSE))
     rm(metadata_noqual, metadata_qual)
 
     ## Rename metadata to match all_cells
     metadata <- metadata %>%
       rename(first_col = empty_row,
              first_last_col = empty_row_with_p_value,
-             italic = itallic,
-             indent = indented)
+             italic = itallic)
 
     metadata_all<- metadata %>%
       distinct(docid, page)
@@ -604,9 +603,9 @@ function(req, anns = "" ) {
   # url <- paste0("http://localhost:6541/api/getTable?docid=11527638&page=1")
   # JsonData <- fromJSON(file= url )
   #
-  #write_rds(anns, paste0(baseFolder,"last_out_other.rds"))
+  # write_rds(anns, paste0(baseFolder,"last_out_other.rds"))
   #
- #  anns <- read_rds(paste0(baseFolder,"last_out_other.rds"))
+  # anns <- read_rds(paste0(baseFolder,"last_out_other.rds"))
 
   annotations <- anns$annotation %>%
     as.data.frame() %>%
@@ -634,6 +633,8 @@ function(req, anns = "" ) {
   collId <- anns$collection_id
   result <- value( future( runAll(annotations, collId) ) )
 
+  # result %>%  View
+  
   if ( result %>% nrow > 0){ # order by annotations order, if any results have been produced.
     result <- result %>% select(c("docid_page","row", "col", "value", anns$annotation$content))
   }

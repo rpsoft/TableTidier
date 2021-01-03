@@ -52,7 +52,7 @@ import {makeSelectLocation, makeSelectCredentials} from '../App/selectors'
 import { push } from 'connected-react-router';
 const queryString = require('query-string');
 
-export function* getTableContent() {
+export function* getTableContent( payload ) {
 
   const credentials = yield select(makeSelectCredentials());
   const locationData = yield select(makeSelectLocation());
@@ -67,7 +67,7 @@ export function* getTableContent() {
       'page' : parsed.page,
       'collId' : parsed.collId,
       'action' : 'get',
-      'enablePrediction' : false
+      'enablePrediction' : payload.enablePrediction ? true : false,
     });
 
 
@@ -79,7 +79,7 @@ export function* getTableContent() {
     method: 'POST',
     body: params
   }
-// debugger
+
   try {
     const response = yield call(request, requestURL, options);
 
@@ -102,7 +102,7 @@ export function* getTableContent() {
                                                return i
                                             }; }, -1) + 1
 
-                                                // debugger
+
 
       response.tableStatus = response.annotationData.completion
       response.tableType = response.annotationData.tableType
@@ -111,10 +111,10 @@ export function* getTableContent() {
       // response.tablePosition_prev = response.tablePosition > -1 ? response.collectionData.tables[response.tablePosition-1] : false
       // response.current = response.tablePosition > -1 ? response.collectionData.tables[response.tablePosition] : false
       // response.tablePosition_next = response.tablePosition < (response.collectionData.tables.length-1) ? response.collectionData.tables[response.tablePosition+1] : false
-      // debugger
+
       yield put( yield updateTableContentAction(response) );
 
-      // debugger
+
       var annotations = (!_.isEmpty(response.annotationData)) && response.annotationData.annotation ? response.annotationData.annotation.annotations.map(
         (item,id) => {
           item.subAnnotation = item.subAnnotation ? item.subAnnotation : false; // this is to preserve compatibility with previous annotations that don't have subAnnotation
@@ -125,7 +125,6 @@ export function* getTableContent() {
 
     }
   } catch (err) {
-    debugger
     console.log(err)
   }
 
@@ -166,7 +165,7 @@ export function* getTableResult( payload ) {
       // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
 
     } else {
-        // debugger
+
         yield put( yield updateTableResultsAction(response.result) );
 
     }
@@ -202,11 +201,11 @@ export function* getCUISIndex( payload ) {
 
     if ( response.status && response.status == "unauthorised"){
       yield put( yield updateCuisIndexAction({}) );
-      // debugger
+
       // COUld probably redirect to /
       // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
     } else {
-      // debugger
+
       yield put( yield updateCuisIndexAction(response.data) );
     }
   } catch (err) {
@@ -244,7 +243,7 @@ export function* getTableMetadata( payload ) {
     const response = yield call(request, requestURL, options);
 
     if ( response.status && response.status == "unauthorised"){
-       debugger
+
       // COUld probably redirect to /
       // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
     } else {
@@ -330,7 +329,7 @@ export function* saveChanges ( payload ) {
                   'target' : 'metadata', // table / notes / annotation / metadata,
                   'payload' : JSON.stringify({tid: payload.tid, metadata: payload.metadata}),
               }
-        // debugger
+
         break;
     }
 
@@ -350,7 +349,7 @@ export function* saveChanges ( payload ) {
         // alert("unauthorised action")
         yield put( yield issueAlertAction({ open: true, message: "unauthorised action", isError: true }))
       } else {
-        // debugger
+
           // yield put( yield updateTableResultsAction(response.result) );
           switch( payload.type ) {
             case SAVE_TABLE_TEXT_ACTION:
@@ -405,11 +404,11 @@ export function* getAutoLabels( payload ) {
     const response = yield call(request, requestURL, options);
 
     if ( response.status && response.status == "unauthorised"){
-      // debugger
+
       // COUld probably redirect to /
       // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
     } else {
-      // debugger
+
 
       var metadata = Object.keys(response.autoLabels).reduce(
         (acc, key, i) => {
@@ -421,7 +420,7 @@ export function* getAutoLabels( payload ) {
           mItem.concept_root = response.autoLabels[key].concept
 
           mItem.cuis = response.autoLabels[key].labels.map( item => item.CUI )
-          // debugger
+
 
           mItem.cuis_selected = mItem.cuis && mItem.cuis.length > 0 ? [mItem.cuis[0]] : []
 
@@ -439,7 +438,7 @@ export function* getAutoLabels( payload ) {
 
         }, {} )
 
-      // debugger
+
       yield put( yield updateTableMetadataAction(metadata) );
 
       yield put( yield loadCuisIndexAction());

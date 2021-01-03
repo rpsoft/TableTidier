@@ -56,7 +56,7 @@ export function HomePage({
     <Card style={{marginTop:20,padding:20,paddingLeft:70,paddingRight:40,height:"100%",minHeight:"80vh", textAlign:"justify"}}>
       <h2 style={{fontSize:35}}> Welcome to TableTidier! </h2>
 
-      <div style={{maxWidth:800 }}> TableTidier is mainly a web application to support the extraction of structured data from scanned document tables. But it is also crowdsourced repository of publicly available structured data to further support research efforts.
+      <div style={{maxWidth:600 }}> TableTidier is mainly a web application to support the extraction of structured data from scanned document tables. But it is also crowdsourced repository of publicly available structured data to further support research efforts.
       </div>
 
       <h4 style={{marginLeft:15}}>

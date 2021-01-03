@@ -7,7 +7,7 @@
 import { REGISTER_ACCOUNT, REGISTER_ACCOUNT_SUCCESS, REGISTER_ACCOUNT_FAIL } from './constants';
 
 export function registerAccountAction(userData) {
-  // debugger
+  
   return {
     type: REGISTER_ACCOUNT,
     userData

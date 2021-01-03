@@ -58,7 +58,7 @@ export function App({
   setLoginCredentials,
 }) {
 
-  // debugger
+  
   const [ cookies, setCookie, removeCookie ] = useCookies();
 
   setLoginCredentials(cookies)

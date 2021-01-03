@@ -17,7 +17,7 @@ import { URL_BASE } from '../../links'
 
 
 export function* doSearch() {
-  // debugger
+
   const dashboard_state = yield select(makeSelectDashboard());
 
   const locationData = yield select(makeSelectLocation());
@@ -51,7 +51,7 @@ export function* doSearch() {
 }
 
 export function* listCollections() {
-  // debugger
+
   const credentials = yield select(makeSelectCredentials());
 
   const locationData = yield select(makeSelectLocation());
@@ -117,7 +117,7 @@ export function* createCollection() {
       yield listCollections()
 
       yield put(push("/collection?collId="+response.data.rows[0].collection_id))
-      // debugger
+
       // yield put( yield updateCollectionAction(response.data) );
     }
   } catch (err) {

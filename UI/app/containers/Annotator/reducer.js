@@ -75,7 +75,7 @@ const annotatorReducer = (state = initialState, action) =>
         break;
 
       case UPDATE_TABLE_METADATA_ACTION:
-      // debugger
+      
         draft.metadata = action.metadata;
         break;
 
@@ -96,7 +96,7 @@ const annotatorReducer = (state = initialState, action) =>
 
       case SAVE_TABLE_ANNOTATIONS_ACTION:
       case SAVE_TABLE_METADATA_ACTION:
-        // debugger
+        
     }
 
     return;

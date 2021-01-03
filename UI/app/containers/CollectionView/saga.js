@@ -69,7 +69,7 @@ export function* editCollectionData() {
   const parsed = queryString.parse(location.search);
 
   const requestURL = locationData.api_url+`collections`;
-  // debugger
+
   const params = new URLSearchParams({
       'hash' : credentials.hash,
       'username' :  credentials.username,
@@ -121,7 +121,7 @@ export function* removeCollectionTables ( payload ) {
     method: 'POST',
     body: params
   }
-  // debugger
+
   const locationData = yield select(makeSelectLocation());
   const requestURL = locationData.api_url+`tables`;
   try {
@@ -210,9 +210,9 @@ export function* deleteCollection() {
 
       // COUld probably redirect to /
       // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
-      // debugger
+
     } else {
-      // debugger
+
       // yield put( yield updateCollectionAction(response.data) );
     }
   } catch (err) {
@@ -230,7 +230,7 @@ export function* deleteCollection() {
 
 export function* downloadTids({target, tids}) {
 
-// debugger
+
   const credentials = yield select(makeSelectCredentials());
   const locationData = yield select(makeSelectLocation());
   const collectionState = yield select(makeSelectCollectionView());
@@ -290,7 +290,7 @@ export function* downloadTids({target, tids}) {
     const response = yield call(request, requestURL, options);
 
     if ( response.status && response.status == "unauthorised"){
-      // debugger
+
     } else {
 
       if ( target.indexOf("result") > -1 ){
@@ -307,7 +307,7 @@ export function* downloadTids({target, tids}) {
         var data = result.data
         data = data.map( (item) => {var headers = Object.keys(item); headers.map( head => { if (typeof item[head] === 'string'){ item[head] = item[head].trim() }  }); return item  } )
 
-        // debugger
+
 
         downloadData("collection_"+parsed.collId+"_results.csv", headers, data)
       } else {
@@ -320,11 +320,11 @@ export function* downloadTids({target, tids}) {
         var headers = result.headers.map( heads => { return {id: heads, displayName: heads} } )
         var data = result.data.map( (item) => {var headers = Object.keys(item); headers.map( head => { if (typeof item[head] === 'string'){ item[head] = item[head].trim() }  }); return item  } )
 
-        // debugger
+
         downloadData("collection_"+parsed.collId+"_metadata.csv", headers, data)
       }
 
-      // debugger
+
     }
   } catch (err) {
     console.log(err)

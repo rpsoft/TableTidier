@@ -218,7 +218,7 @@ export function CollectionView({
     setVisibility(collectionView.visibility)
     setCompletion(collectionView.completion)
 
-    // debugger
+
   }, [collectionView])
 
   const prepareCollectionData = () => {
@@ -288,10 +288,10 @@ export function CollectionView({
 
   return (
     <div style={{margin:10, minHeight: "84vh"}}>
-            <Helmet>
-              <title>TT - Collections</title>
-              <meta name="description" content="Description of Collections" />
-            </Helmet>
+          <Helmet>
+            <title>TableTidier - Collections</title>
+            <meta name="description" content="Description of Collections" />
+          </Helmet>
 
             <div className={classes.root}>
               <Grid container spacing={1}>
