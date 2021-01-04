@@ -71,9 +71,9 @@ import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 
 // import Draggable from 'react-draggable';
 
-import { Resizable, ResizableBox } from 'react-resizable';
+// import { Resizable, ResizableBox } from 'react-resizable';
 
-const drawerWidth = 240;
+const drawerWidth = 250;
 
 import TableAnnotator from 'components/TableAnnotator'
 import TableEditor from 'components/TableEditor'
@@ -156,8 +156,23 @@ export function Annotator({
   const classes = useStyles();
   const theme = useTheme();
 
-  const [ bottomEnabled, setBottomEnabled ] = React.useState(true);
-  const [ bottomSize, setBottomSize ] = React.useState(400);
+
+  const [ bottomEnabled, setBottomEnabled ] = React.useState(false);
+  const [ bottomLevel, setBottomLevel ] = React.useState(0);
+  const [ bottomSize, setBottomSize ] = React.useState("50vh");
+
+  const handleBottomChange = (bottomLevel) => {
+    // debugger
+    if ( bottomLevel >= 2 ){
+      setBottomLevel(0);
+      setBottomEnabled(false);
+      setBottomSize(65)
+    } else {
+      setBottomEnabled(true);
+      setBottomLevel(bottomLevel+1)
+      setBottomSize(((bottomLevel+1)*44)+"vh");
+    }
+  }
 
   const [ bottomNotes, showBottomNotes ] = React.useState(true);
   const [ bottomAnnotations, showBottomAnnotations ] = React.useState(true);
@@ -428,15 +443,15 @@ export function Annotator({
             >
 
               <List>
-              <ListItem style={{marginLeft:8}}>
+              <ListItem style={{marginLeft:0}}>
                 Table Number in Collection:
               </ListItem>
               <ListItem>
-                <Button variant="outlined" size="small" style={{minWidth: "auto", width:30, marginLeft:5}} onClick={ goPrev }>
+                <Button variant="outlined" size="small" style={{minWidth: "auto", width:30, height:40, marginLeft:5}} onClick={ goPrev }>
                   <NavigateBeforeIcon style={{fontSize:20}} />
                 </Button>
-                <div style={{display:"inline", border:"1px solid #e5e5e5", borderRadius:5, height:30, verticalAlign:"center", width:"100% ", textAlign:"center", padding:2, fontSize:15}}>
-                  <input style={{width:70, marginRight:5, textAlign:"right"}}
+                <div style={{display:"inline", border:"1px solid #e5e5e5", borderRadius:5, height:40, verticalAlign:"center", width:"100% ", textAlign:"center", padding:2, fontSize:15}}>
+                  <input style={{width:70, marginRight:5, textAlign:"right",height:35 }}
                          type="number"
                          value={ tablePosition && (parseInt(tablePosition) > -1) ? tablePosition : tablePosition }
                          onKeyDown={ (event) => {
@@ -457,22 +472,10 @@ export function Annotator({
                          />
                   <div style={{display:"inline-block"}}> / {N_tables} </div>
                 </div>
-                <Button variant="outlined" size="small" style={{minWidth: "auto", width:30}} onClick={ goNext }>
+                <Button variant="outlined" size="small" style={{minWidth: "auto", width:30, height:40}} onClick={ goNext }>
                   <NavigateNextIcon style={{fontSize:20}} />
                 </Button>
               </ListItem>
-
-              {
-                // ['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-                // <ListItem button key={text}>
-                //   <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-                //   <ListItemText primary={text} />
-                // </ListItem>
-                // ))
-              }
-
-
-
 
               </List>
               <Divider />
@@ -498,8 +501,8 @@ export function Annotator({
                     columns={annotationHeaders.map( item => { return {id: item, displayName: item} } )}
                     datas={results}
                   >
-                    <ListItemIcon><DownloadIcon/></ListItemIcon>
-                    <ListItemText primary={"Download CSV Data"} />
+                    <ListItemIcon style={{display:"inline"}}><DownloadIcon style={{fontSize:25}} /></ListItemIcon>
+                    <ListItemText style={{display:"inline", marginLeft:5 }} primary="Table Data (.csv)" />
                   </CsvDownloader>
                 </ListItem>
 
@@ -511,8 +514,8 @@ export function Annotator({
                     columns={ Object.values(metadata)[0] ? Object.keys(Object.values(metadata)[0]).map( item => { return {id: item, displayName: item} } ) : []}
                     datas={Object.values(metadata)}
                   >
-                    <ListItemIcon><DownloadIcon/></ListItemIcon>
-                    <ListItemText primary={"Download CSV Metadata"} />
+                    <ListItemIcon style={{display:"inline"}}><DownloadIcon style={{fontSize:25}}/></ListItemIcon>
+                    <ListItemText style={{display:"inline", marginLeft:5}} primary="Table Metadata (.csv)" />
                   </CsvDownloader>
                 </ListItem>
 
@@ -527,50 +530,10 @@ export function Annotator({
         </div>
 
 
-        <Card style={{position: "fixed", bottom: 60, left: 0, width: "100%"}}>
-
-          <div style={{width:"100%", backgroundColor: "#a3a3a3", height:5, cursor: "row-resize" }}
-            draggable="true"
-            onDrag={e => {
-              if ( bottomEnabled ){
-                var dragX = e.pageX, dragY = e.pageY;
-
-                var comp = Math.round((startBottomSize + (dragStartY - dragY))/100)*100
-
-                if ( (comp) % 20 == 0 ){
-                  setBottomSize(comp);
-
-                }
-              }
-
-            }}
-            onDragStart={ (e,data) => {
-              var img = new Image();
-              img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=';
-              event.dataTransfer.setDragImage(img, 0, 0);
-
-              if ( bottomEnabled ){
-                var dragX = e.pageX, dragY = e.pageY;
-                setDragStartY(dragY);
-                setStartBottomSize(bottomSize);
-              }
-
-            }}
-
-            onDragEnd={e => {
-              if ( bottomEnabled ){
-                var dragX = e.pageX, dragY = e.pageY;
-                var nextSize = startBottomSize + (dragStartY - dragY)
-
-
-                setBottomSize( (nextSize < 0) || (nextSize > window.innerHeight*0.85) ? window.innerHeight*0.85 : nextSize);
-                // e.preventDefault()
-              }
-            }}
-          > </div>
-
-          <div style={{width:"100%", minWidth:800, height: bottomEnabled ? bottomSize : 65, backgroundColor:"#e5e5e5"}}>
-            { !bottomEnabled ? <Button variant="outlined" style={{float:"right", backgroundColor:"#ffffff", top:5, right:5}} onClick={ () => setBottomEnabled(!bottomEnabled) }> { bottomEnabled ? <ArrowDropDown style={{fontSize:35}} /> : <ArrowDropUp style={{fontSize:35}} /> }</Button> : ""}
+        <Card style={{position:"fixed",left: 0, bottom: 60, width: "100%", height: bottomEnabled ? bottomSize : 65}}>
+          <div style={{width:"100%", backgroundColor: "#a3a3a3", height:5}}> </div>
+          <div style={{width:"100%", minWidth:800, height: bottomEnabled ? "100%" : 65, backgroundColor:"#e5e5e5"}}>
+            { !bottomEnabled ? <Button variant="outlined" style={{float:"right", backgroundColor:"#ffffff", top:5, right:5}} onClick={ () => handleBottomChange(bottomLevel) }> { bottomEnabled ? <ArrowDropDown style={{fontSize:35}} /> : <ArrowDropUp style={{fontSize:35}} /> }</Button> : ""}
             {
               !bottomEnabled ||
                <div style={{height:"100%", backgroundColor:"#ffffff"}}>
@@ -612,7 +575,7 @@ export function Annotator({
                            <td style={{ padding:5, verticalAlign:"top", width:70}}>
                               <Button variant="outlined"
                                       style={{float:"right", backgroundColor:"#ffffff", top:5, right:5}}
-                                      onClick={ () => setBottomEnabled(!bottomEnabled) }> { bottomEnabled ? <ArrowDropDown style={{fontSize:35}} /> : <ArrowDropUp style={{fontSize:35}} /> }
+                                      onClick={ () => handleBottomChange(bottomLevel) }> { bottomLevel == 2 ? <ArrowDropDown style={{fontSize:35}} /> : <ArrowDropUp style={{fontSize:35}} /> }
                                       </Button>
                            </td>
                         </tr>
@@ -620,8 +583,12 @@ export function Annotator({
                   </table>
                 </div>
           }
+
+
           </div>
         </Card>
+
+
       </Card>
   );
 }

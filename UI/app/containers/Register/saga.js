@@ -30,7 +30,6 @@ export function* doRegister() {
     'email': login_details.userData.email,
   });
 
-  debugger
 
   const options = {
     method: 'POST',

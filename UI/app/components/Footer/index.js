@@ -17,7 +17,7 @@ function Footer() {
   return (
     <Card style={{padding:20, marginTop:20, borderTop: "#8e8e8e 2px solid"}}>
       <div>
-        University of Glasgow 2020
+        University of Glasgow 2020 - MVLS - Public Health
       </div>
     </Card>
   );

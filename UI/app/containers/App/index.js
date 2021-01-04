@@ -58,13 +58,13 @@ export function App({
   setLoginCredentials,
 }) {
 
-  
+
   const [ cookies, setCookie, removeCookie ] = useCookies();
 
   setLoginCredentials(cookies)
 
   return (
-    <div style={{marginLeft:"auto", marginRight:"auto", minWidth:800, maxWidth:1400, width:"100%", minHeight:"100vh"}}>
+    <div id={"container"} style={{marginLeft:"auto", marginRight:"auto", minWidth:800, maxWidth:1400, width:"100%", minHeight:"100vh"}}>
         <Login />
 
           <div style={{padding:5, paddingTop:65,  marginLeft:10, paddingBottom:70, minHeight:"90vh"}}>

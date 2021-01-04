@@ -53,57 +53,68 @@ export function HomePage({
       <title>TableTidier</title>
       <meta name="description" content="TableTidier" />
     </Helmet>
-    <Card style={{marginTop:20,padding:20,paddingLeft:70,paddingRight:40,height:"100%",minHeight:"80vh", textAlign:"justify"}}>
-      <h2 style={{fontSize:35}}> Welcome to TableTidier! </h2>
+    <Card style={{marginTop:20,padding:20,paddingLeft:70,paddingRight:20,height:"80vh", textAlign:"justify"}}>
 
-      <div style={{maxWidth:600 }}> TableTidier is mainly a web application to support the extraction of structured data from scanned document tables. But it is also crowdsourced repository of publicly available structured data to further support research efforts.
-      </div>
+    <table style={{height:"100%"}}>
+    <tr>
+      <td style={{width:"80%", verticalAlign:"top"}}>
+          <h2 style={{fontSize:35}}> Welcome to TableTidier! </h2>
 
-      <h4 style={{marginLeft:15}}>
-          <ArrowRightIcon />Ready to use it? : <Button style={{backgroundColor:"#d8d7ff",padding:10}} onClick={ () => {goToUrl("/dashboard")}}> Annotation Dashboard <LaunchIcon style={{marginLeft:5}}/> </Button> </h4>
-
-
-          {
-      // <div style={{width:"100%"}}>
-      //     <Button style={{backgroundColor:"#d8d7ff",padding:20, fontSize:25}} size="large" fullWidth={true} onClick={ () => {goToUrl("/dashboard")}}> Access Annotation Dashboard </Button>
-      //     </div>
-        }
-
-      <h4 style={{marginLeft:15}}>
-          <ArrowRightIcon />If you haven't done so already: <Button style={{backgroundColor:"#c3efbb",padding:10}} onClick={ () => {goToUrl("/register")}}> Register Here <PersonAddIcon style={{marginLeft:5}}/></Button>
-          </h4>
-
-
-    <div style={{border: "1px solid  black", padding:15, paddingTop:0,marginRight:30, marginTop:40 }}>
-      <h4>
-        Want to contribute or report issues?
-          <br/>Visit our github repository:
-          <Link
-            component="button"
-            variant="body2"
-            onClick={() => {
-              window.location.href = 'https://github.com/rpsoft/tabletidier';
-            }}
-            style={{fontSize:17,marginLeft:5}}
-          >
-            TableTidier in GitHub
-          </Link>
-          </h4>
-
-        <h4>
-          Contact us:
-          </h4>
-        <div>
-          Jesus A. Rodriguez Perez ( Jesus.RodriguezPerez@glasgow.ac.uk )
-          <br />
-          David McAllister ( David.McAllister@glasgow.ac.uk )
+          <div style={{maxWidth:600 }}> TableTidier is mainly a web application to support the extraction of structured data from scanned document tables. But it is also crowdsourced repository of publicly available structured data to further support research efforts.
           </div>
-      </div>
 
-      <div style={{marginTop:80, marginBottom:50,textAlign:"center"}}>
-          <img style={{height: 100  }} src="https://www.gla.ac.uk/3t4/img/marque.svg" />
-          <img style={{height: 100, marginLeft:10  }} src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Wellcome_Trust_logo.svg/200px-Wellcome_Trust_logo.svg.png" />
+          <h4 style={{marginLeft:15}}>
+              <ArrowRightIcon />Ready to use it? : <Button style={{backgroundColor:"#d8d7ff",padding:10}} onClick={ () => {goToUrl("/dashboard")}}> Annotation Dashboard <LaunchIcon style={{marginLeft:5}}/> </Button> </h4>
+
+
+              {
+          // <div style={{width:"100%"}}>
+          //     <Button style={{backgroundColor:"#d8d7ff",padding:20, fontSize:25}} size="large" fullWidth={true} onClick={ () => {goToUrl("/dashboard")}}> Access Annotation Dashboard </Button>
+          //     </div>
+            }
+
+          <h4 style={{marginLeft:15}}>
+              <ArrowRightIcon />If you haven't done so already: <Button style={{backgroundColor:"#c3efbb",padding:10}} onClick={ () => {goToUrl("/register")}}> Register Here <PersonAddIcon style={{marginLeft:5}}/></Button>
+              </h4>
+
+
+        <div style={{border: "1px solid  black", padding:15, paddingTop:0,marginRight:30, marginTop:40 }}>
+          <h4>
+            Want to contribute or report issues?
+              <br/>Visit our github repository:
+              <Link
+                component="button"
+                variant="body2"
+                onClick={() => {
+                  window.location.href = 'https://github.com/rpsoft/tabletidier';
+                }}
+                style={{fontSize:17,marginLeft:5}}
+              >
+                TableTidier in GitHub
+              </Link>
+              </h4>
+
+            <h4>
+              Contact us:
+              </h4>
+            <div>
+              Jesus A. Rodriguez Perez ( Jesus.RodriguezPerez@glasgow.ac.uk )
+              <br /><br />
+              David McAllister ( David.McAllister@glasgow.ac.uk )
+              </div>
           </div>
+      </td>
+      <td style={{borderLeft:"1px solid black", verticalAlign:"top", padding:20}}>
+        <div style={{marginBottom:50,textAlign:"right",}}>
+            <img style={{height: 70  }} src="https://www.gla.ac.uk/3t4/img/marque.svg" /><br />
+            <img style={{height: 70, marginLeft:10, marginTop:20  }} src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Wellcome_Trust_logo.svg/200px-Wellcome_Trust_logo.svg.png" />
+            </div>
+      </td>
+    </tr>
+
+    </table>
+
+
     </Card>
     </div>
   );
