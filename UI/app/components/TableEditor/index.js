@@ -82,10 +82,10 @@ if ( injected && showEditCuis ){
         try{
           if ( e.replace(/[^A-z]/gi, '').length > 0 ){
 
-            // if ( e.indexOf("HDL cholesterol§".toLowerCase()) > -1){
-            //   debugger
-            //
-            // }
+            if ( e.indexOf("Age >60 yr (%)".toLowerCase()) > -1){
+              debugger
+
+            }
 
             // if ( toinject('td:contains("'+met[e].concept+'")').text().toLowerCase().trim() == met[e].concept.trim() ) {
 

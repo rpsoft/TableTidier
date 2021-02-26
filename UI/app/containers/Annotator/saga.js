@@ -380,7 +380,9 @@ export function* getAutoLabels( payload ) {
   const locationData = yield select(makeSelectLocation());
 
   const parsed = queryString.parse(location.search);
-  const requestURL = `http://`+locationData.host+`:`+locationData.server_port+`/auto`;
+
+  // debugger
+  const requestURL = locationData.api_url+`auto`;
 
   const params = new URLSearchParams({
       'hash' : credentials.hash,

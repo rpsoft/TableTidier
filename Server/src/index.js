@@ -26,6 +26,7 @@ var cors = require('cors');
 // I want to access cheerio from everywhere.
 global.cheerio = require('cheerio');
 global.CONFIG = require('./config.json')
+
 global.available_documents = {}
 global.abs_index = []
 global.tables_folder = "HTML_TABLES"
@@ -1515,7 +1516,7 @@ app.post(CONFIG.api_base_url+'/auto', async function(req,res){
               return await insertCUI(cuiData.CUI, cuiData.preferred, cuiData.hasMSH)
           }
      }))
-     
+
      results = all_concepts.reduce( (acc,con,i) => {acc[con.toLowerCase().trim()] = {concept:con.trim(), labels:results[i]}; return acc},{})
 
      res.send({autoLabels : results})
@@ -1715,7 +1716,7 @@ app.post(CONFIG.api_base_url+'/saveAnnotation',async function(req,res){
 
 
       var annotationData = JSON.parse(req.body.payload)
-       // debugger
+
       annotationData.annotations.map( (row) => {
 
         row.content = Array.isArray(row.content) ? row.content.reduce ( (acc,item) => { acc[item] = true; return acc}, {}) : row.content
@@ -1726,7 +1727,6 @@ app.post(CONFIG.api_base_url+'/saveAnnotation',async function(req,res){
 
       await insertAnnotation( tid, {annotations: annotationData.annotations} )
 
-      // debugger
       res.json({status:"success", payload:""})
 
   } else {
