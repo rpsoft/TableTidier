@@ -47,6 +47,7 @@ const useStyles = makeStyles((theme) => ({
    width: `calc(100% - ${drawerWidth}px)`,
    minHeight: 64,
    marginRight: drawerWidth,
+   backgroundColor: "#3f51b5"
  },
  drawer: {
    width: drawerWidth,
@@ -127,7 +128,7 @@ export function Login({
       setCookie("username", username)
     }
   }, [token]);
-  // 
+  //
   // useEffect(() => {
   //   document.title = Date.now();
   // });
@@ -147,8 +148,6 @@ export function Login({
         <meta name="description" content="Description of Login" />
       </Helmet>
 
-
-
         <img src="./tabletidier.png" style={{height:45,width:45, cursor:"pointer", marginRight:15}} onClick={() => goTo('/')}/>
 
         <h2 style={{margin:0}}>TableTidier <div style={{color:"red",display:"inline-block",fontSize:15}}>(beta)</div></h2>
@@ -156,8 +155,6 @@ export function Login({
         <div style={{marginRight:0, position:"absolute",right:16}} >
           <Button variant="contained" onClick={ handleLoginToggle }style={{marginLeft:5}}><AccountBoxIcon/> {cookies.username ? "Logged as: "+ cookies.username : " guest "}</Button>
         </div>
-
-
 
         <Popover
         id={"loginDropDown"}

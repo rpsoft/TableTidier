@@ -573,7 +573,7 @@ export function Annotator({
                             </div>
                           </td>
 
-                          <td style={{ padding:5, verticalAlign:"top" }}>
+                          <td style={{ padding:5, verticalAlign:"top", maxWidth:"50%" }}>
 
                               <div style={{overflowY:"scroll",height:"100%"}}>
                                 <table style={{width:"100%", height:"100%"}}>

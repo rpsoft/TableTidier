@@ -4,7 +4,7 @@
  *
  */
 
-import React, { memo } from 'react';
+import React, { memo, useState, useEffect, useRef  } from 'react';
 // import PropTypes from 'prop-types';
 // import styled from 'styled-components';
 
@@ -26,9 +26,16 @@ function TableResult({
   var headers = []
   var data = []
 
+  const [width, setWidth] = useState(600)
+  const ref = useRef(null)
+
+  useEffect(() => {
+    setWidth(ref.current.clientWidth)
+  })
+
   const getColumnWidth = (rows, accessor, headerText) => {
       const maxWidth = 400
-      const magicSpacing = ["row", "col"].indexOf(accessor) > -1 ? 20 : 10
+      const magicSpacing = ["row", "col"].indexOf(accessor) > -1 ? 10 : 5
       const cellLength = Math.max(
         ...rows.map(row => (`${row[accessor]}` || '').length),
         headerText.length,
@@ -49,7 +56,21 @@ function TableResult({
 
     headers = headers.map(
       (item) => {
-        return {Header:item, accessor:item, width: getColumnWidth(tableResult, item, item)}
+        if ( ["row","col"].indexOf(item) > -1 ){
+          return {
+            Header:item, accessor:item, width: 60
+          }
+        }
+
+        if ( ["value"].indexOf(item) > -1 ){
+          return {
+            Header:item, accessor:item, width: item.length*20
+          }
+        }
+
+        return {
+          Header:item, accessor:item
+        }
       })
 
     headers = headers.sort( (a,b) => sortedHeaders.indexOf(a.Header) - sortedHeaders.indexOf(b.Header) )
@@ -58,7 +79,7 @@ function TableResult({
   }
 
   return (
-    <div style={{padding:"5px 7px 7px 7px"}} >
+    <div style={{padding:"5px 7px 7px 7px", overflow:"scroll"}} ref={ref} >
         <div style={{textAlign:"right", marginBottom:5}}>
           <div style={{height:35, fontSize:22, float:"left", paddingTop:5}}> 3. Extraction <b> Results </b> </div>
           <Button variant="outlined" style={{backgroundColor:"lightblue"}} onClick={ () => { loadTableResults() } }> Refresh Results </Button>
@@ -70,9 +91,12 @@ function TableResult({
                                 columns={headers}
                                 style={{
                                   marginBottom: 10,
-                                  backgroundColor:"#f6f5f5"
+                                  backgroundColor:"#f6f5f5",
+                                  width: "100%",
                                 }}
                                 defaultPageSize={20}
+                                pageSizeOptions={[5, 10, 20, data.length]}
+
                               /> : <div> No results produced </div>
           }
       </div>

@@ -5,7 +5,7 @@
  */
 
 
- import React, { useEffect, memo, useState } from 'react';
+ import React, { useEffect, memo, useState, useRef } from 'react';
  import PropTypes from 'prop-types';
  import { connect } from 'react-redux';
  import { Helmet } from 'react-helmet';
@@ -190,6 +190,13 @@ export function CollectionView({
   const completion_states = ["in progress", "complete"]
   const [completion, setCompletion] = useState("in progress");
 
+  const [height, setHeight] = useState(0)
+  const ref = useRef(null)
+
+  useEffect(() => {
+      setHeight(ref.current.clientHeight)
+  })
+
 
   const toggleCheckBox = (docid) => {
     var checkedTables_temp = checkedTables
@@ -340,15 +347,17 @@ export function CollectionView({
                   </Card>
 
                   <Card>
-                    <FixedSizeList
-                      height={900}
-                      width={"100%"}
-                      itemSize={50}
-                      itemCount={collectionView.tables ? collectionView.tables.length : 0}
-                    >
-                      {Row}
-                    </FixedSizeList>
-                    </Card>
+                    <div style={{minHeight:900, height: "70vh", backgroundColor:"white"}} ref={ref}>
+                      <FixedSizeList
+                        height={height}
+                        width={"100%"}
+                        itemSize={50}
+                        itemCount={collectionView.tables ? collectionView.tables.length : 0}
+                      >
+                        {Row}
+                      </FixedSizeList>
+                    </div>
+                  </Card>
 
                 </Grid>
                 <Grid item xs={3}>

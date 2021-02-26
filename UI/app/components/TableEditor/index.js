@@ -82,16 +82,15 @@ if ( injected && showEditCuis ){
         try{
           if ( e.replace(/[^A-z]/gi, '').length > 0 ){
 
-            if ( e.indexOf("Age >60 yr (%)".toLowerCase()) > -1){
-              debugger
-
-            }
+            var elem = toinject('td').filter(function() {
+              return toinject(this).text().trim() === met[e].concept;
+            })
 
             // if ( toinject('td:contains("'+met[e].concept+'")').text().toLowerCase().trim() == met[e].concept.trim() ) {
 
-              toinject('td:contains("'+met[e].concept+'")').children().css("margin-bottom","0px")
-              toinject('td:contains("'+met[e].concept+'")').attr("title", met[e].cuis_selected.map( cui => cui+" : "+cindes[cui].preferred).join(";") )
-              toinject('td:contains("'+met[e].concept+'")').append("<p style='margin: 0px; color: #429be8;'>"+ met[e].cuis_selected.map( cui => cui+" : "+cindes[cui].preferred).join("<br />") +"</p>")
+              elem.children().css("margin-bottom","0px")
+              elem.attr("title", met[e].cuis_selected.map( cui => cui+" : "+cindes[cui].preferred).join(";") )
+              elem.append("<p style='margin: 0px; color: #429be8;'>"+ met[e].cuis_selected.map( cui => cui+" : "+cindes[cui].preferred).join("<br />") +"</p>")
             // }
           }
         } catch ( e ){
