@@ -16,6 +16,8 @@ import CKEditor from 'ckeditor4-react';
 import EditIcon from '@material-ui/icons/Edit';
 import Switch from '@material-ui/core/Switch';
 
+import cheerio from 'cheerio'
+
 var ReactDOMServer = require('react-dom/server');
 var HtmlToReact = require('html-to-react')
 var HtmlToReactParser = require('html-to-react').Parser;
@@ -26,6 +28,9 @@ function TableEditor({
   saveTextChanges,
   editorEnabled,
   height,
+  metadata,
+  cuisIndex,
+  showEditCuis
 }) {
 
   const [editorContent, setEditorContent] = React.useState(textContent);
@@ -58,6 +63,49 @@ function TableEditor({
 
   // ((!editorEnabled) ? setEditorEnabled(!editorEnabled) : saveTextChanges(editorContent) )
 
+  // debugger
+
+  // var injectJava = '<script> alert("page running!"); </script>';
+
+  var injected = editorContent;
+
+if ( injected && showEditCuis ){
+
+
+    var toinject = cheerio.load(injected)
+
+    var met = metadata
+    var cindes = cuisIndex
+
+    Object.keys(met).map(
+      e => {
+        try{
+          if ( e.replace(/[^A-z]/gi, '').length > 0 ){
+
+            // if ( e.indexOf("HDL cholesterol§".toLowerCase()) > -1){
+            //   debugger
+            //
+            // }
+
+            // if ( toinject('td:contains("'+met[e].concept+'")').text().toLowerCase().trim() == met[e].concept.trim() ) {
+
+              toinject('td:contains("'+met[e].concept+'")').children().css("margin-bottom","0px")
+              toinject('td:contains("'+met[e].concept+'")').attr("title", met[e].cuis_selected.map( cui => cui+" : "+cindes[cui].preferred).join(";") )
+              toinject('td:contains("'+met[e].concept+'")').append("<p style='margin: 0px; color: #429be8;'>"+ met[e].cuis_selected.map( cui => cui+" : "+cindes[cui].preferred).join("<br />") +"</p>")
+            // }
+          }
+        } catch ( e ){
+          console.log(e)
+        }
+      }
+    )
+
+    injected = toinject.html()
+
+
+}
+
+
   return (
       <div>
         {
@@ -74,7 +122,7 @@ function TableEditor({
           // </div>
           }
         {
-        !editorEnabled ? <div dangerouslySetInnerHTML={{__html : editorContent}}></div> : <CKEditor
+        !editorEnabled ? <div dangerouslySetInnerHTML={{__html : injected}}></div> : <CKEditor
 
             type="classic"
 

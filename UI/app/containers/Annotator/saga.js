@@ -380,7 +380,7 @@ export function* getAutoLabels( payload ) {
   const locationData = yield select(makeSelectLocation());
 
   const parsed = queryString.parse(location.search);
-  const requestURL = locationData.api_url + `auto`;
+  const requestURL = `http://`+locationData.host+`:`+locationData.server_port+`/auto`;
 
   const params = new URLSearchParams({
       'hash' : credentials.hash,
@@ -404,11 +404,11 @@ export function* getAutoLabels( payload ) {
     const response = yield call(request, requestURL, options);
 
     if ( response.status && response.status == "unauthorised"){
-
+      // debugger
       // COUld probably redirect to /
       // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
     } else {
-
+      // debugger
 
       var metadata = Object.keys(response.autoLabels).reduce(
         (acc, key, i) => {
@@ -420,7 +420,7 @@ export function* getAutoLabels( payload ) {
           mItem.concept_root = response.autoLabels[key].concept
 
           mItem.cuis = response.autoLabels[key].labels.map( item => item.CUI )
-
+          // debugger
 
           mItem.cuis_selected = mItem.cuis && mItem.cuis.length > 0 ? [mItem.cuis[0]] : []
 
@@ -438,7 +438,7 @@ export function* getAutoLabels( payload ) {
 
         }, {} )
 
-
+      // debugger
       yield put( yield updateTableMetadataAction(metadata) );
 
       yield put( yield loadCuisIndexAction());

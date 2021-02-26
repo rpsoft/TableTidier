@@ -205,6 +205,10 @@ export function Annotator({
 
   const [ editorEnabled, setEditorEnabled ] = React.useState(false);
 
+  const [ showEditCuis, setShowEditCuis ] = React.useState(false);
+
+
+
   const [ windowSize, setWindowSize ] = React.useState({
     width: undefined,
     height: undefined,
@@ -310,8 +314,6 @@ export function Annotator({
 
   const table_results = <TableResult loadTableResults={ () => { loadTableContent(false); loadTableResults(false);  }} tableResult={results} sortedHeaders={annotationHeaders}/>
 
-
-
   const table_metadata = <TableMetadata tid={tid}
                                         tableResults={results}
                                         headerData={headerData}
@@ -395,6 +397,16 @@ export function Annotator({
               </div>
 
               <div>
+                Show Cuis
+                <Switch
+                    checked={showEditCuis}
+                    onChange={() => { setShowEditCuis(!showEditCuis);}}
+                    name="checkedA"
+                    inputProps={{ 'aria-label': 'secondary checkbox' }}
+                  />
+              </div>
+
+              <div>
                 {editorEnabled ? "Disable" : "Enable"} Editing
                 <Switch
                     checked={editorEnabled}
@@ -417,19 +429,27 @@ export function Annotator({
 
             <hr />
 
+            {
             <TableEditor editorID={"table_title_editor"}
                          textContent={tableData ? tableData.tableTitle : ""}
                          editorEnabled={editorEnabled}
                          saveTextChanges={ (newText) => { changeTableData("tableTitle", newText) } }
-                         height={200}/>
-
+                         height={200}
+                         metadata={metadata}
+                         cuisIndex={cuisIndex}
+                         showEditCuis={showEditCuis}
+                         />
+                       }
             <hr />
 
             <TableEditor editorID={"table_content_editor"}
                          textContent={tableData ? tableData.tableBody : ""}
                          editorEnabled={editorEnabled}
                          saveTextChanges={ (newText) => { changeTableData("tableBody", newText) } }
-                         height={800}/>
+                         height={800}
+                         metadata={metadata}
+                         cuisIndex={cuisIndex}
+                         showEditCuis={showEditCuis}  />
         </div>
 
            <Drawer

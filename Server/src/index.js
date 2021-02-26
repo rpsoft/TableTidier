@@ -482,7 +482,8 @@ const setMetadata = async ( metadata ) => {
                 [ metadata[key].concept_source, metadata[key].concept_root, metadata[key].concept,
                   metadata[key].cuis.join(";"), metadata[key].cuis_selected.join(";"), metadata[key].qualifiers.join(";"), metadata[key].qualifiers_selected.join(";"),
                   metadata[key].istitle, metadata[key].labeller, metadata[key].tid ])
-          // .then(result => console.log("insert: "+key+" -- "+ new Date()))
+
+          .then(result => console.log("insert: "+key+" -- "+ new Date()))
           .catch(e => console.error(e.stack))
           .then(() => client.release())
 
@@ -1484,6 +1485,9 @@ app.post(CONFIG.api_base_url+'/auto', async function(req,res){
 
      var cuis_index = await getCUISIndex()
 
+     // {preferred : row.preferred, hasMSH: row.hasMSH, userDefined: row.user_defined, adminApproved: row.admin_approved}
+     // debugger
+
      var headers = JSON.parse(req.body.headers)
 
      var all_concepts = Array.from(new Set(Object.values(headers).flat().flat().flat().flat()))
@@ -1498,7 +1502,7 @@ app.post(CONFIG.api_base_url+'/auto', async function(req,res){
      var insertCUI = async (cui,preferred,hasMSH) => {
          var client = await pool.connect()
          var done = await client.query('INSERT INTO cuis_index(cui,preferred,"hasMSH",user_defined,admin_approved) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (cui) DO UPDATE SET preferred = $2, "hasMSH" = $3, user_defined = $4, admin_approved = $5',  [cui,preferred,hasMSH,true,false])
-           // .then(result => console.log("insert: "+ new Date()))
+           .then(result => console.log("insert: "+ new Date()))
            .catch(e => console.error(e.stack))
            .then(() => client.release())
      }
@@ -1511,7 +1515,7 @@ app.post(CONFIG.api_base_url+'/auto', async function(req,res){
               return await insertCUI(cuiData.CUI, cuiData.preferred, cuiData.hasMSH)
           }
      }))
-
+     
      results = all_concepts.reduce( (acc,con,i) => {acc[con.toLowerCase().trim()] = {concept:con.trim(), labels:results[i]}; return acc},{})
 
      res.send({autoLabels : results})
