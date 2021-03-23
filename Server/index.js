@@ -2819,7 +2819,8 @@ var getMMatch = /*#__PURE__*/function () {
 
 app.post(CONFIG.api_base_url + '/auto', /*#__PURE__*/function () {
   var _ref40 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee43(req, res) {
-    var cuis_index, headers, all_concepts, results, insertCUI;
+    var cuis_index, headers, all_concepts, results, insertCUI, allConceptPairs, _final;
+
     return _regenerator["default"].wrap(function _callee43$(_context43) {
       while (1) {
         switch (_context43.prev = _context43.next) {
@@ -2827,7 +2828,7 @@ app.post(CONFIG.api_base_url + '/auto', /*#__PURE__*/function () {
             _context43.prev = 0;
 
             if (!(req.body && req.body.headers)) {
-              _context43.next = 17;
+              _context43.next = 19;
               break;
             }
 
@@ -2950,24 +2951,41 @@ app.post(CONFIG.api_base_url + '/auto', /*#__PURE__*/function () {
               };
               return acc;
             }, {});
+            allConceptPairs = Object.keys(headers).reduce(function (acc, concepts) {
+              acc.push(headers[concepts]);
+              return acc;
+            }, []).flat();
+            _final = allConceptPairs.reduce(function (acc, con, i) {
+              var concept = con[con.length - 1].toLowerCase().trim();
+              var root = con.slice(0, con.length - 1).join(" ").toLowerCase().trim();
+              var rootWCase = con.slice(0, con.length - 1).join(" ").trim();
+              var key = root + concept;
+              acc[key] = {
+                concept: con[con.length - 1].trim(),
+                root: rootWCase,
+                labels: results[concept].labels
+              };
+              return acc;
+            }, {}); // debugger
+
             res.send({
-              autoLabels: results
+              autoLabels: _final
             });
-            _context43.next = 18;
+            _context43.next = 20;
             break;
 
-          case 17:
+          case 19:
             res.send({
               status: "wrong parameters",
               query: req.query
             });
 
-          case 18:
-            _context43.next = 24;
+          case 20:
+            _context43.next = 26;
             break;
 
-          case 20:
-            _context43.prev = 20;
+          case 22:
+            _context43.prev = 22;
             _context43.t0 = _context43["catch"](0);
             console.log(_context43.t0);
             res.send({
@@ -2975,12 +2993,12 @@ app.post(CONFIG.api_base_url + '/auto', /*#__PURE__*/function () {
               query: _context43.t0
             });
 
-          case 24:
+          case 26:
           case "end":
             return _context43.stop();
         }
       }
-    }, _callee43, null, [[0, 20]]);
+    }, _callee43, null, [[0, 22]]);
   }));
 
   return function (_x74, _x75) {

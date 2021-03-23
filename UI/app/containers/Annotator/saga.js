@@ -261,9 +261,12 @@ export function* getTableMetadata( payload ) {
           mItem.qualifiers = Array.from(new Set(mItem.qualifiers.split(";")))
           mItem.qualifiers_selected = Array.from(new Set(mItem.qualifiers_selected.split(";")))
 
-          acc[meta_item.concept.toLowerCase()] = mItem;
+          var metaKey = meta_item.concept.toLowerCase() != meta_item.concept_root.toLowerCase() ? meta_item.concept_root.toLowerCase()+meta_item.concept.toLowerCase() : meta_item.concept.toLowerCase()
+
+          acc[metaKey] = mItem;
           return acc
         }, {} )
+
       yield put( yield updateTableMetadataAction(metadata) );
     }
   } catch (err) {
@@ -324,6 +327,7 @@ export function* saveChanges ( payload ) {
       case SAVE_TABLE_METADATA_ACTION:
         requestURL = requestURL+`metadata`
 
+        debugger
         pre_params = {...pre_params,
                   'action' : 'save',
                   'target' : 'metadata', // table / notes / annotation / metadata,
@@ -381,7 +385,7 @@ export function* getAutoLabels( payload ) {
 
   const parsed = queryString.parse(location.search);
 
-  // debugger
+
   const requestURL = locationData.api_url+`auto`;
 
   const params = new URLSearchParams({
@@ -406,11 +410,11 @@ export function* getAutoLabels( payload ) {
     const response = yield call(request, requestURL, options);
 
     if ( response.status && response.status == "unauthorised"){
-      // debugger
+
       // COUld probably redirect to /
       // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
     } else {
-      // debugger
+
 
       var metadata = Object.keys(response.autoLabels).reduce(
         (acc, key, i) => {
@@ -419,10 +423,10 @@ export function* getAutoLabels( payload ) {
 
           mItem.concept_source = ""
           mItem.concept = response.autoLabels[key].concept
-          mItem.concept_root = response.autoLabels[key].concept
+          mItem.concept_root = response.autoLabels[key].root
 
           mItem.cuis = response.autoLabels[key].labels.map( item => item.CUI )
-          // debugger
+
 
           mItem.cuis_selected = mItem.cuis && mItem.cuis.length > 0 ? [mItem.cuis[0]] : []
 
@@ -435,12 +439,17 @@ export function* getAutoLabels( payload ) {
           mItem.labeller = credentials.username
           mItem.tid = payload.tid
 
-          acc[key] = mItem;
+          var metaKey = mItem.concept.toLowerCase() != mItem.concept_root.toLowerCase() ? mItem.concept_root.toLowerCase()+mItem.concept.toLowerCase() : mItem.concept.toLowerCase()
+
+          // debugger
+
+          acc[metaKey] = mItem;
           return acc
 
         }, {} )
 
       // debugger
+
       yield put( yield updateTableMetadataAction(metadata) );
 
       yield put( yield loadCuisIndexAction());

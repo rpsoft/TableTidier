@@ -48,7 +48,7 @@ function TableMetadata({
 
 
   var hey = _;
-  
+
   const [ enableDelete, setEnableDelete ] = React.useState(false)
 
   const toggleCui = (key, cui) => {
@@ -72,7 +72,7 @@ function TableMetadata({
       if (!metadata[key]){
 
         var tres = tableResults
-
+        debugger
         // metadata concept has not been annotated yet.
         metadata[key] = {
           concept: conceptData.concept,
@@ -142,12 +142,15 @@ function TableMetadata({
 
       {
         Object.keys(headerData).map( (ann_groups,j) => {
+
+          // debugger
             return <div key={j}> <h3>{ann_groups}</h3><div>{
               headerData[ann_groups].map(
                 (item, i) => {
 
                   return <TableMetadataItem
                                   key={ i }
+                                  keyN={ i }
                                   tableConcept={ item }
                                   metadata={ metadata }
                                   cuisIndex={ cuisIndex }

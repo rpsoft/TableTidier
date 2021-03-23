@@ -269,7 +269,7 @@ export function Annotator({
         setResults(annotator.results)
 
         setMetadata(annotator.metadata)
-
+        // debugger
         setCuisIndex(annotator.cuis_index)
 
         setHeaderData( prepareMetadata(header_data, annotator.results) );

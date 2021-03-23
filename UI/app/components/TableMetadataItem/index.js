@@ -29,6 +29,7 @@ import { FixedSizeList } from 'react-window';
 
 function TableMetadataItem(
   {
+    keyN,
     tableConcept,
     metadata,
     cuisIndex,
@@ -50,7 +51,9 @@ function TableMetadataItem(
   var concept = tableConcept.slice(tableConcept.length-1)[0]
       concept = concept.trim()
 
-  var key = concept.toLowerCase()
+  var key = root.toLowerCase()+concept.toLowerCase()
+
+  // debugger
 
   var itemData = metadata[key]
 
@@ -82,7 +85,7 @@ function TableMetadataItem(
           (cuiItem.preferred.toLowerCase().indexOf(query.toLowerCase()) > -1) ||
           (cui.toLowerCase().indexOf(query.toLowerCase()) > -1)
          ){
-           
+
         acc.push(cui)
       }
 
@@ -136,11 +139,10 @@ function TableMetadataItem(
           return cuiEntry(cui, style)
         };
 
-  
+
 
   return (
-    <div style={{ marginTop: (root.length > 0 ? 5 : 10) }} >
-
+    <div key={keyN} style={{ marginTop: (root.length > 0 ? 5 : 10), backgroundColor: keyN % 2 == 1 ? "#f6f5f5d6" : "white",padding:5 }} >
       {
         <span style={{ marginLeft: (root.length > 0 ? 20 : 0) }}> { concept } </span>
       }

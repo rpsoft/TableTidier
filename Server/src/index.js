@@ -1519,7 +1519,20 @@ app.post(CONFIG.api_base_url+'/auto', async function(req,res){
 
      results = all_concepts.reduce( (acc,con,i) => {acc[con.toLowerCase().trim()] = {concept:con.trim(), labels:results[i]}; return acc},{})
 
-     res.send({autoLabels : results})
+
+     var allConceptPairs = Object.keys(headers).reduce ( (acc,concepts) => {acc.push(headers[concepts]); return acc} , [] ).flat()
+
+     var final = allConceptPairs.reduce ( (acc,con,i) => {
+              var concept = con[con.length-1].toLowerCase().trim()
+              var root = con.slice(0,con.length-1).join(" ").toLowerCase().trim()
+              var rootWCase = con.slice(0,con.length-1).join(" ").trim()
+              var key = root+concept
+
+              acc[key] = {concept:con[con.length-1].trim(), root: rootWCase, labels: results[concept].labels};
+              return acc
+          },{})
+          // debugger
+     res.send({autoLabels : final})
    } else {
      res.send({status: "wrong parameters", query : req.query})
    }

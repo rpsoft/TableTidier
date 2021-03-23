@@ -6,8 +6,6 @@ const prepareMetadata = (headerData, tableResults) => {
 
     tableResults = tableResults.sort( (a,b) => a.row-b.row)
 
-    
-
     var headerDataCopy = JSON.parse(JSON.stringify(headerData))
 
     headerDataCopy.headers.reverse()
@@ -57,9 +55,10 @@ const prepareMetadata = (headerData, tableResults) => {
                 if ( concepts[concepts.length-1] == lastConcept ){
 
                   concepts = concepts.slice(concepts.length-2,1)
-                } else {
-                  lastConcept = concepts[concepts.length-1]
                 }
+                // else {
+                //   // lastConcept = concepts[concepts.length-1]
+                // }
 
                 acc.push( concepts )
               }
@@ -71,7 +70,7 @@ const prepareMetadata = (headerData, tableResults) => {
     },{})
 
     const unfoldConcepts = (concepts) => {
-      return concepts.reduce ( (stor, elm, i) => {
+      var unfolded = concepts.reduce ( (stor, elm, i) => {
 
             for ( var e = 1; e <= elm.length; e++ ){
 
@@ -86,10 +85,16 @@ const prepareMetadata = (headerData, tableResults) => {
             }
 
             return stor;
-      }, { unfolded:[], alreadyThere:[] }).unfolded
+      }, { unfolded:[], alreadyThere:[] })
+
+      return unfolded.unfolded
     }
 
-  meta_concepts = Object.keys(meta_concepts).reduce( (acc,mcon,j) => { acc[mcon] = unfoldConcepts(meta_concepts[mcon]); return acc},{} )
+  meta_concepts = Object.keys(meta_concepts).reduce(
+    (acc,mcon,j) => {
+      acc[mcon] = unfoldConcepts(meta_concepts[mcon]);
+      return acc
+    },{} )
 
   return meta_concepts
 }

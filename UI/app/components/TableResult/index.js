@@ -79,7 +79,7 @@ function TableResult({
   }
 
   return (
-    <div style={{padding:"5px 7px 7px 7px", overflow:"scroll"}} ref={ref} >
+    <div style={{padding:"5px 7px 7px 7px"}} ref={ref} >
         <div style={{textAlign:"right", marginBottom:5}}>
           <div style={{height:35, fontSize:22, float:"left", paddingTop:5}}> 3. Extraction <b> Results </b> </div>
           <Button variant="outlined" style={{backgroundColor:"lightblue"}} onClick={ () => { loadTableResults() } }> Refresh Results </Button>
