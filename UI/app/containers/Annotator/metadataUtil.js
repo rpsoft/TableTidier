@@ -1,5 +1,5 @@
 const prepareMetadata = (headerData, tableResults) => {
-
+    debugger
     if(!headerData.headers || headerData.headers.length < 1 || (!tableResults) ){
       return {}
     }

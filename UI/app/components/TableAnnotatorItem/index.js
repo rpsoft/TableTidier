@@ -83,7 +83,7 @@ function TableAnnotatorItem({
 
 
   const descriptors_available = ["outcomes", "characteristic_name", "characteristic_level", "arms", "measures", "time/period", "other", "p-interaction"]
-  const formaters_available = ["plain", "bold", "indent", "italic", "empty_row","empty_row_with_p_value"]
+  const formaters_available = ["plain", "bold", "indented", "italic", "empty_row","empty_row_with_p_value"]
 
   const Object2Array = (obj) => Array.isArray(obj) ? obj : Object.keys(obj) // This is a fix for legacy annotations.
 

@@ -79,8 +79,6 @@ html_2_df <- function (pmid, page, collId){
   df_tds_strong <- df_tds %>% mutate (hasStrong = character %in% strongs )
   df_ps <- df_ps %>% inner_join(df_tds_strong) %>% mutate ( attr = paste0(attr," ",ifelse(hasStrong, "bold", "")) ) %>% select( path, attr)
 
-
-  # debugger()
   possible_cols <- c(letters %>% str_to_upper(), c(outer(letters %>% str_to_upper() , letters %>% str_to_upper() , FUN=paste0)) )
 
   newdata <- suppressMessages(suppressWarnings( left_join(df_tds , df_ps) ))
@@ -105,17 +103,12 @@ html_2_df <- function (pmid, page, collId){
     newdata <- header %>% rbind(newdata)
   }
 
-
-
   newdata <- newdata %>% mutate( address = paste0(possible_cols[strtoi(col, base = 0L)],row))
-
-
 
   newdata <- newdata %>% mutate( is_empty = character %>% is.na())
   newdata <- newdata %>% mutate( is_blank = character %>% is.na())
 
   newdata <- newdata %>% group_by(row) %>% mutate(blank_row = all(is_empty) ) %>% ungroup()
-
 
   newdata <- newdata %>% mutate( bold = str_detect(attr,"bold"))
   newdata <- newdata %>% mutate( italic = str_detect(attr,"italic"))
@@ -154,7 +147,7 @@ html_2_df <- function (pmid, page, collId){
 
 
 runAll <- function(annotations, collId){
-
+  
   # message("Joining by: ", capture.output(dput(by)))
 
   ## Function to allow matching of rows and column metadata
@@ -217,7 +210,9 @@ runAll <- function(annotations, collId){
   # suppressWarnings(suppressMessages(annotations <- read_csv("extracted_app.txt")))
 
   prepareAnnotations <- function( annotations ){
-
+    
+    annotations <- annotations %>% mutate( qualifiers = ifelse(qualifiers == "indented", "indent",qualifiers))
+    
     metadata <- annotations
     metadata %>% distinct(docid, page)
 
@@ -278,7 +273,7 @@ runAll <- function(annotations, collId){
   metadata <- prepareAnnotations( annotations )
 
   TidyTable <- function(docid_page_selected, collId ){
-
+    
     meta <- metadata %>%
       filter(docid_page == docid_page_selected)
 
@@ -330,6 +325,8 @@ runAll <- function(annotations, collId){
              character = if_else(is.na(character), as.character(numeric), character))
 
     all_cells <- all_cells %>% mutate(local_format_id = seq_along(all_cells$row))
+
+    all_cells <- all_cells %>% mutate( indent_lvl = ifelse(indent, 1, 0))
 
     all_cells_indnt <- all_cells %>%
       filter(indent) %>%
@@ -528,6 +525,8 @@ runAll <- function(annotations, collId){
 
     data_cells <- table_data %>% select(row, col, character)
 
+    browser()
+    
     for(i_choose in unique(col_lbls_meta$i)){
       ## Select each richest column description in turn, removing that from the dataset
 
@@ -564,6 +563,7 @@ runAll <- function(annotations, collId){
                                            anti_join(h) ))
 
       # h <- h %>% mutate (character = ifelse(is.na(character),"",character)) # Correction for NA's in character
+      
       data_cells <- NNW(data_cells, h)
       new_name <- row_lbls_meta$content[row_lbls_meta$i == i_choose] %>%  unique()
       while(new_name %in% names(data_cells)) new_name <- paste0(new_name, "_")
@@ -603,9 +603,9 @@ function(req, anns = "" ) {
   # url <- paste0("http://localhost:6541/api/getTable?docid=11527638&page=1")
   # JsonData <- fromJSON(file= url )
   #
-  # write_rds(anns, paste0(baseFolder,"last_out_other.rds"))
+  #write_rds(anns, paste0(baseFolder,"last_out_other.rds"))
   #
-  # anns <- read_rds(paste0(baseFolder,"last_out_other.rds"))
+  anns <- read_rds(paste0(baseFolder,"last_out_other.rds"))
 
   annotations <- anns$annotation %>%
     as.data.frame() %>%
@@ -615,20 +615,6 @@ function(req, anns = "" ) {
     mutate(qualifiers = ifelse( qualifiers == "", NA, qualifiers)) %>%
     mutate(content = ifelse( content == "", NA, content)) %>%
     as_tibble()
-
-  #    annotations <- anns$annotation %>%
-  #      as.data.frame() %>%
-  #      mutate(docid = anns$docid,page = anns$page,user = anns$user,corrupted = anns$corrupted,tableType = anns$tableType) %>%
-  #      select(user,docid,page,corrupted,tableType,location,number,content,qualifiers) %>%
-  #      mutate(page = as.double(page)) %>%
-  #      mutate(corrupted = ifelse(corrupted == "false",FALSE,TRUE)) %>%
-  #      mutate(qualifiers = ifelse( qualifiers == "",NA, qualifiers)) %>%
-  #      mutate(content = ifelse( content == "",NA, content)) %>%
-  #      as_tibble()
-
-  # print(annotations)
-  # annotations <- readRDS(paste0(baseFolder,"testing-annotations.rds"))
-
 
   collId <- anns$collection_id
   result <- value( future( runAll(annotations, collId) ) )

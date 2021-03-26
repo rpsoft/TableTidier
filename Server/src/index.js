@@ -331,9 +331,27 @@ async function main(){
 
   await initialiseUsers()
 
+  //
+  // var tables = fs.readdirSync("HTML_TABLES/1")
+  //
+  // for ( var t in tables ){
+  //     console.log( t+" -- "+tables.length )
+  //
+  //     var filename = tables[t].split(".")[0]
+  //
+  //     var docid = filename.split("_")[0]
+  //     var page = filename.split("_")[1]
+  //
+  //     try{
+  //       await processAnnotationAndMetadata(docid, page, 1 )
+  //     } catch(e){
+  //       console.log("failed: "+docid+" -- "+page)
+  //     }
+  // }
+  //
+  // debugger
 }
 
-main();
 
 
 app.get(CONFIG.api_base_url+'/deleteTable', async function(req,res){
@@ -545,7 +563,6 @@ app.post(CONFIG.api_base_url+'/metadata', async function(req,res){
         result = await clearMetadata(tid)
         break;
       case "save":
-
         var metadata = JSON.parse(req.body.payload).metadata
         result = await setMetadata(metadata)
         break;
@@ -1199,8 +1216,132 @@ app.get(CONFIG.api_base_url+'/cuiRecommend', async function(req,res){
 //   res.send("saved annotation: "+JSON.stringify(req.query))
 // });
 
+//req.body.
+const prepareAnnotationPreview = async (docid, page, collId, cachedOnly) => {
+
+      var annotations = await getAnnotationByID(docid, page, collId)
+
+      var tid = annotations.rows.length > 0 ? annotations.rows[0].tid : -1;
+
+      if ( tid < 0 ){
+        return {status: "wrong parameters (missing tid)"};
+      }
+
+      var client = await pool.connect()
+
+      var tableResult = await client.query(
+        `SELECT tid, "tableResult" FROM result WHERE tid = $1`,[tid]
+      )
+
+      client.release()
+
+      tableResult = tableResult && (tableResult.rows.length > 0) ? tableResult.rows[0].tableResult : []
+
+      if ( cachedOnly === 'true' ){
+
+        var toReturn = {}
+        if ( tableResult.length > 0){
+          toReturn = {"state" : "good", result : tableResult }
+        } else {
+          toReturn = {"state" : "good", result : [] }
+        }
+
+        // console.log("Fast reload: "+ req.body.docid +" - "+ req.body.page +" - "+ req.body.collId)
+        return toReturn;
+      }
+
+      var final_annotations = {}
+
+      /**
+      * There are multiple versions of the annotations. When calling reading the results from the database, here we will return only the latest/ most complete version of the annotation.
+      * Independently from the author of it. Completeness here measured as the result with the highest number of annotations and the highest index number (I.e. Newest, but only if it has more information/annotations).
+      * May not be the best in some cases.
+      *
+      */
+
+      for ( var r in annotations.rows){
+        var ann = annotations.rows[r]
+        var existing = final_annotations[ann.docid+"_"+ann.page]
+        if ( existing ){
+          if ( ann.N > existing.N && ann.annotation.annotations.length >= existing.annotation.annotations.length ){
+                final_annotations[ann.docid+"_"+ann.page] = ann
+          }
+        } else { // Didn't exist so add it.
+          final_annotations[ann.docid+"_"+ann.page] = ann
+        }
+      }
+
+      var final_annotations_array = []
+      for (  var r in final_annotations ){
+        var ann = final_annotations[r]
+        final_annotations_array[final_annotations_array.length] = ann
+      }
 
 
+      if( final_annotations_array.length > 0){
+
+            var entry = final_annotations_array[0]
+                entry.annotation = !entry.annotation ? [] : entry.annotation.annotations.map( (v,i) => {
+                  var ann = v;
+                      ann.content = Object.keys(ann.content).join(";");
+                      ann.qualifiers = Object.keys(ann.qualifiers).join(";");
+                  return ann
+                })
+
+            console.log(entry)
+
+            entry.annotation.reduce( (acc, entry, i) => {
+              acc[entry.content] = acc[entry.content] ? acc[entry.content]+1 : 1;
+              entry.content = entry.content+"@"+acc[entry.content];
+              return acc
+            }, {})
+
+            console.log("TRY: "+ 'http://'+CONFIG.plumber_url+'/preview')
+
+
+            var doRequest = new Promise( async (accept, reject) => {
+
+              await request({
+                      url: 'http://'+CONFIG.plumber_url+'/preview',
+                      method: "POST",
+                      json: {
+                        anns: entry,
+                        collId: collId
+                      }
+                }, async function (error, response, body) {
+
+                  // console.log("pentada"+JSON.stringify(error))
+                  var insertResult = async (tid, tableResult) => {
+                        var client = await pool.connect()
+                        var done = await client.query('INSERT INTO result(tid, "tableResult") VALUES ($1, $2) ON CONFLICT (tid) DO UPDATE SET "tableResult" = $2',  [tid, tableResult])
+                          .then(result => console.log("insert result: "+ new Date()))
+                          .catch(e => console.error(e.stack))
+                          .then(() => client.release())
+                  }
+
+                  if ( body && body.tableResult && body.tableResult.length > 0){
+                    await insertResult(body.ann.tid[0], body.tableResult)
+                    console.log("tableresults: "+body.tableResult.length)
+                    accept({"state" : "good", result : body.tableResult})
+                  } else {
+                    console.log("tableresults: empty. Is plumber/R API running, or annotation empty?")
+                    accept({"state" : "good", result : []})
+                  }
+              });
+
+            })
+
+        var plumberResult = await doRequest
+
+
+        plumberResult["backAnnotation"] = annotations
+        return plumberResult
+      } else {
+        return {"state" : "empty"}
+      }
+
+      return {"state":"whathappened!"}
+}
 
 // Generates the results table live preview, connecting to the R API.
 app.post(CONFIG.api_base_url+'/annotationPreview',async function(req,res){
@@ -1215,114 +1356,7 @@ app.post(CONFIG.api_base_url+'/annotationPreview',async function(req,res){
 
           if(req.body.docid && req.body.page && req.body.collId ){
 
-            var annotations = await getAnnotationByID(req.body.docid, req.body.page, req.body.collId)
-
-            var tid = annotations.rows.length > 0 ? annotations.rows[0].tid : -1;
-
-            if ( tid < 0 ){
-              res.json({status: "wrong parameters (missing tid)", body : req.body})
-              return;
-            }
-
-            var client = await pool.connect()
-
-            var tableResult = await client.query(
-              `SELECT tid, "tableResult" FROM result WHERE tid = $1`,[tid]
-            )
-
-            client.release()
-
-            tableResult = tableResult && (tableResult.rows.length > 0) ? tableResult.rows[0].tableResult : []
-
-            if ( req.body.cachedOnly === 'true' ){
-              // debugger
-              if ( tableResult.length > 0){
-                res.json( {"state" : "good", result : tableResult } )
-              } else {
-                res.json( {"state" : "good", result : [] } )
-              }
-
-              console.log("Fast reload: "+ req.body.docid +" - "+ req.body.page +" - "+ req.body.collId)
-              return;
-            }
-
-            var final_annotations = {}
-
-            /**
-            * There are multiple versions of the annotations. When calling reading the results from the database, here we will return only the latest/ most complete version of the annotation.
-            * Independently from the author of it. Completeness here measured as the result with the highest number of annotations and the highest index number (I.e. Newest, but only if it has more information/annotations).
-            * May not be the best in some cases.
-            *
-            */
-
-            for ( var r in annotations.rows){
-              var ann = annotations.rows[r]
-              var existing = final_annotations[ann.docid+"_"+ann.page]
-              if ( existing ){
-                if ( ann.N > existing.N && ann.annotation.annotations.length >= existing.annotation.annotations.length ){
-                      final_annotations[ann.docid+"_"+ann.page] = ann
-                }
-              } else { // Didn't exist so add it.
-                final_annotations[ann.docid+"_"+ann.page] = ann
-              }
-            }
-
-            var final_annotations_array = []
-            for (  var r in final_annotations ){
-              var ann = final_annotations[r]
-              final_annotations_array[final_annotations_array.length] = ann
-            }
-
-            if( final_annotations_array.length > 0){
-
-                  var entry = final_annotations_array[0]
-                      entry.annotation = !entry.annotation ? [] : entry.annotation.annotations.map( (v,i) => {var ann = v; ann.content = Object.keys(ann.content).join(";"); ann.qualifiers = Object.keys(ann.qualifiers).join(";"); return ann} )
-
-                  console.log(entry)
-
-                  entry.annotation.reduce( (acc, entry, i) => {
-                    acc[entry.content] = acc[entry.content] ? acc[entry.content]+1 : 1;
-                    entry.content = entry.content+"@"+acc[entry.content];
-                    return acc
-                  }, {})
-
-                  console.log("TRY: "+ 'http://'+CONFIG.plumber_url+'/preview')
-                  request({
-                          url: 'http://'+CONFIG.plumber_url+'/preview',
-                          method: "POST",
-                          json: {
-                            anns: entry,
-                            collId: req.body.collId
-                          }
-                    }, async function (error, response, body) {
-
-                      // console.log("pentada"+JSON.stringify(error))
-                      var insertResult = async (tid, tableResult) => {
-                            var client = await pool.connect()
-                            var done = await client.query('INSERT INTO result(tid, "tableResult") VALUES ($1, $2) ON CONFLICT (tid) DO UPDATE SET "tableResult" = $2',  [tid, tableResult])
-                              .then(result => console.log("insert result: "+ new Date()))
-                              .catch(e => console.error(e.stack))
-                              .then(() => client.release())
-                      }
-
-                     // console.log(body.tableResult )
-                      if ( body && body.tableResult && body.tableResult.length > 0){
-                        await insertResult(body.ann.tid[0], body.tableResult)
-                        console.log("tableresults: "+body.tableResult.length)
-                        res.json( {"state" : "good", result : body.tableResult} )
-                      } else {
-                        console.log("tableresults: empty. Is plumber/R API running, or annotation empty?")
-                        res.json( {"state" : "good", result : []} )
-                      }
-                      // console.log("tableresults: "+body.tableResult.length)
-
-                      // res.json( {"state" : "good", result : body.tableResult, "anns" : body.ann} )
-
-                  });
-                  // res.json( {"state" : "good2", result : body.tableResult} )
-            } else {
-              res.json({"state" : "empty"})
-            }
+            res.json(await prepareAnnotationPreview(req.body.docid , req.body.page, req.body.collId, req.body.cachedOnly))
 
           } else {
             res.json({status: "wrong parameters", body : req.body})
@@ -1479,60 +1513,61 @@ const getMMatch = async (phrase) => {
   // return result
 }
 
+const processHeaders = async (headers) => {
+
+       var all_concepts = Array.from(new Set(Object.values(headers).flat().flat().flat().flat()))
+
+       var results = await Promise.all(all_concepts.map( async (concept,i) => {
+                                     var mm_match = await getMMatch(concept.toLowerCase())
+                                     return mm_match
+                                   }))
+
+       var insertCUI = async (cui,preferred,hasMSH) => {
+           var client = await pool.connect()
+           var done = await client.query('INSERT INTO cuis_index(cui,preferred,"hasMSH",user_defined,admin_approved) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (cui) DO UPDATE SET preferred = $2, "hasMSH" = $3, user_defined = $4, admin_approved = $5',  [cui,preferred,hasMSH,true,false])
+             .then(result => console.log("insert: "+ new Date()))
+             .catch(e => console.error(e.stack))
+             .then(() => client.release())
+       }
+
+       var cuis_index = await getCUISIndex()
+
+       await Promise.all(results.flat().flat().map( async (cuiData,i) => {
+
+            if ( cuis_index[cuiData.CUI] ){
+                return
+            } else {
+                return await insertCUI(cuiData.CUI, cuiData.preferred, cuiData.hasMSH)
+            }
+       }))
+
+       results = all_concepts.reduce( (acc,con,i) => {acc[con.toLowerCase().trim()] = {concept:con.trim(), labels:results[i]}; return acc},{})
+
+       var allConceptPairs = Object.keys(headers).reduce ( (acc,concepts) => {acc.push(headers[concepts]); return acc} , [] ).flat()
+
+
+       // debugger
+       var final = allConceptPairs.reduce ( (acc,con,i) => {
+                var concept = con[con.length-1].toLowerCase().trim()
+                var root = con.slice(0,con.length-1).join(" ").toLowerCase().trim()
+                var rootWCase = con.slice(0,con.length-1).join(" ").trim()
+                var key = root+concept
+
+                acc[key] = {concept:con[con.length-1].trim(), root: rootWCase, labels: results[concept].labels};
+                return acc
+            },{})
+
+      return final
+}
+
 app.post(CONFIG.api_base_url+'/auto', async function(req,res){
 
   try{
    if(req.body && req.body.headers ){
 
-     var cuis_index = await getCUISIndex()
-
-     // {preferred : row.preferred, hasMSH: row.hasMSH, userDefined: row.user_defined, adminApproved: row.admin_approved}
-     // debugger
-
      var headers = JSON.parse(req.body.headers)
 
-     var all_concepts = Array.from(new Set(Object.values(headers).flat().flat().flat().flat()))
-
-     var results = await Promise.all(all_concepts.map( async (concept,i) => {
-                                   var mm_match = await getMMatch(concept.toLowerCase())
-                                   return mm_match
-                                 }))
-
-
-
-     var insertCUI = async (cui,preferred,hasMSH) => {
-         var client = await pool.connect()
-         var done = await client.query('INSERT INTO cuis_index(cui,preferred,"hasMSH",user_defined,admin_approved) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (cui) DO UPDATE SET preferred = $2, "hasMSH" = $3, user_defined = $4, admin_approved = $5',  [cui,preferred,hasMSH,true,false])
-           .then(result => console.log("insert: "+ new Date()))
-           .catch(e => console.error(e.stack))
-           .then(() => client.release())
-     }
-
-     await Promise.all(results.flat().flat().map( async (cuiData,i) => {
-
-          if ( cuis_index[cuiData.CUI] ){
-              return
-          } else {
-              return await insertCUI(cuiData.CUI, cuiData.preferred, cuiData.hasMSH)
-          }
-     }))
-
-     results = all_concepts.reduce( (acc,con,i) => {acc[con.toLowerCase().trim()] = {concept:con.trim(), labels:results[i]}; return acc},{})
-
-
-     var allConceptPairs = Object.keys(headers).reduce ( (acc,concepts) => {acc.push(headers[concepts]); return acc} , [] ).flat()
-
-     var final = allConceptPairs.reduce ( (acc,con,i) => {
-              var concept = con[con.length-1].toLowerCase().trim()
-              var root = con.slice(0,con.length-1).join(" ").toLowerCase().trim()
-              var rootWCase = con.slice(0,con.length-1).join(" ").trim()
-              var key = root+concept
-
-              acc[key] = {concept:con[con.length-1].trim(), root: rootWCase, labels: results[concept].labels};
-              return acc
-          },{})
-          // debugger
-     res.send({autoLabels : final})
+     res.send({autoLabels : await processHeaders(headers) })
    } else {
      res.send({status: "wrong parameters", query : req.query})
    }
@@ -1747,10 +1782,193 @@ app.post(CONFIG.api_base_url+'/saveAnnotation',async function(req,res){
   }
 });
 
+const prepareMetadata = (headerData, tableResults) => {
+
+    if(!headerData.headers || headerData.headers.length < 1 || (!tableResults) ){
+      return {}
+    }
+
+    tableResults = tableResults.sort( (a,b) => a.row-b.row)
+
+    var headerDataCopy = JSON.parse(JSON.stringify(headerData))
+
+    headerDataCopy.headers.reverse()
+    headerDataCopy.subs.reverse()
+
+    var annotation_groups = headerDataCopy.headers.reduce(
+        (acc,item,i) => {
+          if ( headerDataCopy.subs[i]) {
+            acc.temp.push(item)
+          } else {
+            acc.groups.push([...acc.temp,item].reverse());
+            acc.temp = []
+          };
+          return acc
+        }, {groups:[], temp: []})
+
+      annotation_groups.groups[annotation_groups.groups.length-1] = [...annotation_groups.groups[annotation_groups.groups.length-1], ...annotation_groups.temp ]
+      annotation_groups = annotation_groups.groups.reverse()
+
+    var grouped_headers = annotation_groups.reduce( (acc,group,i) => {
+      var concepts = tableResults.reduce( (cons,res,j)  => {
+        cons.push (
+          group.map( (head) => {
+            if ( res[head] )
+            return res[head]
+          })
+        )
+        return cons
+      },[]);
+
+      acc[group.join()] = concepts;
+      return acc;
+    },{})
+
+
+    var meta_concepts = Object.keys(grouped_headers).reduce( (mcon, group) => {
+      var alreadyshown = []
+      var lastConcept = ""
+
+      mcon[group] = grouped_headers[group].reduce(
+          (acc, concepts) => {
+              var key = concepts.join()
+              if ( !alreadyshown[key] ){
+                alreadyshown[key] = true
+                concepts = concepts.filter( b => b != undefined )
+
+                if ( concepts[concepts.length-1] == lastConcept ){
+
+                  concepts = concepts.slice(concepts.length-2,1)
+                }
+
+                acc.push( concepts )
+              }
+
+              return acc
+          }, [])
+
+      return mcon
+    },{})
+
+    const unfoldConcepts = (concepts) => {
+      var unfolded = concepts.reduce ( (stor, elm, i) => {
+
+            for ( var e = 1; e <= elm.length; e++ ){
+
+                var partial_elm = elm.slice(0,e)
+                var key = partial_elm.join()
+
+                if ( stor.alreadyThere.indexOf(key) < 0 ){
+                  stor.unfolded.push(partial_elm)
+                  stor.alreadyThere.push(key)
+                }
+
+            }
+
+            return stor;
+      }, { unfolded:[], alreadyThere:[] })
+
+      return unfolded.unfolded
+    }
+
+  meta_concepts = Object.keys(meta_concepts).reduce(
+    (acc,mcon,j) => {
+      acc[mcon] = unfoldConcepts(meta_concepts[mcon]);
+      return acc
+    },{} )
+
+  return meta_concepts
+}
+
+const processAnnotationAndMetadata = async (docid,page,collId) => {
+
+    var tabularData = await prepareAnnotationPreview(docid, page, collId, false)
+
+    if (tabularData.backAnnotation && tabularData.backAnnotation.rows.length > 0 && tabularData.backAnnotation.rows[0].annotation ){
+
+      // .annotations.map( ann => { return {head: Object.keys(ann.content).join(";"), sub: ann.subAnnotation } })
+      // debugger
+
+      var tid = tabularData.backAnnotation.rows[0].tid
+
+      var header_data = tabularData.backAnnotation.rows[0].annotation.map( ann => { return {head: [ann.content.split("@")[0]].join(";"), sub: ann.subAnnotation } })
+
+      header_data = header_data.reduce( (acc, header,i) => {
+                              acc.count[header.head] = acc.count[header.head] ? acc.count[header.head]+1 : 1;
+                              acc.headers.push(header.head+"@"+acc.count[header.head]);
+                              acc.subs.push(header.sub);
+                              return acc;
+                            }, {count:{},headers:[],subs:[]} )
+
+
+
+      var headerData = tabularData.result.reduce( (acc, item) => {
+
+        Object.keys(item).map( (head) => {
+          if ( ["col","row","docid_page","value"].indexOf(head) < 0 ){
+            var currentItem = acc[head]
+
+            if( !currentItem ){
+              currentItem = []
+            }
+
+            currentItem.push(item[head])
+
+            acc[head] = [...new Set(currentItem)]
+          }
+        })
+
+        return acc
+
+      }, {})
+
+
+      var headDATA = prepareMetadata(header_data, tabularData.result)
+
+      var hedDatra = await processHeaders(headDATA)
+
+      // debugger
+
+      var metadata = Object.keys(hedDatra).map( (key) => {
+        var cuis = hedDatra[key].labels.map( (label) => {return label.CUI} )
+
+        return {
+          concept: hedDatra[key].concept,
+          concept_root: hedDatra[key].root,
+          concept_source: "",
+          cuis: cuis,
+          cuis_selected: cuis.slice(0,2),
+          istitle: false,
+          labeller: "suso",
+          qualifiers: [""],
+          qualifiers_selected: [""],
+          tid: tid
+        }
+      })
+
+      var result = await setMetadata(metadata)
+
+
+    }
+
+
+}
+
+
+
 
 // api_host
 // ui_port
 // ui_host
+
+
+
+const exec = require('child_process').exec;
+
+const myShellScript = exec('fuser -k '+CONFIG.api_port+'/tcp');
+
 app.listen(CONFIG.api_port, '0.0.0.0', function () {
   console.log('Table Tidier Server running on port '+CONFIG.api_port+' with base: '+ CONFIG.api_base_url + "  :: " + new Date().toISOString());
 });
+
+main();

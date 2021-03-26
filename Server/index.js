@@ -282,11 +282,11 @@ function UMLSData() {
 }
 
 function _UMLSData() {
-  _UMLSData = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee54() {
+  _UMLSData = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee58() {
     var semtypes, cui_def, cui_concept;
-    return _regenerator["default"].wrap(function _callee54$(_context54) {
+    return _regenerator["default"].wrap(function _callee58$(_context58) {
       while (1) {
-        switch (_context54.prev = _context54.next) {
+        switch (_context58.prev = _context58.next) {
           case 0:
             semtypes = new Promise(function (resolve, reject) {
               var inputStream = fs.createReadStream(CONFIG.system_path + "Tools/metamap_api/" + 'cui_def.csv', 'utf8');
@@ -305,11 +305,11 @@ function _UMLSData() {
                 resolve(result);
               });
             });
-            _context54.next = 3;
+            _context58.next = 3;
             return semtypes;
 
           case 3:
-            semtypes = _context54.sent;
+            semtypes = _context58.sent;
             cui_def = new Promise(function (resolve, reject) {
               var inputStream = fs.createReadStream(CONFIG.system_path + "Tools/metamap_api/" + 'cui_def.csv', 'utf8');
               var result = {};
@@ -330,11 +330,11 @@ function _UMLSData() {
                 resolve(result);
               });
             });
-            _context54.next = 7;
+            _context58.next = 7;
             return cui_def;
 
           case 7:
-            cui_def = _context54.sent;
+            cui_def = _context58.sent;
             cui_concept = new Promise(function (resolve, reject) {
               var inputStream = fs.createReadStream(CONFIG.system_path + "Tools/metamap_api/" + 'cui_concept.csv', 'utf8');
               var result = {};
@@ -350,12 +350,12 @@ function _UMLSData() {
                 resolve(result);
               });
             });
-            _context54.next = 11;
+            _context58.next = 11;
             return cui_concept;
 
           case 11:
-            cui_concept = _context54.sent;
-            return _context54.abrupt("return", {
+            cui_concept = _context58.sent;
+            return _context58.abrupt("return", {
               semtypes: semtypes,
               cui_def: cui_def,
               cui_concept: cui_concept
@@ -363,10 +363,10 @@ function _UMLSData() {
 
           case 13:
           case "end":
-            return _context54.stop();
+            return _context58.stop();
         }
       }
-    }, _callee54);
+    }, _callee58);
   }));
   return _UMLSData.apply(this, arguments);
 }
@@ -377,22 +377,22 @@ function CUIData() {
 
 
 function _CUIData() {
-  _CUIData = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee55() {
+  _CUIData = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee59() {
     var umlsData, results, rres;
-    return _regenerator["default"].wrap(function _callee55$(_context55) {
+    return _regenerator["default"].wrap(function _callee59$(_context59) {
       while (1) {
-        switch (_context55.prev = _context55.next) {
+        switch (_context59.prev = _context59.next) {
           case 0:
-            _context55.next = 2;
+            _context59.next = 2;
             return UMLSData();
 
           case 2:
-            umlsData = _context55.sent;
-            _context55.next = 5;
+            umlsData = _context59.sent;
+            _context59.next = 5;
             return (0, _network_functions.getAnnotationResults)();
 
           case 5:
-            results = _context55.sent;
+            results = _context59.sent;
             rres = results.rows.reduce(function (acc, ann, i) {
               var annots = ann.annotation.annotations;
               annots = annots.reduce(function (acc, ann) {
@@ -417,7 +417,7 @@ function _CUIData() {
               };
               return acc;
             }, {});
-            return _context55.abrupt("return", {
+            return _context59.abrupt("return", {
               cui_def: umlsData.cui_def,
               cui_concept: umlsData.cui_concept,
               actual_results: rres,
@@ -426,10 +426,10 @@ function _CUIData() {
 
           case 8:
           case "end":
-            return _context55.stop();
+            return _context59.stop();
         }
       }
-    }, _callee55);
+    }, _callee59);
   }));
   return _CUIData.apply(this, arguments);
 }
@@ -440,31 +440,31 @@ function getMetadataLabellers() {
 
 
 function _getMetadataLabellers() {
-  _getMetadataLabellers = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee56() {
+  _getMetadataLabellers = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee60() {
     var client, result;
-    return _regenerator["default"].wrap(function _callee56$(_context56) {
+    return _regenerator["default"].wrap(function _callee60$(_context60) {
       while (1) {
-        switch (_context56.prev = _context56.next) {
+        switch (_context60.prev = _context60.next) {
           case 0:
-            _context56.next = 2;
+            _context60.next = 2;
             return pool.connect();
 
           case 2:
-            client = _context56.sent;
-            _context56.next = 5;
+            client = _context60.sent;
+            _context60.next = 5;
             return client.query("select distinct docid, page, labeller from metadata");
 
           case 5:
-            result = _context56.sent;
+            result = _context60.sent;
             client.release();
-            return _context56.abrupt("return", result);
+            return _context60.abrupt("return", result);
 
           case 8:
           case "end":
-            return _context56.stop();
+            return _context60.stop();
         }
       }
-    }, _callee56);
+    }, _callee60);
   }));
   return _getMetadataLabellers.apply(this, arguments);
 }
@@ -474,41 +474,41 @@ function getAnnotationByID(_x6, _x7, _x8) {
 }
 
 function _getAnnotationByID() {
-  _getAnnotationByID = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee57(docid, page, collId) {
+  _getAnnotationByID = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee61(docid, page, collId) {
     var client, result;
-    return _regenerator["default"].wrap(function _callee57$(_context57) {
+    return _regenerator["default"].wrap(function _callee61$(_context61) {
       while (1) {
-        switch (_context57.prev = _context57.next) {
+        switch (_context61.prev = _context61.next) {
           case 0:
             if (!(docid == "undefined" || page == "undefined" || collId == "undefined")) {
-              _context57.next = 2;
+              _context61.next = 2;
               break;
             }
 
-            return _context57.abrupt("return", {
+            return _context61.abrupt("return", {
               rows: []
             });
 
           case 2:
-            _context57.next = 4;
+            _context61.next = 4;
             return pool.connect();
 
           case 4:
-            client = _context57.sent;
-            _context57.next = 7;
+            client = _context61.sent;
+            _context61.next = 7;
             return client.query("\n    SELECT docid, page, \"user\", notes, collection_id, file_path, \"tableType\", \"table\".tid, completion, annotation\n    FROM \"table\"\n    LEFT JOIN annotations\n    ON  \"table\".tid = annotations.tid\n    WHERE docid=$1 AND page=$2 AND collection_id = $3 ", [docid, page, collId]);
 
           case 7:
-            result = _context57.sent;
+            result = _context61.sent;
             client.release();
-            return _context57.abrupt("return", result);
+            return _context61.abrupt("return", result);
 
           case 10:
           case "end":
-            return _context57.stop();
+            return _context61.stop();
         }
       }
-    }, _callee57);
+    }, _callee61);
   }));
   return _getAnnotationByID.apply(this, arguments);
 }
@@ -551,34 +551,33 @@ function main() {
 }
 
 function _main() {
-  _main = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee58() {
-    return _regenerator["default"].wrap(function _callee58$(_context58) {
+  _main = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee62() {
+    return _regenerator["default"].wrap(function _callee62$(_context62) {
       while (1) {
-        switch (_context58.prev = _context58.next) {
+        switch (_context62.prev = _context62.next) {
           case 0:
-            _context58.next = 2;
+            _context62.next = 2;
             return rebuildSearchIndex();
 
           case 2:
-            _context58.next = 4;
+            _context62.next = 4;
             return UMLSData();
 
           case 4:
-            umls_data_buffer = _context58.sent;
-            _context58.next = 7;
+            umls_data_buffer = _context62.sent;
+            _context62.next = 7;
             return (0, _security.initialiseUsers)();
 
           case 7:
           case "end":
-            return _context58.stop();
+            return _context62.stop();
         }
       }
-    }, _callee58);
+    }, _callee62);
   }));
   return _main.apply(this, arguments);
 }
 
-main();
 app.get(CONFIG.api_base_url + '/deleteTable', /*#__PURE__*/function () {
   var _ref5 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee5(req, res) {
     var filename, delprom;
@@ -2218,51 +2217,51 @@ function getRecommendedCUIS() {
 }
 
 function _getRecommendedCUIS() {
-  _getRecommendedCUIS = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee60() {
+  _getRecommendedCUIS = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee64() {
     var cuiRecommend, recommend_cuis, rec_cuis, splitConcepts;
-    return _regenerator["default"].wrap(function _callee60$(_context60) {
+    return _regenerator["default"].wrap(function _callee64$(_context64) {
       while (1) {
-        switch (_context60.prev = _context60.next) {
+        switch (_context64.prev = _context64.next) {
           case 0:
             cuiRecommend = /*#__PURE__*/function () {
-              var _ref54 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee59() {
+              var _ref58 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee63() {
                 var client, result;
-                return _regenerator["default"].wrap(function _callee59$(_context59) {
+                return _regenerator["default"].wrap(function _callee63$(_context63) {
                   while (1) {
-                    switch (_context59.prev = _context59.next) {
+                    switch (_context63.prev = _context63.next) {
                       case 0:
-                        _context59.next = 2;
+                        _context63.next = 2;
                         return pool.connect();
 
                       case 2:
-                        client = _context59.sent;
-                        _context59.next = 5;
+                        client = _context63.sent;
+                        _context63.next = 5;
                         return client.query("select * from cuis_recommend");
 
                       case 5:
-                        result = _context59.sent;
+                        result = _context63.sent;
                         client.release();
-                        return _context59.abrupt("return", result);
+                        return _context63.abrupt("return", result);
 
                       case 8:
                       case "end":
-                        return _context59.stop();
+                        return _context63.stop();
                     }
                   }
-                }, _callee59);
+                }, _callee63);
               }));
 
               return function cuiRecommend() {
-                return _ref54.apply(this, arguments);
+                return _ref58.apply(this, arguments);
               };
             }();
 
             recommend_cuis = {};
-            _context60.next = 4;
+            _context64.next = 4;
             return cuiRecommend();
 
           case 4:
-            rec_cuis = _context60.sent.rows;
+            rec_cuis = _context64.sent.rows;
 
             splitConcepts = function splitConcepts(c) {
               if (c == null) {
@@ -2291,14 +2290,14 @@ function _getRecommendedCUIS() {
                 cc: item.cc
               };
             }) : "";
-            return _context60.abrupt("return", recommend_cuis);
+            return _context64.abrupt("return", recommend_cuis);
 
           case 8:
           case "end":
-            return _context60.stop();
+            return _context64.stop();
         }
       }
-    }, _callee60);
+    }, _callee64);
   }));
   return _getRecommendedCUIS.apply(this, arguments);
 }
@@ -2386,84 +2385,68 @@ app.get(CONFIG.api_base_url + '/cuiRecommend', /*#__PURE__*/function () {
 //   }
 //   res.send("saved annotation: "+JSON.stringify(req.query))
 // });
-// Generates the results table live preview, connecting to the R API.
+//req.body.
 
-app.post(CONFIG.api_base_url + '/annotationPreview', /*#__PURE__*/function () {
-  var _ref35 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee37(req, res) {
-    var bod, validate_user, annotations, tid, client, tableResult, final_annotations, r, ann, existing, final_annotations_array, entry;
-    return _regenerator["default"].wrap(function _callee37$(_context37) {
+var prepareAnnotationPreview = /*#__PURE__*/function () {
+  var _ref35 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee38(docid, page, collId, cachedOnly) {
+    var annotations, tid, client, tableResult, toReturn, final_annotations, r, ann, existing, final_annotations_array, entry, doRequest, plumberResult;
+    return _regenerator["default"].wrap(function _callee38$(_context38) {
       while (1) {
-        switch (_context37.prev = _context37.next) {
+        switch (_context38.prev = _context38.next) {
           case 0:
-            bod = req.body.searchContent;
-            validate_user = validateUser(req.body.username, req.body.hash);
+            _context38.next = 2;
+            return getAnnotationByID(docid, page, collId);
 
-            if (!validate_user) {
-              _context37.next = 40;
-              break;
-            }
-
-            _context37.prev = 3;
-
-            if (!(req.body.docid && req.body.page && req.body.collId)) {
-              _context37.next = 31;
-              break;
-            }
-
-            _context37.next = 7;
-            return getAnnotationByID(req.body.docid, req.body.page, req.body.collId);
-
-          case 7:
-            annotations = _context37.sent;
+          case 2:
+            annotations = _context38.sent;
             tid = annotations.rows.length > 0 ? annotations.rows[0].tid : -1;
 
             if (!(tid < 0)) {
-              _context37.next = 12;
+              _context38.next = 6;
               break;
             }
 
-            res.json({
-              status: "wrong parameters (missing tid)",
-              body: req.body
+            return _context38.abrupt("return", {
+              status: "wrong parameters (missing tid)"
             });
-            return _context37.abrupt("return");
 
-          case 12:
-            _context37.next = 14;
+          case 6:
+            _context38.next = 8;
             return pool.connect();
 
-          case 14:
-            client = _context37.sent;
-            _context37.next = 17;
+          case 8:
+            client = _context38.sent;
+            _context38.next = 11;
             return client.query("SELECT tid, \"tableResult\" FROM result WHERE tid = $1", [tid]);
 
-          case 17:
-            tableResult = _context37.sent;
+          case 11:
+            tableResult = _context38.sent;
             client.release();
             tableResult = tableResult && tableResult.rows.length > 0 ? tableResult.rows[0].tableResult : [];
 
-            if (!(req.body.cachedOnly === 'true')) {
-              _context37.next = 24;
+            if (!(cachedOnly === 'true')) {
+              _context38.next = 18;
               break;
             }
 
-            // debugger
+            toReturn = {};
+
             if (tableResult.length > 0) {
-              res.json({
+              toReturn = {
                 "state": "good",
                 result: tableResult
-              });
+              };
             } else {
-              res.json({
+              toReturn = {
                 "state": "good",
                 result: []
-              });
-            }
+              };
+            } // console.log("Fast reload: "+ req.body.docid +" - "+ req.body.page +" - "+ req.body.collId)
 
-            console.log("Fast reload: " + req.body.docid + " - " + req.body.page + " - " + req.body.collId);
-            return _context37.abrupt("return");
 
-          case 24:
+            return _context38.abrupt("return", toReturn);
+
+          case 18:
             final_annotations = {};
             /**
             * There are multiple versions of the annotations. When calling reading the results from the database, here we will return only the latest/ most complete version of the annotation.
@@ -2493,170 +2476,250 @@ app.post(CONFIG.api_base_url + '/annotationPreview', /*#__PURE__*/function () {
               final_annotations_array[final_annotations_array.length] = ann;
             }
 
-            if (final_annotations_array.length > 0) {
-              entry = final_annotations_array[0];
-              entry.annotation = !entry.annotation ? [] : entry.annotation.annotations.map(function (v, i) {
-                var ann = v;
-                ann.content = Object.keys(ann.content).join(";");
-                ann.qualifiers = Object.keys(ann.qualifiers).join(";");
-                return ann;
-              });
-              console.log(entry);
-              entry.annotation.reduce(function (acc, entry, i) {
-                acc[entry.content] = acc[entry.content] ? acc[entry.content] + 1 : 1;
-                entry.content = entry.content + "@" + acc[entry.content];
-                return acc;
-              }, {});
-              console.log("TRY: " + 'http://' + CONFIG.plumber_url + '/preview');
-              request({
-                url: 'http://' + CONFIG.plumber_url + '/preview',
-                method: "POST",
-                json: {
-                  anns: entry,
-                  collId: req.body.collId
-                }
-              }, /*#__PURE__*/function () {
-                var _ref36 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee36(error, response, body) {
-                  var insertResult;
-                  return _regenerator["default"].wrap(function _callee36$(_context36) {
-                    while (1) {
-                      switch (_context36.prev = _context36.next) {
-                        case 0:
-                          // console.log("pentada"+JSON.stringify(error))
-                          insertResult = /*#__PURE__*/function () {
-                            var _ref37 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee35(tid, tableResult) {
-                              var client, done;
-                              return _regenerator["default"].wrap(function _callee35$(_context35) {
-                                while (1) {
-                                  switch (_context35.prev = _context35.next) {
-                                    case 0:
-                                      _context35.next = 2;
-                                      return pool.connect();
-
-                                    case 2:
-                                      client = _context35.sent;
-                                      _context35.next = 5;
-                                      return client.query('INSERT INTO result(tid, "tableResult") VALUES ($1, $2) ON CONFLICT (tid) DO UPDATE SET "tableResult" = $2', [tid, tableResult]).then(function (result) {
-                                        return console.log("insert result: " + new Date());
-                                      })["catch"](function (e) {
-                                        return console.error(e.stack);
-                                      }).then(function () {
-                                        return client.release();
-                                      });
-
-                                    case 5:
-                                      done = _context35.sent;
-
-                                    case 6:
-                                    case "end":
-                                      return _context35.stop();
-                                  }
-                                }
-                              }, _callee35);
-                            }));
-
-                            return function insertResult(_x69, _x70) {
-                              return _ref37.apply(this, arguments);
-                            };
-                          }(); // console.log(body.tableResult )
-
-
-                          if (!(body && body.tableResult && body.tableResult.length > 0)) {
-                            _context36.next = 8;
-                            break;
-                          }
-
-                          _context36.next = 4;
-                          return insertResult(body.ann.tid[0], body.tableResult);
-
-                        case 4:
-                          console.log("tableresults: " + body.tableResult.length);
-                          res.json({
-                            "state": "good",
-                            result: body.tableResult
-                          });
-                          _context36.next = 10;
-                          break;
-
-                        case 8:
-                          console.log("tableresults: empty. Is plumber/R API running, or annotation empty?");
-                          res.json({
-                            "state": "good",
-                            result: []
-                          });
-
-                        case 10:
-                        case "end":
-                          return _context36.stop();
-                      }
-                    }
-                  }, _callee36);
-                }));
-
-                return function (_x66, _x67, _x68) {
-                  return _ref36.apply(this, arguments);
-                };
-              }()); // res.json( {"state" : "good2", result : body.tableResult} )
-            } else {
-              res.json({
-                "state": "empty"
-              });
+            if (!(final_annotations_array.length > 0)) {
+              _context38.next = 36;
+              break;
             }
 
-            _context37.next = 32;
-            break;
+            entry = final_annotations_array[0];
+            entry.annotation = !entry.annotation ? [] : entry.annotation.annotations.map(function (v, i) {
+              var ann = v;
+              ann.content = Object.keys(ann.content).join(";");
+              ann.qualifiers = Object.keys(ann.qualifiers).join(";");
+              return ann;
+            });
+            console.log(entry);
+            entry.annotation.reduce(function (acc, entry, i) {
+              acc[entry.content] = acc[entry.content] ? acc[entry.content] + 1 : 1;
+              entry.content = entry.content + "@" + acc[entry.content];
+              return acc;
+            }, {});
+            console.log("TRY: " + 'http://' + CONFIG.plumber_url + '/preview');
+            doRequest = new Promise( /*#__PURE__*/function () {
+              var _ref36 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee37(accept, reject) {
+                return _regenerator["default"].wrap(function _callee37$(_context37) {
+                  while (1) {
+                    switch (_context37.prev = _context37.next) {
+                      case 0:
+                        _context37.next = 2;
+                        return request({
+                          url: 'http://' + CONFIG.plumber_url + '/preview',
+                          method: "POST",
+                          json: {
+                            anns: entry,
+                            collId: collId
+                          }
+                        }, /*#__PURE__*/function () {
+                          var _ref37 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee36(error, response, body) {
+                            var insertResult;
+                            return _regenerator["default"].wrap(function _callee36$(_context36) {
+                              while (1) {
+                                switch (_context36.prev = _context36.next) {
+                                  case 0:
+                                    // console.log("pentada"+JSON.stringify(error))
+                                    insertResult = /*#__PURE__*/function () {
+                                      var _ref38 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee35(tid, tableResult) {
+                                        var client, done;
+                                        return _regenerator["default"].wrap(function _callee35$(_context35) {
+                                          while (1) {
+                                            switch (_context35.prev = _context35.next) {
+                                              case 0:
+                                                _context35.next = 2;
+                                                return pool.connect();
+
+                                              case 2:
+                                                client = _context35.sent;
+                                                _context35.next = 5;
+                                                return client.query('INSERT INTO result(tid, "tableResult") VALUES ($1, $2) ON CONFLICT (tid) DO UPDATE SET "tableResult" = $2', [tid, tableResult]).then(function (result) {
+                                                  return console.log("insert result: " + new Date());
+                                                })["catch"](function (e) {
+                                                  return console.error(e.stack);
+                                                }).then(function () {
+                                                  return client.release();
+                                                });
+
+                                              case 5:
+                                                done = _context35.sent;
+
+                                              case 6:
+                                              case "end":
+                                                return _context35.stop();
+                                            }
+                                          }
+                                        }, _callee35);
+                                      }));
+
+                                      return function insertResult(_x73, _x74) {
+                                        return _ref38.apply(this, arguments);
+                                      };
+                                    }();
+
+                                    if (!(body && body.tableResult && body.tableResult.length > 0)) {
+                                      _context36.next = 8;
+                                      break;
+                                    }
+
+                                    _context36.next = 4;
+                                    return insertResult(body.ann.tid[0], body.tableResult);
+
+                                  case 4:
+                                    console.log("tableresults: " + body.tableResult.length);
+                                    accept({
+                                      "state": "good",
+                                      result: body.tableResult
+                                    });
+                                    _context36.next = 10;
+                                    break;
+
+                                  case 8:
+                                    console.log("tableresults: empty. Is plumber/R API running, or annotation empty?");
+                                    accept({
+                                      "state": "good",
+                                      result: []
+                                    });
+
+                                  case 10:
+                                  case "end":
+                                    return _context36.stop();
+                                }
+                              }
+                            }, _callee36);
+                          }));
+
+                          return function (_x70, _x71, _x72) {
+                            return _ref37.apply(this, arguments);
+                          };
+                        }());
+
+                      case 2:
+                      case "end":
+                        return _context37.stop();
+                    }
+                  }
+                }, _callee37);
+              }));
+
+              return function (_x68, _x69) {
+                return _ref36.apply(this, arguments);
+              };
+            }());
+            _context38.next = 31;
+            return doRequest;
 
           case 31:
+            plumberResult = _context38.sent;
+            plumberResult["backAnnotation"] = annotations;
+            return _context38.abrupt("return", plumberResult);
+
+          case 36:
+            return _context38.abrupt("return", {
+              "state": "empty"
+            });
+
+          case 37:
+            return _context38.abrupt("return", {
+              "state": "whathappened!"
+            });
+
+          case 38:
+          case "end":
+            return _context38.stop();
+        }
+      }
+    }, _callee38);
+  }));
+
+  return function prepareAnnotationPreview(_x64, _x65, _x66, _x67) {
+    return _ref35.apply(this, arguments);
+  };
+}(); // Generates the results table live preview, connecting to the R API.
+
+
+app.post(CONFIG.api_base_url + '/annotationPreview', /*#__PURE__*/function () {
+  var _ref39 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee39(req, res) {
+    var bod, validate_user;
+    return _regenerator["default"].wrap(function _callee39$(_context39) {
+      while (1) {
+        switch (_context39.prev = _context39.next) {
+          case 0:
+            bod = req.body.searchContent;
+            validate_user = validateUser(req.body.username, req.body.hash);
+
+            if (!validate_user) {
+              _context39.next = 21;
+              break;
+            }
+
+            _context39.prev = 3;
+
+            if (!(req.body.docid && req.body.page && req.body.collId)) {
+              _context39.next = 12;
+              break;
+            }
+
+            _context39.t0 = res;
+            _context39.next = 8;
+            return prepareAnnotationPreview(req.body.docid, req.body.page, req.body.collId, req.body.cachedOnly);
+
+          case 8:
+            _context39.t1 = _context39.sent;
+
+            _context39.t0.json.call(_context39.t0, _context39.t1);
+
+            _context39.next = 13;
+            break;
+
+          case 12:
             res.json({
               status: "wrong parameters",
               body: req.body
             });
 
-          case 32:
-            _context37.next = 38;
+          case 13:
+            _context39.next = 19;
             break;
 
-          case 34:
-            _context37.prev = 34;
-            _context37.t0 = _context37["catch"](3);
-            console.log(_context37.t0);
+          case 15:
+            _context39.prev = 15;
+            _context39.t2 = _context39["catch"](3);
+            console.log(_context39.t2);
             res.json({
               status: "annotationPreview : probably page out of bounds, or document does not exist",
               body: req.body
             });
 
-          case 38:
-            _context37.next = 41;
+          case 19:
+            _context39.next = 22;
             break;
 
-          case 40:
+          case 21:
             res.json([]);
 
-          case 41:
+          case 22:
           case "end":
-            return _context37.stop();
+            return _context39.stop();
         }
       }
-    }, _callee37, null, [[3, 34]]);
+    }, _callee39, null, [[3, 15]]);
   }));
 
-  return function (_x64, _x65) {
-    return _ref35.apply(this, arguments);
+  return function (_x75, _x76) {
+    return _ref39.apply(this, arguments);
   };
 }()); // Returns all annotations for all document/tables.
 
 app.get(CONFIG.api_base_url + '/formattedResults', /*#__PURE__*/function () {
-  var _ref38 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee38(req, res) {
+  var _ref40 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee40(req, res) {
     var results, finalResults, r, ann, existing, finalResults_array, formattedRes;
-    return _regenerator["default"].wrap(function _callee38$(_context38) {
+    return _regenerator["default"].wrap(function _callee40$(_context40) {
       while (1) {
-        switch (_context38.prev = _context38.next) {
+        switch (_context40.prev = _context40.next) {
           case 0:
-            _context38.next = 2;
+            _context40.next = 2;
             return (0, _network_functions.getAnnotationResults)();
 
           case 2:
-            results = _context38.sent;
+            results = _context40.sent;
 
             if (results) {
               finalResults = {};
@@ -2704,14 +2767,14 @@ app.get(CONFIG.api_base_url + '/formattedResults', /*#__PURE__*/function () {
 
           case 4:
           case "end":
-            return _context38.stop();
+            return _context40.stop();
         }
       }
-    }, _callee38);
+    }, _callee40);
   }));
 
-  return function (_x71, _x72) {
-    return _ref38.apply(this, arguments);
+  return function (_x77, _x78) {
+    return _ref40.apply(this, arguments);
   };
 }()); // app.get('/api/abs_index',function(req,res){
 //
@@ -2732,11 +2795,11 @@ app.get(CONFIG.api_base_url + '/formattedResults', /*#__PURE__*/function () {
 // });
 
 var getMMatch = /*#__PURE__*/function () {
-  var _ref39 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee39(phrase) {
+  var _ref41 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee41(phrase) {
     var result, mm_match, r;
-    return _regenerator["default"].wrap(function _callee39$(_context39) {
+    return _regenerator["default"].wrap(function _callee41$(_context41) {
       while (1) {
-        switch (_context39.prev = _context39.next) {
+        switch (_context41.prev = _context41.next) {
           case 0:
             phrase = phrase.trim().replace(/[^A-Za-z 0-9 \.,\?""!@#\$%\^&\*\(\)-_=\+;:<>\/\\\|\}\{\[\]`~]*/g, ''); //.replace(/[\W_]+/g," ");
 
@@ -2759,12 +2822,12 @@ var getMMatch = /*#__PURE__*/function () {
                 resolve(body.slice(start, end));
               });
             });
-            _context39.next = 5;
+            _context41.next = 5;
             return result;
 
           case 5:
-            mm_match = _context39.sent;
-            _context39.prev = 6;
+            mm_match = _context41.sent;
+            _context41.prev = 6;
             r = JSON.parse(mm_match).AllDocuments[0].Document.Utterances.map(function (utterances) {
               return utterances.Phrases.map(function (phrases) {
                 return phrases.Mappings.map(function (mappings) {
@@ -2797,140 +2860,51 @@ var getMMatch = /*#__PURE__*/function () {
             r = r.sort(function (a, b) {
               return a.score - b.score;
             });
-            return _context39.abrupt("return", r);
+            return _context41.abrupt("return", r);
 
           case 13:
-            _context39.prev = 13;
-            _context39.t0 = _context39["catch"](6);
-            return _context39.abrupt("return", []);
+            _context41.prev = 13;
+            _context41.t0 = _context41["catch"](6);
+            return _context41.abrupt("return", []);
 
           case 16:
           case "end":
-            return _context39.stop();
+            return _context41.stop();
         }
       }
-    }, _callee39, null, [[6, 13]]);
+    }, _callee41, null, [[6, 13]]);
   }));
 
-  return function getMMatch(_x73) {
-    return _ref39.apply(this, arguments);
+  return function getMMatch(_x79) {
+    return _ref41.apply(this, arguments);
   };
 }();
 
-app.post(CONFIG.api_base_url + '/auto', /*#__PURE__*/function () {
-  var _ref40 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee43(req, res) {
-    var cuis_index, headers, all_concepts, results, insertCUI, allConceptPairs, _final;
+var processHeaders = /*#__PURE__*/function () {
+  var _ref42 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee45(headers) {
+    var all_concepts, results, insertCUI, cuis_index, allConceptPairs, _final;
 
-    return _regenerator["default"].wrap(function _callee43$(_context43) {
+    return _regenerator["default"].wrap(function _callee45$(_context45) {
       while (1) {
-        switch (_context43.prev = _context43.next) {
+        switch (_context45.prev = _context45.next) {
           case 0:
-            _context43.prev = 0;
-
-            if (!(req.body && req.body.headers)) {
-              _context43.next = 19;
-              break;
-            }
-
-            _context43.next = 4;
-            return getCUISIndex();
-
-          case 4:
-            cuis_index = _context43.sent;
-            // {preferred : row.preferred, hasMSH: row.hasMSH, userDefined: row.user_defined, adminApproved: row.admin_approved}
-            // debugger
-            headers = JSON.parse(req.body.headers);
             all_concepts = Array.from(new Set(Object.values(headers).flat().flat().flat().flat()));
-            _context43.next = 9;
+            _context45.next = 3;
             return Promise.all(all_concepts.map( /*#__PURE__*/function () {
-              var _ref41 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee40(concept, i) {
+              var _ref43 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee42(concept, i) {
                 var mm_match;
-                return _regenerator["default"].wrap(function _callee40$(_context40) {
-                  while (1) {
-                    switch (_context40.prev = _context40.next) {
-                      case 0:
-                        _context40.next = 2;
-                        return getMMatch(concept.toLowerCase());
-
-                      case 2:
-                        mm_match = _context40.sent;
-                        return _context40.abrupt("return", mm_match);
-
-                      case 4:
-                      case "end":
-                        return _context40.stop();
-                    }
-                  }
-                }, _callee40);
-              }));
-
-              return function (_x76, _x77) {
-                return _ref41.apply(this, arguments);
-              };
-            }()));
-
-          case 9:
-            results = _context43.sent;
-
-            insertCUI = /*#__PURE__*/function () {
-              var _ref42 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee41(cui, preferred, hasMSH) {
-                var client, done;
-                return _regenerator["default"].wrap(function _callee41$(_context41) {
-                  while (1) {
-                    switch (_context41.prev = _context41.next) {
-                      case 0:
-                        _context41.next = 2;
-                        return pool.connect();
-
-                      case 2:
-                        client = _context41.sent;
-                        _context41.next = 5;
-                        return client.query('INSERT INTO cuis_index(cui,preferred,"hasMSH",user_defined,admin_approved) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (cui) DO UPDATE SET preferred = $2, "hasMSH" = $3, user_defined = $4, admin_approved = $5', [cui, preferred, hasMSH, true, false]).then(function (result) {
-                          return console.log("insert: " + new Date());
-                        })["catch"](function (e) {
-                          return console.error(e.stack);
-                        }).then(function () {
-                          return client.release();
-                        });
-
-                      case 5:
-                        done = _context41.sent;
-
-                      case 6:
-                      case "end":
-                        return _context41.stop();
-                    }
-                  }
-                }, _callee41);
-              }));
-
-              return function insertCUI(_x78, _x79, _x80) {
-                return _ref42.apply(this, arguments);
-              };
-            }();
-
-            _context43.next = 13;
-            return Promise.all(results.flat().flat().map( /*#__PURE__*/function () {
-              var _ref43 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee42(cuiData, i) {
                 return _regenerator["default"].wrap(function _callee42$(_context42) {
                   while (1) {
                     switch (_context42.prev = _context42.next) {
                       case 0:
-                        if (!cuis_index[cuiData.CUI]) {
-                          _context42.next = 4;
-                          break;
-                        }
+                        _context42.next = 2;
+                        return getMMatch(concept.toLowerCase());
 
-                        return _context42.abrupt("return");
+                      case 2:
+                        mm_match = _context42.sent;
+                        return _context42.abrupt("return", mm_match);
 
                       case 4:
-                        _context42.next = 6;
-                        return insertCUI(cuiData.CUI, cuiData.preferred, cuiData.hasMSH);
-
-                      case 6:
-                        return _context42.abrupt("return", _context42.sent);
-
-                      case 7:
                       case "end":
                         return _context42.stop();
                     }
@@ -2943,7 +2917,86 @@ app.post(CONFIG.api_base_url + '/auto', /*#__PURE__*/function () {
               };
             }()));
 
-          case 13:
+          case 3:
+            results = _context45.sent;
+
+            insertCUI = /*#__PURE__*/function () {
+              var _ref44 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee43(cui, preferred, hasMSH) {
+                var client, done;
+                return _regenerator["default"].wrap(function _callee43$(_context43) {
+                  while (1) {
+                    switch (_context43.prev = _context43.next) {
+                      case 0:
+                        _context43.next = 2;
+                        return pool.connect();
+
+                      case 2:
+                        client = _context43.sent;
+                        _context43.next = 5;
+                        return client.query('INSERT INTO cuis_index(cui,preferred,"hasMSH",user_defined,admin_approved) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (cui) DO UPDATE SET preferred = $2, "hasMSH" = $3, user_defined = $4, admin_approved = $5', [cui, preferred, hasMSH, true, false]).then(function (result) {
+                          return console.log("insert: " + new Date());
+                        })["catch"](function (e) {
+                          return console.error(e.stack);
+                        }).then(function () {
+                          return client.release();
+                        });
+
+                      case 5:
+                        done = _context43.sent;
+
+                      case 6:
+                      case "end":
+                        return _context43.stop();
+                    }
+                  }
+                }, _callee43);
+              }));
+
+              return function insertCUI(_x83, _x84, _x85) {
+                return _ref44.apply(this, arguments);
+              };
+            }();
+
+            _context45.next = 7;
+            return getCUISIndex();
+
+          case 7:
+            cuis_index = _context45.sent;
+            _context45.next = 10;
+            return Promise.all(results.flat().flat().map( /*#__PURE__*/function () {
+              var _ref45 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee44(cuiData, i) {
+                return _regenerator["default"].wrap(function _callee44$(_context44) {
+                  while (1) {
+                    switch (_context44.prev = _context44.next) {
+                      case 0:
+                        if (!cuis_index[cuiData.CUI]) {
+                          _context44.next = 4;
+                          break;
+                        }
+
+                        return _context44.abrupt("return");
+
+                      case 4:
+                        _context44.next = 6;
+                        return insertCUI(cuiData.CUI, cuiData.preferred, cuiData.hasMSH);
+
+                      case 6:
+                        return _context44.abrupt("return", _context44.sent);
+
+                      case 7:
+                      case "end":
+                        return _context44.stop();
+                    }
+                  }
+                }, _callee44);
+              }));
+
+              return function (_x86, _x87) {
+                return _ref45.apply(this, arguments);
+              };
+            }()));
+
+          case 10:
             results = all_concepts.reduce(function (acc, con, i) {
               acc[con.toLowerCase().trim()] = {
                 concept: con.trim(),
@@ -2954,7 +3007,8 @@ app.post(CONFIG.api_base_url + '/auto', /*#__PURE__*/function () {
             allConceptPairs = Object.keys(headers).reduce(function (acc, concepts) {
               acc.push(headers[concepts]);
               return acc;
-            }, []).flat();
+            }, []).flat(); // debugger
+
             _final = allConceptPairs.reduce(function (acc, con, i) {
               var concept = con[con.length - 1].toLowerCase().trim();
               var root = con.slice(0, con.length - 1).join(" ").toLowerCase().trim();
@@ -2966,66 +3020,104 @@ app.post(CONFIG.api_base_url + '/auto', /*#__PURE__*/function () {
                 labels: results[concept].labels
               };
               return acc;
-            }, {}); // debugger
+            }, {});
+            return _context45.abrupt("return", _final);
 
-            res.send({
-              autoLabels: _final
-            });
-            _context43.next = 20;
+          case 14:
+          case "end":
+            return _context45.stop();
+        }
+      }
+    }, _callee45);
+  }));
+
+  return function processHeaders(_x80) {
+    return _ref42.apply(this, arguments);
+  };
+}();
+
+app.post(CONFIG.api_base_url + '/auto', /*#__PURE__*/function () {
+  var _ref46 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee46(req, res) {
+    var headers;
+    return _regenerator["default"].wrap(function _callee46$(_context46) {
+      while (1) {
+        switch (_context46.prev = _context46.next) {
+          case 0:
+            _context46.prev = 0;
+
+            if (!(req.body && req.body.headers)) {
+              _context46.next = 11;
+              break;
+            }
+
+            headers = JSON.parse(req.body.headers);
+            _context46.t0 = res;
+            _context46.next = 6;
+            return processHeaders(headers);
+
+          case 6:
+            _context46.t1 = _context46.sent;
+            _context46.t2 = {
+              autoLabels: _context46.t1
+            };
+
+            _context46.t0.send.call(_context46.t0, _context46.t2);
+
+            _context46.next = 12;
             break;
 
-          case 19:
+          case 11:
             res.send({
               status: "wrong parameters",
               query: req.query
             });
 
-          case 20:
-            _context43.next = 26;
+          case 12:
+            _context46.next = 18;
             break;
 
-          case 22:
-            _context43.prev = 22;
-            _context43.t0 = _context43["catch"](0);
-            console.log(_context43.t0);
+          case 14:
+            _context46.prev = 14;
+            _context46.t3 = _context46["catch"](0);
+            console.log(_context46.t3);
             res.send({
               status: "error",
-              query: _context43.t0
+              query: _context46.t3
             });
 
-          case 26:
+          case 18:
           case "end":
-            return _context43.stop();
+            return _context46.stop();
         }
       }
-    }, _callee43, null, [[0, 22]]);
+    }, _callee46, null, [[0, 14]]);
   }));
 
-  return function (_x74, _x75) {
-    return _ref40.apply(this, arguments);
+  return function (_x88, _x89) {
+    return _ref46.apply(this, arguments);
   };
 }());
 app.get(CONFIG.api_base_url + '/getMMatch', /*#__PURE__*/function () {
-  var _ref44 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee44(req, res) {
+  var _ref47 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee47(req, res) {
     var mm_match;
-    return _regenerator["default"].wrap(function _callee44$(_context44) {
+    return _regenerator["default"].wrap(function _callee47$(_context47) {
       while (1) {
-        switch (_context44.prev = _context44.next) {
+        switch (_context47.prev = _context47.next) {
           case 0:
-            _context44.prev = 0;
+            _context47.prev = 0;
 
             if (!(req.query && req.query.phrase)) {
-              _context44.next = 8;
+              _context47.next = 8;
               break;
             }
 
-            _context44.next = 4;
+            _context47.next = 4;
             return getMMatch(req.query.phrase);
 
           case 4:
-            mm_match = _context44.sent;
+            mm_match = _context47.sent;
             res.send(mm_match);
-            _context44.next = 9;
+            _context47.next = 9;
             break;
 
           case 8:
@@ -3035,35 +3127,35 @@ app.get(CONFIG.api_base_url + '/getMMatch', /*#__PURE__*/function () {
             });
 
           case 9:
-            _context44.next = 14;
+            _context47.next = 14;
             break;
 
           case 11:
-            _context44.prev = 11;
-            _context44.t0 = _context44["catch"](0);
-            console.log(_context44.t0);
+            _context47.prev = 11;
+            _context47.t0 = _context47["catch"](0);
+            console.log(_context47.t0);
 
           case 14:
           case "end":
-            return _context44.stop();
+            return _context47.stop();
         }
       }
-    }, _callee44, null, [[0, 11]]);
+    }, _callee47, null, [[0, 11]]);
   }));
 
-  return function (_x83, _x84) {
-    return _ref44.apply(this, arguments);
+  return function (_x90, _x91) {
+    return _ref47.apply(this, arguments);
   };
 }());
 app.post(CONFIG.api_base_url + '/notes', /*#__PURE__*/function () {
-  var _ref45 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee46(req, res) {
+  var _ref48 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee49(req, res) {
     var validate_user, notesData, updateNotes;
-    return _regenerator["default"].wrap(function _callee46$(_context46) {
+    return _regenerator["default"].wrap(function _callee49$(_context49) {
       while (1) {
-        switch (_context46.prev = _context46.next) {
+        switch (_context49.prev = _context49.next) {
           case 0:
             if (!(req.body && !req.body.action)) {
-              _context46.next = 3;
+              _context49.next = 3;
               break;
             }
 
@@ -3071,31 +3163,31 @@ app.post(CONFIG.api_base_url + '/notes', /*#__PURE__*/function () {
               status: "undefined",
               received: req.query
             });
-            return _context46.abrupt("return");
+            return _context49.abrupt("return");
 
           case 3:
             validate_user = validateUser(req.body.username, req.body.hash);
 
             if (!validate_user) {
-              _context46.next = 12;
+              _context49.next = 12;
               break;
             }
 
             notesData = JSON.parse(req.body.payload);
 
             updateNotes = /*#__PURE__*/function () {
-              var _ref46 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee45(docid, page, collid, notes, tableType, completion) {
+              var _ref49 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee48(docid, page, collid, notes, tableType, completion) {
                 var client, done;
-                return _regenerator["default"].wrap(function _callee45$(_context45) {
+                return _regenerator["default"].wrap(function _callee48$(_context48) {
                   while (1) {
-                    switch (_context45.prev = _context45.next) {
+                    switch (_context48.prev = _context48.next) {
                       case 0:
-                        _context45.next = 2;
+                        _context48.next = 2;
                         return pool.connect();
 
                       case 2:
-                        client = _context45.sent;
-                        _context45.next = 5;
+                        client = _context48.sent;
+                        _context48.next = 5;
                         return client.query('UPDATE public."table" SET notes=$4, "tableType"=$5, completion=$6 WHERE docid=$1 AND page=$2 AND collection_id=$3', [docid, page, collid, notes, tableType, completion]).then(function (result) {
                           return console.log("Updated records for " + req.body.docid + "_" + req.body.page + "_" + req.body.collId + " result: " + new Date());
                         })["catch"](function (e) {
@@ -3105,22 +3197,22 @@ app.post(CONFIG.api_base_url + '/notes', /*#__PURE__*/function () {
                         });
 
                       case 5:
-                        done = _context45.sent;
+                        done = _context48.sent;
 
                       case 6:
                       case "end":
-                        return _context45.stop();
+                        return _context48.stop();
                     }
                   }
-                }, _callee45);
+                }, _callee48);
               }));
 
-              return function updateNotes(_x87, _x88, _x89, _x90, _x91, _x92) {
-                return _ref46.apply(this, arguments);
+              return function updateNotes(_x94, _x95, _x96, _x97, _x98, _x99) {
+                return _ref49.apply(this, arguments);
               };
             }();
 
-            _context46.next = 9;
+            _context49.next = 9;
             return updateNotes(req.body.docid, req.body.page, req.body.collId, notesData.textNotes, notesData.tableType, notesData.tableStatus);
 
           case 9:
@@ -3128,7 +3220,7 @@ app.post(CONFIG.api_base_url + '/notes', /*#__PURE__*/function () {
               status: "Successful",
               payload: null
             });
-            _context46.next = 13;
+            _context49.next = 13;
             break;
 
           case 12:
@@ -3139,25 +3231,25 @@ app.post(CONFIG.api_base_url + '/notes', /*#__PURE__*/function () {
 
           case 13:
           case "end":
-            return _context46.stop();
+            return _context49.stop();
         }
       }
-    }, _callee46);
+    }, _callee49);
   }));
 
-  return function (_x85, _x86) {
-    return _ref45.apply(this, arguments);
+  return function (_x92, _x93) {
+    return _ref48.apply(this, arguments);
   };
 }());
 app.post(CONFIG.api_base_url + '/text', /*#__PURE__*/function () {
-  var _ref47 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee47(req, res) {
+  var _ref50 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee50(req, res) {
     var validate_user, result, folder_exists, titleText, bodyText, start_body_index, last_body_index, body, completeFile;
-    return _regenerator["default"].wrap(function _callee47$(_context47) {
+    return _regenerator["default"].wrap(function _callee50$(_context50) {
       while (1) {
-        switch (_context47.prev = _context47.next) {
+        switch (_context50.prev = _context50.next) {
           case 0:
             if (!(req.body && !req.body.action)) {
-              _context47.next = 3;
+              _context50.next = 3;
               break;
             }
 
@@ -3165,21 +3257,21 @@ app.post(CONFIG.api_base_url + '/text', /*#__PURE__*/function () {
               status: "undefined",
               received: req.query
             });
-            return _context47.abrupt("return");
+            return _context50.abrupt("return");
 
           case 3:
             validate_user = validateUser(req.body.username, req.body.hash);
 
             if (!validate_user) {
-              _context47.next = 18;
+              _context50.next = 18;
               break;
             }
 
-            _context47.next = 7;
+            _context50.next = 7;
             return fs.existsSync(path.join(global.tables_folder_override, req.body.collId));
 
           case 7:
-            folder_exists = _context47.sent;
+            folder_exists = _context50.sent;
 
             if (!folder_exists) {
               fs.mkdirSync(path.join(global.tables_folder_override, req.body.collId), {
@@ -3207,7 +3299,7 @@ app.post(CONFIG.api_base_url + '/text', /*#__PURE__*/function () {
                 data: 'Written replacement for: ' + req.body.collId + " // " + req.body.docid + "_" + req.body.page + '.html'
               });
             });
-            _context47.next = 19;
+            _context50.next = 19;
             break;
 
           case 18:
@@ -3218,33 +3310,33 @@ app.post(CONFIG.api_base_url + '/text', /*#__PURE__*/function () {
 
           case 19:
           case "end":
-            return _context47.stop();
+            return _context50.stop();
         }
       }
-    }, _callee47);
+    }, _callee50);
   }));
 
-  return function (_x93, _x94) {
-    return _ref47.apply(this, arguments);
+  return function (_x100, _x101) {
+    return _ref50.apply(this, arguments);
   };
 }());
 app.get(CONFIG.api_base_url + '/removeOverrideTable', /*#__PURE__*/function () {
-  var _ref48 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee48(req, res) {
+  var _ref51 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee51(req, res) {
     var file_exists;
-    return _regenerator["default"].wrap(function _callee48$(_context48) {
+    return _regenerator["default"].wrap(function _callee51$(_context51) {
       while (1) {
-        switch (_context48.prev = _context48.next) {
+        switch (_context51.prev = _context51.next) {
           case 0:
             if (!(req.query && req.query.docid && req.query.page)) {
-              _context48.next = 8;
+              _context51.next = 8;
               break;
             }
 
-            _context48.next = 3;
+            _context51.next = 3;
             return fs.existsSync(global.tables_folder_override + "/" + req.query.docid + "_" + req.query.page + ".html");
 
           case 3:
-            file_exists = _context48.sent;
+            file_exists = _context51.sent;
 
             if (file_exists) {
               fs.unlink(global.tables_folder_override + "/" + req.query.docid + "_" + req.query.page + ".html", function (err) {
@@ -3256,7 +3348,7 @@ app.get(CONFIG.api_base_url + '/removeOverrideTable', /*#__PURE__*/function () {
             res.send({
               status: "override removed"
             });
-            _context48.next = 9;
+            _context51.next = 9;
             break;
 
           case 8:
@@ -3266,169 +3358,169 @@ app.get(CONFIG.api_base_url + '/removeOverrideTable', /*#__PURE__*/function () {
 
           case 9:
           case "end":
-            return _context48.stop();
+            return _context51.stop();
         }
       }
-    }, _callee48);
+    }, _callee51);
   }));
 
-  return function (_x95, _x96) {
-    return _ref48.apply(this, arguments);
+  return function (_x102, _x103) {
+    return _ref51.apply(this, arguments);
   };
 }());
 app.get(CONFIG.api_base_url + '/classify', /*#__PURE__*/function () {
-  var _ref49 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee49(req, res) {
-    return _regenerator["default"].wrap(function _callee49$(_context49) {
+  var _ref52 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee52(req, res) {
+    return _regenerator["default"].wrap(function _callee52$(_context52) {
       while (1) {
-        switch (_context49.prev = _context49.next) {
+        switch (_context52.prev = _context52.next) {
           case 0:
             if (!(req.query && req.query.terms)) {
-              _context49.next = 8;
+              _context52.next = 8;
               break;
             }
 
             console.log(req.query.terms);
-            _context49.t0 = res;
-            _context49.next = 5;
+            _context52.t0 = res;
+            _context52.next = 5;
             return classify(req.query.terms.split(","));
 
           case 5:
-            _context49.t1 = _context49.sent;
-            _context49.t2 = {
-              results: _context49.t1
+            _context52.t1 = _context52.sent;
+            _context52.t2 = {
+              results: _context52.t1
             };
 
-            _context49.t0.send.call(_context49.t0, _context49.t2);
+            _context52.t0.send.call(_context52.t0, _context52.t2);
 
           case 8:
           case "end":
-            return _context49.stop();
+            return _context52.stop();
         }
       }
-    }, _callee49);
+    }, _callee52);
   }));
 
-  return function (_x97, _x98) {
-    return _ref49.apply(this, arguments);
+  return function (_x104, _x105) {
+    return _ref52.apply(this, arguments);
   };
 }());
 app.get(CONFIG.api_base_url + '/getTable', /*#__PURE__*/function () {
-  var _ref50 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee50(req, res) {
+  var _ref53 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee53(req, res) {
     var tableData;
-    return _regenerator["default"].wrap(function _callee50$(_context50) {
-      while (1) {
-        switch (_context50.prev = _context50.next) {
-          case 0:
-            _context50.prev = 0;
-
-            if (!(req.query && req.query.docid && req.query.page && req.query.collId)) {
-              _context50.next = 8;
-              break;
-            }
-
-            _context50.next = 4;
-            return (0, _table.readyTable)(req.query.docid, req.query.page, req.query.collId, false);
-
-          case 4:
-            tableData = _context50.sent;
-            res.send(tableData);
-            _context50.next = 9;
-            break;
-
-          case 8:
-            res.send({
-              status: "wrong parameters",
-              query: req.query
-            });
-
-          case 9:
-            _context50.next = 15;
-            break;
-
-          case 11:
-            _context50.prev = 11;
-            _context50.t0 = _context50["catch"](0);
-            console.log(_context50.t0);
-            res.send({
-              status: "getTable: probably page out of bounds, or document does not exist",
-              query: req.query
-            });
-
-          case 15:
-          case "end":
-            return _context50.stop();
-        }
-      }
-    }, _callee50, null, [[0, 11]]);
-  }));
-
-  return function (_x99, _x100) {
-    return _ref50.apply(this, arguments);
-  };
-}());
-app.post(CONFIG.api_base_url + '/getTable', /*#__PURE__*/function () {
-  var _ref51 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee51(req, res) {
-    var tableData;
-    return _regenerator["default"].wrap(function _callee51$(_context51) {
-      while (1) {
-        switch (_context51.prev = _context51.next) {
-          case 0:
-            _context51.prev = 0;
-
-            if (!(req.body && req.body.docid && req.body.page && req.body.collId)) {
-              _context51.next = 8;
-              break;
-            }
-
-            _context51.next = 4;
-            return (0, _table.readyTable)(req.body.docid, req.body.page, req.body.collId, false);
-
-          case 4:
-            tableData = _context51.sent;
-            res.json(tableData);
-            _context51.next = 9;
-            break;
-
-          case 8:
-            res.json({
-              status: "wrong parameters",
-              query: req.body
-            });
-
-          case 9:
-            _context51.next = 15;
-            break;
-
-          case 11:
-            _context51.prev = 11;
-            _context51.t0 = _context51["catch"](0);
-            console.log(_context51.t0);
-            res.json({
-              status: "getTable: probably page out of bounds, or document does not exist",
-              query: req.body
-            });
-
-          case 15:
-          case "end":
-            return _context51.stop();
-        }
-      }
-    }, _callee51, null, [[0, 11]]);
-  }));
-
-  return function (_x101, _x102) {
-    return _ref51.apply(this, arguments);
-  };
-}());
-app.post(CONFIG.api_base_url + '/saveAnnotation', /*#__PURE__*/function () {
-  var _ref52 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee53(req, res) {
-    var validate_user, tid, insertAnnotation, annotationData;
     return _regenerator["default"].wrap(function _callee53$(_context53) {
       while (1) {
         switch (_context53.prev = _context53.next) {
           case 0:
+            _context53.prev = 0;
+
+            if (!(req.query && req.query.docid && req.query.page && req.query.collId)) {
+              _context53.next = 8;
+              break;
+            }
+
+            _context53.next = 4;
+            return (0, _table.readyTable)(req.query.docid, req.query.page, req.query.collId, false);
+
+          case 4:
+            tableData = _context53.sent;
+            res.send(tableData);
+            _context53.next = 9;
+            break;
+
+          case 8:
+            res.send({
+              status: "wrong parameters",
+              query: req.query
+            });
+
+          case 9:
+            _context53.next = 15;
+            break;
+
+          case 11:
+            _context53.prev = 11;
+            _context53.t0 = _context53["catch"](0);
+            console.log(_context53.t0);
+            res.send({
+              status: "getTable: probably page out of bounds, or document does not exist",
+              query: req.query
+            });
+
+          case 15:
+          case "end":
+            return _context53.stop();
+        }
+      }
+    }, _callee53, null, [[0, 11]]);
+  }));
+
+  return function (_x106, _x107) {
+    return _ref53.apply(this, arguments);
+  };
+}());
+app.post(CONFIG.api_base_url + '/getTable', /*#__PURE__*/function () {
+  var _ref54 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee54(req, res) {
+    var tableData;
+    return _regenerator["default"].wrap(function _callee54$(_context54) {
+      while (1) {
+        switch (_context54.prev = _context54.next) {
+          case 0:
+            _context54.prev = 0;
+
+            if (!(req.body && req.body.docid && req.body.page && req.body.collId)) {
+              _context54.next = 8;
+              break;
+            }
+
+            _context54.next = 4;
+            return (0, _table.readyTable)(req.body.docid, req.body.page, req.body.collId, false);
+
+          case 4:
+            tableData = _context54.sent;
+            res.json(tableData);
+            _context54.next = 9;
+            break;
+
+          case 8:
+            res.json({
+              status: "wrong parameters",
+              query: req.body
+            });
+
+          case 9:
+            _context54.next = 15;
+            break;
+
+          case 11:
+            _context54.prev = 11;
+            _context54.t0 = _context54["catch"](0);
+            console.log(_context54.t0);
+            res.json({
+              status: "getTable: probably page out of bounds, or document does not exist",
+              query: req.body
+            });
+
+          case 15:
+          case "end":
+            return _context54.stop();
+        }
+      }
+    }, _callee54, null, [[0, 11]]);
+  }));
+
+  return function (_x108, _x109) {
+    return _ref54.apply(this, arguments);
+  };
+}());
+app.post(CONFIG.api_base_url + '/saveAnnotation', /*#__PURE__*/function () {
+  var _ref55 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee56(req, res) {
+    var validate_user, tid, insertAnnotation, annotationData;
+    return _regenerator["default"].wrap(function _callee56$(_context56) {
+      while (1) {
+        switch (_context56.prev = _context56.next) {
+          case 0:
             if (!(req.body && !req.body.action)) {
-              _context53.next = 3;
+              _context56.next = 3;
               break;
             }
 
@@ -3436,36 +3528,36 @@ app.post(CONFIG.api_base_url + '/saveAnnotation', /*#__PURE__*/function () {
               status: "undefined",
               received: req.query
             });
-            return _context53.abrupt("return");
+            return _context56.abrupt("return");
 
           case 3:
             validate_user = validateUser(req.body.username, req.body.hash);
 
             if (!validate_user) {
-              _context53.next = 17;
+              _context56.next = 17;
               break;
             }
 
             console.log("Recording Annotation: " + req.body.docid + "_" + req.body.page + "_" + req.body.collId);
-            _context53.next = 8;
+            _context56.next = 8;
             return getTid(req.body.docid, req.body.page, req.body.collId);
 
           case 8:
-            tid = _context53.sent;
+            tid = _context56.sent;
 
             insertAnnotation = /*#__PURE__*/function () {
-              var _ref53 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee52(tid, annotation) {
+              var _ref56 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee55(tid, annotation) {
                 var client, done;
-                return _regenerator["default"].wrap(function _callee52$(_context52) {
+                return _regenerator["default"].wrap(function _callee55$(_context55) {
                   while (1) {
-                    switch (_context52.prev = _context52.next) {
+                    switch (_context55.prev = _context55.next) {
                       case 0:
-                        _context52.next = 2;
+                        _context55.next = 2;
                         return pool.connect();
 
                       case 2:
-                        client = _context52.sent;
-                        _context52.next = 5;
+                        client = _context55.sent;
+                        _context55.next = 5;
                         return client.query('INSERT INTO annotations VALUES($2,$1) ON CONFLICT (tid) DO UPDATE SET annotation = $2;', [tid, annotation]).then(function (result) {
                           return console.log("Updated Annotations for " + tid + " : " + new Date());
                         })["catch"](function (e) {
@@ -3475,18 +3567,18 @@ app.post(CONFIG.api_base_url + '/saveAnnotation', /*#__PURE__*/function () {
                         });
 
                       case 5:
-                        done = _context52.sent;
+                        done = _context55.sent;
 
                       case 6:
                       case "end":
-                        return _context52.stop();
+                        return _context55.stop();
                     }
                   }
-                }, _callee52);
+                }, _callee55);
               }));
 
-              return function insertAnnotation(_x105, _x106) {
-                return _ref53.apply(this, arguments);
+              return function insertAnnotation(_x112, _x113) {
+                return _ref56.apply(this, arguments);
               };
             }();
 
@@ -3502,7 +3594,7 @@ app.post(CONFIG.api_base_url + '/saveAnnotation', /*#__PURE__*/function () {
               }, {}) : row.qualifiers;
               return row;
             });
-            _context53.next = 14;
+            _context56.next = 14;
             return insertAnnotation(tid, {
               annotations: annotationData.annotations
             });
@@ -3512,7 +3604,7 @@ app.post(CONFIG.api_base_url + '/saveAnnotation', /*#__PURE__*/function () {
               status: "success",
               payload: ""
             });
-            _context53.next = 18;
+            _context56.next = 18;
             break;
 
           case 17:
@@ -3523,19 +3615,207 @@ app.post(CONFIG.api_base_url + '/saveAnnotation', /*#__PURE__*/function () {
 
           case 18:
           case "end":
-            return _context53.stop();
+            return _context56.stop();
         }
       }
-    }, _callee53);
+    }, _callee56);
   }));
 
-  return function (_x103, _x104) {
-    return _ref52.apply(this, arguments);
+  return function (_x110, _x111) {
+    return _ref55.apply(this, arguments);
   };
-}()); // api_host
+}());
+
+var prepareMetadata = function prepareMetadata(headerData, tableResults) {
+  if (!headerData.headers || headerData.headers.length < 1 || !tableResults) {
+    return {};
+  }
+
+  tableResults = tableResults.sort(function (a, b) {
+    return a.row - b.row;
+  });
+  var headerDataCopy = JSON.parse(JSON.stringify(headerData));
+  headerDataCopy.headers.reverse();
+  headerDataCopy.subs.reverse();
+  var annotation_groups = headerDataCopy.headers.reduce(function (acc, item, i) {
+    if (headerDataCopy.subs[i]) {
+      acc.temp.push(item);
+    } else {
+      acc.groups.push([].concat((0, _toConsumableArray2["default"])(acc.temp), [item]).reverse());
+      acc.temp = [];
+    }
+
+    ;
+    return acc;
+  }, {
+    groups: [],
+    temp: []
+  });
+  annotation_groups.groups[annotation_groups.groups.length - 1] = [].concat((0, _toConsumableArray2["default"])(annotation_groups.groups[annotation_groups.groups.length - 1]), (0, _toConsumableArray2["default"])(annotation_groups.temp));
+  annotation_groups = annotation_groups.groups.reverse();
+  var grouped_headers = annotation_groups.reduce(function (acc, group, i) {
+    var concepts = tableResults.reduce(function (cons, res, j) {
+      cons.push(group.map(function (head) {
+        if (res[head]) return res[head];
+      }));
+      return cons;
+    }, []);
+    acc[group.join()] = concepts;
+    return acc;
+  }, {});
+  var meta_concepts = Object.keys(grouped_headers).reduce(function (mcon, group) {
+    var alreadyshown = [];
+    var lastConcept = "";
+    mcon[group] = grouped_headers[group].reduce(function (acc, concepts) {
+      var key = concepts.join();
+
+      if (!alreadyshown[key]) {
+        alreadyshown[key] = true;
+        concepts = concepts.filter(function (b) {
+          return b != undefined;
+        });
+
+        if (concepts[concepts.length - 1] == lastConcept) {
+          concepts = concepts.slice(concepts.length - 2, 1);
+        }
+
+        acc.push(concepts);
+      }
+
+      return acc;
+    }, []);
+    return mcon;
+  }, {});
+
+  var unfoldConcepts = function unfoldConcepts(concepts) {
+    var unfolded = concepts.reduce(function (stor, elm, i) {
+      for (var e = 1; e <= elm.length; e++) {
+        var partial_elm = elm.slice(0, e);
+        var key = partial_elm.join();
+
+        if (stor.alreadyThere.indexOf(key) < 0) {
+          stor.unfolded.push(partial_elm);
+          stor.alreadyThere.push(key);
+        }
+      }
+
+      return stor;
+    }, {
+      unfolded: [],
+      alreadyThere: []
+    });
+    return unfolded.unfolded;
+  };
+
+  meta_concepts = Object.keys(meta_concepts).reduce(function (acc, mcon, j) {
+    acc[mcon] = unfoldConcepts(meta_concepts[mcon]);
+    return acc;
+  }, {});
+  return meta_concepts;
+};
+
+var processAnnotationAndMetadata = /*#__PURE__*/function () {
+  var _ref57 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee57(docid, page, collId) {
+    var tabularData, tid, header_data, headerData, headDATA, hedDatra, metadata, result;
+    return _regenerator["default"].wrap(function _callee57$(_context57) {
+      while (1) {
+        switch (_context57.prev = _context57.next) {
+          case 0:
+            _context57.next = 2;
+            return prepareAnnotationPreview(docid, page, collId, false);
+
+          case 2:
+            tabularData = _context57.sent;
+
+            if (!(tabularData.backAnnotation && tabularData.backAnnotation.rows.length > 0 && tabularData.backAnnotation.rows[0].annotation)) {
+              _context57.next = 16;
+              break;
+            }
+
+            // .annotations.map( ann => { return {head: Object.keys(ann.content).join(";"), sub: ann.subAnnotation } })
+            // debugger
+            tid = tabularData.backAnnotation.rows[0].tid;
+            header_data = tabularData.backAnnotation.rows[0].annotation.map(function (ann) {
+              return {
+                head: [ann.content.split("@")[0]].join(";"),
+                sub: ann.subAnnotation
+              };
+            });
+            header_data = header_data.reduce(function (acc, header, i) {
+              acc.count[header.head] = acc.count[header.head] ? acc.count[header.head] + 1 : 1;
+              acc.headers.push(header.head + "@" + acc.count[header.head]);
+              acc.subs.push(header.sub);
+              return acc;
+            }, {
+              count: {},
+              headers: [],
+              subs: []
+            });
+            headerData = tabularData.result.reduce(function (acc, item) {
+              Object.keys(item).map(function (head) {
+                if (["col", "row", "docid_page", "value"].indexOf(head) < 0) {
+                  var currentItem = acc[head];
+
+                  if (!currentItem) {
+                    currentItem = [];
+                  }
+
+                  currentItem.push(item[head]);
+                  acc[head] = (0, _toConsumableArray2["default"])(new Set(currentItem));
+                }
+              });
+              return acc;
+            }, {});
+            headDATA = prepareMetadata(header_data, tabularData.result);
+            _context57.next = 11;
+            return processHeaders(headDATA);
+
+          case 11:
+            hedDatra = _context57.sent;
+            // debugger
+            metadata = Object.keys(hedDatra).map(function (key) {
+              var cuis = hedDatra[key].labels.map(function (label) {
+                return label.CUI;
+              });
+              return {
+                concept: hedDatra[key].concept,
+                concept_root: hedDatra[key].root,
+                concept_source: "",
+                cuis: cuis,
+                cuis_selected: cuis.slice(0, 2),
+                istitle: false,
+                labeller: "suso",
+                qualifiers: [""],
+                qualifiers_selected: [""],
+                tid: tid
+              };
+            });
+            _context57.next = 15;
+            return setMetadata(metadata);
+
+          case 15:
+            result = _context57.sent;
+
+          case 16:
+          case "end":
+            return _context57.stop();
+        }
+      }
+    }, _callee57);
+  }));
+
+  return function processAnnotationAndMetadata(_x114, _x115, _x116) {
+    return _ref57.apply(this, arguments);
+  };
+}(); // api_host
 // ui_port
 // ui_host
 
+
+var exec = require('child_process').exec;
+
+var myShellScript = exec('fuser -k ' + CONFIG.api_port + '/tcp');
 app.listen(CONFIG.api_port, '0.0.0.0', function () {
   console.log('Table Tidier Server running on port ' + CONFIG.api_port + ' with base: ' + CONFIG.api_base_url + "  :: " + new Date().toISOString());
 });
+main();
