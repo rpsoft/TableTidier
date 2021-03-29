@@ -7,14 +7,14 @@ var request = require("request");
 
 var multer = require('multer');
 
-
 const fs = require('fs');
+const path = require('path');
 
 const { Pool, Client, Query } = require('pg')
 
 const csv = require('csv-parser');
 const CsvReadableStream = require('csv-reader');
-const path = require('path');
+
 
 
 //NODE R CONFIGURATION.
@@ -318,11 +318,60 @@ const rebuildSearchIndex = async () => {
   global.searchIndex = await easysearch.indexFolder( [...tables, ...tables_folder_override] )
 }
 
+const tabularFromAnnotation = async ( annotation ) => {
+
+  if ( annotation.rows.length < 1 ){ // annotation not there
+    return
+  }
+  annotation = annotation.rows[0]
+  const htmlFile = annotation.file_path
+
+  //If an override file exists then use it!. Overrides are those produced by the editor.
+  var file_exists = await fs.existsSync( path.join(global.tables_folder_override, annotation.collection_id, htmlFile) )
+
+  var htmlFolder = path.join(global.tables_folder, annotation.collection_id)
+  if ( file_exists ) {
+    htmlFolder = path.join(global.tables_folder_override, annotation.collection_id) //"HTML_TABLES_OVERRIDE/"
+  }
+
+
+  try {
+    fs.readFile(path.join(htmlFolder,htmlFile),
+                "utf8",
+                function(err, data) {
+                  var ann = annotation
+                  var tablePage = cheerio.load(data);
+
+                  var tableData = tablePage("tr").get().map( (row) => {
+                    var rowValues = cheerio(row).children().get().map(
+                      (i,e) => {
+                        return {
+                          text : cheerio(i).text(),
+                          isIndent : (cheerio(i).find('.indent1').length + cheerio(i).find('.indent2').length + cheerio(i).find('.indent3').length + cheerio(i).find('.indent').length) > 0,
+                          isBold : (cheerio(i).find('.bold').length + cheerio(i).find('strong').length) > 0,
+                          isItalic : (cheerio(i).find('em').length) > 0,
+                        }
+                      }
+                    )
+                    return rowValues
+                  });
+
+                  debugger
+
+                })
+  } catch (e){
+    console.log(e)
+    debugger
+  }
+
+
+}
+
 // preinitialisation of components if needed.
 async function main(){
 
   // search index rebuild/initialisation
-  await rebuildSearchIndex()
+  // await rebuildSearchIndex()
 
   // UMLS Data buffer
   umls_data_buffer = await UMLSData();
@@ -331,25 +380,9 @@ async function main(){
 
   await initialiseUsers()
 
-  //
-  // var tables = fs.readdirSync("HTML_TABLES/1")
-  //
-  // for ( var t in tables ){
-  //     console.log( t+" -- "+tables.length )
-  //
-  //     var filename = tables[t].split(".")[0]
-  //
-  //     var docid = filename.split("_")[0]
-  //     var page = filename.split("_")[1]
-  //
-  //     try{
-  //       await processAnnotationAndMetadata(docid, page, 1 )
-  //     } catch(e){
-  //       console.log("failed: "+docid+" -- "+page)
-  //     }
-  // }
-  //
-  // debugger
+  var annotation = await getAnnotationByID("11442551", 1, 1);
+  // var tableData = await readyTable("11442551", 1, 1, false)
+  await tabularFromAnnotation(annotation)
 }
 
 
@@ -586,9 +619,6 @@ app.post(CONFIG.api_base_url+'/metadata', async function(req,res){
 });
 
 
-
-
-
 const getCUISIndex = async () => {
 
   var cuis = {}
@@ -750,13 +780,6 @@ const getResults = async ( tids ) => {
 
 app.post(CONFIG.api_base_url+'/collections', async function(req,res){
 
-  // console.log("HEEEYYY")
-  // SELECT * FROM (
-	// SELECT username, name, description, unnest("groups") as g_id, group_id
-	// FROM public.users, public."usersGroup"
-  // ) as association
-  // WHERE g_id = group_id
-
   if ( req.body && ( ! req.body.action ) ){
     res.json({status: "undefined", received : req.query})
     return
@@ -818,48 +841,7 @@ app.post(CONFIG.api_base_url+'/collections', async function(req,res){
     res.json({status:"unauthorised", payload: null})
   }
 
-  // var collections = await getCollections()
-  // res.json({})
 });
-
-
-//
-// app.post('/metadata', async function(req,res){
-//
-//   if ( req.body && ( ! req.body.action ) ){
-//     res.json({status: "undefined", received : req.query})
-//     return
-//   }
-//
-//   var validate_user = validateUser(req.body.username, req.body.hash);
-//
-//   if ( validate_user ){
-//
-//     var result;
-//
-//     switch (req.body.action) {
-//       case "get":
-//         // result = await getCollection(req.body.collection_id);
-//         res.json({status: "success", data: result})
-//         break;
-//       case "delete":
-//         // await deleteCollection(req.body.collection_id);
-//         res.json({status: "success", data: {}})
-//         break;
-//       case "edit":
-//         // var allCollectionData = JSON.parse( req.body.collectionData )
-//
-//         res.json({status: "success", data: result})
-//         break;
-//       default:
-//         res.json({status: "failed"})
-//     }
-//
-//   } else {
-//     res.json({status:"unauthorised", payload: null})
-//   }
-// });
-
 
 // Tables
 const createTable = async (docid,page,user,collection_id,file_path) => {
@@ -1065,43 +1047,6 @@ app.post(CONFIG.api_base_url+'/getTableContent',async function(req,res){
     }
 });
 
-///// Probably vintage from here on.
-//
-// app.get('/api/allInfo',async function(req,res){
-//
-//   var labellers = await getMetadataLabellers();
-//       labellers = labellers.rows.reduce( (acc,item) => { acc[item.docid+"_"+item.page] = item.labeller; return acc;},{})
-//
-//   if ( req.query && req.query.collId  ){
-//
-//     var result = await prepareAvailableDocuments( req.query.collId )
-//
-//     var available_documents_temp = result.available_documents
-//     var abs_index_temp = result.abs_index
-//     var DOCS_temp = result.DOCS
-//
-//         res.send({
-//           abs_index : abs_index_temp,
-//           total : DOCS_temp.length,
-//           available_documents: available_documents_temp,
-//           msh_categories: msh_categories,
-//           labellers: labellers
-//         })
-//
-//   } else {
-//
-//         res.send({
-//           abs_index,
-//           total : DOCS.length,
-//           available_documents,
-//           msh_categories: msh_categories,
-//           labellers: labellers
-//         })
-//
-//   }
-//
-// });
-
 // Extracts all recommended CUIs from the DB and formats them as per the "recommend_cuis" variable a the bottom of the function.
 async function getRecommendedCUIS(){
   var cuiRecommend = async () => {
@@ -1156,67 +1101,6 @@ app.get(CONFIG.api_base_url+'/cuiRecommend', async function(req,res){
 
 });
 
-// app.get('/api/allMetadata', async function(req,res){
-//
-//   var allMetadataAnnotations = async () => {
-//     var client = await pool.connect()
-//     var result = await client.query(`select * from metadata`)
-//           client.release()
-//     return result
-//   }
-//
-//   res.send( await allMetadataAnnotations() )
-//
-// });
-//
-//
-// app.post('/cuis',async function(req,res){
-//
-//       debugger
-//
-//       var getCUISIndex = async () => {
-//
-//         var cuis = {}
-//
-//         var client = await pool.connect()
-//         var result = await client.query(`select * from cuis_index`)
-//               client.release()
-//
-//         result.rows.map( row => {
-//           cuis[row.cui] = {preferred : row.preferred, hasMSH: row.hasMSH, userDefined: row.user_defined, adminApproved: row.admin_approved}
-//         })
-//
-//         return cuis
-//       }
-//
-//       debugger
-//       res.json( { data: await getCUISIndex() } )
-//
-// });
-
-//
-// app.get('/cuisIndexAdd',async function(req,res){
-//
-//   console.log(JSON.stringify(req.query))
-//
-  // var insertCUI = async (cui,preferred,hasMSH) => {
-  //     var client = await pool.connect()
-  //     var done = await client.query('INSERT INTO cuis_index(cui,preferred,"hasMSH",user_defined,admin_approved) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (cui) DO UPDATE SET preferred = $2, "hasMSH" = $3, user_defined = $4, admin_approved = $5',  [cui,preferred,hasMSH,true,false])
-  //       .then(result => console.log("insert: "+ new Date()))
-  //       .catch(e => console.error(e.stack))
-  //       .then(() => client.release())
-  // }
-//
-//   if(req.query && req.query.cui.length > 0
-//               && req.query.preferred.length > 0
-//               && req.query.hasMSH.length > 0
-//               ){
-//               await insertCUI( req.query.cui , req.query.preferred, req.query.hasMSH );
-//   }
-//   res.send("saved annotation: "+JSON.stringify(req.query))
-// });
-
-//req.body.
 const prepareAnnotationPreview = async (docid, page, collId, cachedOnly) => {
 
       var annotations = await getAnnotationByID(docid, page, collId)
