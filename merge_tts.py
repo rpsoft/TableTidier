@@ -191,7 +191,15 @@ for tid in set(newer_sql_df["tid"]):
 # # damerauLevenshtein(['ab', 'bc'], ['ab'], similarity=False)  # expected result: 1.0
 # # damerauLevenshtein(['ab', 'bc'], ['ab'], similarity=True)  # expected result: 0.5
 # totalSubstitutions
+tid = 1745
+
 newer = newer_sql_df[ newer_sql_df["tid"] == tid ].to_dict(orient='records')
 older = older_sql_df[ older_sql_df["tid"] == tid ].to_dict(orient='records')
 
 newMetadata, totals = doMetadataMerge( newer, older )
+
+newMetadata
+
+# %%
+older_sql_df[ older_sql_df["tid"] == tid ]
+# %%
