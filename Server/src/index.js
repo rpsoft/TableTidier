@@ -371,7 +371,7 @@ const tabularFromAnnotation = async ( annotation ) => {
 async function main(){
 
   // search index rebuild/initialisation
-  // await rebuildSearchIndex()
+  await rebuildSearchIndex()
 
   // UMLS Data buffer
   umls_data_buffer = await UMLSData();
@@ -380,9 +380,9 @@ async function main(){
 
   await initialiseUsers()
 
-  var annotation = await getAnnotationByID("11442551", 1, 1);
-  // var tableData = await readyTable("11442551", 1, 1, false)
-  await tabularFromAnnotation(annotation)
+  // var annotation = await getAnnotationByID("11442551", 1, 1);
+  // // var tableData = await readyTable("11442551", 1, 1, false)
+  // await tabularFromAnnotation(annotation)
 }
 
 

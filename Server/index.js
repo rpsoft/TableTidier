@@ -616,29 +616,23 @@ function main() {
 
 function _main() {
   _main = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee63() {
-    var annotation;
     return _regenerator["default"].wrap(function _callee63$(_context63) {
       while (1) {
         switch (_context63.prev = _context63.next) {
           case 0:
             _context63.next = 2;
-            return UMLSData();
+            return rebuildSearchIndex();
 
           case 2:
+            _context63.next = 4;
+            return UMLSData();
+
+          case 4:
             umls_data_buffer = _context63.sent;
-            _context63.next = 5;
+            _context63.next = 7;
             return (0, _security.initialiseUsers)();
 
-          case 5:
-            _context63.next = 7;
-            return getAnnotationByID("11442551", 1, 1);
-
           case 7:
-            annotation = _context63.sent;
-            _context63.next = 10;
-            return tabularFromAnnotation(annotation);
-
-          case 10:
           case "end":
             return _context63.stop();
         }
