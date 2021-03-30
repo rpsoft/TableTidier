@@ -4,11 +4,11 @@ var _interopRequireWildcard = require("@babel/runtime/helpers/interopRequireWild
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
 
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
 var _slicedToArray2 = _interopRequireDefault(require("@babel/runtime/helpers/slicedToArray"));
 
 var _toConsumableArray2 = _interopRequireDefault(require("@babel/runtime/helpers/toConsumableArray"));
-
-var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
 
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 

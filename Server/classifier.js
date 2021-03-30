@@ -2,9 +2,9 @@
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
 
-var _toConsumableArray2 = _interopRequireDefault(require("@babel/runtime/helpers/toConsumableArray"));
-
 var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+var _toConsumableArray2 = _interopRequireDefault(require("@babel/runtime/helpers/toConsumableArray"));
 
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
@@ -12,35 +12,7 @@ var _taggedTemplateLiteral2 = _interopRequireDefault(require("@babel/runtime/hel
 
 var _metamap = require("./metamap.js");
 
-function _templateObject3() {
-  var data = (0, _taggedTemplateLiteral2["default"])(["\n        groupedPredict(", ")\n      "]);
-
-  _templateObject3 = function _templateObject3() {
-    return data;
-  };
-
-  return data;
-}
-
-function _templateObject2() {
-  var data = (0, _taggedTemplateLiteral2["default"])(["\n        groupedPredict(", ")\n      "]);
-
-  _templateObject2 = function _templateObject2() {
-    return data;
-  };
-
-  return data;
-}
-
-function _templateObject() {
-  var data = (0, _taggedTemplateLiteral2["default"])(["\n  import warnings\n  warnings.filterwarnings(\"ignore\", category=FutureWarning)\n  warnings.filterwarnings(\"ignore\", category=UserWarning)\n  import pandas as pd\n  import pickle\n  import sys\n\n  model = pickle.load(open(", ", 'rb'))\n\n  def predict(data):\n\n      c = ['clean_concept', 'is_bold', 'is_italic', 'is_indent', 'is_empty_row',\n          'is_empty_row_p', 'cuis', 'semanticTypes']\n\n      customPredict = pd.DataFrame(\n          data = data,\n          columns = c)\n\n      customPredict = customPredict[['clean_concept', 'is_bold', 'is_italic',\n          'is_indent', 'is_empty_row', 'is_empty_row_p', 'semanticTypes']]\n\n      return (model[\"target_codec\"].inverse_transform(model[\"trained_model\"].predict(customPredict)))\n\n  def groupedPredict( data ):\n\n      c = ['clean_concept',\n          'is_bold', 'is_italic', 'is_indent', 'is_empty_row',\n          'is_empty_row_p', 'cuis', 'semanticTypes']\n\n      customPredict = pd.DataFrame(\n          data = data,\n          columns = c)\n\n      predictions = (model[\"target_codec\"].inverse_transform(model[\"trained_model\"].predict(customPredict)))\n\n      terms = []\n      classes = []\n\n      for t in range(0,len(data)):\n          terms.append(data[t][0])\n          classes.append(\";\".join(predictions[t]))\n\n      return({\"terms\": terms, \"classes\" : classes})\n\n  def printAll(data):\n    print(data)\n    return data\n"]);
-
-  _templateObject = function _templateObject() {
-    return data;
-  };
-
-  return data;
-}
+var _templateObject, _templateObject2, _templateObject3;
 
 var assert = require('assert');
 
@@ -54,7 +26,7 @@ var CONFIG = require('./config.json');
 
 var classifierFile = CONFIG.system_path + "Classifier/trained/umls_full.model"; // For python debugging remove this.
 
-python.ex(_templateObject(), classifierFile);
+python.ex(_templateObject || (_templateObject = (0, _taggedTemplateLiteral2["default"])(["\n  import warnings\n  warnings.filterwarnings(\"ignore\", category=FutureWarning)\n  warnings.filterwarnings(\"ignore\", category=UserWarning)\n  import pandas as pd\n  import pickle\n  import sys\n\n  model = pickle.load(open(", ", 'rb'))\n\n  def predict(data):\n\n      c = ['clean_concept', 'is_bold', 'is_italic', 'is_indent', 'is_empty_row',\n          'is_empty_row_p', 'cuis', 'semanticTypes']\n\n      customPredict = pd.DataFrame(\n          data = data,\n          columns = c)\n\n      customPredict = customPredict[['clean_concept', 'is_bold', 'is_italic',\n          'is_indent', 'is_empty_row', 'is_empty_row_p', 'semanticTypes']]\n\n      return (model[\"target_codec\"].inverse_transform(model[\"trained_model\"].predict(customPredict)))\n\n  def groupedPredict( data ):\n\n      c = ['clean_concept',\n          'is_bold', 'is_italic', 'is_indent', 'is_empty_row',\n          'is_empty_row_p', 'cuis', 'semanticTypes']\n\n      customPredict = pd.DataFrame(\n          data = data,\n          columns = c)\n\n      predictions = (model[\"target_codec\"].inverse_transform(model[\"trained_model\"].predict(customPredict)))\n\n      terms = []\n      classes = []\n\n      for t in range(0,len(data)):\n          terms.append(data[t][0])\n          classes.append(\";\".join(predictions[t]))\n\n      return({\"terms\": terms, \"classes\" : classes})\n\n  def printAll(data):\n    print(data)\n    return data\n"])), classifierFile);
 
 function classify(_x) {
   return _classify.apply(this, arguments);
@@ -69,7 +41,7 @@ function _classify() {
           case 0:
             result = new Promise(function (resolve, reject) {
               if (terms.length > 0) {
-                python(_templateObject2(), terms).then(function (x) {
+                python(_templateObject2 || (_templateObject2 = (0, _taggedTemplateLiteral2["default"])(["\n        groupedPredict(", ")\n      "])), terms).then(function (x) {
                   return resolve(x);
                 })["catch"](python.Exception, function (e) {
                   console.log("python error: " + e);
@@ -122,7 +94,7 @@ function _grouped_predictor() {
 
             result = new Promise(function (resolve, reject) {
               if (res.length > 0) {
-                python(_templateObject3(), res).then(function (x) {
+                python(_templateObject3 || (_templateObject3 = (0, _taggedTemplateLiteral2["default"])(["\n        groupedPredict(", ")\n      "])), res).then(function (x) {
                   return resolve(x);
                 })["catch"](python.Exception, function (e) {
                   return console.log("python error: " + e);
