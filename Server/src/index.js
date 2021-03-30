@@ -526,17 +526,22 @@ const setMetadata = async ( metadata ) => {
 
       var client = await pool.connect()
 
+      // debugger
+
       var done = await client.query(`
-                INSERT INTO metadata(concept_source, concept_root, concept, cuis, cuis_selected, qualifiers, qualifiers_selected, istitle, labeller, tid)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-                ON CONFLICT (concept_source, concept_root, concept, tid)
-                DO UPDATE SET cuis = $4, cuis_selected = $5, qualifiers = $6, qualifiers_selected = $7, istitle = $8, labeller = $9`,
+        INSERT INTO metadata(concept_source, concept_root, concept, cuis, cuis_selected, qualifiers, qualifiers_selected, istitle, labeller, tid)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        ON CONFLICT (concept_source, concept_root, concept, tid)
+        DO UPDATE SET cuis = $4, cuis_selected = $5, qualifiers = $6, qualifiers_selected = $7, istitle = $8, labeller = $9`,
                 [ metadata[key].concept_source, metadata[key].concept_root, metadata[key].concept,
                   metadata[key].cuis.join(";"), metadata[key].cuis_selected.join(";"), metadata[key].qualifiers.join(";"), metadata[key].qualifiers_selected.join(";"),
                   metadata[key].istitle, metadata[key].labeller, metadata[key].tid ])
 
           .then(result => console.log("insert: "+key+" -- "+ new Date()))
-          .catch(e => console.error(e.stack))
+          .catch(e => {
+            debugger
+            console.error(metadata[key].concept+" -- "+"insert failed: "+key+" -- "+ new Date())
+          })
           .then(() => client.release())
 
       results.push(done);

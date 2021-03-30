@@ -1036,10 +1036,11 @@ var setMetadata = /*#__PURE__*/function () {
           case 6:
             client = _context16.sent;
             _context16.next = 9;
-            return client.query("\n                INSERT INTO metadata(concept_source, concept_root, concept, cuis, cuis_selected, qualifiers, qualifiers_selected, istitle, labeller, tid)\n                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)\n                ON CONFLICT (concept_source, concept_root, concept, tid)\n                DO UPDATE SET cuis = $4, cuis_selected = $5, qualifiers = $6, qualifiers_selected = $7, istitle = $8, labeller = $9", [metadata[key].concept_source, metadata[key].concept_root, metadata[key].concept, metadata[key].cuis.join(";"), metadata[key].cuis_selected.join(";"), metadata[key].qualifiers.join(";"), metadata[key].qualifiers_selected.join(";"), metadata[key].istitle, metadata[key].labeller, metadata[key].tid]).then(function (result) {
+            return client.query("\n        INSERT INTO metadata(concept_source, concept_root, concept, cuis, cuis_selected, qualifiers, qualifiers_selected, istitle, labeller, tid)\n        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)\n        ON CONFLICT (concept_source, concept_root, concept, tid)\n        DO UPDATE SET cuis = $4, cuis_selected = $5, qualifiers = $6, qualifiers_selected = $7, istitle = $8, labeller = $9", [metadata[key].concept_source, metadata[key].concept_root, metadata[key].concept, metadata[key].cuis.join(";"), metadata[key].cuis_selected.join(";"), metadata[key].qualifiers.join(";"), metadata[key].qualifiers_selected.join(";"), metadata[key].istitle, metadata[key].labeller, metadata[key].tid]).then(function (result) {
               return console.log("insert: " + key + " -- " + new Date());
             })["catch"](function (e) {
-              return console.error(e.stack);
+              debugger;
+              console.error(metadata[key].concept + " -- " + "insert failed: " + key + " -- " + new Date());
             }).then(function () {
               return client.release();
             });
