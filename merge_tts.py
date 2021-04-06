@@ -131,7 +131,9 @@ def doMetadataMerge( newer, older ):
             c2 = older[old_index]["concept"].lower()
             dis = damerauLevenshtein(c1, c2, similarity=False) 
             sim = damerauLevenshtein(c1, c2, similarity=True)
-        
+
+            breakpoint()
+            
             if ( (minDis < 0) or (dis < minDis) ):
                 if (sim > 0.40):                
                     proposedCuis = cuiReorder(older[old_index]["cuis_selected"])
@@ -191,7 +193,7 @@ for tid in set(newer_sql_df["tid"]):
 # # damerauLevenshtein(['ab', 'bc'], ['ab'], similarity=False)  # expected result: 1.0
 # # damerauLevenshtein(['ab', 'bc'], ['ab'], similarity=True)  # expected result: 0.5
 # totalSubstitutions
-tid = 1745
+tid = 1222
 
 newer = newer_sql_df[ newer_sql_df["tid"] == tid ].to_dict(orient='records')
 older = older_sql_df[ older_sql_df["tid"] == tid ].to_dict(orient='records')
