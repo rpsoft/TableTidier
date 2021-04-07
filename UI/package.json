@@ -86,7 +86,7 @@
     "hoist-non-react-statics": "3.3.0",
     "html-to-react": "^1.4.2",
     "http-proxy-middleware": "^1.0.5",
-    "immer": "3.0.0",
+    "immer": "8.0.1",
     "intl": "1.2.5",
     "invariant": "2.2.4",
     "ip": "1.1.5",
