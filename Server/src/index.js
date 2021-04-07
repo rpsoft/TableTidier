@@ -518,6 +518,12 @@ const clearMetadata = async (tid) => {
 
 const setMetadata = async ( metadata ) => {
 
+  if ( Object.keys(metadata).length > 0 ){
+      var tid = metadata[Object.keys(metadata)[0]].tid
+      console.log("HERE DELETE: "+tid)
+      await clearMetadata(tid)
+  }
+
   var results = []
 
   for ( var m = 0; m < Object.keys(metadata).length; m++){

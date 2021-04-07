@@ -47,7 +47,7 @@ const useStyles = makeStyles((theme) => ({
    width: `calc(100% - ${drawerWidth}px)`,
    minHeight: 64,
    marginRight: drawerWidth,
-   backgroundColor: "#3f51b5"
+   backgroundColor: "#3f51b5",
  },
  drawer: {
    width: drawerWidth,
@@ -140,7 +140,7 @@ export function Login({
 
 // <div style={{width:"100%"}}>
   return (
-    <AppBar position="fixed" className={classes.appBar}>
+    <AppBar position="fixed" className={classes.appBar} style={{backgroundColor:"#3f51b5"}}>
     <Toolbar>
 
       <Helmet>
@@ -150,7 +150,7 @@ export function Login({
 
         <img src="./tabletidier.png" style={{height:45,width:45, cursor:"pointer", marginRight:15}} onClick={() => goTo('/')}/>
 
-        <h2 style={{margin:0}}>TableTidier <div style={{color:"red",display:"inline-block",fontSize:15}}>(beta)</div></h2>
+        <h2 style={{color:"white",margin:0}}>TableTidier <div style={{color:"red",display:"inline-block",fontSize:15}}>(beta)</div></h2>
 
         <div style={{marginRight:0, position:"absolute",right:16}} >
           <Button variant="contained" onClick={ handleLoginToggle }style={{marginLeft:5}}><AccountBoxIcon/> {cookies.username ? "Logged as: "+ cookies.username : " guest "}</Button>

@@ -327,7 +327,7 @@ export function* saveChanges ( payload ) {
       case SAVE_TABLE_METADATA_ACTION:
         requestURL = requestURL+`metadata`
 
-        debugger
+        // debugger
         pre_params = {...pre_params,
                   'action' : 'save',
                   'target' : 'metadata', // table / notes / annotation / metadata,

@@ -29,6 +29,8 @@ import {
   Switch,
 } from '@material-ui/core';
 
+import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
+
 const _ = require('lodash');
 
 import AdbIcon from '@material-ui/icons/Adb';
@@ -51,6 +53,9 @@ function TableMetadata({
 
   const [ enableDelete, setEnableDelete ] = React.useState(false)
 
+  const [ enableMetadataAdder, setMetadataAdder ] = React.useState(false)
+  const [ metadataAdderText, setMetadataAdderText ] = React.useState("")
+
   const toggleCui = (key, cui) => {
 
     var cuipos = metadata[key].cuis_selected.indexOf(cui)
@@ -72,7 +77,7 @@ function TableMetadata({
       if (!metadata[key]){
 
         var tres = tableResults
-        debugger
+         debugger
         // metadata concept has not been annotated yet.
         metadata[key] = {
           concept: conceptData.concept,
@@ -82,8 +87,8 @@ function TableMetadata({
           cuis_selected: [],
           istitle: false,
           labeller: "",
-          qualifiers: ["Presence-absense"],
-          qualifiers_selected: ["Presence-absense"],
+          qualifiers: [],
+          qualifiers_selected: [],
           tid: tid,
         }
       }
@@ -115,6 +120,52 @@ function TableMetadata({
     updateTableMetadata(Object.assign({}, metadata))
   }
 
+  var manualMetadata = () => {
+    // debugger
+    return Object.keys(metadata).reduce( (acc,k) => { if ( metadata[k].istitle ) {acc.push(metadata[k]);} return acc }, [])
+  }
+
+  const addTitleMetadataConcept = () => {
+    var newMetadata = Object.assign({}, metadata)
+
+    if ( metadataAdderText.toLowerCase().trim().length > 0){
+      newMetadata[metadataAdderText.toLowerCase().trim()] = {
+          concept: metadataAdderText.trim(),
+          concept_root: "",
+          concept_source: "",
+          cuis: [],
+          cuis_selected: [],
+          istitle: true,
+          labeller: "suso",
+          qualifiers: [],
+          qualifiers_selected: [],
+          tid: tid,
+        }
+    }
+
+    updateTableMetadata(newMetadata);
+    setMetadataAdder(false);
+    setMetadataAdderText("");
+  }
+
+
+  const removeTitleMetadataConcept = (concept) => {
+      var newMetadata = Object.assign({}, metadata)
+      // debugger
+      delete newMetadata[concept.toLowerCase().trim()];
+
+      updateTableMetadata(newMetadata);
+      // setMetadataAdder(false);
+    }
+
+  const onKeyDown = (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        event.stopPropagation();
+        addTitleMetadataConcept();
+      }
+  }
+
   return (
     <div style={{padding:"5px 7px 7px 7px"}} >
 
@@ -137,17 +188,77 @@ function TableMetadata({
         </div></span>
 
       </div>
+      {
+        ///updateTableMetadata(Object.assign({}, metadata))
+      }
+      <hr style={{borderTop:"1px #acacac dashed"}}/>
+      <div style={{width:"100%"}}>
+        <h3 style={{display:"inline"}}>Other metadata</h3>
+
+        <Button variant="outlined"
+                style={{height: 40, display:"inline", marginLeft:10, color:"green"}}
+                onClick={ () => { setMetadataAdder(!enableMetadataAdder);} }> + Add other metadata </Button>
+
+        {
+          enableMetadataAdder ? <div>
+            <div  style={{border:"1px solid black", padding:10, margin:5, marginLeft:20, display:"inline-block"}} >
+
+
+              <TextField id="standard-basic" label="Enter concept text..." variant="outlined" style={{width:550}}
+                value={metadataAdderText}
+                onChange={ (evt) => { setMetadataAdderText(evt.currentTarget.value) } }
+                onKeyDown ={onKeyDown}
+              />
+
+              <Button variant="outlined"
+                        style={{height: 40, display:"inline", marginLeft:10, marginTop:8}}
+                        onClick={ () => {
+                            addTitleMetadataConcept();
+                        }}> Save </Button>
+
+              <Button variant="outlined"
+                        style={{height: 40, display:"inline", marginLeft:10, marginTop:8}}
+                        onClick={ () => {  setMetadataAdder(false);} }> Cancel </Button>
+              </div>
+          </div> : ""
+        }
+      </div>
+
+      {
+
+          manualMetadata().map( (item,i) => <div key={i}> {
+            <div >
+              {
+                enableDelete ? <Button variant="outlined"
+                        style={{height: 40, marginLeft:5, marginRight:5, color:"red",float:"left"}}
+                        onClick={ () => {  removeTitleMetadataConcept( item.concept ); } }> Delete concept <DeleteForeverIcon/> </Button> : ""
+              }
+
+              <TableMetadataItem
+                              key={ i }
+                              keyN={ i }
+                              tableConcept={ [item.concept_root, item.concept] }
+                              metadata={ metadata }
+                              cuisIndex={ cuisIndex }
+                              toggleCui={ toggleCui }
+                              addCuis={ addCuis }
+                              deleteCui={ deleteCui }
+                              enableDelete={ enableDelete }
+                          />
+            </div>
+          } </div> )
+      }
+
+
 
       <hr style={{borderTop:"1px #acacac dashed"}}/>
-
       {
         Object.keys(headerData).map( (ann_groups,j) => {
 
-          // debugger
             return <div key={j}> <h3>{ann_groups}</h3><div>{
               headerData[ann_groups].map(
                 (item, i) => {
-
+                   // debugger
                   return <TableMetadataItem
                                   key={ i }
                                   keyN={ i }

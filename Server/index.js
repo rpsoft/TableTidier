@@ -1009,27 +1009,38 @@ var clearMetadata = /*#__PURE__*/function () {
 
 var setMetadata = /*#__PURE__*/function () {
   var _ref16 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee16(metadata) {
-    var results, m, key, client, done;
+    var tid, results, m, key, client, done;
     return _regenerator["default"].wrap(function _callee16$(_context16) {
       while (1) {
         switch (_context16.prev = _context16.next) {
           case 0:
+            if (!(Object.keys(metadata).length > 0)) {
+              _context16.next = 5;
+              break;
+            }
+
+            tid = metadata[Object.keys(metadata)[0]].tid;
+            console.log("HERE DELETE: " + tid);
+            _context16.next = 5;
+            return clearMetadata(tid);
+
+          case 5:
             results = [];
             m = 0;
 
-          case 2:
+          case 7:
             if (!(m < Object.keys(metadata).length)) {
-              _context16.next = 14;
+              _context16.next = 19;
               break;
             }
 
             key = Object.keys(metadata)[m];
-            _context16.next = 6;
+            _context16.next = 11;
             return pool.connect();
 
-          case 6:
+          case 11:
             client = _context16.sent;
-            _context16.next = 9;
+            _context16.next = 14;
             return client.query("\n        INSERT INTO metadata(concept_source, concept_root, concept, cuis, cuis_selected, qualifiers, qualifiers_selected, istitle, labeller, tid)\n        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)\n        ON CONFLICT (concept_source, concept_root, concept, tid)\n        DO UPDATE SET cuis = $4, cuis_selected = $5, qualifiers = $6, qualifiers_selected = $7, istitle = $8, labeller = $9", [metadata[key].concept_source, metadata[key].concept_root, metadata[key].concept, metadata[key].cuis.join(";"), metadata[key].cuis_selected.join(";"), metadata[key].qualifiers.join(";"), metadata[key].qualifiers_selected.join(";"), metadata[key].istitle, metadata[key].labeller, metadata[key].tid]).then(function (result) {
               return console.log("insert: " + key + " -- " + new Date());
             })["catch"](function (e) {
@@ -1039,19 +1050,19 @@ var setMetadata = /*#__PURE__*/function () {
               return client.release();
             });
 
-          case 9:
+          case 14:
             done = _context16.sent;
             results.push(done);
 
-          case 11:
+          case 16:
             m++;
-            _context16.next = 2;
+            _context16.next = 7;
             break;
 
-          case 14:
+          case 19:
             return _context16.abrupt("return", results);
 
-          case 15:
+          case 20:
           case "end":
             return _context16.stop();
         }
