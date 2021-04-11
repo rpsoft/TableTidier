@@ -4,7 +4,7 @@
  *
  */
 
-import { APP_SET_GLOBALS, APP_SET_CREDENTIALS } from './constants';
+import { APP_SET_GLOBALS, APP_SET_CREDENTIALS, APP_ISSUE_ALERT_ACTION } from './constants';
 
 export function appSetGlobals(params) {
 
@@ -19,4 +19,13 @@ export function setLoginCredentialsAction(cookies){
      type: APP_SET_CREDENTIALS,
      credentials: cookies
    };
+}
+
+// Issue alert
+export function issueAlertAction(alertData) {
+
+  return {
+    type: APP_ISSUE_ALERT_ACTION,
+    alertData
+  };
 }

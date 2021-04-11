@@ -52,14 +52,25 @@ import Footer from '../../components/Footer'
 
 import { useCookies } from 'react-cookie';
 
+import PopAlert from 'components/PopAlert'
+
+
 
 export function App({
   // appData,
   setLoginCredentials,
+  appData
 }) {
 
-
   const [ cookies, setCookie, removeCookie ] = useCookies();
+  const [ alertData, setAlertData ]  = React.useState( appData.alertData ? appData.alertData : { open: false, message: "", isError: false } );
+
+
+  useEffect(() => {
+
+      setAlertData(appData.alertData ? appData.alertData : { open: false, message: "", isError: false })
+
+  }, [appData.alertData]);
 
   setLoginCredentials(cookies)
 
@@ -84,14 +95,21 @@ export function App({
             </Switch>
           </div>
 
+
+      <PopAlert alertData={alertData} setAlertData={setAlertData} />
+
       <div style={{position:"fixed", left:0, bottom:0, width:"100%" }}><Footer /></div>
       <GlobalStyle />
     </div>
   );
 }
-
+// const mapStateToProps = createStructuredSelector({
+//   annotator: makeSelectAnnotator(),
+//   credentials: makeSelectCredentials(),
+//   // loginDetails: makeSelectLogin(),
+// });
 const mapStateToProps = createStructuredSelector({
-  // appData : makeSelectLocation(),
+   appData : makeSelectLocation(),
 });
 
 function mapDispatchToProps(dispatch) {

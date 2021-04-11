@@ -46,6 +46,9 @@ import { useCookies } from 'react-cookie';
 
 import { makeStyles } from '@material-ui/core/styles';
 
+import { FixedSizeList } from 'react-window';
+// import './pagination.css';
+
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1
@@ -98,6 +101,17 @@ export function Dashboard({
 
   const classes = useStyles();
 
+  const [ checkedTables, setCheckedTables ] = useState({});
+
+  const toggleCheckBox = (docid) => {
+    var checkedTables_temp = checkedTables
+    checkedTables_temp[docid] = checkedTables_temp[docid] ? false : true
+    if ( checkedTables_temp[docid] == false ){
+      delete checkedTables_temp[docid]
+    }
+    setCheckedTables(checkedTables_temp)
+    // setNoTables(Object.keys(checkedTables).length)
+  }
   // useEffect(() => {
   //
   // }, []);
@@ -108,22 +122,57 @@ export function Dashboard({
   }, [cookies.hash]);
 
 
-  var table_search_results = <div>
-    {
-      dashboard.search_results.map( (result,i) => {
+  // var table_search_results = <div>
+  //   {
+  //     dashboard.search_results.map( (result,i) => {
+  //
+        //
+        // var elems = result.doc.replace(".html","").split("_")
+        // var docname = elems[0].split("/")[1]
+        // var page = elems[1]
+        // var collId = elems[0].split("/")[0]
+        //
+        //
+        // var url = "/table?docid="+docname+"&page="+page+"&collId="+collId
+        // return <SearchResult key={i} text={docname+"_"+page} type={"table"} onClick={ ()=> { goToUrl(url) }}/>
+  //     })
+  //   }
+  // </div>
 
+  const Row = ({ index, style }) => {
+    // debugger
+          var table_key = dashboard.search_results[index].doc
 
-        var elems = result.doc.replace(".html","").split("_")
-        var docname = elems[0].split("/")[1]
-        var page = elems[1]
-        var collId = elems[0].split("/")[0]
+          var elems = table_key.replace(".html","").split("_")
+          var docname = elems[0].split("/")[1]
+          var page = elems[1]
+          var collId = elems[0].split("/")[0]
+          //
+          // var notes = collectionView.tables[index].notes ? collectionView.tables[index].notes : ""
+          // var user = collectionView.tables[index].user ? collectionView.tables[index].user : ""
 
+          var url = "/table?docid="+docname+"&page="+page+"&collId="+collId
 
-        var url = "/table?docid="+docname+"&page="+page+"&collId="+collId
-        return <SearchResult key={i} text={docname+"_"+page} type={"table"} onClick={ ()=> { goToUrl(url) }}/>
-      })
-    }
-  </div>
+          return <div style={{...style, display: "flex", alignItems: "center"}}>
+            {
+            // <Checkbox checked={checkedTables[table_key]}
+            //     onChange={() => {toggleCheckBox(table_key)}}
+            //     inputProps={{ 'aria-label': 'primary checkbox' }}
+            //     />
+            //     <span> -- </span>
+              }
+            <span style={{marginLeft:10}}> {(index+1)+" - "}</span><SearchResult key={index} text={table_key.replace(".html","")} type={"table"} onClick={ ()=> { goToUrl(url) }}/>
+          </div>
+        }
+
+  var table_search_results = <FixedSizeList
+                                height={1050}
+                                width={"100%"}
+                                itemSize={40}
+                                itemCount={dashboard.search_results ? dashboard.search_results.length : 0}
+                              >
+                                {Row}
+                              </FixedSizeList>
 
   var collection_results = <div> { dashboard.collections.map(
                                     (coll,i) => <Collection key={i}

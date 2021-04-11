@@ -173,6 +173,8 @@ export function CollectionView({
   const [ checkedTables, setCheckedTables ] = useState({});
   const [ noTables, setNoTables ] = useState(0);
 
+  const [ allowEdit, setAllowEdit ] = useState(false);
+
   const [ targetCollectionID, setTargetCollectionID] = useState("");
   const [ availableCollections, setAvailableCollections ] = useState([]);
   const [ moveDialogOpen, setMoveDialogOpen ] = useState(false);
@@ -224,8 +226,9 @@ export function CollectionView({
     setCheckedTables({})
     setVisibility(collectionView.visibility)
     setCompletion(collectionView.completion)
-
-
+    if (collectionView.permissions){
+      setAllowEdit(collectionView.permissions.write)
+    }
   }, [collectionView])
 
   const prepareCollectionData = () => {
@@ -306,17 +309,21 @@ export function CollectionView({
                   <Card style={{ marginBottom:10, padding:10 }}>
                     <div className={classes.titles}>
 
-                      <div style={{fontSize:15}}>
-                            Collection ID: <div className={classes.titles_content}>{collectionView.collection_id}</div>
-                            <div style={{ display:"inline",float:"right", marginTop:-2}}>Enable Editing<Switch
-                                checked={editMode}
-                                onChange={() => { setEditMode(!editMode) }}
-                                name="editmode"
-                                inputProps={{ 'aria-label': 'secondary checkbox' }}
-                                size="small"
-                              /></div>
+                    {allowEdit ? <div style={{fontSize:15}}>
+                          <div style={{ display:"inline",float:"right", marginTop:-2}}>Enable Editing<Switch
+                              checked={editMode}
+                              onChange={() => { setEditMode(!editMode) }}
+                              name="editmode"
+                              inputProps={{ 'aria-label': 'secondary checkbox' }}
+                              size="small"
+                            /></div>
+                            </div> : ""
+                    }
 
-                      </div>
+
+                    Collection ID: <div className={classes.titles_content}>{collectionView.collection_id}</div>
+
+
                       <hr />
                       <div style={{marginTop:10}}> Title: { editMode ? <TextField
                                             id="title"
@@ -369,7 +376,7 @@ export function CollectionView({
                     <div style={{padding:10}}>
                       <div className={classes.buttonHolder} style={{float:"right"}}>
 
-                        <Button onClick={ () => {set_delete_enabled(!delete_enabled)}}> <DeleteIcon  style={{ color: "#ff8282" }}   /> </Button>
+                        { allowEdit ? <Button onClick={ () => {set_delete_enabled(!delete_enabled)}}> <DeleteIcon  style={{ color: "#ff8282" }}   /> </Button> : ""}
 
                         { delete_enabled ? <Button variant="contained"
                                 onClick={ () => {showCollectionDeleteDialog(true);}}
@@ -382,7 +389,7 @@ export function CollectionView({
 
                         <ConfirmationDialog
                               title={ <div style={{textAlign:"center"}}>This collection, associated tables, and annotations will be deleted <div style={{color:"red", fontWeight:"bolder"}}>PERMANENTLY</div></div> }
-                              accept_action={ () => {deleteCollection(); alert("collection deleted"); goToUrl("/")} }
+                              accept_action={ () => {deleteCollection(); goToUrl("/dashboard")} }
                               cancel_action={ () => {showCollectionDeleteDialog(false);} }
                               open={collectionDeleteDialog} />
                       </div>
@@ -392,6 +399,7 @@ export function CollectionView({
                       <FormControl variant="outlined" className={classes.formControl} style={{marginTop:20, width: 200}}>
                         <InputLabel id="outlined-visibility-label">Set Visibility</InputLabel>
                         <Select
+                            disabled={!allowEdit}
                             labelId="outlined-visibility-label"
                             id="visibility-select-helper"
                             value={visibility}
@@ -411,6 +419,7 @@ export function CollectionView({
                       <FormControl variant="outlined" className={classes.formControl} style={{marginTop:20, width: 200}}  >
                         <InputLabel id="outlined-completion-label">Set Completion</InputLabel>
                         <Select
+                            disabled={!allowEdit}
                             labelId="outlined-completion-label"
                             id="completion-select-helper"
                             value={completion}
@@ -436,16 +445,16 @@ export function CollectionView({
                   <Card style={{padding:10}}>
                     <div>
 
-                      <div className={classes.buttonHolder}>
+                      { allowEdit ? <div className={classes.buttonHolder}>
                             <FileUploader baseURL={(locationData.api_url + 'tableUploader')}
                                           collection_id={ collection_id }
                                           username_uploader={ owner_username}
                                           updaterCallBack= { getCollectionData }/>
-                      </div>
+                      </div> : ""}
 
-                      <div className={classes.buttonHolder}>
+                      { allowEdit ? <div className={classes.buttonHolder}>
                         <Button variant="contained"   disabled = { noTables == 0 } onClick={() => { setMoveDialogOpen(true); }} > Move Tables <OpenInNewIcon style={{marginLeft:5}}/> </Button>
-                        </div>
+                        </div> : ""}
 
                       <Dialog onClose={ () => {}} aria-labelledby="customized-dialog-title" open={moveDialogOpen}>
                             <DialogTitle id="customized-dialog-title" >
@@ -492,7 +501,7 @@ export function CollectionView({
                                   open={moveDialog} />
                       </Dialog>
 
-                      <div className={classes.buttonHolder}>
+                      { allowEdit ? <div className={classes.buttonHolder}>
                         <Button variant="contained"
                                 disabled = { noTables == 0 }
                                 onClick={ () => {showDeleteDialog(true)}}
@@ -503,9 +512,10 @@ export function CollectionView({
                                 accept_action={ () => {removeTables(checkedTables, prepareCollectionData()); showDeleteDialog(false);}}
                                 cancel_action={ () => {showDeleteDialog(false);} }
                                 open={deleteDialog} />
-                        </div>
+                                <hr/>
+                        </div> : ""}
 
-                      <hr/>
+
 
                       <div className={classes.buttonHolder}>
                         {
@@ -543,10 +553,10 @@ export function CollectionView({
                   </div>
                   </Card>
 
-                  <Card style={{padding:10, fontWeight:"bold", marginTop:5, marginBottom:5, textAlign:"center"}}>
+                  { allowEdit ?<Card style={{padding:10, fontWeight:"bold", marginTop:5, marginBottom:5, textAlign:"center"}}>
                     <div className={classes.buttonHolder} style={{float:"right"}}>
                         <Button variant="contained" disabled={false} onClick={() => {saveChanges()}} > Save Changes <SaveIcon style={{marginLeft:5}} /> </Button> </div>
-                  </Card>
+                  </Card> : ""}
 
                 </Grid>
               </Grid>

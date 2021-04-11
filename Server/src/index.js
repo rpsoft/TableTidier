@@ -590,7 +590,7 @@ app.post(CONFIG.api_base_url+'/metadata', async function(req,res){
 
   var validate_user = validateUser(req.body.username, req.body.hash);
 
-  var collectionPermissions = await getResourcePermissions('collections', req.body.username)
+  var collectionPermissions = await getResourcePermissions('collections', validate_user ? req.body.username : "")
 
   if ( collectionPermissions.read.indexOf(req.body.collId) > -1 ){
 
@@ -655,31 +655,16 @@ app.post(CONFIG.api_base_url+'/cuis', async function(req,res){
   }
 
   var validate_user = true //validateUser(req.body.username, req.body.hash);
-
   // var collectionPermissions = await getResourcePermissions('collections', req.body.username)
-  //
-  // debugger
 
   if ( validate_user ){
 
     var result = {};
 
     switch (req.body.action) {
-      // case "clear":
-      //   result = await clearMetadata(tid)
-      //   break;
-      // case "set":
-      //   result = await setMetadata(req.body.docid, req.body.page, req.body.concept,
-      //                              req.body.cuis || "",
-      //                              req.body.qualifiers || "",
-      //                              req.body.cuis_selected || "",
-      //                              req.body.qualifiers_selected || "" ,
-      //                              req.body.user, req.body.istitle, req.body.labeller)
-      //   break;
       case "get":
         result = await getCUISIndex() //req.body.docid, req.body.page, req.body.collId,
       default:
-
     }
     res.json({status: "success", data: result})
   } else {
@@ -711,7 +696,6 @@ function validateUser (username, hash){
 const getResourcePermissions = async (resource, user) => {
 
   var client = await pool.connect()
-
   var permissions;
 
   switch (resource) {
@@ -719,11 +703,9 @@ const getResourcePermissions = async (resource, user) => {
       permissions = await client.query(`select *,
                                       (owner_username = $1) as write,
                                       (visibility = 'public' OR owner_username = $1) as read
-                                      from collection
-                          `,[user])
+                                      from collection`,[user])
       break;
     case "table":
-
       break;
     default:
 
@@ -744,27 +726,6 @@ const getResourcePermissions = async (resource, user) => {
       				acc.write = currentWrite
             	return acc
             },{read:[],write:[]})
-  // permissions
-
-  // var permittedResources = await client.query(`
-  //   SELECT collection.collection_id, tid, docid, page,visibility, owner_username
-  //   FROM (select * from collection where visibility = 'public' OR owner_username = $1 ) as collection
-  //   LEFT JOIN "table" ON collection.collection_id = "table".collection_id`, [user])
-  //
-  // permittedResources = permittedResources?.rows.reduce( (acc, row) => {
-	// 	var currentColl = acc[row.collection_id]
-  //
-	// 	if (!currentColl){
-	// 		currentColl = []
-	// 	}
-  //
-  //  currentColl.push(row.docid+"_"+row.page);
-  //
-	// 	acc[row.collection_id] = currentColl
-	// 	return acc
-	// },{})
-
-  // return permissions
 }
 
 
@@ -863,7 +824,7 @@ app.post(CONFIG.api_base_url+'/collections', async function(req,res){
 
   var validate_user = validateUser(req.body.username, req.body.hash);
 
-  var collectionPermissions = await getResourcePermissions('collections', req.body.username)
+  var collectionPermissions = await getResourcePermissions('collections', validate_user ? req.body.username : "")
 
   var response = {status: "failed"}
 
@@ -885,6 +846,12 @@ app.post(CONFIG.api_base_url+'/collections', async function(req,res){
     case "get":
       if ( collectionPermissions.read.indexOf(req.body.collection_id) > -1 ){
         result = await getCollection(req.body.collection_id);
+
+        result.permissions = {
+          read: collectionPermissions.read.indexOf(req.body.collection_id) > -1,
+          write: collectionPermissions.write.indexOf(req.body.collection_id) > -1
+        }
+
         response = {status: "success", data: result}
       } else {
         response = {status:"unauthorised operation", payload: req.body}
@@ -1016,7 +983,7 @@ app.post(CONFIG.api_base_url+'/tables', async function(req,res){
   }
 
   var validate_user = validateUser(req.body.username, req.body.hash);
-  var collectionPermissions = await getResourcePermissions('collections', req.body.username)
+  var collectionPermissions = await getResourcePermissions('collections', validate_user ? req.body.username : "")
 
   if ( validate_user ){
 
@@ -1052,8 +1019,8 @@ app.post(CONFIG.api_base_url+'/search', async function(req,res){
   var bod = req.body.searchContent
   var type = JSON.parse(req.body.searchType)
 
-  //var validate_user = true; //validateUser(req.body.username, req.body.hash);
-  var collectionPermissions = await getResourcePermissions('collections', req.body.username)
+  var validate_user = validateUser(req.body.username, req.body.hash);
+  var collectionPermissions = await getResourcePermissions('collections', validate_user ? req.body.username : "")
   // if ( collectionPermissions.write.indexOf(req.body.collection_id) > -1 ){
 
   //if ( validate_user ){
@@ -1064,9 +1031,9 @@ app.post(CONFIG.api_base_url+'/search', async function(req,res){
 
   console.log("SEARCH: "+ search_results.length+ " for " + bod )
 
-  if ( search_results.length > 100){
-    search_results = search_results.slice(0,100)
-  }
+  // if ( search_results.length > 100){
+  //   search_results = search_results.slice(0,100)
+  // }
 
   // debugger
 
@@ -1080,14 +1047,14 @@ app.post(CONFIG.api_base_url+'/search', async function(req,res){
 
 app.post(CONFIG.api_base_url+'/getTableContent',async function(req,res){
 
-    // debugger
+
     var bod = req.body.searchContent
 
     var validate_user = validateUser(req.body.username, req.body.hash);
 
-    var collectionPermissions = await getResourcePermissions('collections', req.body.username)
+    var collectionPermissions = await getResourcePermissions('collections', validate_user ? req.body.username : "")
 
-    // if ( validate_user ){
+    if ( collectionPermissions.read.indexOf(req.body.collId) > -1 ){
 
       try{
 
@@ -1140,24 +1107,25 @@ app.post(CONFIG.api_base_url+'/getTableContent',async function(req,res){
             // var tData = tableData.collectionData.tables.filter( ( table ) => { return table.docid == req.body.docid && table.page == req.body.page } )
             predAnnotationData.annotation.annotations = [...rows, ...cols]
 
-            // debugger
+             // debugger
             tableData.annotationData = predAnnotationData
 
           }
+          tableData.permissions = {read: collectionPermissions.read.indexOf(req.body.collId) > -1 , write: collectionPermissions.write.indexOf(req.body.collId) > -1}
 
           res.json( tableData )
         } else {
+
           res.json({status: "wrong parameters", body : req.body})
         }
       } catch (e){
         console.log(e)
-         // debugger
         res.json({status: "getTableContent: probably page out of bounds, or document does not exist", body : req.body})
       }
 
-    // } else {
-    //   res.json([])
-    // }
+    } else {
+      res.json({status: "unauthorised", body : req.body})
+    }
 });
 
 // Extracts all recommended CUIs from the DB and formats them as per the "recommend_cuis" variable a the bottom of the function.
@@ -1347,7 +1315,7 @@ app.post(CONFIG.api_base_url+'/annotationPreview',async function(req,res){
 
       var validate_user = validateUser(req.body.username, req.body.hash);
 
-      var collectionPermissions = await getResourcePermissions('collections', req.body.username)
+      var collectionPermissions = await getResourcePermissions('collections', validate_user ? req.body.username : "")
 
       if ( collectionPermissions.read.indexOf(req.body.collId) > -1 ){
 

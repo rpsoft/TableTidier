@@ -46,12 +46,14 @@ export const initialState = {
     textNotes:"",
 
     status:"",
+    permissions: {read:false, write: false}
   },
   annotations: [],
   results : [],
   metadata : {},
   alertData: { open: false, message: "", isError: false },
   cuis_index: {},
+  allowEdit: false,
 };
 
 // annotations: [ { location: "Row" , content:[], qualifiers:[], number:1, subAnnotation:false },
@@ -64,6 +66,7 @@ const annotatorReducer = (state = initialState, action) =>
     switch (action.type) {
       case UPDATE_TABLE_CONTENT_ACTION:
         draft.tableData = action.tableData;
+        draft.allowEdit = action.tableData.permissions.write;
         break;
 
       case UPDATE_TABLE_ANNOTATIONS_ACTION:
@@ -75,7 +78,7 @@ const annotatorReducer = (state = initialState, action) =>
         break;
 
       case UPDATE_TABLE_METADATA_ACTION:
-      
+
         draft.metadata = action.metadata;
         break;
 
@@ -90,13 +93,10 @@ const annotatorReducer = (state = initialState, action) =>
       case SAVE_TABLE_TEXT_ACTION:
       case SAVE_TABLE_NOTES_ACTION:
         draft.tableData = {...draft.tableData,...action.notes}
-        // draft.tableData.tableStatus = action.tableStatus
-        // draft.tableData.tableType = action.tableType
-        // draft.tableData.textNotes = action.textNotes
 
       case SAVE_TABLE_ANNOTATIONS_ACTION:
       case SAVE_TABLE_METADATA_ACTION:
-        
+
     }
 
     return;

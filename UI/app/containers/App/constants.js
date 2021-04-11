@@ -11,3 +11,4 @@
 
  export const APP_SET_GLOBALS = 'app/App/APP_SET_GLOBALS';
  export const APP_SET_CREDENTIALS = 'app/App/APP_SET_CREDENTIALS';
+ export const APP_ISSUE_ALERT_ACTION = 'app/App/APP_ISSUE_ALERT_ACTION';

@@ -45,7 +45,8 @@ function TableMetadata({
   cuisIndex,
   updateTableMetadata,
   saveMetadataChanges,
-  autoLabel
+  autoLabel,
+  allowEdit
 }) {
 
 
@@ -77,7 +78,7 @@ function TableMetadata({
       if (!metadata[key]){
 
         var tres = tableResults
-         debugger
+         // debugger
         // metadata concept has not been annotated yet.
         metadata[key] = {
           concept: conceptData.concept,
@@ -121,7 +122,6 @@ function TableMetadata({
   }
 
   var manualMetadata = () => {
-    // debugger
     return Object.keys(metadata).reduce( (acc,k) => { if ( metadata[k].istitle ) {acc.push(metadata[k]);} return acc }, [])
   }
 
@@ -151,7 +151,7 @@ function TableMetadata({
 
   const removeTitleMetadataConcept = (concept) => {
       var newMetadata = Object.assign({}, metadata)
-      // debugger
+
       delete newMetadata[concept.toLowerCase().trim()];
 
       updateTableMetadata(newMetadata);
@@ -169,14 +169,14 @@ function TableMetadata({
   return (
     <div style={{padding:"5px 7px 7px 7px"}} >
 
-      <div style={{marginBottom:45}}>
-        <div style={{height:35, fontSize:22, float:"left", paddingTop:5}}> 4. <b> Metadata </b> Linking </div>
+      <div style={{marginBottom:10}}>
 
-        <Button variant="outlined" style={{backgroundColor:"lightblue", height: 40, float:"right"}} onClick={ () => { saveMetadataChanges(metadata);} }> Save Metadata Changes </Button>
 
-        <Button variant="outlined" style={{backgroundColor:"lightblue", marginRight:10, height: 40, float:"right"}} onClick={ () => { autoLabel(); } }> Auto Label <AdbIcon /> </Button>
+        {allowEdit ? <Button variant="outlined" style={{backgroundColor:"lightblue", height: 40, float:"right"}} onClick={ () => { saveMetadataChanges(metadata);} }> Save Metadata Changes </Button> : ""}
 
-        <span style={{float:"right"}}><div style={{marginRight:10, fontSize:17, border:"1px #acacac solid", borderRadius:10, paddingLeft:10}}>
+        {allowEdit ? <Button variant="outlined" style={{backgroundColor:"lightblue", marginRight:10, height: 40, float:"right"}} onClick={ () => { autoLabel(); } }> Auto Label <AdbIcon /> </Button> : ""}
+
+        {allowEdit ? <span style={{float:"right"}}><div style={{marginRight:10, fontSize:17, border:"1px #acacac solid", borderRadius:10, paddingLeft:10}}>
           Enable Delete
           <Switch
               checked={enableDelete}
@@ -185,7 +185,9 @@ function TableMetadata({
               inputProps={{ 'aria-label': 'secondary checkbox' }}
 
             />
-        </div></span>
+        </div></span> : ""}
+
+        <div style={{height:35, fontSize:22, paddingTop:5}}> 4. <b> Metadata </b> Linking </div>
 
       </div>
       {
@@ -195,9 +197,9 @@ function TableMetadata({
       <div style={{width:"100%"}}>
         <h3 style={{display:"inline"}}>Other metadata</h3>
 
-        <Button variant="outlined"
+          {allowEdit ? <Button variant="outlined"
                 style={{height: 40, display:"inline", marginLeft:10, color:"green"}}
-                onClick={ () => { setMetadataAdder(!enableMetadataAdder);} }> + Add other metadata </Button>
+                onClick={ () => { setMetadataAdder(!enableMetadataAdder);} }> + Add other metadata </Button> :""}
 
         {
           enableMetadataAdder ? <div>
@@ -244,6 +246,7 @@ function TableMetadata({
                               addCuis={ addCuis }
                               deleteCui={ deleteCui }
                               enableDelete={ enableDelete }
+                              allowEdit= {allowEdit}
                           />
             </div>
           } </div> )
@@ -269,6 +272,7 @@ function TableMetadata({
                                   addCuis={ addCuis }
                                   deleteCui={ deleteCui }
                                   enableDelete={ enableDelete }
+                                  allowEdit= {allowEdit}
                               />}
               )} </div></div>
         })

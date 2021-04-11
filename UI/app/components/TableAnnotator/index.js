@@ -47,6 +47,7 @@ function TableAnnotator({
   saveAnnotationChanges,
   tid,
   loadTableResults,
+  allowEdit
 }) {
   const classes = useStyles();
 
@@ -80,6 +81,14 @@ function TableAnnotator({
         />}
       </div>}
     />: ""
+
+  if (!allowEdit){
+    return <div style={{padding:"7px 7px 7px 7px"}} >
+              <div style={{height:35, fontSize:22}}>
+              <div style={{paddingTop:5}}> 2. Table <b> Annotations </b> <span style={{fontSize:15}}>(Editing Disabled - Read-only mode)</span> </div>
+              </div>
+            </div>
+  }
 
   return (
     <div style={{padding:"7px 7px 7px 7px"}} >

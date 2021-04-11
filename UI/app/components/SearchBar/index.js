@@ -63,10 +63,23 @@ function SearchBar({
   const [searchTables, setSearchTables ] = useState(true);
 
   const onKeyDown = (event) => {
-      if (event.key === 'Enter') {
-        event.preventDefault();
-        event.stopPropagation();
-        doSearch(searchContent, {searchCollections, searchTables} );
+
+      switch (event.key) {
+        case 'Enter':
+          event.preventDefault();
+          event.stopPropagation();
+          doSearch(searchContent, {searchCollections, searchTables} );
+          break;
+        case 'Escape':
+          setSearchContent("");
+          doSearch("", {searchCollections, searchTables})
+          break;
+        case 'Backspace':
+          if (searchContent.length <= 1){
+            doSearch("", {searchCollections, searchTables})
+          }
+          break;
+        default:
       }
   }
 

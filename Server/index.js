@@ -1136,7 +1136,7 @@ app.post(CONFIG.api_base_url + '/metadata', /*#__PURE__*/function () {
           case 3:
             validate_user = validateUser(req.body.username, req.body.hash);
             _context17.next = 6;
-            return getResourcePermissions('collections', req.body.username);
+            return getResourcePermissions('collections', validate_user ? req.body.username : "");
 
           case 6:
             collectionPermissions = _context17.sent;
@@ -1304,8 +1304,6 @@ app.post(CONFIG.api_base_url + '/cuis', /*#__PURE__*/function () {
           case 3:
             validate_user = true; //validateUser(req.body.username, req.body.hash);
             // var collectionPermissions = await getResourcePermissions('collections', req.body.username)
-            //
-            // debugger
 
             if (!validate_user) {
               _context19.next = 15;
@@ -1389,7 +1387,7 @@ var getResourcePermissions = /*#__PURE__*/function () {
 
           case 6:
             _context20.next = 8;
-            return client.query("select *,\n                                      (owner_username = $1) as write,\n                                      (visibility = 'public' OR owner_username = $1) as read\n                                      from collection\n                          ", [user]);
+            return client.query("select *,\n                                      (owner_username = $1) as write,\n                                      (visibility = 'public' OR owner_username = $1) as read\n                                      from collection", [user]);
 
           case 8:
             permissions = _context20.sent;
@@ -1690,7 +1688,7 @@ app.post(CONFIG.api_base_url + '/collections', /*#__PURE__*/function () {
           case 3:
             validate_user = validateUser(req.body.username, req.body.hash);
             _context27.next = 6;
-            return getResourcePermissions('collections', req.body.username);
+            return getResourcePermissions('collections', validate_user ? req.body.username : "");
 
           case 6:
             collectionPermissions = _context27.sent;
@@ -1703,7 +1701,7 @@ app.post(CONFIG.api_base_url + '/collections', /*#__PURE__*/function () {
             // if ( validate_user ){
 
             _context27.t0 = req.body.action;
-            _context27.next = _context27.t0 === "list" ? 11 : _context27.t0 === "get" ? 17 : _context27.t0 === "delete" ? 26 : _context27.t0 === "create" ? 34 : _context27.t0 === "edit" ? 43 : _context27.t0 === "download" ? 56 : 68;
+            _context27.next = _context27.t0 === "list" ? 11 : _context27.t0 === "get" ? 17 : _context27.t0 === "delete" ? 27 : _context27.t0 === "create" ? 35 : _context27.t0 === "edit" ? 44 : _context27.t0 === "download" ? 57 : 69;
             break;
 
           case 11:
@@ -1719,11 +1717,11 @@ app.post(CONFIG.api_base_url + '/collections', /*#__PURE__*/function () {
               status: "success",
               data: result
             };
-            return _context27.abrupt("break", 68);
+            return _context27.abrupt("break", 69);
 
           case 17:
             if (!(collectionPermissions.read.indexOf(req.body.collection_id) > -1)) {
-              _context27.next = 24;
+              _context27.next = 25;
               break;
             }
 
@@ -1732,147 +1730,151 @@ app.post(CONFIG.api_base_url + '/collections', /*#__PURE__*/function () {
 
           case 20:
             result = _context27.sent;
+            result.permissions = {
+              read: collectionPermissions.read.indexOf(req.body.collection_id) > -1,
+              write: collectionPermissions.write.indexOf(req.body.collection_id) > -1
+            };
             response = {
               status: "success",
               data: result
             };
-            _context27.next = 25;
+            _context27.next = 26;
             break;
 
-          case 24:
+          case 25:
             response = {
               status: "unauthorised operation",
               payload: req.body
             };
 
-          case 25:
-            return _context27.abrupt("break", 68);
-
           case 26:
+            return _context27.abrupt("break", 69);
+
+          case 27:
             if (!(collectionPermissions.write.indexOf(req.body.collection_id) > -1)) {
-              _context27.next = 32;
+              _context27.next = 33;
               break;
             }
 
-            _context27.next = 29;
+            _context27.next = 30;
             return deleteCollection(req.body.collection_id);
 
-          case 29:
+          case 30:
             response = {
               status: "success",
               data: {}
             };
-            _context27.next = 33;
+            _context27.next = 34;
             break;
 
-          case 32:
+          case 33:
             response = {
               status: "unauthorised operation",
               payload: req.body
             };
 
-          case 33:
-            return _context27.abrupt("break", 68);
-
           case 34:
+            return _context27.abrupt("break", 69);
+
+          case 35:
             if (!validate_user) {
-              _context27.next = 41;
+              _context27.next = 42;
               break;
             }
 
-            _context27.next = 37;
+            _context27.next = 38;
             return createCollection("new collection", "", req.body.username);
 
-          case 37:
+          case 38:
             result = _context27.sent;
             response = {
               status: "success",
               data: result
             };
-            _context27.next = 42;
+            _context27.next = 43;
             break;
 
-          case 41:
+          case 42:
             response = {
               status: "login to create collection",
               payload: req.body
             };
 
-          case 42:
-            return _context27.abrupt("break", 68);
-
           case 43:
+            return _context27.abrupt("break", 69);
+
+          case 44:
             if (!(collectionPermissions.write.indexOf(req.body.collection_id) > -1)) {
-              _context27.next = 54;
+              _context27.next = 55;
               break;
             }
 
             allCollectionData = JSON.parse(req.body.collectionData);
-            _context27.next = 47;
+            _context27.next = 48;
             return editCollection(allCollectionData);
 
-          case 47:
+          case 48:
             result = _context27.sent;
-            _context27.next = 50;
+            _context27.next = 51;
             return getCollection(req.body.collection_id);
 
-          case 50:
+          case 51:
             result = _context27.sent;
             response = {
               status: "success",
               data: result
             };
-            _context27.next = 55;
+            _context27.next = 56;
             break;
 
-          case 54:
+          case 55:
             response = {
               status: "unauthorised operation",
               payload: req.body
             };
 
-          case 55:
-            return _context27.abrupt("break", 68);
-
           case 56:
+            return _context27.abrupt("break", 69);
+
+          case 57:
             //
             tids = JSON.parse(req.body.tid);
 
             if (!(req.body.target.indexOf("results") > -1)) {
-              _context27.next = 63;
+              _context27.next = 64;
               break;
             }
 
-            _context27.next = 60;
+            _context27.next = 61;
             return getResults(tids);
 
-          case 60:
+          case 61:
             result = _context27.sent;
-            _context27.next = 66;
+            _context27.next = 67;
             break;
 
-          case 63:
-            _context27.next = 65;
+          case 64:
+            _context27.next = 66;
             return getMetadata(tids);
 
-          case 65:
+          case 66:
             result = _context27.sent;
 
-          case 66:
+          case 67:
             response = {
               status: "success",
               data: result
             };
-            return _context27.abrupt("break", 68);
+            return _context27.abrupt("break", 69);
 
-          case 68:
+          case 69:
             //
             // } else {
             //   response = {status:"unauthorised", payload: null}
             // }
             res.json(response);
 
-          case 69:
+          case 70:
           case "end":
             return _context27.stop();
         }
@@ -2087,7 +2089,7 @@ app.post(CONFIG.api_base_url + '/tables', /*#__PURE__*/function () {
           case 3:
             validate_user = validateUser(req.body.username, req.body.hash);
             _context31.next = 6;
-            return getResourcePermissions('collections', req.body.username);
+            return getResourcePermissions('collections', validate_user ? req.body.username : "");
 
           case 6:
             collectionPermissions = _context31.sent;
@@ -2165,18 +2167,18 @@ app.post(CONFIG.api_base_url + '/tables', /*#__PURE__*/function () {
 }());
 app.post(CONFIG.api_base_url + '/search', /*#__PURE__*/function () {
   var _ref32 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee32(req, res) {
-    var bod, type, collectionPermissions, search_results;
+    var bod, type, validate_user, collectionPermissions, search_results;
     return _regenerator["default"].wrap(function _callee32$(_context32) {
       while (1) {
         switch (_context32.prev = _context32.next) {
           case 0:
             bod = req.body.searchContent;
-            type = JSON.parse(req.body.searchType); //var validate_user = true; //validateUser(req.body.username, req.body.hash);
+            type = JSON.parse(req.body.searchType);
+            validate_user = validateUser(req.body.username, req.body.hash);
+            _context32.next = 5;
+            return getResourcePermissions('collections', validate_user ? req.body.username : "");
 
-            _context32.next = 4;
-            return getResourcePermissions('collections', req.body.username);
-
-          case 4:
+          case 5:
             collectionPermissions = _context32.sent;
             // if ( collectionPermissions.write.indexOf(req.body.collection_id) > -1 ){
             //if ( validate_user ){
@@ -2184,12 +2186,10 @@ app.post(CONFIG.api_base_url + '/search', /*#__PURE__*/function () {
             search_results = search_results.filter(function (elm) {
               return collectionPermissions.read.indexOf(elm.doc.split("/")[0]) > -1;
             });
-            console.log("SEARCH: " + search_results.length + " for " + bod);
-
-            if (search_results.length > 100) {
-              search_results = search_results.slice(0, 100);
-            } // debugger
-
+            console.log("SEARCH: " + search_results.length + " for " + bod); // if ( search_results.length > 100){
+            //   search_results = search_results.slice(0,100)
+            // }
+            // debugger
 
             res.json(search_results); // } else {
             //   res.json([])
@@ -2214,36 +2214,41 @@ app.post(CONFIG.api_base_url + '/getTableContent', /*#__PURE__*/function () {
       while (1) {
         switch (_context33.prev = _context33.next) {
           case 0:
-            // debugger
             bod = req.body.searchContent;
             validate_user = validateUser(req.body.username, req.body.hash);
             _context33.next = 4;
-            return getResourcePermissions('collections', req.body.username);
+            return getResourcePermissions('collections', validate_user ? req.body.username : "");
 
           case 4:
             collectionPermissions = _context33.sent;
-            _context33.prev = 5;
 
-            if (!(req.body.docid && req.body.page && req.body.collId)) {
-              _context33.next = 23;
+            if (!(collectionPermissions.read.indexOf(req.body.collId) > -1)) {
+              _context33.next = 34;
               break;
             }
 
-            _context33.next = 9;
+            _context33.prev = 6;
+
+            if (!(req.body.docid && req.body.page && req.body.collId)) {
+              _context33.next = 25;
+              break;
+            }
+
+            _context33.next = 10;
             return getCollection(req.body.collId);
 
-          case 9:
+          case 10:
             collection_data = _context33.sent;
             enablePrediction = JSON.parse(req.body.enablePrediction);
-            _context33.next = 13;
+            _context33.next = 14;
             return (0, _table.readyTable)(req.body.docid, req.body.page, req.body.collId, enablePrediction);
 
-          case 13:
+          case 14:
             tableData = _context33.sent;
-            _context33.next = 16;
+            _context33.next = 17;
             return getAnnotationByID(req.body.docid, req.body.page, req.body.collId);
 
-          case 16:
+          case 17:
             annotation = _context33.sent;
             tableData.collectionData = collection_data;
             tableData.annotationData = annotation && annotation.rows.length > 0 ? annotation.rows[0] : {};
@@ -2304,36 +2309,49 @@ app.post(CONFIG.api_base_url + '/getTableContent', /*#__PURE__*/function () {
               tableData.annotationData = predAnnotationData;
             }
 
+            tableData.permissions = {
+              read: collectionPermissions.read.indexOf(req.body.collId) > -1,
+              write: collectionPermissions.write.indexOf(req.body.collId) > -1
+            };
             res.json(tableData);
-            _context33.next = 24;
+            _context33.next = 26;
             break;
 
-          case 23:
+          case 25:
             res.json({
               status: "wrong parameters",
               body: req.body
             });
 
-          case 24:
-            _context33.next = 30;
+          case 26:
+            _context33.next = 32;
             break;
 
-          case 26:
-            _context33.prev = 26;
-            _context33.t0 = _context33["catch"](5);
-            console.log(_context33.t0); // debugger
-
+          case 28:
+            _context33.prev = 28;
+            _context33.t0 = _context33["catch"](6);
+            console.log(_context33.t0);
             res.json({
               status: "getTableContent: probably page out of bounds, or document does not exist",
               body: req.body
             });
 
-          case 30:
+          case 32:
+            _context33.next = 35;
+            break;
+
+          case 34:
+            res.json({
+              status: "unauthorised",
+              body: req.body
+            });
+
+          case 35:
           case "end":
             return _context33.stop();
         }
       }
-    }, _callee33, null, [[5, 26]]);
+    }, _callee33, null, [[6, 28]]);
   }));
 
   return function (_x59, _x60) {
@@ -2716,7 +2734,7 @@ app.post(CONFIG.api_base_url + '/annotationPreview', /*#__PURE__*/function () {
             bod = req.body.searchContent;
             validate_user = validateUser(req.body.username, req.body.hash);
             _context39.next = 4;
-            return getResourcePermissions('collections', req.body.username);
+            return getResourcePermissions('collections', validate_user ? req.body.username : "");
 
           case 4:
             collectionPermissions = _context39.sent;

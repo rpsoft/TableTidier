@@ -36,6 +36,7 @@ function TableNotes(
     notesData,
     setNotesData,
     saveNoteChanges,
+    allowEdit
   }
 ) {
 
@@ -50,13 +51,19 @@ function TableNotes(
 
   const NA_to_empty = (term) => (term && term == "NA") ? "" : term // Dealing with legacy NA values.
 
-  
+
+  // if ( !permissions.read ){
+  //   return <div>Nope!</div>
+  // }
 
   return (
     <div style={{padding:"5px 7px 7px 7px"}} >
-      <div style={{textAlign:"right", marginBottom:5}}>
-        <div style={{height:35, fontSize:22, float:"left", paddingTop:5}}> 1. Table <b> Notes </b> </div>
-        <Button variant="outlined" style={{backgroundColor:"lightblue"}} onClick={ ()=> {saveNoteChanges(notesData)} }> Save Notes Changes </Button>
+      <div style={{textAlign:"left", marginBottom:5}}>
+        {
+          allowEdit ? <Button variant="outlined" style={{backgroundColor:"lightblue", float:"right"}} onClick={ ()=> {saveNoteChanges(notesData)} }> Save Notes Changes </Button> : ""
+        }
+        <div style={{height:35, fontSize:22,  paddingTop:5}}> 1. Table <b> Notes </b> </div>
+
       </div>
 
       <hr style={{borderTop:"1px #acacac dashed"}}/>
@@ -64,7 +71,8 @@ function TableNotes(
       <div style={{paddingLeft:15}}>
         <div style={{marginBottom:20}}>
           <span style={heading}> Type: </span>
-          <Select
+          {
+            allowEdit ? <Select
               id="table_type"
               value={NA_to_empty(notesData.tableType)}
               onChange={(event)=> { modifyNotes("tableType",event.target.value) }}
@@ -74,10 +82,12 @@ function TableNotes(
               <MenuItem value={"result_table_without_subgroup"}>Result Table</MenuItem>
               <MenuItem value={"result_table_subgroup"}>Result Table With Subgroups</MenuItem>
               <MenuItem value={"other_table"}>Other</MenuItem>
-          </Select>
+            </Select> : NA_to_empty(notesData.tableType)
+          }
 
           <span style={{...heading, marginLeft:20}}> Status: </span>
-          <Select
+          {
+            allowEdit ? <Select
             id="table_status"
             value={NA_to_empty(notesData.tableStatus)}
             onChange={(event)=> { modifyNotes("tableStatus",event.target.value) }}
@@ -86,17 +96,20 @@ function TableNotes(
             <MenuItem value={"preliminary"}>Preliminary</MenuItem>
             <MenuItem value={"results_only"}>Results Only</MenuItem>
             <MenuItem value={"complete"}>Complete</MenuItem>
-          </Select>
+          </Select> : NA_to_empty(notesData.tableStatus)
+        }
         </div>
 
         <div>
           <span style={heading}> Additional Notes: </span>
-          <TextField
+          {
+            allowEdit ? <TextField
               multiline
-              style={{width: "50%"}}              
+              style={{width: "50%"}}
               value={notesData.textNotes}
               onChange={(event)=> { modifyNotes("textNotes",event.target.value) }}
-              />
+              /> : notesData.textNotes
+          }
         </div>
       </div>
 

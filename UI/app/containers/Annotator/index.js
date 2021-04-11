@@ -17,6 +17,10 @@ import { compose } from 'redux';
 import { useInjectSaga } from 'utils/injectSaga';
 import { useInjectReducer } from 'utils/injectReducer';
 
+import {makeSelectCredentials} from '../App/selectors'
+import {makeSelectLogin} from '../Login/selectors'
+
+
 import makeSelectAnnotator from './selectors';
 import reducer from './reducer';
 import saga from './saga';
@@ -131,6 +135,8 @@ var diffY = 0;
 
 export function Annotator({
   annotator,
+  credentials,
+
   loadTableContent,
   loadTableResults,
   loadTableMetadata,
@@ -162,7 +168,6 @@ export function Annotator({
   const [ bottomSize, setBottomSize ] = React.useState("50vh");
 
   const handleBottomChange = (bottomLevel) => {
-    // debugger
     if ( bottomLevel >= 2 ){
       setBottomLevel(0);
       setBottomEnabled(false);
@@ -191,6 +196,8 @@ export function Annotator({
   const [ annotations, setAnnotations ] = React.useState( annotator.annotations );
   const [ annotationHeaders, setAnnotationHeaders ] = React.useState([])
 
+  const [ allowEdit, setAllowEdit ] = React.useState(false);
+
   const [ results, setResults ] = React.useState(  annotator.results );
   const [ metadata, setMetadata ] = React.useState( {} );
   const [ headerData, setHeaderData ] = React.useState( {} );
@@ -207,21 +214,13 @@ export function Annotator({
 
   const [ showEditCuis, setShowEditCuis ] = React.useState(false);
 
-
-
   const [ windowSize, setWindowSize ] = React.useState({
     width: undefined,
     height: undefined,
   });
 
-
-
   //On component will mount
   React.useEffect(() => {
-    // loadTableContent()
-    // loadTableResults(true)
-    //console.log("WILL MOUNT")
-
     // Handler to call on window resize
     function handleResize() {
       // Set window width/height to state
@@ -229,9 +228,7 @@ export function Annotator({
         width: window.innerWidth,
         height: window.innerHeight,
       });
-
       setBottomSize( (windowSize.height*0.80) < bottomSize ? windowSize.height*0.80 : bottomSize )
-
     }
 
     // Add event listener
@@ -242,77 +239,82 @@ export function Annotator({
 
     // Remove event listener on cleanup
     return () => window.removeEventListener("resize", handleResize);
-
-
   }, []);
 
+  const doUpdates = () => {
+    if( annotator.tableData ){
+      setAnnotations(annotator.annotations)
+
+      var header_data = annotator.annotations.map( ann => { return {head: Object.keys(ann.content).join(";"), sub: ann.subAnnotation } })
+
+      header_data = header_data.reduce( (acc, header,i) => {
+                              acc.count[header.head] = acc.count[header.head] ? acc.count[header.head]+1 : 1;
+                              acc.headers.push(header.head+"@"+acc.count[header.head]);
+                              acc.subs.push(header.sub);
+                              return acc;
+                            }, {count:{},headers:[],subs:[]} )
+
+      setAnnotationHeaders([ "docid_page", "row", "col", "value", ...header_data.headers ])
+
+      setTableData(annotator.tableData)
+
+      setAllowEdit(annotator.tableData && annotator.tableData.permissions ? annotator.tableData.permissions.write : false)
+
+      setN_tables(parseInt(annotator.tableData.collectionData.tables.length))
+      setTablePosition(parseInt(annotator.tableData.tablePosition))
+      setResults(annotator.results)
+
+      setMetadata(annotator.metadata)
+
+      setCuisIndex(annotator.cuis_index)
+
+      setHeaderData( prepareMetadata(header_data, annotator.results) );
+
+      setAlertData(annotator.alertData)
+
+      setTid(tableData.annotationData ? tableData.annotationData.tid : "")
+
+      setNotesData({
+        tableType: annotator.tableData.tableType || "",
+        tableStatus: annotator.tableData.tableStatus || "" ,
+        textNotes: annotator.tableData.textNotes || "",
+      })
+    }
+  }
 
   React.useEffect(() => {
-
-      if( annotator.tableData ){
-        setAnnotations(annotator.annotations)
-
-        var header_data = annotator.annotations.map( ann => { return {head: Object.keys(ann.content).join(";"), sub: ann.subAnnotation } })
-
-        header_data = header_data.reduce( (acc, header,i) => {
-                                acc.count[header.head] = acc.count[header.head] ? acc.count[header.head]+1 : 1;
-                                acc.headers.push(header.head+"@"+acc.count[header.head]);
-                                acc.subs.push(header.sub);
-                                return acc;
-                              }, {count:{},headers:[],subs:[]} )
-
-        setAnnotationHeaders([ "docid_page", "row", "col", "value", ...header_data.headers ])
-
-        setTableData(annotator.tableData)
-        setN_tables(parseInt(annotator.tableData.collectionData.tables.length))
-        setTablePosition(parseInt(annotator.tableData.tablePosition))
-        setResults(annotator.results)
-
-        setMetadata(annotator.metadata)
-        // debugger
-        setCuisIndex(annotator.cuis_index)
-
-        setHeaderData( prepareMetadata(header_data, annotator.results) );
-
-        setAlertData(annotator.alertData)
-
-        setTid(tableData.annotationData ? tableData.annotationData.tid : "")
-
-        setNotesData({
-          tableType: annotator.tableData.tableType || "",
-          tableStatus: annotator.tableData.tableStatus || "" ,
-          textNotes: annotator.tableData.textNotes || "",
-        })
-      }
-    }, [annotator])
-
-  // React.useEffect(() => {
-  //   // getCollectionData()
-  //   // setEditMode(false)
-  // }, [cookies.hash]);
+    doUpdates()
+  }, [annotator])
 
   React.useEffect(() => {
-    loadCuisIndex()
+    if ( Object.keys(cuisIndex).length < 1 ){
+      loadCuisIndex()
+    }
     loadTableContent(false)
     loadTableResults(true)
     loadTableMetadata()
 
-  }, [location.search]);
+  }, [location.search, credentials]);
 
   const openMargin = bottomEnabled ? bottomSize : 65;
 
-  const table_notes = <TableNotes notesData={notesData} setNotesData={setNotesData} saveNoteChanges={saveNoteChanges}/>
+  const table_notes = <TableNotes notesData={notesData} setNotesData={setNotesData} saveNoteChanges={saveNoteChanges} allowEdit={allowEdit}/>
 
   const table_annotator =  annotations ? <TableAnnotator annotations={annotations}
                                                          setAnnotations={ (anns) => {setAnnotations(anns)}}
                                                          tid={tid}
                                                          saveAnnotationChanges={saveAnnotationChanges}
                                                          loadTableResults={ (autoAnnotate) => { loadTableContent(autoAnnotate); loadTableResults(false);   }}
+                                                         allowEdit={allowEdit}
                                                          /> : ""
 
   var cols = []  //columns.map( (v,i) => { var col = {Header: v, accessor : v}; if( v == "col" || v == "row"){ col.width = 70 }; if( v == "value" ){ col.width = 200 }; return col } )
 
-  const table_results = <TableResult loadTableResults={ () => { loadTableContent(false); loadTableResults(false);  }} tableResult={results} sortedHeaders={annotationHeaders}/>
+  const table_results = <TableResult loadTableResults={ () => { loadTableContent(false); loadTableResults(false);  }}
+                                    tableResult={results}
+                                    sortedHeaders={annotationHeaders}
+                                    allowEdit={allowEdit}
+                                    />
 
   const table_metadata = <TableMetadata tid={tid}
                                         tableResults={results}
@@ -322,6 +324,7 @@ export function Annotator({
                                         updateTableMetadata={updateTableMetadata}
                                         saveMetadataChanges={saveMetadataChanges}
                                         autoLabel={ () => { autoLabel(headerData, tid ) } }
+                                        allowEdit={allowEdit}
                                         />
 
   const bottom_elements = [table_notes, table_annotator, table_results, table_metadata]
@@ -377,6 +380,8 @@ export function Annotator({
   const fileNameRoot = () => [docid,page,collId].join("_")
 
 
+
+
   return (
 
       <Card style={{marginTop:10, marginBottom: openMargin, minHeight:"85vh", marginRight:250}}>
@@ -406,7 +411,7 @@ export function Annotator({
                   />
               </div>
 
-              <div>
+              { allowEdit ? <div>
                 {editorEnabled ? "Disable" : "Enable"} Editing
                 <Switch
                     checked={editorEnabled}
@@ -424,7 +429,7 @@ export function Annotator({
                                             } }>
                                            Save Edit Changes <EditIcon style={{marginLeft:5}}/>
                                    </Button> : "" }
-              </div>
+              </div> : ""}
             </div>
 
             <hr />
@@ -538,13 +543,6 @@ export function Annotator({
                     <ListItemText style={{display:"inline", marginLeft:5}} primary="Table Metadata (.csv)" />
                   </CsvDownloader>
                 </ListItem>
-
-                {
-                  // <ListItem button>
-                  //   <ListItemIcon><LinkIcon/></ListItemIcon>
-                  //   <ListItemText primary={"Link to Document"} />
-                  // </ListItem>
-                }
               </List>
             </Drawer>
         </div>
@@ -615,11 +613,15 @@ export function Annotator({
 
 Annotator.propTypes = {
   dispatch: PropTypes.func.isRequired,
-  annotator: PropTypes.object
+  annotator: PropTypes.object,
+  credentials: PropTypes.object,
+  // loginDetails: PropTypes.object,
 };
 
 const mapStateToProps = createStructuredSelector({
   annotator: makeSelectAnnotator(),
+  credentials: makeSelectCredentials(),
+  // loginDetails: makeSelectLogin(),
 });
 
 function mapDispatchToProps(dispatch) {

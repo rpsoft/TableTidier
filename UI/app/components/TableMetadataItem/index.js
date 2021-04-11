@@ -36,7 +36,8 @@ function TableMetadataItem(
     toggleCui,
     deleteCui,
     addCuis,
-    enableDelete
+    enableDelete,
+    allowEdit
   }
 ) {
   var hey = _;
@@ -52,8 +53,6 @@ function TableMetadataItem(
       concept = concept.trim()
 
   var key = root.toLowerCase()+concept.toLowerCase()
-
-  // debugger
 
   var itemData = metadata[key]
 
@@ -158,7 +157,7 @@ function TableMetadataItem(
                    key={j}
                    variant="outlined"
                    style={{borderColor: color, color: color, marginRight:5}}
-                   onClick={ () => { enableDelete ? deleteCui(key, cui) : toggleCui(key, cui) } }
+                   onClick={ () => { if (allowEdit){ enableDelete ? deleteCui(key, cui) : toggleCui(key, cui) } } }
                  >
                     {cuisIndex[cui] ? cuisIndex[cui].preferred : ""} ({cui})
                     {enableDelete ? <DeleteForeverIcon/> : ""}

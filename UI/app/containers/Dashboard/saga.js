@@ -42,7 +42,8 @@ export function* doSearch() {
     if ( response.status && response.status == "unauthorised"){
 
     } else {
-      yield put( yield updateSearchResultsAction(response.slice(0,100)) );
+      // debugger
+      yield put( yield updateSearchResultsAction(response) );
     }
   } catch (err) {
     console.log(err)

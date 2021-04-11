@@ -7,6 +7,7 @@ import request from '../../utils/request';
 // import HttpClient from '../../network/http-client';
 
 import makeSelectLocation from '../App/selectors'
+import {issueAlertAction} from '../App/actions'
 
 const queryString = require('query-string');
 
@@ -37,6 +38,7 @@ export function* doLogin() {
       yield put( yield loginFailedAction(response.status));
     } else {
       yield put( yield loginSuccessAction(response.payload.hash));
+      yield put( yield issueAlertAction({ open: true, message: "Logged in Successfully", isError: false }))
     }
   } catch (err) {
     yield put(loginFailedAction(err));

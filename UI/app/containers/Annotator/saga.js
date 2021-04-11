@@ -60,6 +60,7 @@ export function* getTableContent( payload ) {
   const parsed = queryString.parse(location.search);
   const requestURL = locationData.api_url+`getTableContent`;
 
+  // console.log("tableDAta request for "+credentials.username)
   const params = new URLSearchParams({
       'hash' : credentials.hash,
       'username' :  credentials.username,
@@ -84,16 +85,17 @@ export function* getTableContent( payload ) {
     const response = yield call(request, requestURL, options);
 
     if ( response.status && response.status == "unauthorised"){
-      // COUld probably redirect to /
-      // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
-
+      yield put(push('/dashboard'));
     } else {
 
       response.docid = parsed.docid
       response.page = parsed.page
       response.collId = parsed.collId
-
+      // try{
       response.collectionData.tables = response.collectionData.tables.sort( (a,b) => (a.docid+"_"+a.page).localeCompare((b.docid+"_"+b.page)))
+      // } catch(e){
+      //   debugger
+      // }
 
       response.tablePosition = response.collectionData.tables.reduce( (i, table, index) => {
                                             if ( (table.docid+"_"+table.page).localeCompare(parsed.docid+"_"+parsed.page) == 0){
@@ -102,11 +104,10 @@ export function* getTableContent( payload ) {
                                                return i
                                             }; }, -1) + 1
 
-
-
       response.tableStatus = response.annotationData.completion
       response.tableType = response.annotationData.tableType
       response.textNotes = response.annotationData.notes
+
 
       // response.tablePosition_prev = response.tablePosition > -1 ? response.collectionData.tables[response.tablePosition-1] : false
       // response.current = response.tablePosition > -1 ? response.collectionData.tables[response.tablePosition] : false
@@ -163,10 +164,10 @@ export function* getTableResult( payload ) {
     if ( response.status && response.status == "unauthorised"){
       // COUld probably redirect to /
       // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
-
+      //yield put(push('/dashboard'));
     } else {
 
-        yield put( yield updateTableResultsAction(response.result) );
+      yield put( yield updateTableResultsAction(response.result) );
 
     }
   } catch (err) {

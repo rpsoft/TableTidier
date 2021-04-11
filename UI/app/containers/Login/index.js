@@ -94,7 +94,7 @@ export function Login({
       setAnchorEl(null);
     } else {
       toggleLogin(true);
-      setAnchorEl(event.currentTarget);
+      setAnchorEl(event ? event.currentTarget : null);
     }
   }
 
@@ -127,6 +127,12 @@ export function Login({
       setCookie("hash", token) // 86400 seconds in a day. Login will expire after a day.
       setCookie("username", username)
     }
+    // else {
+    //   setCookie("hash", "") // 86400 seconds in a day. Login will expire after a day.
+    //   setCookie("username", "")
+    // }
+
+
   }, [token]);
   //
   // useEffect(() => {

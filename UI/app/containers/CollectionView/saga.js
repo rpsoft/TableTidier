@@ -9,6 +9,7 @@ import { loadCollectionAction, updateCollectionAction } from './actions';
 import makeSelectCollectionView, {  makeSelectCredentials } from './selectors';
 
 import makeSelectLocation from '../App/selectors'
+import {issueAlertAction} from '../App/actions'
 
 const queryString = require('query-string');
 
@@ -48,7 +49,9 @@ export function* getCollectionData() {
     if ( response.status && response.status == "unauthorised"){
       // COUld probably redirect to /
       yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
+
     } else {
+      // debugger
       yield put( yield updateCollectionAction(response.data) );
     }
   } catch (err) {
@@ -56,7 +59,6 @@ export function* getCollectionData() {
   }
 
   return {}
-  // return {collection: "hello"}
 }
 
 
@@ -88,11 +90,12 @@ export function* editCollectionData() {
 
     if ( response.status && response.status == "unauthorised"){
       //yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : ""}) );
+
     } else {
       // console.log("BOOM ALLES GUT")
 
       yield put( yield updateCollectionAction(response.data) );
-
+      yield put( yield issueAlertAction({ open: true, message: "Collection Changes Saved", isError: false }))
       // yield put( yield updateCollectionAction(response.data) );
     }
   } catch (err) {
@@ -129,8 +132,10 @@ export function* removeCollectionTables ( payload ) {
 
     if ( response.status && response.status == "unauthorised"){
       yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", tables : []}) );
+
     } else {
       yield put( yield updateCollectionAction(response.data) );
+      yield put( yield issueAlertAction({ open: true, message: "Tables removed", isError: false }))
     }
   } catch (err) {
     console.log(err)
@@ -169,8 +174,10 @@ export function* moveCollectionTables ( payload ) {
     if ( response.status && response.status == "unauthorised"){
 
       yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", tables : []}) );
+
     } else {
       yield put( yield updateCollectionAction(response.data) );
+      yield put( yield issueAlertAction({ open: true, message: "Collection Tables Moved", isError: false }))
     }
   } catch (err) {
 
@@ -212,7 +219,7 @@ export function* deleteCollection() {
       // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
 
     } else {
-
+      yield put( yield issueAlertAction({ open: true, message: "Collection Deleted ", isError: false }))
       // yield put( yield updateCollectionAction(response.data) );
     }
   } catch (err) {
@@ -291,6 +298,7 @@ export function* downloadTids({target, tids}) {
 
     if ( response.status && response.status == "unauthorised"){
 
+      yield put( yield issueAlertAction({ open: true, message: "Failed Data download", isError: true }))
     } else {
 
       if ( target.indexOf("result") > -1 ){
