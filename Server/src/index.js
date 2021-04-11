@@ -385,45 +385,43 @@ async function main(){
   // await tabularFromAnnotation(annotation)
 }
 
-
-
-app.get(CONFIG.api_base_url+'/deleteTable', async function(req,res){
-
-  if ( req.query && req.query.docid && req.query.page ){
-
-    var filename = req.query.docid+"_"+req.query.page+".html"
-
-    var delprom = new Promise(function(resolve, reject) {
-        fs.rename( tables_folder+'/'+ filename , tables_folder_deleted+'/'+ filename , (err) => {
-          if (err) { reject("failed")} ;
-          console.log('Move complete : '+filename);
-          resolve("done");
-        });
-    });
-
-    await delprom;
-    // await refreshDocuments();
-
-    res.send("table deleted")
-  } else {
-    res.send("table not deleted")
-  }
-
-});
-
-app.get(CONFIG.api_base_url+'/recoverTable', async function(req,res){
-    if ( req.query && req.query.docid && req.query.page ){
-
-      var filename = req.query.docid+"_"+req.query.page+".html"
-
-      fs.rename( tables_folder_deleted+'/'+ filename , tables_folder+'/'+ filename , (err) => {
-        if (err) throw err;
-          console.log('Move complete : '+filename);
-      });
-    }
-
-    res.send("table recovered")
-});
+// app.get(CONFIG.api_base_url+'/deleteTable', async function(req,res){
+//
+//   if ( req.query && req.query.docid && req.query.page ){
+//
+//     var filename = req.query.docid+"_"+req.query.page+".html"
+//
+//     var delprom = new Promise(function(resolve, reject) {
+//         fs.rename( tables_folder+'/'+ filename , tables_folder_deleted+'/'+ filename , (err) => {
+//           if (err) { reject("failed")} ;
+//           console.log('Move complete : '+filename);
+//           resolve("done");
+//         });
+//     });
+//
+//     await delprom;
+//     // await refreshDocuments();
+//
+//     res.send("table deleted")
+//   } else {
+//     res.send("table not deleted")
+//   }
+//
+// });
+//
+// app.get(CONFIG.api_base_url+'/recoverTable', async function(req,res){
+//     if ( req.query && req.query.docid && req.query.page ){
+//
+//       var filename = req.query.docid+"_"+req.query.page+".html"
+//
+//       fs.rename( tables_folder_deleted+'/'+ filename , tables_folder+'/'+ filename , (err) => {
+//         if (err) throw err;
+//           console.log('Move complete : '+filename);
+//       });
+//     }
+//
+//     res.send("table recovered")
+// });
 
 app.get(CONFIG.api_base_url+'/listDeletedTables', async function(req,res){
 
@@ -545,7 +543,7 @@ const setMetadata = async ( metadata ) => {
 
           .then(result => console.log("insert: "+key+" -- "+ new Date()))
           .catch(e => {
-            debugger
+            // debugger
             console.error(metadata[key].concept+" -- "+"insert failed: "+key+" -- "+ new Date())
           })
           .then(() => client.release())
@@ -584,7 +582,7 @@ const getTid = async ( docid, page, collId ) => {
 }
 
 app.post(CONFIG.api_base_url+'/metadata', async function(req,res){
-  // debugger
+
   if ( req.body && ( ! req.body.action ) ){
     res.json({status: "undefined", received : req.body})
     return
@@ -592,9 +590,10 @@ app.post(CONFIG.api_base_url+'/metadata', async function(req,res){
 
   var validate_user = validateUser(req.body.username, req.body.hash);
 
-  if ( validate_user ){
+  var collectionPermissions = await getResourcePermissions('collections', req.body.username)
 
-     // debugger
+  if ( collectionPermissions.read.indexOf(req.body.collId) > -1 ){
+
     var tid = req.body.tid
     if ( tid == "undefined" ){
       tid = await getTid( req.body.docid, req.body.page, req.body.collId )
@@ -604,11 +603,15 @@ app.post(CONFIG.api_base_url+'/metadata', async function(req,res){
 
     switch (req.body.action) {
       case "clear":
-        result = await clearMetadata(tid)
+        if ( collectionPermissions.write.indexOf(req.body.collId) > -1 ){
+          result = await clearMetadata(tid)
+        }
         break;
       case "save":
-        var metadata = JSON.parse(req.body.payload).metadata
-        result = await setMetadata(metadata)
+        if ( collectionPermissions.write.indexOf(req.body.collId) > -1 ){
+          var metadata = JSON.parse(req.body.payload).metadata
+          result = await setMetadata(metadata)
+        }
         break;
       case "get":
         result = (await getMetadata([tid])).rows //req.body.docid, req.body.page, req.body.collId,
@@ -616,8 +619,6 @@ app.post(CONFIG.api_base_url+'/metadata', async function(req,res){
       case "get_multiple":
         result = (await getMetadata(req.body.tids)).rows //req.body.docid, req.body.page, req.body.collId,
         break;
-        // debugger
-
       default:
     }
     // Always return the updated collection details
@@ -653,7 +654,11 @@ app.post(CONFIG.api_base_url+'/cuis', async function(req,res){
     return
   }
 
-  var validate_user = validateUser(req.body.username, req.body.hash);
+  var validate_user = true //validateUser(req.body.username, req.body.hash);
+
+  // var collectionPermissions = await getResourcePermissions('collections', req.body.username)
+  //
+  // debugger
 
   if ( validate_user ){
 
@@ -700,6 +705,66 @@ function validateUser (username, hash){
       }
     }
     return validate_user;
+}
+
+// resource = {type: [collection or table], id: [collection or table id]}
+const getResourcePermissions = async (resource, user) => {
+
+  var client = await pool.connect()
+
+  var permissions;
+
+  switch (resource) {
+    case "collections":
+      permissions = await client.query(`select *,
+                                      (owner_username = $1) as write,
+                                      (visibility = 'public' OR owner_username = $1) as read
+                                      from collection
+                          `,[user])
+      break;
+    case "table":
+
+      break;
+    default:
+
+  }
+
+  client.release()
+
+  return permissions?.rows.reduce( (acc, row) => {
+            	var currentRead = acc.read
+            	var currentWrite = acc.write
+      				if (row.read){
+      					currentRead.push(row.collection_id)
+              }
+              if (row.write){
+      					currentWrite.push(row.collection_id)
+              }
+      				acc.read = currentRead
+      				acc.write = currentWrite
+            	return acc
+            },{read:[],write:[]})
+  // permissions
+
+  // var permittedResources = await client.query(`
+  //   SELECT collection.collection_id, tid, docid, page,visibility, owner_username
+  //   FROM (select * from collection where visibility = 'public' OR owner_username = $1 ) as collection
+  //   LEFT JOIN "table" ON collection.collection_id = "table".collection_id`, [user])
+  //
+  // permittedResources = permittedResources?.rows.reduce( (acc, row) => {
+	// 	var currentColl = acc[row.collection_id]
+  //
+	// 	if (!currentColl){
+	// 		currentColl = []
+	// 	}
+  //
+  //  currentColl.push(row.docid+"_"+row.page);
+  //
+	// 	acc[row.collection_id] = currentColl
+	// 	return acc
+	// },{})
+
+  // return permissions
 }
 
 
@@ -798,60 +863,83 @@ app.post(CONFIG.api_base_url+'/collections', async function(req,res){
 
   var validate_user = validateUser(req.body.username, req.body.hash);
 
-  if ( validate_user ){
+  var collectionPermissions = await getResourcePermissions('collections', req.body.username)
 
-    var result;
+  var response = {status: "failed"}
 
-    switch (req.body.action) {
-      case "list":
-        result = await listCollections();
-        res.json({status: "success", data: result})
-        break;
-      case "get":
+  // debugger
+  // var available_options = {
+  //
+  // }
+  // if ( validate_user ){
+
+  var result;
+
+  switch (req.body.action) {
+    case "list":
+      result = await listCollections();
+      result = result.filter( (elm) => {return collectionPermissions.read.indexOf(elm.collection_id) > -1} )
+      response = {status: "success", data: result}
+      break;
+
+    case "get":
+      if ( collectionPermissions.read.indexOf(req.body.collection_id) > -1 ){
         result = await getCollection(req.body.collection_id);
-        res.json({status: "success", data: result})
-        break;
-      case "delete":
+        response = {status: "success", data: result}
+      } else {
+        response = {status:"unauthorised operation", payload: req.body}
+      }
+      break;
+
+    case "delete":
+      if ( collectionPermissions.write.indexOf(req.body.collection_id) > -1 ){
         await deleteCollection(req.body.collection_id);
-        res.json({status: "success", data: {}})
-        break;
-      case "create":
+        response = {status: "success", data: {}}
+      } else {
+        response = {status:"unauthorised operation", payload: req.body}
+      }
+      break;
+
+    case "create":
+      if ( validate_user ){
         result = await createCollection("new collection", "", req.body.username);
-        res.json({status: "success", data: result})
-        break;
-      // Well use edit to createCollection on the fly
-      case "edit":
+        response = {status:"success", data: result}
+      } else {
+        response = {status:"login to create collection", payload: req.body}
+      }
+      break;
+
+    // Well use edit to createCollection on the fly
+    case "edit":
+      if ( collectionPermissions.write.indexOf(req.body.collection_id) > -1 ){
         var allCollectionData = JSON.parse( req.body.collectionData )
-
-        // if ( allCollectionData.collection_id == "new" ) {
-        //   result = await createCollection(allCollectionData.title, allCollectionData.description, allCollectionData.owner_username);
-        //   // result = result.rows[0]
-        // } else {
         result = await editCollection(allCollectionData);
-        // }
         result = await getCollection(req.body.collection_id);
-        res.json({status: "success", data: result})
-        break;
+        response = {status: "success", data: result}
+      } else {
+        response = {status:"unauthorised operation", payload: req.body}
+      }
+      break;
 
-      case "download":
-        var tids = JSON.parse(req.body.tid);
+    case "download":  //
 
-        if ( req.body.target.indexOf("results") > -1 ){
-          result = await getResults( tids );
-        } else {
-          result = await getMetadata( tids );
-        }
+      var tids = JSON.parse(req.body.tid);
 
-        res.json({status: "success", data: result})
-        break;
-      default:
-        res.json({status: "failed"})
-    }
+      if ( req.body.target.indexOf("results") > -1 ){
+        result = await getResults( tids );
+      } else {
+        result = await getMetadata( tids );
+      }
 
-  } else {
-    res.json({status:"unauthorised", payload: null})
+      response = {status: "success", data: result}
+      break;
   }
+  //
+  // } else {
+  //   response = {status:"unauthorised", payload: null}
+  // }
 
+  res.json(response)
 });
 
 // Tables
@@ -928,6 +1016,7 @@ app.post(CONFIG.api_base_url+'/tables', async function(req,res){
   }
 
   var validate_user = validateUser(req.body.username, req.body.hash);
+  var collectionPermissions = await getResourcePermissions('collections', req.body.username)
 
   if ( validate_user ){
 
@@ -935,10 +1024,14 @@ app.post(CONFIG.api_base_url+'/tables', async function(req,res){
 
     switch (req.body.action) {
       case "remove":
-        result = await removeTables(JSON.parse(req.body.tablesList), req.body.collection_id);
+        if ( collectionPermissions.write.indexOf(req.body.collection_id) > -1 ){
+          result = await removeTables(JSON.parse(req.body.tablesList), req.body.collection_id);
+        }
         break;
       case "move":
-        result = await moveTables(JSON.parse(req.body.tablesList), req.body.collection_id, req.body.targetCollectionID);
+        if ( collectionPermissions.write.indexOf(req.body.collection_id) > -1 ){
+          result = await moveTables(JSON.parse(req.body.tablesList), req.body.collection_id, req.body.targetCollectionID);
+        }
         break;
       case "list":  // This is the same as not doing anything and returning the collection and its tables.
       default:
@@ -959,33 +1052,42 @@ app.post(CONFIG.api_base_url+'/search', async function(req,res){
   var bod = req.body.searchContent
   var type = JSON.parse(req.body.searchType)
 
-  var validate_user = validateUser(req.body.username, req.body.hash);
+  //var validate_user = true; //validateUser(req.body.username, req.body.hash);
+  var collectionPermissions = await getResourcePermissions('collections', req.body.username)
+  // if ( collectionPermissions.write.indexOf(req.body.collection_id) > -1 ){
 
-  if ( validate_user ){
+  //if ( validate_user ){
 
-    var search_results = easysearch.search( global.searchIndex, bod)
+  var search_results = easysearch.search( global.searchIndex, bod)
 
-    console.log("SEARCH: "+ search_results.length+ " for " + bod )
+  search_results = search_results.filter( (elm) => { return collectionPermissions.read.indexOf(elm.doc.split("/")[0]) > -1  } )
 
-    if ( search_results.length > 100){
-      search_results = search_results.slice(0,100)
-    }
+  console.log("SEARCH: "+ search_results.length+ " for " + bod )
 
-    res.json(search_results)
-  } else {
-    res.json([])
+  if ( search_results.length > 100){
+    search_results = search_results.slice(0,100)
   }
+
+  // debugger
+
+  res.json(search_results)
+  // } else {
+  //   res.json([])
+  // }
 
 });
 
 
 app.post(CONFIG.api_base_url+'/getTableContent',async function(req,res){
 
+    // debugger
     var bod = req.body.searchContent
 
     var validate_user = validateUser(req.body.username, req.body.hash);
 
-    if ( validate_user ){
+    var collectionPermissions = await getResourcePermissions('collections', req.body.username)
+
+    // if ( validate_user ){
 
       try{
 
@@ -1053,9 +1155,9 @@ app.post(CONFIG.api_base_url+'/getTableContent',async function(req,res){
         res.json({status: "getTableContent: probably page out of bounds, or document does not exist", body : req.body})
       }
 
-    } else {
-      res.json([])
-    }
+    // } else {
+    //   res.json([])
+    // }
 });
 
 // Extracts all recommended CUIs from the DB and formats them as per the "recommend_cuis" variable a the bottom of the function.
@@ -1245,7 +1347,9 @@ app.post(CONFIG.api_base_url+'/annotationPreview',async function(req,res){
 
       var validate_user = validateUser(req.body.username, req.body.hash);
 
-      if ( validate_user ){
+      var collectionPermissions = await getResourcePermissions('collections', req.body.username)
+
+      if ( collectionPermissions.read.indexOf(req.body.collId) > -1 ){
 
         try{
 
@@ -1281,7 +1385,6 @@ app.get(CONFIG.api_base_url+'/formattedResults', async function (req,res){
           * There are multiple versions of the annotations. When calling reading the results from the database, here we will return only the latest/ most complete version of the annotation.
           * Independently from the author of it. Completeness here measured as the result with the highest number of annotations and the highest index number (I.e. Newest, but only if it has more information/annotations).
           * May not be the best in some cases.
-          *
           */
 
           for ( var r in results.rows){
