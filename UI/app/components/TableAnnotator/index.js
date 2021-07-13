@@ -109,8 +109,9 @@ function TableAnnotator({
                 }}
               />
           </span>
-          <div style={{paddingTop:5}}> 2. Table <b> Annotations </b> </div>
 
+          <div style={{paddingTop:5,display:"inline"}}>2. Table <b> Annotations </b></div>
+          <Button variant="outlined" style={{backgroundColor:"lightgreen", display:"inline"}} onClick={ () => { var temp = Array.from(annotations); temp.push({location: "Col" , content:{}, qualifiers:{}, number:"", subAnnotation:false}); setAnnotations( temp )} }> + add annotation item</Button>
         </div>
 
       {//<div>{JSON.stringify(annotations)}</div>
@@ -120,7 +121,7 @@ function TableAnnotator({
         <div style={{width:"100%",whiteSpace: "nowrap"}}>
           {AnnotationList}
         </div>
-          <Button variant="outlined" style={{backgroundColor:"lightgreen", marginTop:5}} onClick={ () => { var temp = Array.from(annotations); temp.push({location: "Col" , content:{}, qualifiers:{}, number:"", subAnnotation:false}); setAnnotations( temp )} }> + add annotation item</Button>
+
 
     </div>
   );

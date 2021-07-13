@@ -142,6 +142,38 @@ app.get("/api/test", function(req,res){
   res.send("here we are")
 })
 
+
+var tableSplitter = async ( tablePath ) => {
+
+  var tablesHTML = new Promise ( (accept, reject) => {
+            fs.readFile(tablePath,
+                      "utf8",
+                      (err, data) => {
+                        var tablePage = cheerio.load(data);
+                        var tables  = tablePage("table")
+
+                        var tablesHTML = []
+
+                        // If only one table in the file, just return the whole file. Let the user clean up
+                        if ( tables.length <= 1 ){
+                          tablesHTML.push(data)
+                        } else {
+                          // we attempt automatic splitting here.
+                          for ( var t = 0; t < tables.length; t++){
+                            tablesHTML.push("<table>"+tablePage(tables[t]).html()+"</table>")
+                          }
+                        }
+
+                        accept(tablesHTML)
+
+                      });
+                  })
+
+  tablesHTML = await tablesHTML
+  // debugger
+  return tablesHTML
+}
+
 app.post(CONFIG.api_base_url+'/tableUploader', async function(req, res) {
 
  let upload = multer({ storage: storage }).array('fileNames');
@@ -156,23 +188,29 @@ app.post(CONFIG.api_base_url+'/tableUploader', async function(req, res) {
      // Loop through all the uploaded files and return names to frontend
      for (index = 0, len = files.length; index < len; ++index) {
        try{
-         moveFileToCollection(files[index], req.body.collection_id )
-         // var [docid, page] = files[index].originalname.split(".")[0].split("_")
 
-         var file_elements = files[index].originalname.split(".")
-
+         var tables_html = await tableSplitter(files[index].path)
+         var cleanFilename = files[index].originalname.replaceAll("_", "-")
+         var file_elements = cleanFilename.split(".")
          var extension = file_elements.pop()
+         var baseFilename = file_elements.join(".")
 
-             file_elements = file_elements.join(".").split("_")
+         tables_html.map( async (table,t) => {
 
-         var page = file_elements.pop()
-         var docid = file_elements.join("_")
+           var page = (t+1)
+           var docid = baseFilename
 
-         // debugger
-         await createTable(docid,page,req.body.username_uploader,req.body.collection_id,files[index].originalname)
-         results.push({filename: files[index].originalname, status:"success"})
+           var newTableFilename = docid+"_"+page+"."+extension
+
+           fs.writeFileSync(path.join(global.tables_folder, req.body.collection_id, newTableFilename), table)
+
+           await createTable(docid, page, req.body.username_uploader, req.body.collection_id, newTableFilename)
+           results.push({filename: newTableFilename, status:"success"})
+         }
+         )
 
        } catch(err){
+         console.log(err)
          console.log("file: " + files[index].originalname + " failed to process")
          results.push({filename: files[index].originalname, status:"failed"})
        }

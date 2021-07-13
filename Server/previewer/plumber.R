@@ -43,6 +43,7 @@ html_2_df <- function (pmid, page, collId){
 
   # print(requestURL)
   url <- paste0("http://",requestURL,"/getTable?docid=",pmid,"&page=",page,"&collId=",collId)
+  url <- URLencode(url, reserved = FALSE, repeated = FALSE) 
   
   print(url)
   
