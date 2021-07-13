@@ -256,7 +256,7 @@ app.post(CONFIG.api_base_url + '/tableUploader', /*#__PURE__*/function () {
 
                       case 3:
                         if (!(index < len)) {
-                          _context4.next = 23;
+                          _context4.next = 24;
                           break;
                         }
 
@@ -270,6 +270,9 @@ app.post(CONFIG.api_base_url + '/tableUploader', /*#__PURE__*/function () {
                         file_elements = cleanFilename.split(".");
                         extension = file_elements.pop();
                         baseFilename = file_elements.join(".");
+                        fs.mkdirSync(path.join(global.tables_folder, req.body.collection_id), {
+                          recursive: true
+                        });
                         tables_html.map( /*#__PURE__*/function () {
                           var _ref5 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee3(table, t) {
                             var page, docid, newTableFilename;
@@ -302,11 +305,11 @@ app.post(CONFIG.api_base_url + '/tableUploader', /*#__PURE__*/function () {
                             return _ref5.apply(this, arguments);
                           };
                         }());
-                        _context4.next = 20;
+                        _context4.next = 21;
                         break;
 
-                      case 15:
-                        _context4.prev = 15;
+                      case 16:
+                        _context4.prev = 16;
                         _context4.t0 = _context4["catch"](4);
                         console.log(_context4.t0);
                         console.log("file: " + files[index].originalname + " failed to process");
@@ -315,20 +318,20 @@ app.post(CONFIG.api_base_url + '/tableUploader', /*#__PURE__*/function () {
                           status: "failed"
                         });
 
-                      case 20:
+                      case 21:
                         ++index;
                         _context4.next = 3;
                         break;
 
-                      case 23:
+                      case 24:
                         res.send(results);
 
-                      case 24:
+                      case 25:
                       case "end":
                         return _context4.stop();
                     }
                   }
-                }, _callee4, null, [[4, 15]]);
+                }, _callee4, null, [[4, 16]]);
               }));
 
               return function (_x6) {

@@ -195,6 +195,8 @@ app.post(CONFIG.api_base_url+'/tableUploader', async function(req, res) {
          var extension = file_elements.pop()
          var baseFilename = file_elements.join(".")
 
+         fs.mkdirSync(path.join(global.tables_folder, req.body.collection_id), { recursive: true })
+
          tables_html.map( async (table,t) => {
 
            var page = (t+1)
