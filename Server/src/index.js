@@ -52,6 +52,9 @@ import { readyTable, prepareAvailableDocuments } from "./table.js"
 console.log("Loading MetaMap Docker Comms Module")
 import { metamap } from "./metamap.js"
 
+console.log("Loading Tabuliser Module")
+import { getFileResults } from "./tabuliser.js"
+
 console.log("Loading Extra Functions")
 import ef from "./extra_functions.js"
 
@@ -1225,7 +1228,24 @@ app.get(CONFIG.api_base_url+'/cuiRecommend', async function(req,res){
 const prepareAnnotationPreview = async (docid, page, collId, cachedOnly) => {
 
       var annotations = await getAnnotationByID(docid, page, collId)
+      if ( annotations.rows.length > 0 ){
+        var entry = annotations.rows[0]
 
+        var override_exists = await fs.existsSync(path.join(global.tables_folder_override, entry.collection_id, entry.file_path))
+
+        // debugger
+        var tableResults = await getFileResults(entry.annotation, path.join(override_exists ? tables_folder_override : global.tables_folder, entry.collection_id, entry.file_path) )
+            tableResults.map( item => { item.docid_page = entry.docid+"_"+entry.page })
+        // debugger
+
+        return {"state" : "good", result : tableResults}
+      //  debugger
+
+      } else {
+        return {"state" : "fail", result : []}
+      }
+
+      // debugge
       var tid = annotations.rows.length > 0 ? annotations.rows[0].tid : -1;
 
       if ( tid < 0 ){

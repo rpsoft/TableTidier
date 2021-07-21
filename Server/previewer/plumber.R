@@ -39,7 +39,7 @@ baseFolder <- "~/ihw/tableAnnotator/Server/src/"
 # tablesDirectory <- "~/ihw/tableAnnotator/Server/HTML_TABLES_OVERRIDE/"
 # new_obj <- readRDS(paste0(baseFolder,"Full_set_of_tables_Prepared.Rds"))
 
-html_2_df <- function (pmid, page, collId){
+html_2_df <- function (pmid, page, collId, firstRow){
 
   # print(requestURL)
   url <- paste0("http://",requestURL,"/getTable?docid=",pmid,"&page=",page,"&collId=",collId)
@@ -62,6 +62,17 @@ html_2_df <- function (pmid, page, collId){
   tableBody <- substring(JsonData$tableBody,start,end)
 
   x <- read_xml(tableBody, as_html = TRUE)
+  
+  # for ( n in 1:length(xml_find_all(x, "//tr")) ){ 
+  #   
+  #   if ( n < firstRow ){
+  #     x1 <- xml_find_all(x, "//tr")[n]
+  #     xml_remove(x1)
+  #   }
+  #   
+  # }
+  
+  
   ps <- xml_find_all(x, ".//td/p")
   tds <- xml_find_all(x, ".//td")
 
@@ -87,7 +98,7 @@ html_2_df <- function (pmid, page, collId){
   newdata <- newdata %>% mutate( character = ifelse(str_squish(character) == "", NA, as.character(character) ) )
 
   newdata <- newdata %>% mutate( pos = trimws(gsub("[^0-9]", " ", path), "both")) %>% separate(pos, c("row", "col"), "     ")
-
+  
   newdata <- newdata %>% mutate( row = as.double(row), col = as.double(col))
 
   if(str_length(textHeader) > 0){
@@ -143,12 +154,17 @@ html_2_df <- function (pmid, page, collId){
                                   "has_no_num", "tbl_n", "file_name", "blank_row", "first_col",
                                   "first_last_col", "original_file_stored", "pmid", "pmid_tbl",
                                   "ticker", "indent_lvl"))
+  
+  newdata <- newdata %>% filter( row >= firstRow ) %>% mutate (col = ifelse(is.na(col), 1, col))
+  
+  # newdata <- newdata %>% mutate( row = row - min(row) + 1 )
+  
   return(newdata)
 }
 
 
 runAll <- function(annotations, collId){
-  
+
   # message("Joining by: ", capture.output(dput(by)))
 
   ## Function to allow matching of rows and column metadata
@@ -274,7 +290,7 @@ runAll <- function(annotations, collId){
   metadata <- prepareAnnotations( annotations )
 
   TidyTable <- function(docid_page_selected, collId ){
-    
+  
     meta <- metadata %>%
       filter(docid_page == docid_page_selected)
 
@@ -307,8 +323,12 @@ runAll <- function(annotations, collId){
 
 
     # if(file.exists(paste0(tablesDirectory, filename, ".html"))){
-    all_cells <- html_2_df(meta$docid[1], meta$page[1], collId)
+    
+    firstRow <- (meta %>% filter( location == "Row" ) %>% arrange(number))[1,]$number %>% as.integer()
+    
+    all_cells <- html_2_df(meta$docid[1], meta$page[1], collId, firstRow)
 
+  
 
 
     # print(all_cells)
@@ -526,7 +546,7 @@ runAll <- function(annotations, collId){
 
     data_cells <- table_data %>% select(row, col, character)
 
-    browser()
+  
     
     for(i_choose in unique(col_lbls_meta$i)){
       ## Select each richest column description in turn, removing that from the dataset
@@ -577,10 +597,12 @@ runAll <- function(annotations, collId){
     return(data_cells)
   }
 
+  
   # TidyTableSafe <- safely(TidyTable)
   TidyTableSafe <- safely(TidyTable)
 
   outputs <- map(metadata$docid_page %>% unique, ~ TidyTableSafe(.x, collId))
+
 
   # print(outputs)
 
@@ -606,7 +628,7 @@ function(req, anns = "" ) {
   #
   #write_rds(anns, paste0(baseFolder,"last_out_other.rds"))
   #
-  # anns <- read_rds(paste0(baseFolder,"last_out_other.rds"))
+  anns <- read_rds(paste0(baseFolder,"last_out_other.rds"))
 
   annotations <- anns$annotation %>%
     as.data.frame() %>%
@@ -619,13 +641,14 @@ function(req, anns = "" ) {
 
   collId <- anns$collection_id
   result <- value( future( runAll(annotations, collId) ) )
-
+  
+  browser()
   # result %>%  View
   
   if ( result %>% nrow > 0){ # order by annotations order, if any results have been produced.
     result <- result %>% select(c("docid_page","row", "col", "value", anns$annotation$content))
   }
-
+# browser()
   list(
     tableResult = result,
     ann = anns
@@ -641,6 +664,7 @@ function(req, anns = "" ) {
   return("here we are")
 }
 
-# runAll(annotations, collId)
+runAll(annotations, collId)
 
 # plumb("~/ihw/tableAnnotator/Server/previewer/plumber.R")$run(port = 6666)
+

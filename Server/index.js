@@ -20,6 +20,8 @@ var _table = require("./table.js");
 
 var _metamap = require("./metamap.js");
 
+var _tabuliser = require("./tabuliser.js");
+
 var _extra_functions = _interopRequireDefault(require("./extra_functions.js"));
 
 var _network_functions = require("./network_functions.js");
@@ -74,6 +76,7 @@ console.log("Loading Files Management");
 console.log("Loading Security");
 console.log("Loading Table Libs");
 console.log("Loading MetaMap Docker Comms Module");
+console.log("Loading Tabuliser Module");
 console.log("Loading Extra Functions");
 console.log("Loading Search Module");
 
@@ -2553,7 +2556,7 @@ app.get(CONFIG.api_base_url + '/cuiRecommend', /*#__PURE__*/function () {
 
 var prepareAnnotationPreview = /*#__PURE__*/function () {
   var _ref37 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee40(docid, page, collId, cachedOnly) {
-    var annotations, tid, client, tableResult, toReturn, final_annotations, r, ann, existing, final_annotations_array, entry, doRequest, plumberResult;
+    var annotations, entry, override_exists, tableResults, tid, client, tableResult, toReturn, final_annotations, r, ann, existing, final_annotations_array, doRequest, plumberResult;
     return _regenerator["default"].wrap(function _callee40$(_context40) {
       while (1) {
         switch (_context40.prev = _context40.next) {
@@ -2563,10 +2566,44 @@ var prepareAnnotationPreview = /*#__PURE__*/function () {
 
           case 2:
             annotations = _context40.sent;
+
+            if (!(annotations.rows.length > 0)) {
+              _context40.next = 15;
+              break;
+            }
+
+            entry = annotations.rows[0];
+            _context40.next = 7;
+            return fs.existsSync(path.join(global.tables_folder_override, entry.collection_id, entry.file_path));
+
+          case 7:
+            override_exists = _context40.sent;
+            _context40.next = 10;
+            return (0, _tabuliser.getFileResults)(entry.annotation, path.join(override_exists ? tables_folder_override : global.tables_folder, entry.collection_id, entry.file_path));
+
+          case 10:
+            tableResults = _context40.sent;
+            tableResults.map(function (item) {
+              item.docid_page = entry.docid + "_" + entry.page;
+            }); // debugger
+
+            return _context40.abrupt("return", {
+              "state": "good",
+              result: tableResults
+            });
+
+          case 15:
+            return _context40.abrupt("return", {
+              "state": "fail",
+              result: []
+            });
+
+          case 16:
+            // debugge
             tid = annotations.rows.length > 0 ? annotations.rows[0].tid : -1;
 
             if (!(tid < 0)) {
-              _context40.next = 6;
+              _context40.next = 19;
               break;
             }
 
@@ -2574,22 +2611,22 @@ var prepareAnnotationPreview = /*#__PURE__*/function () {
               status: "wrong parameters (missing tid)"
             });
 
-          case 6:
-            _context40.next = 8;
+          case 19:
+            _context40.next = 21;
             return pool.connect();
 
-          case 8:
+          case 21:
             client = _context40.sent;
-            _context40.next = 11;
+            _context40.next = 24;
             return client.query("SELECT tid, \"tableResult\" FROM result WHERE tid = $1", [tid]);
 
-          case 11:
+          case 24:
             tableResult = _context40.sent;
             client.release();
             tableResult = tableResult && tableResult.rows.length > 0 ? tableResult.rows[0].tableResult : [];
 
             if (!(cachedOnly === 'true')) {
-              _context40.next = 18;
+              _context40.next = 31;
               break;
             }
 
@@ -2610,7 +2647,7 @@ var prepareAnnotationPreview = /*#__PURE__*/function () {
 
             return _context40.abrupt("return", toReturn);
 
-          case 18:
+          case 31:
             final_annotations = {};
             /**
             * There are multiple versions of the annotations. When calling reading the results from the database, here we will return only the latest/ most complete version of the annotation.
@@ -2641,7 +2678,7 @@ var prepareAnnotationPreview = /*#__PURE__*/function () {
             }
 
             if (!(final_annotations_array.length > 0)) {
-              _context40.next = 36;
+              _context40.next = 49;
               break;
             }
 
@@ -2767,25 +2804,25 @@ var prepareAnnotationPreview = /*#__PURE__*/function () {
                 return _ref38.apply(this, arguments);
               };
             }());
-            _context40.next = 31;
+            _context40.next = 44;
             return doRequest;
 
-          case 31:
+          case 44:
             plumberResult = _context40.sent;
             plumberResult["backAnnotation"] = annotations;
             return _context40.abrupt("return", plumberResult);
 
-          case 36:
+          case 49:
             return _context40.abrupt("return", {
               "state": "empty"
             });
 
-          case 37:
+          case 50:
             return _context40.abrupt("return", {
               "state": "whathappened!"
             });
 
-          case 38:
+          case 51:
           case "end":
             return _context40.stop();
         }
