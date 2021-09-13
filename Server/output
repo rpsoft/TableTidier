@@ -1,0 +1,1116 @@
+Could not find suitable lexicon, check installation!
+/opt/public_mm/bin/SKRrun.18 /opt/public_mm/bin/metamap18.BINARY.Linux -L 2018 --lexicon db -Z 2018AB -AsItd --JSONf 2 --prune 2 -V USAbase
+{"AllDocuments":[
+{
+   "Document": {
+     "CmdLine": {
+       "Command": "metamap -L 2018 --lexicon db -Z 2018AB -AsItd --JSONf 2 --prune 2 -V USAbase",
+       "Options": [
+         {
+           "OptName": "lexicon_year",
+           "OptValue": "2018"
+         },
+         {
+           "OptName": "lexicon",
+           "OptValue": "db"
+         },
+         {
+           "OptName": "mm_data_year",
+           "OptValue": "2018AB"
+         },
+         {
+           "OptName": "strict_model"
+         },
+         {
+           "OptName": "short_semantic_types"
+         },
+         {
+           "OptName": "show_cuis"
+         },
+         {
+           "OptName": "no_tagging"
+         },
+         {
+           "OptName": "no_derivational_variants"
+         },
+         {
+           "OptName": "JSONf",
+           "OptValue": "2"
+         },
+         {
+           "OptName": "prune",
+           "OptValue": "2"
+         },
+         {
+           "OptName": "mm_data_version",
+           "OptValue": "USAbase"
+         },
+         {
+           "OptName": "infile",
+           "OptValue": "user_input"
+         },
+         {
+           "OptName": "outfile",
+           "OptValue": "user_output"
+         }]
+     },
+     "AAs": [],
+     "Negations": [],
+     "Utterances": [
+       {
+         "PMID": "USER",
+         "UttSection": "tx",
+         "UttNum": "1",
+         "UttText": "Patient is a 45-year-old man with a history of anaplastic astrocytoma of the spine complicated by severe lower extremity weakness and urinary retention s/p Foley catheter, high-dose steroids, hypertension, and chronic pain. ",
+         "UttStartPos": "0",
+         "UttLength": "224",
+         "Phrases": [
+           {
+             "PhraseText": "Patient",
+             "SyntaxUnits": [
+               {
+                 "SyntaxType": "head",
+                 "LexMatch": "patient",
+                 "InputMatch": "Patient",
+                 "LexCat": "noun",
+                 "Tokens": ["patient"]
+               }],
+             "PhraseStartPos": "0",
+             "PhraseLength": "7",
+             "Candidates": [],
+             "Mappings": [
+               {
+                 "MappingScore": "-1000",
+                 "MappingCandidates": [
+                   {
+                     "CandidateScore": "-1000",
+                     "CandidateCUI": "C0030705",
+                     "CandidateMatched": "*^patient",
+                     "CandidatePreferred": "Patients",
+                     "MatchedWords": ["patient"],
+                     "SemTypes": ["podg"],
+                     "MatchMaps": [
+                       {
+                         "TextMatchStart": "1",
+                         "TextMatchEnd": "1",
+                         "ConcMatchStart": "1",
+                         "ConcMatchEnd": "1",
+                         "LexVariation": "0"
+                       }],
+                     "IsHead": "yes",
+                     "IsOverMatch": "no",
+                     "Sources": ["AOD","CHV","HL7V3.0","LCH","LCH_NW","LNC","MSH","MTH","NCI","NCI_CDISC-GLOSS","NCI_DICOM","NCI_FDA","SNOMEDCT_US"],
+                     "ConceptPIs": [
+                       {
+                         "StartPos": "0",
+                         "Length": "7"
+                       }],
+                     "Status": "0",
+                     "Negated": "0"
+                   }]
+               }]
+           },
+           {
+             "PhraseText": "is",
+             "SyntaxUnits": [
+               {
+                 "SyntaxType": "aux",
+                 "LexMatch": "is",
+                 "InputMatch": "is",
+                 "LexCat": "aux",
+                 "Tokens": ["is"]
+               }],
+             "PhraseStartPos": "8",
+             "PhraseLength": "2",
+             "Candidates": [],
+             "Mappings": []
+           },
+           {
+             "PhraseText": "a 45-year-old man with a history of anaplastic astrocytoma of the spine",
+             "SyntaxUnits": [
+               {
+                 "SyntaxType": "det",
+                 "LexMatch": "a",
+                 "InputMatch": "a",
+                 "LexCat": "det",
+                 "Tokens": ["a"]
+               },
+               {
+                 "SyntaxType": "shapes",
+                 "InputMatch": "45",
+                 "Tokens": ["45"]
+               },
+               {
+                 "SyntaxType": "punc",
+                 "InputMatch": "-",
+                 "Tokens": []
+               },
+               {
+                 "SyntaxType": "mod",
+                 "LexMatch": "year",
+                 "InputMatch": "year",
+                 "LexCat": "noun",
+                 "Tokens": ["year"]
+               },
+               {
+                 "SyntaxType": "punc",
+                 "InputMatch": "-",
+                 "Tokens": []
+               },
+               {
+                 "SyntaxType": "mod",
+                 "LexMatch": "old",
+                 "InputMatch": "old",
+                 "LexCat": "noun",
+                 "Tokens": ["old"]
+               },
+               {
+                 "SyntaxType": "head",
+                 "LexMatch": "man",
+                 "InputMatch": "man",
+                 "LexCat": "noun",
+                 "Tokens": ["man"]
+               },
+               {
+                 "SyntaxType": "prep",
+                 "LexMatch": "with",
+                 "InputMatch": "with",
+                 "LexCat": "prep",
+                 "Tokens": ["with"]
+               },
+               {
+                 "SyntaxType": "det",
+                 "LexMatch": "a",
+                 "InputMatch": "a",
+                 "LexCat": "det",
+                 "Tokens": ["a"]
+               },
+               {
+                 "SyntaxType": "mod",
+                 "LexMatch": "history",
+                 "InputMatch": "history",
+                 "LexCat": "noun",
+                 "Tokens": ["history"]
+               },
+               {
+                 "SyntaxType": "prep",
+                 "LexMatch": "of",
+                 "InputMatch": "of",
+                 "LexCat": "prep",
+                 "Tokens": ["of"]
+               },
+               {
+                 "SyntaxType": "mod",
+                 "LexMatch": "anaplastic astrocytoma",
+                 "InputMatch": "anaplastic astrocytoma",
+                 "LexCat": "noun",
+                 "Tokens": ["anaplastic","astrocytoma"]
+               },
+               {
+                 "SyntaxType": "prep",
+                 "LexMatch": "of",
+                 "InputMatch": "of",
+                 "LexCat": "prep",
+                 "Tokens": ["of"]
+               },
+               {
+                 "SyntaxType": "det",
+                 "LexMatch": "the",
+                 "InputMatch": "the",
+                 "LexCat": "det",
+                 "Tokens": ["the"]
+               },
+               {
+                 "SyntaxType": "mod",
+                 "LexMatch": "spine",
+                 "InputMatch": "spine",
+                 "LexCat": "noun",
+                 "Tokens": ["spine"]
+               }],
+             "PhraseStartPos": "11",
+             "PhraseLength": "71",
+             "Candidates": [],
+             "Mappings": [
+               {
+                 "MappingScore": "-734",
+                 "MappingCandidates": [
+                   {
+                     "CandidateScore": "-734",
+                     "CandidateCUI": "C0025266",
+                     "CandidateMatched": "Man",
+                     "CandidatePreferred": "Male population group",
+                     "MatchedWords": ["man"],
+                     "SemTypes": ["popg"],
+                     "MatchMaps": [
+                       {
+                         "TextMatchStart": "5",
+                         "TextMatchEnd": "5",
+                         "ConcMatchStart": "1",
+                         "ConcMatchEnd": "1",
+                         "LexVariation": "0"
+                       }],
+                     "IsHead": "yes",
+                     "IsOverMatch": "no",
+                     "Sources": ["AOD","CHV","LCH","LCH_NW","MEDLINEPLUS","MSH","MTH","NCI","NLMSubSyn","SNOMEDCT_US"],
+                     "ConceptPIs": [
+                       {
+                         "StartPos": "25",
+                         "Length": "3"
+                       }],
+                     "Status": "0",
+                     "Negated": "0"
+                   }]
+               },
+               {
+                 "MappingScore": "-734",
+                 "MappingCandidates": [
+                   {
+                     "CandidateScore": "-734",
+                     "CandidateCUI": "C0086418",
+                     "CandidateMatched": "MAN",
+                     "CandidatePreferred": "Homo sapiens",
+                     "MatchedWords": ["man"],
+                     "SemTypes": ["humn"],
+                     "MatchMaps": [
+                       {
+                         "TextMatchStart": "5",
+                         "TextMatchEnd": "5",
+                         "ConcMatchStart": "1",
+                         "ConcMatchEnd": "1",
+                         "LexVariation": "0"
+                       }],
+                     "IsHead": "yes",
+                     "IsOverMatch": "no",
+                     "Sources": ["AOD","CHV","CSP","LCH","LNC","MSH","MTH","NCBI","NCI","SNM","SNMI","SNOMEDCT_US","SNOMEDCT_VET"],
+                     "ConceptPIs": [
+                       {
+                         "StartPos": "25",
+                         "Length": "3"
+                       }],
+                     "Status": "0",
+                     "Negated": "0"
+                   }]
+               },
+               {
+                 "MappingScore": "-734",
+                 "MappingCandidates": [
+                   {
+                     "CandidateScore": "-734",
+                     "CandidateCUI": "C0086582",
+                     "CandidateMatched": "MAN",
+                     "CandidatePreferred": "Males",
+                     "MatchedWords": ["man"],
+                     "SemTypes": ["orga"],
+                     "MatchMaps": [
+                       {
+                         "TextMatchStart": "5",
+                         "TextMatchEnd": "5",
+                         "ConcMatchStart": "1",
+                         "ConcMatchEnd": "1",
+                         "LexVariation": "0"
+                       }],
+                     "IsHead": "yes",
+                     "IsOverMatch": "no",
+                     "Sources": ["AOD","CHV","CSP","DXP","HL7V2.5","HL7V3.0","LCH","LNC","MSH","MTH","NCI","NCI_CDISC","NCI_FDA","NCI_NICHD","NDFRT","NLMSubSyn","QMR","SNM","SNMI","SNOMEDCT_US"],
+                     "ConceptPIs": [
+                       {
+                         "StartPos": "25",
+                         "Length": "3"
+                       }],
+                     "Status": "0",
+                     "Negated": "0"
+                   }]
+               }]
+           },
+           {
+             "PhraseText": "complicated by severe lower extremity weakness",
+             "SyntaxUnits": [
+               {
+                 "SyntaxType": "head",
+                 "LexMatch": "complicated",
+                 "InputMatch": "complicated",
+                 "LexCat": "adj",
+                 "Tokens": ["complicated"]
+               },
+               {
+                 "SyntaxType": "prep",
+                 "LexMatch": "by",
+                 "InputMatch": "by",
+                 "LexCat": "prep",
+                 "Tokens": ["by"]
+               },
+               {
+                 "SyntaxType": "mod",
+                 "LexMatch": "severe",
+                 "InputMatch": "severe",
+                 "LexCat": "adj",
+                 "Tokens": ["severe"]
+               },
+               {
+                 "SyntaxType": "mod",
+                 "LexMatch": "lower extremity",
+                 "InputMatch": "lower extremity",
+                 "LexCat": "noun",
+                 "Tokens": ["lower","extremity"]
+               },
+               {
+                 "SyntaxType": "mod",
+                 "LexMatch": "weakness",
+                 "InputMatch": "weakness",
+                 "LexCat": "noun",
+                 "Tokens": ["weakness"]
+               }],
+             "PhraseStartPos": "83",
+             "PhraseLength": "46",
+             "Candidates": [],
+             "Mappings": [
+               {
+                 "MappingScore": "-780",
+                 "MappingCandidates": [
+                   {
+                     "CandidateScore": "-753",
+                     "CandidateCUI": "C0231242",
+                     "CandidateMatched": "Complicated",
+                     "CandidatePreferred": "Complicated",
+                     "MatchedWords": ["complicated"],
+                     "SemTypes": ["ftcn"],
+                     "MatchMaps": [
+                       {
+                         "TextMatchStart": "1",
+                         "TextMatchEnd": "1",
+                         "ConcMatchStart": "1",
+                         "ConcMatchEnd": "1",
+                         "LexVariation": "0"
+                       }],
+                     "IsHead": "yes",
+                     "IsOverMatch": "no",
+                     "Sources": ["CHV","MTH","NCI","SNMI","SNOMEDCT_US"],
+                     "ConceptPIs": [
+                       {
+                         "StartPos": "83",
+                         "Length": "11"
+                       }],
+                     "Status": "0",
+                     "Negated": "0"
+                   },
+                   {
+                     "CandidateScore": "-666",
+                     "CandidateCUI": "C1836296",
+                     "CandidateMatched": "Lower extremity weakness",
+                     "CandidatePreferred": "Muscle Weakness Lower Limb",
+                     "MatchedWords": ["lower","extremity","weakness"],
+                     "SemTypes": ["fndg"],
+                     "MatchMaps": [
+                       {
+                         "TextMatchStart": "4",
+                         "TextMatchEnd": "5",
+                         "ConcMatchStart": "1",
+                         "ConcMatchEnd": "2",
+                         "LexVariation": "0"
+                       },
+                       {
+                         "TextMatchStart": "6",
+                         "TextMatchEnd": "6",
+                         "ConcMatchStart": "3",
+                         "ConcMatchEnd": "3",
+                         "LexVariation": "0"
+                       }],
+                     "IsHead": "no",
+                     "IsOverMatch": "no",
+                     "Sources": ["CHV","HPO","MTH","NCI","NCI_CTCAE","NLMSubSyn","OMIM","SNOMEDCT_VET"],
+                     "ConceptPIs": [
+                       {
+                         "StartPos": "105",
+                         "Length": "24"
+                       }],
+                     "Status": "0",
+                     "Negated": "0"
+                   }]
+               }]
+           },
+           {
+             "PhraseText": "and",
+             "SyntaxUnits": [
+               {
+                 "SyntaxType": "conj",
+                 "LexMatch": "and",
+                 "InputMatch": "and",
+                 "LexCat": "conj",
+                 "Tokens": ["and"]
+               }],
+             "PhraseStartPos": "130",
+             "PhraseLength": "3",
+             "Candidates": [],
+             "Mappings": []
+           },
+           {
+             "PhraseText": "urinary retention s/p Foley catheter,",
+             "SyntaxUnits": [
+               {
+                 "SyntaxType": "head",
+                 "LexMatch": "urinary retention",
+                 "InputMatch": "urinary retention",
+                 "LexCat": "noun",
+                 "Tokens": ["urinary","retention"]
+               },
+               {
+                 "SyntaxType": "prep",
+                 "LexMatch": "s/p",
+                 "InputMatch": "s / p",
+                 "LexCat": "prep",
+                 "Tokens": ["s","p"]
+               },
+               {
+                 "SyntaxType": "mod",
+                 "LexMatch": "foley catheter",
+                 "InputMatch": "Foley catheter",
+                 "LexCat": "noun",
+                 "Tokens": ["foley","catheter"]
+               },
+               {
+                 "SyntaxType": "punc",
+                 "InputMatch": ",",
+                 "Tokens": []
+               }],
+             "PhraseStartPos": "134",
+             "PhraseLength": "37",
+             "Candidates": [],
+             "Mappings": [
+               {
+                 "MappingScore": "-790",
+                 "MappingCandidates": [
+                   {
+                     "CandidateScore": "-790",
+                     "CandidateCUI": "C0080274",
+                     "CandidateMatched": "URINARY RETENTION",
+                     "CandidatePreferred": "Urinary Retention",
+                     "MatchedWords": ["urinary","retention"],
+                     "SemTypes": ["fndg"],
+                     "MatchMaps": [
+                       {
+                         "TextMatchStart": "1",
+                         "TextMatchEnd": "2",
+                         "ConcMatchStart": "1",
+                         "ConcMatchEnd": "2",
+                         "LexVariation": "0"
+                       }],
+                     "IsHead": "yes",
+                     "IsOverMatch": "no",
+                     "Sources": ["CCS","CHV","COSTAR","CST","DXP","HPO","ICD10CM","ICD9CM","LNC","MSH","MTH","NCI","NCI_CTCAE","NCI_FDA","NCI_NICHD","NDFRT","NLMSubSyn","OMIM","SNM","SNMI","SNOMEDCT_US"],
+                     "ConceptPIs": [
+                       {
+                         "StartPos": "134",
+                         "Length": "17"
+                       }],
+                     "Status": "0",
+                     "Negated": "0"
+                   }]
+               },
+               {
+                 "MappingScore": "-790",
+                 "MappingCandidates": [
+                   {
+                     "CandidateScore": "-790",
+                     "CandidateCUI": "C1558141",
+                     "CandidateMatched": "Urinary retention",
+                     "CandidatePreferred": "Urinary Retention, CTCAE",
+                     "MatchedWords": ["urinary","retention"],
+                     "SemTypes": ["fndg"],
+                     "MatchMaps": [
+                       {
+                         "TextMatchStart": "1",
+                         "TextMatchEnd": "2",
+                         "ConcMatchStart": "1",
+                         "ConcMatchEnd": "2",
+                         "LexVariation": "0"
+                       }],
+                     "IsHead": "yes",
+                     "IsOverMatch": "no",
+                     "Sources": ["MTH","NCI","NCI_CTCAE_5"],
+                     "ConceptPIs": [
+                       {
+                         "StartPos": "134",
+                         "Length": "17"
+                       }],
+                     "Status": "0",
+                     "Negated": "0"
+                   }]
+               }]
+           },
+           {
+             "PhraseText": "high-dose steroids,",
+             "SyntaxUnits": [
+               {
+                 "SyntaxType": "mod",
+                 "LexMatch": "high-dose",
+                 "InputMatch": "high - dose",
+                 "LexCat": "adj",
+                 "Tokens": ["high","dose"]
+               },
+               {
+                 "SyntaxType": "head",
+                 "LexMatch": "steroids",
+                 "InputMatch": "steroids",
+                 "LexCat": "noun",
+                 "Tokens": ["steroids"]
+               },
+               {
+                 "SyntaxType": "punc",
+                 "InputMatch": ",",
+                 "Tokens": []
+               }],
+             "PhraseStartPos": "172",
+             "PhraseLength": "19",
+             "Candidates": [],
+             "Mappings": [
+               {
+                 "MappingScore": "-901",
+                 "MappingCandidates": [
+                   {
+                     "CandidateScore": "-734",
+                     "CandidateCUI": "C0444956",
+                     "CandidateMatched": "High dose",
+                     "CandidatePreferred": "High dose",
+                     "MatchedWords": ["high","dose"],
+                     "SemTypes": ["qnco"],
+                     "MatchMaps": [
+                       {
+                         "TextMatchStart": "1",
+                         "TextMatchEnd": "2",
+                         "ConcMatchStart": "1",
+                         "ConcMatchEnd": "2",
+                         "LexVariation": "0"
+                       }],
+                     "IsHead": "no",
+                     "IsOverMatch": "no",
+                     "Sources": ["CHV","LNC","SNOMEDCT_US"],
+                     "ConceptPIs": [
+                       {
+                         "StartPos": "172",
+                         "Length": "9"
+                       }],
+                     "Status": "0",
+                     "Negated": "0"
+                   },
+                   {
+                     "CandidateScore": "-827",
+                     "CandidateCUI": "C0038317",
+                     "CandidateMatched": "Steroids",
+                     "CandidatePreferred": "Steroids",
+                     "MatchedWords": ["steroids"],
+                     "SemTypes": ["orch","phsu"],
+                     "MatchMaps": [
+                       {
+                         "TextMatchStart": "3",
+                         "TextMatchEnd": "3",
+                         "ConcMatchStart": "1",
+                         "ConcMatchEnd": "1",
+                         "LexVariation": "0"
+                       }],
+                     "IsHead": "yes",
+                     "IsOverMatch": "no",
+                     "Sources": ["AOD","CHV","CSP","LCH","LCH_NW","LNC","MEDLINEPLUS","MSH","MTH","NCI","NCI_NCI-GLOSS","NDFRT","SNMI","SNOMEDCT_US"],
+                     "ConceptPIs": [
+                       {
+                         "StartPos": "182",
+                         "Length": "8"
+                       }],
+                     "Status": "0",
+                     "Negated": "0"
+                   }]
+               }]
+           },
+           {
+             "PhraseText": "hypertension,",
+             "SyntaxUnits": [
+               {
+                 "SyntaxType": "head",
+                 "LexMatch": "hypertension",
+                 "InputMatch": "hypertension",
+                 "LexCat": "noun",
+                 "Tokens": ["hypertension"]
+               },
+               {
+                 "SyntaxType": "punc",
+                 "InputMatch": ",",
+                 "Tokens": []
+               }],
+             "PhraseStartPos": "192",
+             "PhraseLength": "13",
+             "Candidates": [],
+             "Mappings": [
+               {
+                 "MappingScore": "-1000",
+                 "MappingCandidates": [
+                   {
+                     "CandidateScore": "-1000",
+                     "CandidateCUI": "C0020538",
+                     "CandidateMatched": "HYPERTENSION",
+                     "CandidatePreferred": "Hypertensive disease",
+                     "MatchedWords": ["hypertension"],
+                     "SemTypes": ["dsyn"],
+                     "MatchMaps": [
+                       {
+                         "TextMatchStart": "1",
+                         "TextMatchEnd": "1",
+                         "ConcMatchStart": "1",
+                         "ConcMatchEnd": "1",
+                         "LexVariation": "0"
+                       }],
+                     "IsHead": "yes",
+                     "IsOverMatch": "no",
+                     "Sources": ["AOD","CCS","CCS_10","CHV","COSTAR","CSP","CST","DXP","HPO","ICD10CM","ICD9CM","LCH","LCH_NW","LNC","MEDLINEPLUS","MSH","MTH","MTHICD9","NCI","NCI_CTCAE","NCI_FDA","NCI_NCI-GLOSS","NCI_NICHD","NDFRT","NLMSubSyn","OMIM","SNM","SNMI","SNOMEDCT_US","SNOMEDCT_VET"],
+                     "ConceptPIs": [
+                       {
+                         "StartPos": "192",
+                         "Length": "12"
+                       }],
+                     "Status": "0",
+                     "Negated": "0"
+                   }]
+               },
+               {
+                 "MappingScore": "-1000",
+                 "MappingCandidates": [
+                   {
+                     "CandidateScore": "-1000",
+                     "CandidateCUI": "C1963138",
+                     "CandidateMatched": "Hypertension",
+                     "CandidatePreferred": "Hypertension, CTCAE",
+                     "MatchedWords": ["hypertension"],
+                     "SemTypes": ["fndg"],
+                     "MatchMaps": [
+                       {
+                         "TextMatchStart": "1",
+                         "TextMatchEnd": "1",
+                         "ConcMatchStart": "1",
+                         "ConcMatchEnd": "1",
+                         "LexVariation": "0"
+                       }],
+                     "IsHead": "yes",
+                     "IsOverMatch": "no",
+                     "Sources": ["MTH","NCI","NCI_CTCAE_3","NCI_CTCAE_5"],
+                     "ConceptPIs": [
+                       {
+                         "StartPos": "192",
+                         "Length": "12"
+                       }],
+                     "Status": "0",
+                     "Negated": "0"
+                   }]
+               }]
+           },
+           {
+             "PhraseText": "and",
+             "SyntaxUnits": [
+               {
+                 "SyntaxType": "conj",
+                 "LexMatch": "and",
+                 "InputMatch": "and",
+                 "LexCat": "conj",
+                 "Tokens": ["and"]
+               }],
+             "PhraseStartPos": "206",
+             "PhraseLength": "3",
+             "Candidates": [],
+             "Mappings": []
+           },
+           {
+             "PhraseText": "chronic pain.",
+             "SyntaxUnits": [
+               {
+                 "SyntaxType": "head",
+                 "LexMatch": "chronic pain",
+                 "InputMatch": "chronic pain",
+                 "LexCat": "noun",
+                 "Tokens": ["chronic","pain"]
+               },
+               {
+                 "SyntaxType": "punc",
+                 "InputMatch": ".",
+                 "Tokens": []
+               }],
+             "PhraseStartPos": "210",
+             "PhraseLength": "13",
+             "Candidates": [],
+             "Mappings": [
+               {
+                 "MappingScore": "-1000",
+                 "MappingCandidates": [
+                   {
+                     "CandidateScore": "-1000",
+                     "CandidateCUI": "C0150055",
+                     "CandidateMatched": "Chronic Pain",
+                     "CandidatePreferred": "Chronic pain",
+                     "MatchedWords": ["chronic","pain"],
+                     "SemTypes": ["sosy"],
+                     "MatchMaps": [
+                       {
+                         "TextMatchStart": "1",
+                         "TextMatchEnd": "2",
+                         "ConcMatchStart": "1",
+                         "ConcMatchEnd": "2",
+                         "LexVariation": "0"
+                       }],
+                     "IsHead": "yes",
+                     "IsOverMatch": "no",
+                     "Sources": ["CHV","CSP","HPO","ICD9CM","LCH_NW","LNC","MEDLINEPLUS","MSH","MTH","NCI","NCI_NCI-GLOSS","NCI_NICHD","NDFRT","NLMSubSyn","OMIM","SNMI","SNOMEDCT_US"],
+                     "ConceptPIs": [
+                       {
+                         "StartPos": "210",
+                         "Length": "12"
+                       }],
+                     "Status": "0",
+                     "Negated": "0"
+                   }]
+               }]
+           }]
+       },
+       {
+         "PMID": "USER",
+         "UttSection": "tx",
+         "UttNum": "2",
+         "UttText": "The tumor is located in the T-L spine, unresectable anaplastic astrocytoma s/p radiation.",
+         "UttStartPos": "224",
+         "UttLength": "89",
+         "Phrases": [
+           {
+             "PhraseText": "The tumor",
+             "SyntaxUnits": [
+               {
+                 "SyntaxType": "det",
+                 "LexMatch": "the",
+                 "InputMatch": "The",
+                 "LexCat": "det",
+                 "Tokens": ["the"]
+               },
+               {
+                 "SyntaxType": "head",
+                 "LexMatch": "tumor",
+                 "InputMatch": "tumor",
+                 "LexCat": "noun",
+                 "Tokens": ["tumor"]
+               }],
+             "PhraseStartPos": "224",
+             "PhraseLength": "9",
+             "Candidates": [],
+             "Mappings": [
+               {
+                 "MappingScore": "-1000",
+                 "MappingCandidates": [
+                   {
+                     "CandidateScore": "-1000",
+                     "CandidateCUI": "C0027651",
+                     "CandidateMatched": "Tumour",
+                     "CandidatePreferred": "Neoplasms",
+                     "MatchedWords": ["tumour"],
+                     "SemTypes": ["neop"],
+                     "MatchMaps": [
+                       {
+                         "TextMatchStart": "1",
+                         "TextMatchEnd": "1",
+                         "ConcMatchStart": "1",
+                         "ConcMatchEnd": "1",
+                         "LexVariation": "0"
+                       }],
+                     "IsHead": "yes",
+                     "IsOverMatch": "no",
+                     "Sources": ["AOD","CCS","CCS_10","CHV","COSTAR","CSP","CST","HPO","ICD10CM","ICPC","LCH","LCH_NW","LNC","MEDLINEPLUS","MSH","MTH","MTHMST","NCI","NCI_CTRP","NCI_NCI-GLOSS","NCI_NICHD","NDFRT","NLMSubSyn","OMIM","SNM","SNMI","SNOMEDCT_US"],
+                     "ConceptPIs": [
+                       {
+                         "StartPos": "228",
+                         "Length": "5"
+                       }],
+                     "Status": "0",
+                     "Negated": "0"
+                   }]
+               },
+               {
+                 "MappingScore": "-1000",
+                 "MappingCandidates": [
+                   {
+                     "CandidateScore": "-1000",
+                     "CandidateCUI": "C1578706",
+                     "CandidateMatched": "Tumor",
+                     "CandidatePreferred": "Specimen Source Codes - tumor",
+                     "MatchedWords": ["tumor"],
+                     "SemTypes": ["inpr"],
+                     "MatchMaps": [
+                       {
+                         "TextMatchStart": "1",
+                         "TextMatchEnd": "1",
+                         "ConcMatchStart": "1",
+                         "ConcMatchEnd": "1",
+                         "LexVariation": "0"
+                       }],
+                     "IsHead": "yes",
+                     "IsOverMatch": "no",
+                     "Sources": ["HL7V2.5","MTH"],
+                     "ConceptPIs": [
+                       {
+                         "StartPos": "228",
+                         "Length": "5"
+                       }],
+                     "Status": "0",
+                     "Negated": "0"
+                   }]
+               },
+               {
+                 "MappingScore": "-1000",
+                 "MappingCandidates": [
+                   {
+                     "CandidateScore": "-1000",
+                     "CandidateCUI": "C3273930",
+                     "CandidateMatched": "Tumor",
+                     "CandidatePreferred": "Tumor Mass",
+                     "MatchedWords": ["tumor"],
+                     "SemTypes": ["fndg"],
+                     "MatchMaps": [
+                       {
+                         "TextMatchStart": "1",
+                         "TextMatchEnd": "1",
+                         "ConcMatchStart": "1",
+                         "ConcMatchEnd": "1",
+                         "LexVariation": "0"
+                       }],
+                     "IsHead": "yes",
+                     "IsOverMatch": "no",
+                     "Sources": ["MTH","NCI"],
+                     "ConceptPIs": [
+                       {
+                         "StartPos": "228",
+                         "Length": "5"
+                       }],
+                     "Status": "0",
+                     "Negated": "0"
+                   }]
+               }]
+           },
+           {
+             "PhraseText": "is",
+             "SyntaxUnits": [
+               {
+                 "SyntaxType": "aux",
+                 "LexMatch": "is",
+                 "InputMatch": "is",
+                 "LexCat": "aux",
+                 "Tokens": ["is"]
+               }],
+             "PhraseStartPos": "234",
+             "PhraseLength": "2",
+             "Candidates": [],
+             "Mappings": []
+           },
+           {
+             "PhraseText": "located in the T-L spine,",
+             "SyntaxUnits": [
+               {
+                 "SyntaxType": "head",
+                 "LexMatch": "located",
+                 "InputMatch": "located",
+                 "LexCat": "adj",
+                 "Tokens": ["located"]
+               },
+               {
+                 "SyntaxType": "prep",
+                 "LexMatch": "in",
+                 "InputMatch": "in",
+                 "LexCat": "prep",
+                 "Tokens": ["in"]
+               },
+               {
+                 "SyntaxType": "det",
+                 "LexMatch": "the",
+                 "InputMatch": "the",
+                 "LexCat": "det",
+                 "Tokens": ["the"]
+               },
+               {
+                 "SyntaxType": "mod",
+                 "LexMatch": "t-l",
+                 "InputMatch": "T - L",
+                 "LexCat": "noun",
+                 "Tokens": ["t","l"]
+               },
+               {
+                 "SyntaxType": "mod",
+                 "LexMatch": "spine",
+                 "InputMatch": "spine",
+                 "LexCat": "noun",
+                 "Tokens": ["spine"]
+               },
+               {
+                 "SyntaxType": "punc",
+                 "InputMatch": ",",
+                 "Tokens": []
+               }],
+             "PhraseStartPos": "237",
+             "PhraseLength": "25",
+             "Candidates": [],
+             "Mappings": [
+               {
+                 "MappingScore": "-586",
+                 "MappingCandidates": [
+                   {
+                     "CandidateScore": "-586",
+                     "CandidateCUI": "C0037949",
+                     "CandidateMatched": "Spine",
+                     "CandidatePreferred": "Vertebral column",
+                     "MatchedWords": ["spine"],
+                     "SemTypes": ["bpoc"],
+                     "MatchMaps": [
+                       {
+                         "TextMatchStart": "6",
+                         "TextMatchEnd": "6",
+                         "ConcMatchStart": "1",
+                         "ConcMatchEnd": "1",
+                         "LexVariation": "0"
+                       }],
+                     "IsHead": "no",
+                     "IsOverMatch": "no",
+                     "Sources": ["AOD","AOT","CHV","CSP","FMA","ICF","ICF-CY","LCH","LCH_NW","LNC","MSH","MTH","NCI","NCI_CDISC","NCI_NCI-GLOSS","NLMSubSyn","OMIM","SNM","SNMI","SNOMEDCT_US","SNOMEDCT_VET","UWDA"],
+                     "ConceptPIs": [
+                       {
+                         "StartPos": "256",
+                         "Length": "5"
+                       }],
+                     "Status": "0",
+                     "Negated": "0"
+                   }]
+               },
+               {
+                 "MappingScore": "-586",
+                 "MappingCandidates": [
+                   {
+                     "CandidateScore": "-586",
+                     "CandidateCUI": "C2752558",
+                     "CandidateMatched": "spine",
+                     "CandidatePreferred": "Neuron spine",
+                     "MatchedWords": ["spine"],
+                     "SemTypes": ["celc"],
+                     "MatchMaps": [
+                       {
+                         "TextMatchStart": "6",
+                         "TextMatchEnd": "6",
+                         "ConcMatchStart": "1",
+                         "ConcMatchEnd": "1",
+                         "LexVariation": "0"
+                       }],
+                     "IsHead": "no",
+                     "IsOverMatch": "no",
+                     "Sources": ["GO","MTH"],
+                     "ConceptPIs": [
+                       {
+                         "StartPos": "256",
+                         "Length": "5"
+                       }],
+                     "Status": "0",
+                     "Negated": "0"
+                   }]
+               }]
+           },
+           {
+             "PhraseText": "unresectable anaplastic astrocytoma s/p radiation.",
+             "SyntaxUnits": [
+               {
+                 "SyntaxType": "mod",
+                 "LexMatch": "unresectable",
+                 "InputMatch": "unresectable",
+                 "LexCat": "adj",
+                 "Tokens": ["unresectable"]
+               },
+               {
+                 "SyntaxType": "head",
+                 "LexMatch": "anaplastic astrocytoma",
+                 "InputMatch": "anaplastic astrocytoma",
+                 "LexCat": "noun",
+                 "Tokens": ["anaplastic","astrocytoma"]
+               },
+               {
+                 "SyntaxType": "prep",
+                 "LexMatch": "s/p",
+                 "InputMatch": "s / p",
+                 "LexCat": "prep",
+                 "Tokens": ["s","p"]
+               },
+               {
+                 "SyntaxType": "mod",
+                 "LexMatch": "radiation",
+                 "InputMatch": "radiation",
+                 "LexCat": "noun",
+                 "Tokens": ["radiation"]
+               },
+               {
+                 "SyntaxType": "punc",
+                 "InputMatch": ".",
+                 "Tokens": []
+               }],
+             "PhraseStartPos": "263",
+             "PhraseLength": "50",
+             "Candidates": [],
+             "Mappings": [
+               {
+                 "MappingScore": "-790",
+                 "MappingCandidates": [
+                   {
+                     "CandidateScore": "-790",
+                     "CandidateCUI": "C0280483",
+                     "CandidateMatched": "Anaplastic Astrocytoma",
+                     "CandidatePreferred": "Adult Anaplastic Astrocytoma",
+                     "MatchedWords": ["anaplastic","astrocytoma"],
+                     "SemTypes": ["neop"],
+                     "MatchMaps": [
+                       {
+                         "TextMatchStart": "2",
+                         "TextMatchEnd": "3",
+                         "ConcMatchStart": "1",
+                         "ConcMatchEnd": "2",
+                         "LexVariation": "0"
+                       }],
+                     "IsHead": "yes",
+                     "IsOverMatch": "no",
+                     "Sources": ["MTH","NCI","NCI_CTRP","NLMSubSyn","PDQ"],
+                     "ConceptPIs": [
+                       {
+                         "StartPos": "276",
+                         "Length": "22"
+                       }],
+                     "Status": "0",
+                     "Negated": "0"
+                   }]
+               },
+               {
+                 "MappingScore": "-790",
+                 "MappingCandidates": [
+                   {
+                     "CandidateScore": "-790",
+                     "CandidateCUI": "C0334579",
+                     "CandidateMatched": "Anaplastic Astrocytoma, Not Otherwise Specified",
+                     "CandidatePreferred": "Anaplastic astrocytoma",
+                     "MatchedWords": ["anaplastic","astrocytoma"],
+                     "SemTypes": ["neop"],
+                     "MatchMaps": [
+                       {
+                         "TextMatchStart": "2",
+                         "TextMatchEnd": "3",
+                         "ConcMatchStart": "1",
+                         "ConcMatchEnd": "2",
+                         "LexVariation": "0"
+                       }],
+                     "IsHead": "yes",
+                     "IsOverMatch": "no",
+                     "Sources": ["CHV","CSP","MSH","MTH","NCI","NCI_CDISC","NCI_CTEP-SDC","NLMSubSyn","SNM","SNMI","SNOMEDCT_US"],
+                     "ConceptPIs": [
+                       {
+                         "StartPos": "276",
+                         "Length": "22"
+                       }],
+                     "Status": "0",
+                     "Negated": "0"
+                   }]
+               }]
+           }]
+       }]
+   }
+ }
+]}

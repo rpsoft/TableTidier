@@ -40,7 +40,7 @@ baseFolder <- "~/ihw/tableAnnotator/Server/src/"
 # new_obj <- readRDS(paste0(baseFolder,"Full_set_of_tables_Prepared.Rds"))
 
 html_2_df <- function (pmid, page, collId, firstRow){
-
+  browser()
   # print(requestURL)
   url <- paste0("http://",requestURL,"/getTable?docid=",pmid,"&page=",page,"&collId=",collId)
   url <- URLencode(url, reserved = FALSE, repeated = FALSE) 

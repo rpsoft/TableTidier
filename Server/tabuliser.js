@@ -51,6 +51,14 @@ function _getFileResults() {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
+            if (!(annotation == null)) {
+              _context.next = 2;
+              break;
+            }
+
+            return _context.abrupt("return", []);
+
+          case 2:
             annotation.annotations.map(function (ann, a) {
               ann.pos = a;
             });
@@ -64,10 +72,10 @@ function _getFileResults() {
               });
             });
             _context.t0 = cheerio;
-            _context.next = 5;
+            _context.next = 7;
             return tableData;
 
-          case 5:
+          case 7:
             _context.t1 = _context.sent;
             $ = _context.t0.load.call(_context.t0, _context.t1);
             maxColumn = $("tr").toArray().reduce(function (acc, item, i) {
@@ -168,9 +176,9 @@ function _getFileResults() {
 
             _context.t2 = _regenerator["default"].keys((0, _toConsumableArray2["default"])(new Array(maxColumn).keys()));
 
-          case 13:
+          case 15:
             if ((_context.t3 = _context.t2()).done) {
-              _context.next = 30;
+              _context.next = 32;
               break;
             }
 
@@ -179,32 +187,32 @@ function _getFileResults() {
             count = 0;
             _context.t4 = _regenerator["default"].keys((0, _toConsumableArray2["default"])(new Array(maxRows).keys()));
 
-          case 18:
+          case 20:
             if ((_context.t5 = _context.t4()).done) {
-              _context.next = 26;
+              _context.next = 28;
               break;
             }
 
             r = _context.t5.value;
 
             if (!(matrix[r][c].text.trim().length < 1)) {
-              _context.next = 22;
+              _context.next = 24;
               break;
             }
 
-            return _context.abrupt("continue", 18);
+            return _context.abrupt("continue", 20);
 
-          case 22:
+          case 24:
             currentSpace = matrix[r][c].text.match(/(^\s*)/g) && matrix[r][c].text.match(/(^\s*)/g)[0];
 
             if (space == null || space.length > currentSpace.length) {
               space = currentSpace;
             }
 
-            _context.next = 18;
+            _context.next = 20;
             break;
 
-          case 26:
+          case 28:
             for (r in (0, _toConsumableArray2["default"])(new Array(maxRows).keys())) {
               currentSpace = matrix[r][c].text.match(/(^\s*)/g) && matrix[r][c].text.match(/(^\s*)/g)[0];
 
@@ -233,10 +241,10 @@ function _getFileResults() {
               }
             }
 
-            _context.next = 13;
+            _context.next = 15;
             break;
 
-          case 30:
+          case 32:
             headerRows = [];
             headerCols = [];
             existingHeadersCount = {};
@@ -369,7 +377,7 @@ function _getFileResults() {
             });
             return _context.abrupt("return", dataResults);
 
-          case 43:
+          case 45:
           case "end":
             return _context.stop();
         }
