@@ -1,9 +1,9 @@
 const prepareMetadata = (headerData, tableResults) => {
-    // debugger
+     // debugger
     if(!headerData.headers || headerData.headers.length < 1 || (!tableResults) ){
       return {}
     }
-
+    // debugger
     tableResults = tableResults.sort( (a,b) => a.row-b.row)
 
     var headerDataCopy = JSON.parse(JSON.stringify(headerData))

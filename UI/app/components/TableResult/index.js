@@ -45,6 +45,8 @@ function TableResult({
 
   if ( tableResult && tableResult.length > 0 ){
 
+    tableResult = tableResult.sort( (a,b) => ( a.row - b.row == 0 ) ? a.col - b.col : a.row - b.row )
+
     headers = Array.from(
                     new Set(
                       tableResult.map(
@@ -73,10 +75,18 @@ function TableResult({
         }
       })
 
-    headers = headers.sort( (a,b) => sortedHeaders.indexOf(a.Header) - sortedHeaders.indexOf(b.Header) )
+    var dataHeaders = headers.filter( (el) => ["col","row","value"].indexOf(el.Header) > -1 )
+    var dataCategories = headers.filter( (el) => ["col","row","value"].indexOf(el.Header) < 0 )
+
+    headers = [...dataHeaders, ...dataCategories]
+
+
+    // headers = headers.sort( (a,b) => sortedHeaders.indexOf(a.Header) - sortedHeaders.indexOf(b.Header) )
 
     data = tableResult
   }
+
+  // debugger
 
   return (
     <div style={{padding:"5px 7px 7px 7px"}} ref={ref} >

@@ -244,8 +244,8 @@ export function Annotator({
   const doUpdates = () => {
     if( annotator.tableData ){
       setAnnotations(annotator.annotations)
-
-      var header_data = annotator.annotations.map( ann => { return {head: Object.keys(ann.content).join(";"), sub: ann.subAnnotation } })
+      // debugger
+      var header_data = annotator.annotations.map( ann => { return {head: Object.keys(ann.content).reverse().join(";"), sub: ann.subAnnotation } })
 
       header_data = header_data.reduce( (acc, header,i) => {
                               acc.count[header.head] = acc.count[header.head] ? acc.count[header.head]+1 : 1;
@@ -267,7 +267,7 @@ export function Annotator({
       setMetadata(annotator.metadata)
 
       setCuisIndex(annotator.cuis_index)
-
+      // debugger
       setHeaderData( prepareMetadata(header_data, annotator.results) );
 
       setAlertData(annotator.alertData)
