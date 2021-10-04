@@ -13,13 +13,13 @@ var readyTable = async (docname, page, collection_id, enablePrediction = false) 
 
 
   //If an override file exists then use it!. Overrides are those produced by the editor.
-  var file_exists = await fs.existsSync( path.join(global.tables_folder_override, collection_id, docid) )
+  var override_file_exists = await fs.existsSync( path.join(global.tables_folder_override, collection_id, docid) )
 
-  if ( file_exists ) {
+  if ( override_file_exists ) {
     htmlFolder = path.join(global.tables_folder_override, collection_id) //"HTML_TABLES_OVERRIDE/"
   }
 
-  console.log("Loading Table: "+docid+" "+(file_exists ? " [Override Folder]" : ""))
+  console.log("Loading Table: "+docid+" "+(override_file_exists ? " [Override Folder]" : ""))
 
   var result = new Promise(function(resolve, reject) {
 
@@ -27,6 +27,12 @@ var readyTable = async (docname, page, collection_id, enablePrediction = false) 
     fs.readFile(path.join(htmlFolder,htmlFile), //already has collection_id in html_folder
                 "utf8",
                 function(err, data) {
+
+                  if ( (!data) || (data.trim().length < 1)){
+                      resolve({status: "failed", tableTitle: "", tableBody: "", predictedAnnotation: {} })
+                      return;
+                  }
+
                   fs.readFile(path.join(global.cssFolder,"stylesheet.css"),
                               "utf8",
                               async function(err2, data_ss) {
@@ -34,25 +40,28 @@ var readyTable = async (docname, page, collection_id, enablePrediction = false) 
                                   var tablePage;
 
                                   try{
-                                    // debugger
-                                      tablePage = cheerio.load(data);
+                                      // data = data.replace(/[^\x20-\x7E]+/g, "")  This removes any non-printable characters
+                                      tablePage = cheerio.load(data.replace(/[^\x20-\x7E]+/g, ""));
 
-
-                                      var tableEdited = false;
-                                      // tablePage("col").removeAttr('style');
-                                      if ( !tablePage ){
-                                            resolve({htmlHeader: "",formattedPage : "", title: "" })
+                                      if ( (!tablePage) || (data.trim().length < 1)){
+                                            // resolve({htmlHeader: "",formattedPage : "", title: "" }) //Failed or empty
+                                            resolve({status: "failed", tableTitle: "", tableBody: "", predictedAnnotation: {} })
                                             return;
+
                                       }
 
+                                      var tableEdited = false;
+
+                                      if ( ! (tablePage('table').text().length > 0) ){ // Prevents infinite loop caused when no tables are present.
+                                          resolve({status: "failed no table tag found ", tableTitle: "", tableBody: "", predictedAnnotation: {} })
+                                          return;
+                                      }
 
                                       // Remove all empty rows from the top.
-                                      while ( tablePage('table tr:nth-child(1)').text().trim().length == 0 ) {
+                                      while ( (tablePage('table').text().length > 0) && (tablePage('table tr:nth-child(1)').text().trim().length == 0 )) {
                                         tablePage('table tr:nth-child(1)').remove()
                                         tableEdited = true;
                                       }
-                                      //
-                                      // debugger
 
                                       // "remove NCT column on the fly"
 
@@ -75,8 +84,6 @@ var readyTable = async (docname, page, collection_id, enablePrediction = false) 
                                         tablePage("i").closest("td").addClass("italic")
                                         tablePage("i").map( (i,el) => { var content = cheerio(el).html(); var parent = cheerio(el).parent(); cheerio(el).remove(); parent.append( content ) } )
 
-                                        // debugger
-
                                         tableEdited = true
                                         // fs.writeFile(htmlFolder+htmlFile,  tablePage.html(), function (err) {
                                         //   if (err) throw err;
@@ -93,7 +100,7 @@ var readyTable = async (docname, page, collection_id, enablePrediction = false) 
                                         });
                                       }
 
-                                      // debugger
+
 
 
 
@@ -178,7 +185,6 @@ var readyTable = async (docname, page, collection_id, enablePrediction = false) 
                 });
         } catch ( e ){
           console.log(e)
-           // debugger
             reject({status:"bad"})
         }
       });
@@ -186,7 +192,6 @@ var readyTable = async (docname, page, collection_id, enablePrediction = false) 
       return result
     } catch (e){
       console.log(e)
-      // debugger
       return {status:"bad"}
     }
 }
@@ -222,7 +227,6 @@ var attemptPrediction = async (actual_table) => {
                   var term = term.replace(/\$nmbr\$/g, 0)
                   var numberless_size = term.replace(/([^A-z0-9 ])/g, "").replace(/[0-9]+/g, '').replace(/ +/g," ").trim().length
                   var spaceless_size = term.replace(/([^A-z0-9 ])/g, "").replace(/ +/g," ").trim().length
-                  // debugger
                   return spaceless_size == 0 ? "" : (numberless_size >= spaceless_size/2 ? "text" : "numeric")
 
                 }
@@ -323,7 +327,6 @@ var attemptPrediction = async (actual_table) => {
                 var col_array = getColumnAsArray(format_matrix,col)
 
                 var indices_w_format = getMatchingIndices( col_array, [format_key])
-                // debugger
                 // If the cells with this formatting are rare. then ignore.
                 if ( format_key.indexOf("empty_row") < 0 && indices_w_format.length <= 2){ // Emptyrows are rare so, they are exempt
                   continue
@@ -341,7 +344,6 @@ var attemptPrediction = async (actual_table) => {
                 var content_array = getColumnAsArray(content_type_matrix, col)
 
 
-                // debugger
                 if (getFreqs(content_array).freqs["text"] < (content_array.length/2) ){
                   continue;
                 }
@@ -389,7 +391,6 @@ var attemptPrediction = async (actual_table) => {
               }
 
               if ( descriptors.length > 0 ){
-                  // debugger
                 row_top_descriptors[row_top_descriptors.length] = {descriptors, c : row , unique_modifier: ""}
               }
             }
@@ -403,7 +404,6 @@ var attemptPrediction = async (actual_table) => {
 
             // col_top_descriptors[col_top_descriptors.length] = {descriptors, c , unique_modifier}
             // row_top_descriptors[row_top_descriptors.length] = {descriptors, c : r , unique_modifier:""}
-            //debugger
             // Eliminates rows/cols given a descriptor set that exceeds the amount allowed by the threshold w.r.t. the total.
             var sanitiseItemRepetition = (top_descriptors, total, threshold = 0.40) => {
               var similarRowCounts = top_descriptors.reduce( (acc, row_item, r) => {
@@ -603,7 +603,6 @@ var prepareAvailableDocuments = async (collection_id) => {
                         b = b.match(/([\w\W]*)_([0-9]*).html/)
                         var st_a = {docid: a[1], page:a[2]}
                         var st_b = {docid: b[1], page:b[2]}
-                        // debugger
                         var dd = st_a.docid.localeCompare(st_b.docid);
                         return dd == 0 ? parseInt(st_a.page) - parseInt(st_b.page) : dd
 
@@ -719,7 +718,6 @@ var prepareAvailableDocuments = async (collection_id) => {
 }
 
 module.exports = {
-  // readyTable,
   readyTable,
   prepareAvailableDocuments,
 }

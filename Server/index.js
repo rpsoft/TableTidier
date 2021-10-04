@@ -133,35 +133,33 @@ app.post(CONFIG.api_base_url + '/createUser', /*#__PURE__*/function () {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            debugger;
-            _context.prev = 1;
-            debugger;
-            _context.next = 5;
+            _context.prev = 0;
+            _context.next = 3;
             return (0, _security.createUser)(req.body);
 
-          case 5:
+          case 3:
             result = _context.sent;
             res.json({
               status: "success",
               payload: result
             });
-            _context.next = 12;
+            _context.next = 10;
             break;
 
-          case 9:
-            _context.prev = 9;
-            _context.t0 = _context["catch"](1);
+          case 7:
+            _context.prev = 7;
+            _context.t0 = _context["catch"](0);
             res.json({
               status: "failed",
               payload: ""
             });
 
-          case 12:
+          case 10:
           case "end":
             return _context.stop();
         }
       }
-    }, _callee, null, [[1, 9]]);
+    }, _callee, null, [[0, 7]]);
   }));
 
   return function (_x, _x2) {
@@ -667,11 +665,9 @@ var tabularFromAnnotation = /*#__PURE__*/function () {
                   });
                   return rowValues;
                 });
-                debugger;
               });
             } catch (e) {
               console.log(e);
-              debugger;
             }
 
           case 10:
@@ -1082,7 +1078,6 @@ var setMetadata = /*#__PURE__*/function () {
             return client.query("\n        INSERT INTO metadata(concept_source, concept_root, concept, cuis, cuis_selected, qualifiers, qualifiers_selected, istitle, labeller, tid)\n        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)\n        ON CONFLICT (concept_source, concept_root, concept, tid)\n        DO UPDATE SET cuis = $4, cuis_selected = $5, qualifiers = $6, qualifiers_selected = $7, istitle = $8, labeller = $9", [metadata[key].concept_source, metadata[key].concept_root, metadata[key].concept, metadata[key].cuis.join(";"), metadata[key].cuis_selected.join(";"), metadata[key].qualifiers.join(";"), metadata[key].qualifiers_selected.join(";"), metadata[key].istitle, metadata[key].labeller, metadata[key].tid]).then(function (result) {
               return console.log("insert: " + key + " -- " + new Date());
             })["catch"](function (e) {
-              // debugger
               console.error(metadata[key].concept + " -- " + "insert failed: " + key + " -- " + new Date());
             }).then(function () {
               return client.release();
@@ -1772,8 +1767,7 @@ app.post(CONFIG.api_base_url + '/collections', /*#__PURE__*/function () {
             collectionPermissions = _context29.sent;
             response = {
               status: "failed"
-            }; // debugger
-            // var available_options = {
+            }; // var available_options = {
             //
             // }
             // if ( validate_user ){
@@ -2267,7 +2261,6 @@ app.post(CONFIG.api_base_url + '/search', /*#__PURE__*/function () {
             console.log("SEARCH: " + search_results.length + " for " + bod); // if ( search_results.length > 100){
             //   search_results = search_results.slice(0,100)
             // }
-            // debugger
 
             res.json(search_results); // } else {
             //   res.json([])
@@ -2382,8 +2375,7 @@ app.post(CONFIG.api_base_url + '/getTableContent', /*#__PURE__*/function () {
                 }
               }; // var tData = tableData.collectionData.tables.filter( ( table ) => { return table.docid == req.body.docid && table.page == req.body.page } )
 
-              predAnnotationData.annotation.annotations = [].concat((0, _toConsumableArray2["default"])(rows), (0, _toConsumableArray2["default"])(cols)); // debugger
-
+              predAnnotationData.annotation.annotations = [].concat((0, _toConsumableArray2["default"])(rows), (0, _toConsumableArray2["default"])(cols));
               tableData.annotationData = predAnnotationData;
             }
 
@@ -2585,8 +2577,7 @@ var prepareAnnotationPreview = /*#__PURE__*/function () {
             tableResults = _context40.sent;
             tableResults.map(function (item) {
               item.docid_page = entry.docid + "_" + entry.page;
-            }); // debugger
-
+            });
             return _context40.abrupt("return", {
               "state": "good",
               result: tableResults
@@ -3212,8 +3203,7 @@ var processHeaders = /*#__PURE__*/function () {
             allConceptPairs = Object.keys(headers).reduce(function (acc, concepts) {
               acc.push(headers[concepts]);
               return acc;
-            }, []).flat(); // debugger
-
+            }, []).flat();
             _final = allConceptPairs.reduce(function (acc, con, i) {
               var concept = con[con.length - 1].toLowerCase().trim();
               var root = con.slice(0, con.length - 1).join(" ").toLowerCase().trim();
@@ -3938,7 +3928,6 @@ var processAnnotationAndMetadata = /*#__PURE__*/function () {
             }
 
             // .annotations.map( ann => { return {head: Object.keys(ann.content).join(";"), sub: ann.subAnnotation } })
-            // debugger
             tid = tabularData.backAnnotation.rows[0].tid;
             header_data = tabularData.backAnnotation.rows[0].annotation.map(function (ann) {
               return {
@@ -3977,7 +3966,6 @@ var processAnnotationAndMetadata = /*#__PURE__*/function () {
 
           case 11:
             hedDatra = _context59.sent;
-            // debugger
             metadata = Object.keys(hedDatra).map(function (key) {
               var cuis = hedDatra[key].labels.map(function (label) {
                 return label.CUI;

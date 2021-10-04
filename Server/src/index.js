@@ -110,10 +110,8 @@ app.post(CONFIG.api_base_url+'/login', function(req, res, next) {
   });
 
 app.post(CONFIG.api_base_url+'/createUser', async function(req, res) {
-  debugger
   var result;
   try{
-    debugger
     result = await createUser(req.body)
     res.json({status:"success", payload: result })
   } catch (e){
@@ -173,7 +171,6 @@ var tableSplitter = async ( tablePath ) => {
                   })
 
   tablesHTML = await tablesHTML
-  // debugger
   return tablesHTML
 }
 
@@ -399,12 +396,10 @@ const tabularFromAnnotation = async ( annotation ) => {
                     return rowValues
                   });
 
-                  debugger
 
                 })
   } catch (e){
     console.log(e)
-    debugger
   }
 
 
@@ -573,8 +568,6 @@ const setMetadata = async ( metadata ) => {
 
       var client = await pool.connect()
 
-      // debugger
-
       var done = await client.query(`
         INSERT INTO metadata(concept_source, concept_root, concept, cuis, cuis_selected, qualifiers, qualifiers_selected, istitle, labeller, tid)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
@@ -586,7 +579,6 @@ const setMetadata = async ( metadata ) => {
 
           .then(result => console.log("insert: "+key+" -- "+ new Date()))
           .catch(e => {
-            // debugger
             console.error(metadata[key].concept+" -- "+"insert failed: "+key+" -- "+ new Date())
           })
           .then(() => client.release())
@@ -871,7 +863,6 @@ app.post(CONFIG.api_base_url+'/collections', async function(req,res){
 
   var response = {status: "failed"}
 
-  // debugger
   // var available_options = {
   //
   // }
@@ -1078,8 +1069,6 @@ app.post(CONFIG.api_base_url+'/search', async function(req,res){
   //   search_results = search_results.slice(0,100)
   // }
 
-  // debugger
-
   res.json(search_results)
   // } else {
   //   res.json([])
@@ -1150,7 +1139,7 @@ app.post(CONFIG.api_base_url+'/getTableContent',async function(req,res){
             // var tData = tableData.collectionData.tables.filter( ( table ) => { return table.docid == req.body.docid && table.page == req.body.page } )
             predAnnotationData.annotation.annotations = [...rows, ...cols]
 
-             // debugger
+
             tableData.annotationData = predAnnotationData
 
           }
@@ -1163,6 +1152,7 @@ app.post(CONFIG.api_base_url+'/getTableContent',async function(req,res){
         }
       } catch (e){
         console.log(e)
+
         res.json({status: "getTableContent: probably page out of bounds, or document does not exist", body : req.body})
       }
 
@@ -1233,14 +1223,10 @@ const prepareAnnotationPreview = async (docid, page, collId, cachedOnly) => {
 
         var override_exists = await fs.existsSync(path.join(global.tables_folder_override, entry.collection_id, entry.file_path))
 
-        // debugger
         var tableResults = await getFileResults(entry.annotation, path.join(override_exists ? tables_folder_override : global.tables_folder, entry.collection_id, entry.file_path) )
             tableResults.map( item => { item.docid_page = entry.docid+"_"+entry.page })
-        // debugger
 
         return {"state" : "good", result : tableResults}
-      //  debugger
-
       } else {
         return {"state" : "fail", result : []}
       }
@@ -1571,8 +1557,6 @@ const processHeaders = async (headers) => {
 
        var allConceptPairs = Object.keys(headers).reduce ( (acc,concepts) => {acc.push(headers[concepts]); return acc} , [] ).flat()
 
-
-       // debugger
        var final = allConceptPairs.reduce ( (acc,con,i) => {
                 var concept = con[con.length-1].toLowerCase().trim()
                 var root = con.slice(0,con.length-1).join(" ").toLowerCase().trim()
@@ -1913,7 +1897,6 @@ const processAnnotationAndMetadata = async (docid,page,collId) => {
     if (tabularData.backAnnotation && tabularData.backAnnotation.rows.length > 0 && tabularData.backAnnotation.rows[0].annotation ){
 
       // .annotations.map( ann => { return {head: Object.keys(ann.content).join(";"), sub: ann.subAnnotation } })
-      // debugger
 
       var tid = tabularData.backAnnotation.rows[0].tid
 
@@ -1952,8 +1935,6 @@ const processAnnotationAndMetadata = async (docid,page,collId) => {
       var headDATA = prepareMetadata(header_data, tabularData.result)
 
       var hedDatra = await processHeaders(headDATA)
-
-      // debugger
 
       var metadata = Object.keys(hedDatra).map( (key) => {
         var cuis = hedDatra[key].labels.map( (label) => {return label.CUI} )
