@@ -518,36 +518,16 @@ export function CollectionView({
 
 
                       <div className={classes.buttonHolder}>
-                        {
                           <Button variant="contained" onClick={ () => { downloadData("results", tables.map( t => t.tid ) )}}> Data CSV <DownloadIcon/></Button>
-                          // <CsvDownloader
-                          //   filename={"collection_data.csv"}
-                          //   separator=";"
-                          //   wrapColumnChar="'"
-                          //   columns={[]}
-                          //   datas={[]}
-                          // >
-                          // <Button variant="contained" disabled = { noTables == 0 }> Data CSV <DownloadIcon/></Button>
-                          // </CsvDownloader>
-                        }
                         </div>
 
                       <div className={classes.buttonHolder}>
-                        {
-                          // <CsvDownloader
-                          //   filename={"collection_metadata.csv"}
-                          //   separator=";"
-                          //   wrapColumnChar="'"
-                          //   columns={[]}
-                          //   datas={[]}
-                          // >
-                          //   <Button variant="contained" disabled = { noTables == 0 }> Metadata CSV <DownloadIcon/></Button>
-                          // </CsvDownloader>
-                          }
                           <Button variant="contained" onClick={ () => { downloadData("metadata", tables.map( t => t.tid ) )}}> Metadata CSV <DownloadIcon/></Button>
                         </div>
 
-
+                      <div className={classes.buttonHolder}>
+                          <Button variant="contained" onClick={ () => { downloadData("json", tables.map( t => t.tid ) )}}> Data & Metadata JSON <DownloadIcon/></Button>
+                        </div>
 
 
                   </div>

@@ -292,6 +292,18 @@ export function* downloadTids({target, tids}) {
   //   {id: "1", data: [`thingsd , dom,ethign " else '`, `hello fudfa vjdf`].join(",")},{id: "2", data: JSON.stringify([2043,32,423,52,23,4,5,4])}
   // ])
 
+  const downloadFile = async (data, filename = "mydata") => {
+    const fileName = filename;
+    const json = JSON.stringify(data);
+    const blob = new Blob([json],{type:'application/json'});
+    const href = await URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = href;
+    link.download = fileName + ".json";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
 
   try {
     const response = yield call(request, requestURL, options);
@@ -301,36 +313,66 @@ export function* downloadTids({target, tids}) {
       yield put( yield issueAlertAction({ open: true, message: "Failed Data download", isError: true }))
     } else {
 
-      if ( target.indexOf("result") > -1 ){
-        var result = response.data.rows.reduce(
-          (acc, tableData, i) => {
-            tableData.tableResult.map(
-              (tres) => {
-                acc.data.push( {tid: tableData.tid, ...tres} );
-                acc.headers = Array.from( new Set([...acc.headers,... Object.keys(tres)]));
-              }); return acc;
-            }, {data:[],headers:[]})
+      switch (target) {
+        case "result":
+          var result = response.data.rows.reduce(
+            (acc, tableData, i) => {
+              tableData.tableResult.map(
+                (tres) => {
+                  acc.data.push( {tid: tableData.tid, ...tres} );
+                  acc.headers = Array.from( new Set([...acc.headers,... Object.keys(tres)]));
+                }); return acc;
+              }, {data:[],headers:[]})
 
-        var headers = result.headers.map( heads => { return {id: heads, displayName: heads} } )
-        var data = result.data
-        data = data.map( (item) => {var headers = Object.keys(item); headers.map( head => { if (typeof item[head] === 'string'){ item[head] = item[head].trim() }  }); return item  } )
+          var headers = result.headers.map( heads => { return {id: heads, displayName: heads} } )
+          var data = result.data
+          data = data.map( (item) => {var headers = Object.keys(item); headers.map( head => { if (typeof item[head] === 'string'){ item[head] = item[head].trim() }  }); return item  } )
+          downloadData("collection_"+parsed.collId+"_results.csv", headers, data)
+          break;
+        case "metadata":
+          var result = response.data.rows.reduce(
+                    (acc, tableData, i) => {
+                          acc.data.push( {tid: tableData.tid, ...tableData} );
+                          acc.headers = Array.from( new Set([...acc.headers,... Object.keys(tableData)]));
+                        return acc;
+                      }, {data:[],headers:[]})
+          var headers = result.headers.map( heads => { return {id: heads, displayName: heads} } )
+          var data = result.data.map( (item) => {var headers = Object.keys(item); headers.map( head => { if (typeof item[head] === 'string'){ item[head] = item[head].trim() }  }); return item  } )
+          downloadData("collection_"+parsed.collId+"_metadata.csv", headers, data)
+          break;
+        case "json":
+          downloadFile( response.data, "collection_"+parsed.collId+"_all")
+          break;
+        default:
 
-
-
-        downloadData("collection_"+parsed.collId+"_results.csv", headers, data)
-      } else {
-        var result = response.data.rows.reduce(
-                  (acc, tableData, i) => {
-                        acc.data.push( {tid: tableData.tid, ...tableData} );
-                        acc.headers = Array.from( new Set([...acc.headers,... Object.keys(tableData)]));
-                      return acc;
-                    }, {data:[],headers:[]})
-        var headers = result.headers.map( heads => { return {id: heads, displayName: heads} } )
-        var data = result.data.map( (item) => {var headers = Object.keys(item); headers.map( head => { if (typeof item[head] === 'string'){ item[head] = item[head].trim() }  }); return item  } )
-
-
-        downloadData("collection_"+parsed.collId+"_metadata.csv", headers, data)
       }
+      // if ( target.indexOf("result") > -1 ){
+      //   var result = response.data.rows.reduce(
+      //     (acc, tableData, i) => {
+      //       tableData.tableResult.map(
+      //         (tres) => {
+      //           acc.data.push( {tid: tableData.tid, ...tres} );
+      //           acc.headers = Array.from( new Set([...acc.headers,... Object.keys(tres)]));
+      //         }); return acc;
+      //       }, {data:[],headers:[]})
+      //
+      //   var headers = result.headers.map( heads => { return {id: heads, displayName: heads} } )
+      //   var data = result.data
+      //   data = data.map( (item) => {var headers = Object.keys(item); headers.map( head => { if (typeof item[head] === 'string'){ item[head] = item[head].trim() }  }); return item  } )
+      //   downloadData("collection_"+parsed.collId+"_results.csv", headers, data)
+      // } else {
+      //   var result = response.data.rows.reduce(
+      //             (acc, tableData, i) => {
+      //                   acc.data.push( {tid: tableData.tid, ...tableData} );
+      //                   acc.headers = Array.from( new Set([...acc.headers,... Object.keys(tableData)]));
+      //                 return acc;
+      //               }, {data:[],headers:[]})
+      //   var headers = result.headers.map( heads => { return {id: heads, displayName: heads} } )
+      //   var data = result.data.map( (item) => {var headers = Object.keys(item); headers.map( head => { if (typeof item[head] === 'string'){ item[head] = item[head].trim() }  }); return item  } )
+      //
+      //
+      //   downloadData("collection_"+parsed.collId+"_metadata.csv", headers, data)
+      // }
 
 
     }

@@ -379,7 +379,18 @@ export function Annotator({
 
   const fileNameRoot = () => [docid,page,collId].join("_")
 
-
+  const downloadFile = async (data, filename = "mydata") => {
+    const fileName = filename;
+    const json = JSON.stringify(data);
+    const blob = new Blob([json],{type:'application/json'});
+    const href = await URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = href;
+    link.download = fileName + ".json";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
 
 
   return (
@@ -519,30 +530,38 @@ export function Annotator({
                 }
 
                 <ListItem button>
-                  <CsvDownloader
-                    filename={fileNameRoot()+"_table_data.csv"}
-                    separator=";"
-                    wrapColumnChar="'"
-                    columns={annotationHeaders.map( item => { return {id: item, displayName: item} } )}
-                    datas={results}
-                  >
-                    <ListItemIcon style={{display:"inline"}}><DownloadIcon style={{fontSize:25}} /></ListItemIcon>
-                    <ListItemText style={{display:"inline", marginLeft:5 }} primary="Table Data (.csv)" />
-                  </CsvDownloader>
+                  <ListItemIcon style={{display:"inline"}}><DownloadIcon style={{fontSize:25}} /></ListItemIcon>
+
+                  <ListItemText style={{display:"inline", marginLeft:5 }} primary={
+                    <CsvDownloader
+                      filename={fileNameRoot()+"_table_data.csv"}
+                      separator=";"
+                      wrapColumnChar="'"
+                      columns={annotationHeaders.map( item => { return {id: item, displayName: item} } )}
+                      datas={results}
+                    >
+                      Table Data (.csv)
+                    </CsvDownloader>
+                  } />
+
                 </ListItem>
 
                 <ListItem button>
-                  <CsvDownloader
-                    filename={fileNameRoot()+"_table_metadata.csv"}
-                    separator=";"
-                    wrapColumnChar="'"
-                    columns={ Object.values(metadata)[0] ? Object.keys(Object.values(metadata)[0]).map( item => { return {id: item, displayName: item} } ) : []}
-                    datas={Object.values(metadata)}
-                  >
-                    <ListItemIcon style={{display:"inline"}}><DownloadIcon style={{fontSize:25}}/></ListItemIcon>
-                    <ListItemText style={{display:"inline", marginLeft:5}} primary="Table Metadata (.csv)" />
-                  </CsvDownloader>
+                  <ListItemIcon style={{display:"inline"}}><DownloadIcon style={{fontSize:25}}/></ListItemIcon>
+                    <ListItemText style={{display:"inline", marginLeft:5}} primary={<CsvDownloader
+                      filename={fileNameRoot()+"_table_metadata.csv"}
+                      separator=";"
+                      wrapColumnChar="'"
+                      columns={ Object.values(metadata)[0] ? Object.keys(Object.values(metadata)[0]).map( item => { return {id: item, displayName: item} } ) : []}
+                      datas={Object.values(metadata)}
+                    > Table Metadata (.csv) </CsvDownloader>} />
                 </ListItem>
+
+                <ListItem button onClick={ ()=> {downloadFile({tableResults: annotator.results, metadata: annotator.metadata}, fileNameRoot()+"_all_data" )}}>
+                    <ListItemIcon style={{display:"inline"}}><DownloadIcon style={{fontSize:25}}/></ListItemIcon>
+                    <ListItemText style={{display:"inline", marginLeft:5}} primary="Results & Metadata (.json)" />
+                </ListItem>
+
               </List>
             </Drawer>
         </div>
