@@ -562,6 +562,11 @@ export function Annotator({
                     <ListItemText style={{display:"inline", marginLeft:5}} primary="Results & Metadata (.json)" />
                 </ListItem>
 
+                <ListItem button onClick={ ()=> {downloadFile({annotation: annotator.annotations}, fileNameRoot()+"_annotation" )}}>
+                    <ListItemIcon style={{display:"inline"}}><DownloadIcon style={{fontSize:25}}/></ListItemIcon>
+                    <ListItemText style={{display:"inline", marginLeft:5}} primary="Annotation (.json)" />
+                </ListItem>
+
               </List>
             </Drawer>
         </div>

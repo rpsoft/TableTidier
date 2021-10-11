@@ -4,7 +4,8 @@
   "description": "IHW Table Annotator",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha testing/tabuliser_testing.js",
+    "test_brk": "mocha --inspect-brk testing/tabuliser_testing.js"
   },
   "repository": {
     "type": "git",

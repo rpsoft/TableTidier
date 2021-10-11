@@ -296,8 +296,9 @@ async function getFileResults (annotation, filePath){
                     acc.push ({
                         ...existingHeaders,
                         ...newHeaders,
-                        col: c, row: r,
-                        value: currentCell.text.replace(/\s+/g, ' ').trim()
+                        col: c,
+                        row: r,
+                        value: currentCell.text.replace(/\s+/g, ' ').trim(),
                     })
 
                 }
@@ -322,7 +323,6 @@ async function getFileResults (annotation, filePath){
 
 
 // async function main () {
-
 //     const annotation = {"annotations":
 //         [
 //             {"location":"Row","content":{"arms":true,"measures":true},"qualifiers":{},"number":"2","subAnnotation":false},
