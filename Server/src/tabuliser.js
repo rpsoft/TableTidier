@@ -35,6 +35,8 @@ async function getFileResults (annotation, filePath){
 
         matrix = clone(matrix)
 
+    // debugger
+
     $("tr").toArray().map(
         (row, r) => {
             var coffset = 0;
@@ -70,7 +72,7 @@ async function getFileResults (annotation, filePath){
                                 format.push("italic")
                             }
 
-                            matrix[r][c] = {...matrix[r][c], text: $(col).text().replaceAll("\n",""), format : format }
+                            matrix[r][c] = {...matrix[r][c], text: $(col).text().replaceAll((/  |\t|\r\n|\n|\r/gm),"").trim(), format : format }
 
                             var colspan = $(col).attr("colspan")-1
 
@@ -94,18 +96,43 @@ async function getFileResults (annotation, filePath){
 
                         })
 
-            var maxColHeader = Math.max(...annotation.annotations.filter( el => el.location == "Col").map( el => el.number-1))
+            // Out of the columns what's the max column number containing a header?
+            var maxColHeader = Math.max(...annotation.annotations.filter( el => el.location == "Col").map( el => parseInt(el.number)-1))
 
             // here we check if the content is exactly the same across row cells. Since we spread the out in the previous steps, if an empty row, all cells should be the same.
-            var isEmptyRow = matrix[r].reduce( (acc, col, c) => { return (c > maxColHeader) ? (acc && (col.text == matrix[r][maxColHeader+1].text)) : acc && true}, true)
+            var isEmptyRow = matrix[r].slice(maxColHeader+1).map( c => c.text ).join("").length < 1
+
+            // var isEmptyRow = matrix[r].reduce(
+            //   (acc, col, c) => {
+            //
+            //     return (c > maxColHeader) ? (acc && (col.text == matrix[r][maxColHeader+1].text)) : acc && true
+            //
+            //   }, true)
+
+            // Find the index position of the first and last non empty cells.
+            var firstAndLast = matrix[r].map( col => col.text ).reduce(
+              (acc, col, i, mat) => {
+                if ( (i+1 < mat.length) && col.length > 0 && mat[i+1].length < 1 && acc.first < 0 ){
+                  acc.first = i;
+                }
+                if ( i > 0 && col.length > 0 && mat[i-1].length < 1 ){
+                  acc.last = i;
+                }
+                return acc
+              }, {first:-1, last:-1} )
+
+            var isEmptyRowWithPValue = firstAndLast.first > -1 && firstAndLast.last > -1 && ((firstAndLast.last - firstAndLast.first) > 1)
 
             // similarly, all but the last one should be the same, if empty row with p-value.
-            var isEmptyRowWithPValue = matrix[r].reduce( (acc, col, c) => {
-
-                var answer = (c > maxColHeader) && ( c < (matrix[r].length-1)) ? (acc && (col.text == matrix[r][maxColHeader+1].text) && (col.text != matrix[r][maxColumn-1].text)) : acc && true
-
-                return answer
-            }, true)
+            // var isEmptyRowWithPValue = matrix[r].reduce( (acc, col, c) => {
+            //
+            //     var answer = (c > maxColHeader) && ( c < (matrix[r].length-1)) ? (acc && (col.text == matrix[r][maxColHeader+1].text) && (col.text != matrix[r][maxColumn-1].text)) : acc && true
+            //     debugger
+            //     return answer
+            // }, true)
+            // if ( r > 6){
+            //   debugger
+            // }
 
             matrix[r].map(
                 (col,c) => {
@@ -123,7 +150,6 @@ async function getFileResults (annotation, filePath){
                 })
 
         })
-
 
     //normalise trailing spaces to facilitate indent detection
     for ( var c in [...new Array(maxColumn).keys()]){
@@ -198,14 +224,21 @@ async function getFileResults (annotation, filePath){
     annotation.annotations.filter( el => el.location == "Row").map( el =>{
             matrix[el.number-1].map( (mc,c) => {
 
+                if ( c > 0 && mc.text.trim().length < 1 ){
+                    matrix[el.number-1][c].text = matrix[el.number-1][c-1].text //clone(matrix[el.number-1][c-1])
+                }
+
                 var rowcontent = {...matrix[el.number-1][c].rowcontent }
                     rowcontent[el.annotationKey] = matrix[el.number-1][c].text.replace(/\s+/g, ' ').trim()
 
                 matrix[el.number-1][c].rowcontent = rowcontent
+
                 headerRows = Array.from(new Set([...headerRows,el.number-1]))
+
                 })
             })
 
+    // Spread col header values??? Need to revise what this does.
     annotation.annotations.filter( el => el.location == "Col").map( el =>{
 
         matrix.map( (row, r) => {
@@ -233,8 +266,6 @@ async function getFileResults (annotation, filePath){
             });
 
         })
-
-
 
     var colHeadersBuffer = annotation.annotations.filter( el => el.location == "Col").reduce( (acc,el) => { acc[el.annotationKey] = ""; return acc }, {} )
 
