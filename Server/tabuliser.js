@@ -96,6 +96,8 @@ function _getFileResults() {
             $("tr").toArray().map(function (row, r) {
               var coffset = 0;
               $(row).children().toArray().map(function (col, c) {
+                var _$$attr, _$$attr$toLowerCase, _$$attr2, _$$attr2$toLowerCase, _$$attr3, _$$attr3$toLowerCase;
+
                 c = c + coffset;
                 var emptyOffset = 0;
 
@@ -106,19 +108,21 @@ function _getFileResults() {
                   if (c >= maxColumn) {
                     return;
                   }
-                }
+                } //<em>
+
 
                 var format = [];
 
-                if ($(col).find("[class*=indent]").length > 0) {
+                if ($(col).find("[class*=indent]").length > 0 || ((_$$attr = $(col).attr("class")) === null || _$$attr === void 0 ? void 0 : (_$$attr$toLowerCase = _$$attr.toLowerCase()) === null || _$$attr$toLowerCase === void 0 ? void 0 : _$$attr$toLowerCase.indexOf("indent")) > -1) {
                   format.push("indented");
-                }
+                } // debugger
 
-                if ($(col).find("[style*=bold]").length > 0) {
+
+                if ($(col).find("[style*=bold]").length > 0 || ((_$$attr2 = $(col).attr("class")) === null || _$$attr2 === void 0 ? void 0 : (_$$attr2$toLowerCase = _$$attr2.toLowerCase()) === null || _$$attr2$toLowerCase === void 0 ? void 0 : _$$attr2$toLowerCase.indexOf("bold")) > -1) {
                   format.push("bold");
                 }
 
-                if ($(col).find("[style*=italic]").length > 0) {
+                if ($(col).find("[style*=italic]").length > 0 || ((_$$attr3 = $(col).attr("class")) === null || _$$attr3 === void 0 ? void 0 : (_$$attr3$toLowerCase = _$$attr3.toLowerCase()) === null || _$$attr3$toLowerCase === void 0 ? void 0 : _$$attr3$toLowerCase.indexOf("italic")) > -1 || $(col).html().replaceAll(" ", "").indexOf("<em>") > -1) {
                   format.push("italic");
                 }
 
@@ -140,7 +144,9 @@ function _getFileResults() {
 
                 if (rowspan > 0) {
                   for (var rspan = 1; rspan <= rowspan; rspan++) {
-                    matrix[r + rspan][c] = matrix[r][c];
+                    if (r + rspan < matrix.length) {
+                      matrix[r + rspan][c] = matrix[r][c];
+                    }
                   }
                 }
               }); // Out of the columns what's the max column number containing a header?
@@ -153,13 +159,7 @@ function _getFileResults() {
 
               var isEmptyRow = matrix[r].slice(maxColHeader + 1).map(function (c) {
                 return c.text;
-              }).join("").length < 1; // var isEmptyRow = matrix[r].reduce(
-              //   (acc, col, c) => {
-              //
-              //     return (c > maxColHeader) ? (acc && (col.text == matrix[r][maxColHeader+1].text)) : acc && true
-              //
-              //   }, true)
-              // Find the index position of the first and last non empty cells.
+              }).join("").length < 1; // Find the index position of the first and last non empty cells.
 
               var firstAndLast = matrix[r].map(function (col) {
                 return col.text;
@@ -177,17 +177,7 @@ function _getFileResults() {
                 first: -1,
                 last: -1
               });
-              var isEmptyRowWithPValue = firstAndLast.first > -1 && firstAndLast.last > -1 && firstAndLast.last - firstAndLast.first > 1; // similarly, all but the last one should be the same, if empty row with p-value.
-              // var isEmptyRowWithPValue = matrix[r].reduce( (acc, col, c) => {
-              //
-              //     var answer = (c > maxColHeader) && ( c < (matrix[r].length-1)) ? (acc && (col.text == matrix[r][maxColHeader+1].text) && (col.text != matrix[r][maxColumn-1].text)) : acc && true
-              //     debugger
-              //     return answer
-              // }, true)
-              // if ( r > 6){
-              //   debugger
-              // }
-
+              var isEmptyRowWithPValue = firstAndLast.first > -1 && firstAndLast.last > -1 && firstAndLast.last - firstAndLast.first > 1;
               matrix[r].map(function (col, c) {
                 var format = matrix[r][c].format ? (0, _toConsumableArray2["default"])(matrix[r][c].format) : [];
 
@@ -279,17 +269,18 @@ function _getFileResults() {
             headerRows = [];
             headerCols = [];
             existingHeadersCount = {};
-            existingHeaders = {}; // here we order the annotations from more complex to simpler. This allows simpler computations later on.
-
-            annotation.annotations = annotation.annotations.sort(function (A, B) {
-              return A.number - B.number == 0 ? Object.keys(B.qualifiers).length - Object.keys(A.qualifiers).length : A.number - B.number;
-            });
+            existingHeaders = {};
             annotation.annotations.map(function (el) {
               var key = Object.keys(el.content).sort().reverse().join(";");
               existingHeadersCount[key] = existingHeadersCount[key] ? existingHeadersCount[key] + 1 : 1;
               el.annotationKey = key + "@" + existingHeadersCount[key];
               existingHeaders[key + "@" + existingHeadersCount[key]] = "";
-            }); // Spread row header values
+            }); // here we order the annotations from more complex to simpler. This allows simpler computations later on.
+
+            annotation.annotations = annotation.annotations.sort(function (A, B) {
+              return A.number - B.number == 0 ? Object.keys(B.qualifiers).length - Object.keys(A.qualifiers).length : A.number - B.number;
+            }); // debugger
+            // Spread row header values
 
             annotation.annotations.filter(function (el) {
               return el.location == "Row";

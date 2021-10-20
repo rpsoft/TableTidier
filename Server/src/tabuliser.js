@@ -6,7 +6,7 @@ const { mainModule } = require('process');
 
 
 async function getFileResults (annotation, filePath){
-
+  // debugger
     // console.log(JSON.stringify(annotation != null))
     if ( annotation == null ){
       return []
@@ -58,18 +58,23 @@ async function getFileResults (annotation, filePath){
                                 }
 
                             }
-
+                              //<em>
                             var format = []
-                            if ( $(col).find("[class*=indent]").length > 0 )  {
+                            if ( $(col).find("[class*=indent]").length > 0
+                              || $(col).attr("class")?.toLowerCase()?.indexOf("indent") > -1 )  {
                                 format.push("indented")
                             }
+                            // debugger
+                            if ( $(col).find("[style*=bold]").length > 0
+                              || $(col).attr("class")?.toLowerCase()?.indexOf("bold") > -1 ) {
 
-                            if ( $(col).find("[style*=bold]").length > 0 ) {
                                 format.push("bold")
                             }
 
-                            if ( $(col).find("[style*=italic]").length > 0 ) {
-                                format.push("italic")
+                            if ( $(col).find("[style*=italic]").length > 0
+                              || $(col).attr("class")?.toLowerCase()?.indexOf("italic") > -1
+                              || $(col).html().replaceAll(" ", "").indexOf("<em>") > -1) {
+                              format.push("italic")
                             }
 
                             matrix[r][c] = {...matrix[r][c], text: $(col).text().replaceAll((/  |\t|\r\n|\n|\r/gm),"").trim(), format : format }
@@ -89,7 +94,9 @@ async function getFileResults (annotation, filePath){
                             if( rowspan > 0){
 
                                 for (var rspan = 1; rspan <= rowspan; rspan++){
-                                    matrix[r+rspan][c] = matrix[r][c]
+                                  if ( (r+rspan) < matrix.length ){
+                                      matrix[r+rspan][c] = matrix[r][c]
+                                  }
                                 }
 
                             }
@@ -101,13 +108,6 @@ async function getFileResults (annotation, filePath){
 
             // here we check if the content is exactly the same across row cells. Since we spread the out in the previous steps, if an empty row, all cells should be the same.
             var isEmptyRow = matrix[r].slice(maxColHeader+1).map( c => c.text ).join("").length < 1
-
-            // var isEmptyRow = matrix[r].reduce(
-            //   (acc, col, c) => {
-            //
-            //     return (c > maxColHeader) ? (acc && (col.text == matrix[r][maxColHeader+1].text)) : acc && true
-            //
-            //   }, true)
 
             // Find the index position of the first and last non empty cells.
             var firstAndLast = matrix[r].map( col => col.text ).reduce(
@@ -122,17 +122,6 @@ async function getFileResults (annotation, filePath){
               }, {first:-1, last:-1} )
 
             var isEmptyRowWithPValue = firstAndLast.first > -1 && firstAndLast.last > -1 && ((firstAndLast.last - firstAndLast.first) > 1)
-
-            // similarly, all but the last one should be the same, if empty row with p-value.
-            // var isEmptyRowWithPValue = matrix[r].reduce( (acc, col, c) => {
-            //
-            //     var answer = (c > maxColHeader) && ( c < (matrix[r].length-1)) ? (acc && (col.text == matrix[r][maxColHeader+1].text) && (col.text != matrix[r][maxColumn-1].text)) : acc && true
-            //     debugger
-            //     return answer
-            // }, true)
-            // if ( r > 6){
-            //   debugger
-            // }
 
             matrix[r].map(
                 (col,c) => {
@@ -207,8 +196,7 @@ async function getFileResults (annotation, filePath){
 
     var existingHeaders = {}
 
-    // here we order the annotations from more complex to simpler. This allows simpler computations later on.
-    annotation.annotations = annotation.annotations.sort( (A,B) => A.number - B.number == 0 ? Object.keys(B.qualifiers).length - Object.keys(A.qualifiers).length : A.number - B.number )
+
 
     annotation.annotations.map( el => {
         var key = Object.keys(el.content).sort().reverse().join(";")
@@ -219,6 +207,11 @@ async function getFileResults (annotation, filePath){
         existingHeaders[key+"@"+existingHeadersCount[key]] = ""
 
     })
+
+    // here we order the annotations from more complex to simpler. This allows simpler computations later on.
+    annotation.annotations = annotation.annotations.sort( (A,B) => A.number - B.number == 0 ? Object.keys(B.qualifiers).length - Object.keys(A.qualifiers).length : A.number - B.number )
+
+    // debugger
 
     // Spread row header values
     annotation.annotations.filter( el => el.location == "Row").map( el =>{
