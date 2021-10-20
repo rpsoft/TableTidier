@@ -844,10 +844,42 @@ var deleteCollection = async (collection_id) => {
 }
 
 const getResults = async ( tids ) => {
+  console.log(JSON.stringify(tids))
   var client = await pool.connect()
   var result = await client.query(`SELECT * FROM "result" WHERE tid = ANY ($1)`,[tids])
         client.release()
   return result
+}
+
+const getResultsRefreshed = async ( tids ) => {
+
+  var client = await pool.connect()
+  var annotation_data = await client.query(`SELECT docid, page, collection_id, file_path, "table".tid, "annotations".annotation	FROM "table", "annotations" where "table".tid = "annotations".tid AND "table".tid = ANY ($1)`,[tids])
+  client.release()
+
+  var table_results = []
+
+  for ( var ann in annotation_data.rows ) {
+
+    console.log( "Preparing Table: "+ann+" / "+annotation_data.rows.length )
+    try{
+      var entry = annotation_data.rows[ann]
+
+      var override_exists = await fs.existsSync(path.join(global.tables_folder_override, entry.collection_id, entry.file_path))
+
+      var table_res = await getFileResults( entry.annotation,
+            path.join(override_exists ? tables_folder_override : global.tables_folder, entry.collection_id,
+            entry.file_path) )
+
+      table_results = [...table_results, table_res]
+
+    } catch( e ){
+      console.log( "Failed: "+ path.join(entry.collection_id, entry.file_path) )
+    }
+
+  }
+
+  return table_results
 }
 
 app.post(CONFIG.api_base_url+'/collections', async function(req,res){
@@ -926,10 +958,19 @@ app.post(CONFIG.api_base_url+'/collections', async function(req,res){
 
       var tids = JSON.parse(req.body.tid);
 
+
+
       if ( req.body.target.indexOf("results") > -1 ){
         result = await getResults( tids );
-      } else {
+      } else if( req.body.target.indexOf("metadata") > -1 ) {
         result = await getMetadata( tids );
+      } else {
+        // Default Action.
+        var result_res = await getResultsRefreshed( tids )
+        var result_met = await getMetadata( tids );
+        // var result =
+
+        result = {data: result_res, metadata: result_met?.rows}
       }
 
       response = {status: "success", data: result}

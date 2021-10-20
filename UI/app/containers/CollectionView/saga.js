@@ -312,7 +312,7 @@ export function* downloadTids({target, tids}) {
 
       yield put( yield issueAlertAction({ open: true, message: "Failed Data download", isError: true }))
     } else {
-
+      // debugger
       switch (target) {
         case "result":
           var result = response.data.rows.reduce(
@@ -341,7 +341,8 @@ export function* downloadTids({target, tids}) {
           downloadData("collection_"+parsed.collId+"_metadata.csv", headers, data)
           break;
         case "json":
-          downloadFile( response.data, "collection_"+parsed.collId+"_all")
+          debugger
+          downloadFile( {selected_results: response.data}, "collection_"+parsed.collId+"_all")
           break;
         default:
 
