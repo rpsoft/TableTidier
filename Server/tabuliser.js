@@ -303,8 +303,8 @@ function _getFileResults() {
             }).map(function (el) {
               matrix.map(function (row, r) {
                 if (headerRows.indexOf(r) < 0 && r > Math.min.apply(Math, (0, _toConsumableArray2["default"])(headerRows))) {
+                  // Fill space in column with previous row element. Spreading headings over the columns
                   if (r > 0 && matrix[r][el.number - 1].text.trim().length == 0) {
-                    // Fill space in column with previous row element. Spreading headings over the columns
                     matrix[r][el.number - 1] = clone(matrix[r - 1][el.number - 1]);
                     matrix[r][el.number - 1].rowcontent = {};
                   }

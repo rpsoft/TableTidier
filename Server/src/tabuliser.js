@@ -104,7 +104,9 @@ async function getFileResults (annotation, filePath){
                         })
 
             // Out of the columns what's the max column number containing a header?
-            var maxColHeader = Math.max(...annotation.annotations.filter( el => el.location == "Col").map( el => parseInt(el.number)-1))
+            var maxColHeader = Math.max(...annotation.annotations
+              .filter( el => el.location == "Col")
+              .map( el => parseInt(el.number)-1))
 
             // here we check if the content is exactly the same across row cells. Since we spread the out in the previous steps, if an empty row, all cells should be the same.
             var isEmptyRow = matrix[r].slice(maxColHeader+1).map( c => c.text ).join("").length < 1
@@ -209,7 +211,11 @@ async function getFileResults (annotation, filePath){
     })
 
     // here we order the annotations from more complex to simpler. This allows simpler computations later on.
-    annotation.annotations = annotation.annotations.sort( (A,B) => A.number - B.number == 0 ? Object.keys(B.qualifiers).length - Object.keys(A.qualifiers).length : A.number - B.number )
+    annotation.annotations = annotation.annotations.sort(
+      (A,B) => A.number - B.number == 0
+      ? Object.keys(B.qualifiers).length - Object.keys(A.qualifiers).length
+      : A.number - B.number
+    )
 
     // debugger
 
@@ -237,8 +243,9 @@ async function getFileResults (annotation, filePath){
         matrix.map( (row, r) => {
 
             if( headerRows.indexOf(r) < 0 && (r > Math.min(...headerRows)) ){
-
-                    if ( r > 0 && (matrix[r][el.number-1].text.trim().length == 0 )) { // Fill space in column with previous row element. Spreading headings over the columns
+              
+                    // Fill space in column with previous row element. Spreading headings over the columns
+                    if ( r > 0 && (matrix[r][el.number-1].text.trim().length == 0 )) {
                         matrix[r][el.number-1] = clone ( matrix[r-1][el.number-1] )
                         matrix[r][el.number-1].rowcontent = {}
                     }
