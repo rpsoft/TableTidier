@@ -34,7 +34,7 @@ npm install
 
 ## Run
 
-To start develop the project:
+To start the development version of the project:
 
 ```bash
 cd Server
