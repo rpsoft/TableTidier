@@ -22,14 +22,12 @@ byobu-tmux split-window  -h
 
 # Select 1st pane cd and venv
 byobu-tmux select-pane -t 0
-byobu-tmux send-keys "cd ." C-m
 byobu-tmux send-keys "./node_modules/nodemon/bin/nodemon.js ./index.js" C-m
 #byobu-tmux send-keys "clear" C-m
 
 # Same with 2nd pane
 byobu-tmux select-pane -t 1
-byobu-tmux send-keys "cd ." C-m
-byobu-tmux send-keys "gulp watch" C-m
+byobu-tmux send-keys "./node_modules/gulp/bin/gulp.js watch" C-m
 
 # Work preview on 3rd pane
 byobu-tmux select-pane -t 2
