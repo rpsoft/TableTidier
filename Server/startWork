@@ -23,7 +23,7 @@ byobu-tmux split-window  -h
 # Select 1st pane cd and venv
 byobu-tmux select-pane -t 0
 byobu-tmux send-keys "cd ." C-m
-byobu-tmux send-keys "nodemon ./index.js" C-m
+byobu-tmux send-keys "./node_modules/nodemon/bin/nodemon.js ./index.js" C-m
 #byobu-tmux send-keys "clear" C-m
 
 # Same with 2nd pane
@@ -31,10 +31,29 @@ byobu-tmux select-pane -t 1
 byobu-tmux send-keys "cd ." C-m
 byobu-tmux send-keys "gulp watch" C-m
 
-# R preview on 3rd pane
+# Work preview on 3rd pane
 byobu-tmux select-pane -t 2
-byobu-tmux send-keys "cd ./previewer" C-m
-byobu-tmux send-keys "./runPreviewer" C-m
+BANNER="
+
+Press Enter at this pan to work
+\n
+Session Exit keyboard shortcut sequence:
+----------------------------------------
+  [Ctrl] + a, k
+Another format:
+  Ctrl-a k - Kill the current window
+
+More information about byobu:
+-----------------------------
+  cat /usr/share/doc/byobu/help.tmux.txt
+  https://www.byobu.org/documentation
+  https://github.com/felixdrp/byobu-howto
+
+"
+byobu-tmux run-shell -b -t 2 "echo -e \"$BANNER\""
+
+# byobu-tmux display-message -t 2 "This is #{window_name} in #{session_name}."
+# byobu-tmux send 'htop -t' ENTER; 
 
 # UI on 4th pane
 byobu-tmux select-pane -t 3
