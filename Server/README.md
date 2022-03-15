@@ -1,4 +1,4 @@
-# Table Annotator server
+# TableTidier Server
 
 Backend for Table Tidier
 
