@@ -17,6 +17,16 @@ We use nodejs:
 
 > Install [nodejs](https://nodejs.org/en/download/) or by [package manager](https://nodejs.org/en/download/package-manager/)
 
+We need python and pandas module.
+
+> Normally python comes with linux. If not please visit [python](https://docs.python.org/3/using/unix.html)
+
+Install pandas:
+```bash
+# https://pandas.pydata.org/docs/getting_started/install.html
+pip install pandas
+```
+
 ### Project
 
 Install node packages dependencies:
