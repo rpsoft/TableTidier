@@ -1,13 +1,13 @@
-var express = require('express');
+const express = require('express');
 
-var bodyParser = require('body-parser');
-var html = require("html");
+const bodyParser = require('body-parser');
+const html = require("html");
 
-var request = require("request");
+const request = require("request");
 
-var multer = require('multer');
+const multer = require('multer');
 
-const fs = require('fs');
+const fs = require('fs/promises');
 const path = require('path');
 
 const { Pool, Client, Query } = require('pg')
@@ -15,13 +15,7 @@ const { Pool, Client, Query } = require('pg')
 const csv = require('csv-parser');
 const CsvReadableStream = require('csv-reader');
 
-
-
-//NODE R CONFIGURATION.
-const R = require("r-script");
-
-
-var cors = require('cors');
+const cors = require('cors');
 
 // I want to access cheerio from everywhere.
 global.cheerio = require('cheerio');
@@ -223,70 +217,70 @@ app.post(CONFIG.api_base_url+'/tableUploader', async function(req, res) {
 
 });
 
-async function UMLSData(){
+async function UMLSData() {
 
-      var semtypes = new Promise( (resolve,reject) =>{
+    let semtypes = new Promise( async (resolve,reject) => {
+        // :-> :-)
+        const fd = await fs.open(CONFIG.system_path+ "Tools/metamap_api/"+'cui_def.csv', 'r');
+        let inputStream = fd.createReadStream({encoding: 'utf8'});
 
-          let inputStream = fs.createReadStream(CONFIG.system_path+ "Tools/metamap_api/"+'cui_def.csv', 'utf8');
+        var result = {};
 
-          var result = {};
+        inputStream
+            .pipe(new CsvReadableStream({ parseNumbers: true, parseBooleans: true, trim: true, skipHeader: true }))
+            .on('data', function (row) {
+                //console.log('A row arrived: ', row);
+                row[4].split(";").map( st => {
+                    result[st] = result[st] ? result[st]+1 : 1
+                })
 
-          inputStream
-              .pipe(new CsvReadableStream({ parseNumbers: true, parseBooleans: true, trim: true, skipHeader: true }))
-              .on('data', function (row) {
-                  //console.log('A row arrived: ', row);
-                  row[4].split(";").map( st => {
-                      result[st] = result[st] ? result[st]+1 : 1
-                  })
+            })
+            .on('end', function (data) {
+                resolve(result);
+            });
+    })
 
-              })
-              .on('end', function (data) {
-                  resolve(result);
-              });
-      })
+    let cui_def = new Promise( async (resolve,reject) => {
 
-      semtypes = await semtypes
+      const fd = await fs.open(CONFIG.system_path+ "Tools/metamap_api/"+'cui_def.csv', 'r');
+      let inputStream = fd.createReadStream({encoding: 'utf8'});
 
-      var cui_def = new Promise( (resolve,reject) =>{
+      var result = {};
 
-          let inputStream = fs.createReadStream(CONFIG.system_path+ "Tools/metamap_api/"+'cui_def.csv', 'utf8');
+      inputStream
+        .pipe(new CsvReadableStream({ parseNumbers: true, parseBooleans: true, trim: true, skipHeader: true }))
+        .on('data', function (row) {
+            //console.log('A row arrived: ', row);
+            result[row[0]] = {"matchedText": row[1], "preferred": row[2], "hasMSH":row[3], "semTypes":row[4]}
+        })
+        .on('end', function (data) {
+            resolve(result);
+        });
+    })
 
-          var result = {};
+    let cui_concept = new Promise( async (resolve,reject) =>{
 
-          inputStream
-              .pipe(new CsvReadableStream({ parseNumbers: true, parseBooleans: true, trim: true, skipHeader: true }))
-              .on('data', function (row) {
-                  //console.log('A row arrived: ', row);
-                  result[row[0]] = {"matchedText": row[1], "preferred": row[2], "hasMSH":row[3], "semTypes":row[4]}
-              })
-              .on('end', function (data) {
-                  resolve(result);
-              });
-      })
+        const fd = await fs.open(CONFIG.system_path+ "Tools/metamap_api/"+'cui_concept.csv', 'r');
+        let inputStream = fd.createReadStream({encoding: 'utf8'});
 
-      cui_def = await cui_def
+        var result = {};
 
+        inputStream
+            .pipe(new CsvReadableStream({ parseNumbers: true, parseBooleans: true, trim: true, skipHeader: true }))
+            .on('data', function (row) {
+                //console.log('A row arrived: ', row);
+                result[row[0]] = row[1]
+            })
+            .on('end', function (data) {
+                resolve(result);
+            });
+    })
 
-      var cui_concept = new Promise( (resolve,reject) =>{
+    semtypes = await semtypes
+    cui_def = await cui_def
+    cui_concept = await cui_concept
 
-          let inputStream = fs.createReadStream(CONFIG.system_path+ "Tools/metamap_api/"+'cui_concept.csv', 'utf8');
-
-          var result = {};
-
-          inputStream
-              .pipe(new CsvReadableStream({ parseNumbers: true, parseBooleans: true, trim: true, skipHeader: true }))
-              .on('data', function (row) {
-                  //console.log('A row arrived: ', row);
-                  result[row[0]] = row[1]
-              })
-              .on('end', function (data) {
-                  resolve(result);
-              });
-      })
-
-      cui_concept = await cui_concept
-
-      return {semtypes, cui_def, cui_concept}
+    return {semtypes, cui_def, cui_concept}
 }
 
 async function CUIData (){
@@ -353,9 +347,15 @@ async function getAnnotationByID(docid,page,collId){
 }
 
 const rebuildSearchIndex = async () => {
-  var tables = fs.readdirSync(path.join(global.tables_folder)).map( (dir) => path.join(global.tables_folder,dir))
-  var tables_folder_override = fs.readdirSync(path.join(global.tables_folder_override)).map( (dir) => path.join(global.tables_folder_override,dir))
-  global.searchIndex = await easysearch.indexFolder( [...tables, ...tables_folder_override] )
+  let tables = fs.readdir(path.join(global.tables_folder))
+  let tables_folder_override = fs.readdir(path.join(global.tables_folder_override))
+  // Join path
+  tables = (await tables).map( (dir) => path.join(global.tables_folder, dir))
+  tables_folder_override = (await tables_folder_override).map( (dir) => path.join(global.tables_folder_override, dir))
+  global.searchIndex = await easysearch.indexFolder([
+    ...tables,
+    ...tables_folder_override
+  ])
 }
 
 const tabularFromAnnotation = async ( annotation ) => {
@@ -373,7 +373,6 @@ const tabularFromAnnotation = async ( annotation ) => {
   if ( file_exists ) {
     htmlFolder = path.join(global.tables_folder_override, annotation.collection_id) //"HTML_TABLES_OVERRIDE/"
   }
-
 
   try {
     fs.readFile(path.join(htmlFolder,htmlFile),
@@ -395,14 +394,10 @@ const tabularFromAnnotation = async ( annotation ) => {
                     )
                     return rowValues
                   });
-
-
                 })
   } catch (e){
     console.log(e)
   }
-
-
 }
 
 // preinitialisation of components if needed.

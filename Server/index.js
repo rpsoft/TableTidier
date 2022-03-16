@@ -36,7 +36,7 @@ var request = require("request");
 
 var multer = require('multer');
 
-var fs = require('fs');
+var fs = require('fs/promises');
 
 var path = require('path');
 
@@ -47,7 +47,7 @@ var _require = require('pg'),
 
 var csv = require('csv-parser');
 
-var CsvReadableStream = require('csv-reader'); //NODE R CONFIGURATION.
+var CsvReadableStream = require('csv-reader');
 
 var cors = require('cors'); // I want to access cheerio from everywhere.
 
@@ -355,80 +355,155 @@ function UMLSData() {
 }
 
 function _UMLSData() {
-  _UMLSData = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee61() {
+  _UMLSData = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee64() {
     var semtypes, cui_def, cui_concept;
-    return _regenerator["default"].wrap(function _callee61$(_context61) {
+    return _regenerator["default"].wrap(function _callee64$(_context64) {
       while (1) {
-        switch (_context61.prev = _context61.next) {
+        switch (_context64.prev = _context64.next) {
           case 0:
-            semtypes = new Promise(function (resolve, reject) {
-              var inputStream = fs.createReadStream(CONFIG.system_path + "Tools/metamap_api/" + 'cui_def.csv', 'utf8');
-              var result = {};
-              inputStream.pipe(new CsvReadableStream({
-                parseNumbers: true,
-                parseBooleans: true,
-                trim: true,
-                skipHeader: true
-              })).on('data', function (row) {
-                //console.log('A row arrived: ', row);
-                row[4].split(";").map(function (st) {
-                  result[st] = result[st] ? result[st] + 1 : 1;
-                });
-              }).on('end', function (data) {
-                resolve(result);
-              });
-            });
-            _context61.next = 3;
+            semtypes = new Promise( /*#__PURE__*/function () {
+              var _ref61 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee61(resolve, reject) {
+                var fd, inputStream, result;
+                return _regenerator["default"].wrap(function _callee61$(_context61) {
+                  while (1) {
+                    switch (_context61.prev = _context61.next) {
+                      case 0:
+                        _context61.next = 2;
+                        return fs.open(CONFIG.system_path + "Tools/metamap_api/" + 'cui_def.csv', 'r');
+
+                      case 2:
+                        fd = _context61.sent;
+                        inputStream = fd.createReadStream({
+                          encoding: 'utf8'
+                        });
+                        result = {};
+                        inputStream.pipe(new CsvReadableStream({
+                          parseNumbers: true,
+                          parseBooleans: true,
+                          trim: true,
+                          skipHeader: true
+                        })).on('data', function (row) {
+                          //console.log('A row arrived: ', row);
+                          row[4].split(";").map(function (st) {
+                            result[st] = result[st] ? result[st] + 1 : 1;
+                          });
+                        }).on('end', function (data) {
+                          resolve(result);
+                        });
+
+                      case 6:
+                      case "end":
+                        return _context61.stop();
+                    }
+                  }
+                }, _callee61);
+              }));
+
+              return function (_x120, _x121) {
+                return _ref61.apply(this, arguments);
+              };
+            }());
+            cui_def = new Promise( /*#__PURE__*/function () {
+              var _ref62 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee62(resolve, reject) {
+                var fd, inputStream, result;
+                return _regenerator["default"].wrap(function _callee62$(_context62) {
+                  while (1) {
+                    switch (_context62.prev = _context62.next) {
+                      case 0:
+                        _context62.next = 2;
+                        return fs.open(CONFIG.system_path + "Tools/metamap_api/" + 'cui_def.csv', 'r');
+
+                      case 2:
+                        fd = _context62.sent;
+                        inputStream = fd.createReadStream({
+                          encoding: 'utf8'
+                        });
+                        result = {};
+                        inputStream.pipe(new CsvReadableStream({
+                          parseNumbers: true,
+                          parseBooleans: true,
+                          trim: true,
+                          skipHeader: true
+                        })).on('data', function (row) {
+                          //console.log('A row arrived: ', row);
+                          result[row[0]] = {
+                            "matchedText": row[1],
+                            "preferred": row[2],
+                            "hasMSH": row[3],
+                            "semTypes": row[4]
+                          };
+                        }).on('end', function (data) {
+                          resolve(result);
+                        });
+
+                      case 6:
+                      case "end":
+                        return _context62.stop();
+                    }
+                  }
+                }, _callee62);
+              }));
+
+              return function (_x122, _x123) {
+                return _ref62.apply(this, arguments);
+              };
+            }());
+            cui_concept = new Promise( /*#__PURE__*/function () {
+              var _ref63 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee63(resolve, reject) {
+                var fd, inputStream, result;
+                return _regenerator["default"].wrap(function _callee63$(_context63) {
+                  while (1) {
+                    switch (_context63.prev = _context63.next) {
+                      case 0:
+                        _context63.next = 2;
+                        return fs.open(CONFIG.system_path + "Tools/metamap_api/" + 'cui_concept.csv', 'r');
+
+                      case 2:
+                        fd = _context63.sent;
+                        inputStream = fd.createReadStream({
+                          encoding: 'utf8'
+                        });
+                        result = {};
+                        inputStream.pipe(new CsvReadableStream({
+                          parseNumbers: true,
+                          parseBooleans: true,
+                          trim: true,
+                          skipHeader: true
+                        })).on('data', function (row) {
+                          //console.log('A row arrived: ', row);
+                          result[row[0]] = row[1];
+                        }).on('end', function (data) {
+                          resolve(result);
+                        });
+
+                      case 6:
+                      case "end":
+                        return _context63.stop();
+                    }
+                  }
+                }, _callee63);
+              }));
+
+              return function (_x124, _x125) {
+                return _ref63.apply(this, arguments);
+              };
+            }());
+            _context64.next = 5;
             return semtypes;
 
-          case 3:
-            semtypes = _context61.sent;
-            cui_def = new Promise(function (resolve, reject) {
-              var inputStream = fs.createReadStream(CONFIG.system_path + "Tools/metamap_api/" + 'cui_def.csv', 'utf8');
-              var result = {};
-              inputStream.pipe(new CsvReadableStream({
-                parseNumbers: true,
-                parseBooleans: true,
-                trim: true,
-                skipHeader: true
-              })).on('data', function (row) {
-                //console.log('A row arrived: ', row);
-                result[row[0]] = {
-                  "matchedText": row[1],
-                  "preferred": row[2],
-                  "hasMSH": row[3],
-                  "semTypes": row[4]
-                };
-              }).on('end', function (data) {
-                resolve(result);
-              });
-            });
-            _context61.next = 7;
+          case 5:
+            semtypes = _context64.sent;
+            _context64.next = 8;
             return cui_def;
 
-          case 7:
-            cui_def = _context61.sent;
-            cui_concept = new Promise(function (resolve, reject) {
-              var inputStream = fs.createReadStream(CONFIG.system_path + "Tools/metamap_api/" + 'cui_concept.csv', 'utf8');
-              var result = {};
-              inputStream.pipe(new CsvReadableStream({
-                parseNumbers: true,
-                parseBooleans: true,
-                trim: true,
-                skipHeader: true
-              })).on('data', function (row) {
-                //console.log('A row arrived: ', row);
-                result[row[0]] = row[1];
-              }).on('end', function (data) {
-                resolve(result);
-              });
-            });
-            _context61.next = 11;
+          case 8:
+            cui_def = _context64.sent;
+            _context64.next = 11;
             return cui_concept;
 
           case 11:
-            cui_concept = _context61.sent;
-            return _context61.abrupt("return", {
+            cui_concept = _context64.sent;
+            return _context64.abrupt("return", {
               semtypes: semtypes,
               cui_def: cui_def,
               cui_concept: cui_concept
@@ -436,10 +511,10 @@ function _UMLSData() {
 
           case 13:
           case "end":
-            return _context61.stop();
+            return _context64.stop();
         }
       }
-    }, _callee61);
+    }, _callee64);
   }));
   return _UMLSData.apply(this, arguments);
 }
@@ -450,22 +525,22 @@ function CUIData() {
 
 
 function _CUIData() {
-  _CUIData = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee62() {
+  _CUIData = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee65() {
     var umlsData, results, rres;
-    return _regenerator["default"].wrap(function _callee62$(_context62) {
+    return _regenerator["default"].wrap(function _callee65$(_context65) {
       while (1) {
-        switch (_context62.prev = _context62.next) {
+        switch (_context65.prev = _context65.next) {
           case 0:
-            _context62.next = 2;
+            _context65.next = 2;
             return UMLSData();
 
           case 2:
-            umlsData = _context62.sent;
-            _context62.next = 5;
+            umlsData = _context65.sent;
+            _context65.next = 5;
             return (0, _network_functions.getAnnotationResults)();
 
           case 5:
-            results = _context62.sent;
+            results = _context65.sent;
             rres = results.rows.reduce(function (acc, ann, i) {
               var annots = ann.annotation.annotations;
               annots = annots.reduce(function (acc, ann) {
@@ -490,7 +565,7 @@ function _CUIData() {
               };
               return acc;
             }, {});
-            return _context62.abrupt("return", {
+            return _context65.abrupt("return", {
               cui_def: umlsData.cui_def,
               cui_concept: umlsData.cui_concept,
               actual_results: rres,
@@ -499,10 +574,10 @@ function _CUIData() {
 
           case 8:
           case "end":
-            return _context62.stop();
+            return _context65.stop();
         }
       }
-    }, _callee62);
+    }, _callee65);
   }));
   return _CUIData.apply(this, arguments);
 }
@@ -513,31 +588,31 @@ function getMetadataLabellers() {
 
 
 function _getMetadataLabellers() {
-  _getMetadataLabellers = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee63() {
+  _getMetadataLabellers = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee66() {
     var client, result;
-    return _regenerator["default"].wrap(function _callee63$(_context63) {
+    return _regenerator["default"].wrap(function _callee66$(_context66) {
       while (1) {
-        switch (_context63.prev = _context63.next) {
+        switch (_context66.prev = _context66.next) {
           case 0:
-            _context63.next = 2;
+            _context66.next = 2;
             return pool.connect();
 
           case 2:
-            client = _context63.sent;
-            _context63.next = 5;
+            client = _context66.sent;
+            _context66.next = 5;
             return client.query("select distinct docid, page, labeller from metadata");
 
           case 5:
-            result = _context63.sent;
+            result = _context66.sent;
             client.release();
-            return _context63.abrupt("return", result);
+            return _context66.abrupt("return", result);
 
           case 8:
           case "end":
-            return _context63.stop();
+            return _context66.stop();
         }
       }
-    }, _callee63);
+    }, _callee66);
   }));
   return _getMetadataLabellers.apply(this, arguments);
 }
@@ -547,41 +622,41 @@ function getAnnotationByID(_x9, _x10, _x11) {
 }
 
 function _getAnnotationByID() {
-  _getAnnotationByID = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee64(docid, page, collId) {
+  _getAnnotationByID = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee67(docid, page, collId) {
     var client, result;
-    return _regenerator["default"].wrap(function _callee64$(_context64) {
+    return _regenerator["default"].wrap(function _callee67$(_context67) {
       while (1) {
-        switch (_context64.prev = _context64.next) {
+        switch (_context67.prev = _context67.next) {
           case 0:
             if (!(docid == "undefined" || page == "undefined" || collId == "undefined")) {
-              _context64.next = 2;
+              _context67.next = 2;
               break;
             }
 
-            return _context64.abrupt("return", {
+            return _context67.abrupt("return", {
               rows: []
             });
 
           case 2:
-            _context64.next = 4;
+            _context67.next = 4;
             return pool.connect();
 
           case 4:
-            client = _context64.sent;
-            _context64.next = 7;
+            client = _context67.sent;
+            _context67.next = 7;
             return client.query("\n    SELECT docid, page, \"user\", notes, collection_id, file_path, \"tableType\", \"table\".tid, completion, annotation\n    FROM \"table\"\n    LEFT JOIN annotations\n    ON  \"table\".tid = annotations.tid\n    WHERE docid=$1 AND page=$2 AND collection_id = $3 ", [docid, page, collId]);
 
           case 7:
-            result = _context64.sent;
+            result = _context67.sent;
             client.release();
-            return _context64.abrupt("return", result);
+            return _context67.abrupt("return", result);
 
           case 10:
           case "end":
-            return _context64.stop();
+            return _context67.stop();
         }
       }
-    }, _callee64);
+    }, _callee67);
   }));
   return _getAnnotationByID.apply(this, arguments);
 }
@@ -593,19 +668,30 @@ var rebuildSearchIndex = /*#__PURE__*/function () {
       while (1) {
         switch (_context6.prev = _context6.next) {
           case 0:
-            tables = fs.readdirSync(path.join(global.tables_folder)).map(function (dir) {
-              return path.join(global.tables_folder, dir);
-            });
-            tables_folder_override = fs.readdirSync(path.join(global.tables_folder_override)).map(function (dir) {
-              return path.join(global.tables_folder_override, dir);
-            });
+            tables = fs.readdir(path.join(global.tables_folder));
+            tables_folder_override = fs.readdir(path.join(global.tables_folder_override)); // Join path
+
             _context6.next = 4;
-            return easysearch.indexFolder([].concat((0, _toConsumableArray2["default"])(tables), (0, _toConsumableArray2["default"])(tables_folder_override)));
+            return tables;
 
           case 4:
+            tables = _context6.sent.map(function (dir) {
+              return path.join(global.tables_folder, dir);
+            });
+            _context6.next = 7;
+            return tables_folder_override;
+
+          case 7:
+            tables_folder_override = _context6.sent.map(function (dir) {
+              return path.join(global.tables_folder_override, dir);
+            });
+            _context6.next = 10;
+            return easysearch.indexFolder([].concat((0, _toConsumableArray2["default"])(tables), (0, _toConsumableArray2["default"])(tables_folder_override)));
+
+          case 10:
             global.searchIndex = _context6.sent;
 
-          case 5:
+          case 11:
           case "end":
             return _context6.stop();
         }
@@ -723,29 +809,29 @@ function main() {
 
 
 function _main() {
-  _main = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee65() {
-    return _regenerator["default"].wrap(function _callee65$(_context65) {
+  _main = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee68() {
+    return _regenerator["default"].wrap(function _callee68$(_context68) {
       while (1) {
-        switch (_context65.prev = _context65.next) {
+        switch (_context68.prev = _context68.next) {
           case 0:
-            _context65.next = 2;
+            _context68.next = 2;
             return rebuildSearchIndex();
 
           case 2:
-            _context65.next = 4;
+            _context68.next = 4;
             return UMLSData();
 
           case 4:
-            umls_data_buffer = _context65.sent;
-            _context65.next = 7;
+            umls_data_buffer = _context68.sent;
+            _context68.next = 7;
             return (0, _security.initialiseUsers)();
 
           case 7:
           case "end":
-            return _context65.stop();
+            return _context68.stop();
         }
       }
-    }, _callee65);
+    }, _callee68);
   }));
   return _main.apply(this, arguments);
 }
@@ -2526,51 +2612,51 @@ function getRecommendedCUIS() {
 }
 
 function _getRecommendedCUIS() {
-  _getRecommendedCUIS = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee67() {
+  _getRecommendedCUIS = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee70() {
     var cuiRecommend, recommend_cuis, rec_cuis, splitConcepts;
-    return _regenerator["default"].wrap(function _callee67$(_context67) {
+    return _regenerator["default"].wrap(function _callee70$(_context70) {
       while (1) {
-        switch (_context67.prev = _context67.next) {
+        switch (_context70.prev = _context70.next) {
           case 0:
             cuiRecommend = /*#__PURE__*/function () {
-              var _ref61 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee66() {
+              var _ref64 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee69() {
                 var client, result;
-                return _regenerator["default"].wrap(function _callee66$(_context66) {
+                return _regenerator["default"].wrap(function _callee69$(_context69) {
                   while (1) {
-                    switch (_context66.prev = _context66.next) {
+                    switch (_context69.prev = _context69.next) {
                       case 0:
-                        _context66.next = 2;
+                        _context69.next = 2;
                         return pool.connect();
 
                       case 2:
-                        client = _context66.sent;
-                        _context66.next = 5;
+                        client = _context69.sent;
+                        _context69.next = 5;
                         return client.query("select * from cuis_recommend");
 
                       case 5:
-                        result = _context66.sent;
+                        result = _context69.sent;
                         client.release();
-                        return _context66.abrupt("return", result);
+                        return _context69.abrupt("return", result);
 
                       case 8:
                       case "end":
-                        return _context66.stop();
+                        return _context69.stop();
                     }
                   }
-                }, _callee66);
+                }, _callee69);
               }));
 
               return function cuiRecommend() {
-                return _ref61.apply(this, arguments);
+                return _ref64.apply(this, arguments);
               };
             }();
 
             recommend_cuis = {};
-            _context67.next = 4;
+            _context70.next = 4;
             return cuiRecommend();
 
           case 4:
-            rec_cuis = _context67.sent.rows;
+            rec_cuis = _context70.sent.rows;
 
             splitConcepts = function splitConcepts(c) {
               if (c == null) {
@@ -2599,14 +2685,14 @@ function _getRecommendedCUIS() {
                 cc: item.cc
               };
             }) : "";
-            return _context67.abrupt("return", recommend_cuis);
+            return _context70.abrupt("return", recommend_cuis);
 
           case 8:
           case "end":
-            return _context67.stop();
+            return _context70.stop();
         }
       }
-    }, _callee67);
+    }, _callee70);
   }));
   return _getRecommendedCUIS.apply(this, arguments);
 }
