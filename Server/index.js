@@ -49,9 +49,6 @@ var csv = require('csv-parser');
 
 var CsvReadableStream = require('csv-reader'); //NODE R CONFIGURATION.
 
-
-var R = require("r-script");
-
 var cors = require('cors'); // I want to access cheerio from everywhere.
 
 
