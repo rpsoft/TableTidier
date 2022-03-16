@@ -32,6 +32,19 @@ cd Server
 npm install
 ```
 
+Add config.json file. You can use the example file at ./Server/config_example.json.<br>
+Edit config.json as necessary.
+
+```bash
+cp Server
+# Use config_example.json as base for config.json
+cp config_example.json config.json
+# Edit config.json with your editor Example with nano
+nano config.json
+cd ..
+```
+
+
 ## Run
 
 To start the development version of the project:

@@ -1,13 +1,15 @@
 {
   "system_path": "/home/suso/ihw/TableTidier/",
-  "port": 6541,
-  "port_ui": 7531,
-  "host": "localhost",
+  "api_base_url": "/api",
+  "api_port": 6541,
+  "api_host" : "localhost",
+  "ui_port": 7531,
+  "ui_host": "localhost",
   "db" : {
       "user": "postgres",
       "host": "localhost",
       "database": "ihw_annotator",
-      "password": "melacome86",
+      "password": "USER_PASSWORD",
       "port": 5432
     },
   "hashSecret": "something here"

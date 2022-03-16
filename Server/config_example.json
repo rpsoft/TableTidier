@@ -1,8 +1,10 @@
 {
   "system_path": "/whatever/somewhere/tableAnnotatorfolder/",
-  "port": 6541,
-  "port_ui": 7531,
-  "host": "my.hosting.site",
+  "api_base_url": "/api",
+  "api_port": 6541,
+  "api_host" : "localhost",
+  "ui_port": 7531,
+  "ui_host": "localhost",
   "db" : {
       "user": "postgres_user",
       "password": "user_password",
