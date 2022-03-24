@@ -59,10 +59,10 @@ console.log("Configuring DB client: Postgres")
 // Postgres configuration.
 global.pool = new Pool({
     user: CONFIG.db.user,
-    host: CONFIG.db.createUserhost,
-    database: CONFIG.db.database,
     password: CONFIG.db.password,
+    host: CONFIG.db.host,
     port: CONFIG.db.port,
+    database: CONFIG.db.database,
   })
 
 //Network functions
