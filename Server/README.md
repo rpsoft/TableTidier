@@ -39,7 +39,7 @@ cd ..
 
 # Install Back-end dependencies
 cd Server
-npm install
+npm ci install
 ```
 
 Add config.json file. You can use the example file at ./Server/config_example.json.<br>
