@@ -4,6 +4,8 @@
   "description": "IHW Table Annotator",
   "main": "index.js",
   "scripts": {
+    "gulpWatch": "./node_modules/gulp/bin/gulp.js watch",
+    "openapi": "./node_modules/nodemon/bin/nodemon.js ./test/swagger.server.js",
     "test": "mocha testing/tabuliser_testing.js",
     "test_brk": "mocha --inspect-brk testing/tabuliser_testing.js"
   },
