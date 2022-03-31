@@ -129,33 +129,26 @@ app.get("/api/test", function(req,res){
 })
 
 var tableSplitter = async ( tablePath ) => {
+  try {
+    const data = await fs.readFile(tablePath, {encoding: "utf8"})
+    const tablePage = cheerio.load(data);
+    const tables  = tablePage("table")
 
-  var tablesHTML = new Promise ( (accept, reject) => {
-    fs.readFile(tablePath,
-              "utf8",
-              (err, data) => {
-                var tablePage = cheerio.load(data);
-                var tables  = tablePage("table")
+    const tablesHTML = []
 
-                var tablesHTML = []
-
-                // If only one table in the file, just return the whole file. Let the user clean up
-                if ( tables.length <= 1 ){
-                  tablesHTML.push(data)
-                } else {
-                  // we attempt automatic splitting here.
-                  for ( var t = 0; t < tables.length; t++){
-                    tablesHTML.push("<table>"+tablePage(tables[t]).html()+"</table>")
-                  }
-                }
-
-                accept(tablesHTML)
-
-              });
-          })
-
-  tablesHTML = await tablesHTML
-  return tablesHTML
+    // If only one table in the file, just return the whole file. Let the user clean up
+    if ( tables.length <= 1 ){
+      tablesHTML.push(data)
+    } else {
+      // we attempt automatic splitting here.
+      for ( var t = 0; t < tables.length; t++){
+        tablesHTML.push("<table>"+tablePage(tables[t]).html()+"</table>")
+      }
+    }
+    return tablesHTML
+  } catch (err) {
+    console.log(err)
+  }
 }
 
 app.post(CONFIG.api_base_url+'/tableUploader', async function(req, res) {
