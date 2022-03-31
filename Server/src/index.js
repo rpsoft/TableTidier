@@ -17,6 +17,9 @@ const CsvReadableStream = require('csv-reader');
 
 const cors = require('cors');
 
+// Import routes
+import usersRoutes from './routes/users'
+
 // I want to access cheerio from everywhere.
 global.cheerio = require('cheerio');
 global.CONFIG = require('./config.json')
@@ -63,12 +66,10 @@ global.pool = new Pool({
     host: CONFIG.db.host,
     port: CONFIG.db.port,
     database: CONFIG.db.database,
-  })
+})
 
 //Network functions
 import { getAnnotationResults } from "./network_functions.js"
-
-
 
 
 console.log("Configuring Server")
@@ -89,30 +90,10 @@ app.use(bodyParser.urlencoded({
 
 app.use(passport.initialize());
 
-app.post(CONFIG.api_base_url+'/login', function(req, res, next) {
-  passport.authenticate('custom', function(err, user, info) {
-    // console.log("login_req",JSON.stringify(req))
-    if ( err ){
-      res.json({status:"failed", payload: null})
-    } else if ( !user ) {
-      res.json({status:"unauthorised", payload: null})
-    } else {
-      res.json({status:"success", payload: user})
-    }
-
-    })(req, res, next)
-  });
-
-app.post(CONFIG.api_base_url+'/createUser', async function(req, res) {
-  var result;
-  try{
-    result = await createUser(req.body)
-    res.json({status:"success", payload: result })
-  } catch (e){
-    res.json({status:"failed", payload: "" })
-  }
-
-});
+// Add routes:
+//  /login
+//  /createUser
+app.use(usersRoutes);
 
 
 // const storage = multer.memoryStorage();
@@ -1990,28 +1971,20 @@ const processAnnotationAndMetadata = async (docid,page,collId) => {
       })
 
       var result = await setMetadata(metadata)
-
-
     }
 
-
 }
-
-
-
 
 // api_host
 // ui_port
 // ui_host
 
-
-
 const exec = require('child_process').exec;
 
 const myShellScript = exec('fuser -k '+CONFIG.api_port+'/tcp');
 
-app.listen(CONFIG.api_port, '0.0.0.0', function () {
-  console.log('Table Tidier Server running on port '+CONFIG.api_port+' with base: '+ CONFIG.api_base_url + "  :: " + new Date().toISOString());
+app.listen(CONFIG.api_port, '0.0.0.0', () => {
+  console.log(`Table Tidier Server running on port ${CONFIG.api_port} with base: ${CONFIG.api_base_url}  :: ${new Date().toISOString()}`);
 });
 
 main();
