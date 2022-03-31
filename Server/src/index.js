@@ -164,14 +164,14 @@ app.post(CONFIG.api_base_url+'/tableUploader', async function(req, res) {
 
     // Loop through all the uploaded files and return names to frontend
     for (index = 0, len = files.length; index < len; ++index) {
-      try{
+      try {
         var tables_html = await tableSplitter(files[index].path)
         var cleanFilename = files[index].originalname.replaceAll("_", "-")
         var file_elements = cleanFilename.split(".")
         var extension = file_elements.pop()
         var baseFilename = file_elements.join(".")
 
-        fs.mkdirSync(path.join(global.tables_folder, req.body.collection_id), { recursive: true })
+        await fs.mkdir(path.join(global.tables_folder, req.body.collection_id), { recursive: true })
 
         tables_html.map( async (table,t) => {
 
@@ -180,13 +180,13 @@ app.post(CONFIG.api_base_url+'/tableUploader', async function(req, res) {
 
           var newTableFilename = docid+"_"+page+"."+extension
 
-          fs.writeFileSync(path.join(global.tables_folder, req.body.collection_id, newTableFilename), table)
+          await fs.writeFile(path.join(global.tables_folder, req.body.collection_id, newTableFilename), table)
 
-          await createTable(docid, page, req.body.username_uploader, req.body.collection_id, newTableFilename)
+          await tableCreate(docid, page, req.body.username_uploader, req.body.collection_id, newTableFilename)
           results.push({filename: newTableFilename, status:"success"})
         })
 
-      } catch(err){
+      } catch(err) {
         console.log(err)
         console.log("file: " + files[index].originalname + " failed to process")
         results.push({filename: files[index].originalname, status:"failed"})
@@ -928,20 +928,6 @@ app.post(CONFIG.api_base_url+'/collections', async function(req,res){
 
   res.json(response)
 });
-
-// Tables
-const createTable = async (docid,page,user,collection_id,file_path) => {
-
-    var client = await pool.connect()
-    var result = await client.query(
-      `INSERT INTO public."table"(
-	       docid, page, "user", notes, collection_id, file_path, "tableType")
-	     VALUES ($1, $2, $3, $4, $5, $6, $7);`,
-         [docid,page,user,"",collection_id,file_path,""])
-
-    client.release()
-    return result
-}
 
 const removeTables = async (tables, collection_id, fromSelect = false) => {
 

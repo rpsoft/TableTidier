@@ -84,6 +84,11 @@ WHERE
         // debugger
       return result
     },
+    tableCreate: async (docid, page, user, collection_id, file_path) => query(
+      `INSERT INTO public."table"(
+	       docid, page, "user", notes, collection_id, file_path, "tableType")
+	     VALUES ($1, $2, $3, $4, $5, $6, $7);`,
+      [docid, page, user, '', collection_id, file_path, '']),
 
     // Gets the labellers associated w ith each document/table.
     metadataLabellersGet: () => query(`SELECT distinct docid, page, labeller FROM metadata`),
