@@ -24,7 +24,12 @@ We need python and pandas module.
 Install pandas:
 ```bash
 # https://pandas.pydata.org/docs/getting_started/install.html
-pip install pandas
+pip3 install pandas
+```
+
+Install sklearn:
+```bash
+pip3 install sklearn
 ```
 
 ### Project
