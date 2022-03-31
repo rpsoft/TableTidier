@@ -1198,7 +1198,12 @@ const prepareAnnotationPreview = async (docid, page, collId, cachedOnly) => {
       if ( annotations.rows.length > 0 ){
         var entry = annotations.rows[0]
 
-        var override_exists = await fs.existsSync(path.join(global.tables_folder_override, entry.collection_id, entry.file_path))
+        let override_exists = true
+        try {
+          await fs.open(path.join(global.tables_folder_override, entry.collection_id, entry.file_path))
+        } catch (err) {
+          override_exists = false
+        }
 
         var tableResults = await getFileResults(entry.annotation, path.join(override_exists ? tables_folder_override : global.tables_folder, entry.collection_id, entry.file_path) )
             tableResults.map( item => { item.docid_page = entry.docid+"_"+entry.page })
@@ -1208,7 +1213,7 @@ const prepareAnnotationPreview = async (docid, page, collId, cachedOnly) => {
         return {"state" : "fail", result : []}
       }
 
-      // debugge
+      // debugger
       var tid = annotations.rows.length > 0 ? annotations.rows[0].tid : -1;
 
       if ( tid < 0 ){
@@ -1657,16 +1662,21 @@ app.post(CONFIG.api_base_url+'/text', async function (req, res) {
 
 app.get(CONFIG.api_base_url+'/removeOverrideTable', async function(req,res){
 
-  if(req.query && req.query.docid && req.query.page ){
+  if(req.query && req.query.docid && req.query.page  ){
+    let file_exists = true
+    try {
+      await fs.open(global.tables_folder_override+"/"+req.query.docid+"_"+req.query.page+".html")
+    } catch (err) {
+      file_exists = false
+    }
 
-    var file_exists = await fs.existsSync(global.tables_folder_override+"/"+req.query.docid+"_"+req.query.page+".html")
     if ( file_exists ) {
-
-      fs.unlink(global.tables_folder_override+"/"+req.query.docid+"_"+req.query.page+".html", (err) => {
-        if (err) throw err;
-        console.log("REMOVED : "+global.tables_folder_override+"/"+req.query.docid+"_"+req.query.page+".html");
-      });
-
+      try {
+        await fs.unlink(global.tables_folder_override+"/"+req.query.docid+"_"+req.query.page+".html")
+      } catch (err) {
+        console.log(`REMOVED : ${global.tables_folder_override}/${req.query.docid}_${req.query.page}.html`);
+        throw err;
+      }
     }
 
     res.send({status: "override removed"})
