@@ -807,7 +807,12 @@ const getResultsRefreshed = async ( tids ) => {
     try{
       var entry = annotation_data.rows[ann]
 
-      var override_exists = await fs.existsSync(path.join(global.tables_folder_override, entry.collection_id, entry.file_path))
+      let override_exists = true
+      try {
+        await fs.open(path.join(global.tables_folder_override, entry.collection_id, entry.file_path))
+      } catch (err) {
+        override_exists = false
+      }
 
       var table_res = await getFileResults( entry.annotation,
             path.join(override_exists ? tables_folder_override : global.tables_folder, entry.collection_id,
