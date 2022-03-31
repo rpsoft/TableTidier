@@ -24,9 +24,31 @@ function driver(config) {
   }
 
   return {
+    annotationByIDGet: (docid, page, collId) => query(
+      `SELECT 
+        docid,
+        "user",
+        notes,
+        collection_id,
+        file_path,
+        "tableType",
+        "table".tid,
+        completion,
+        annotation
+      FROM 
+        "table"
+      LEFT JOIN
+        annotations
+      ON
+        "table".tid = annotations.tid
+      WHERE
+      docid=$1 AND page=$2 AND collection_id = $3`,
+            [docid, page, collId]
+          ),
+
+    annotationDataGet: (tids) => query(
     // * :-)  Sqlite version transform "annotations".annotation from text to json
-    annotationDataGet: async (tids) => query(
-`SELECT 
+    `SELECT 
   docid,
   page,
   collection_id,
@@ -36,19 +58,38 @@ function driver(config) {
 FROM 
   "table",
   "annotations"
-where
+WHERE
   "table".tid = "annotations".tid AND "table".tid = ANY ($1)`,
       [tids]
     ),
 
-    resultsDataGet: async (tids) => query(`SELECT * FROM "result" WHERE tid = ANY ($1)`, [tids]),    
+    annotationResultsGet: async () => {
+      const result = await query(`SELECT * FROM "table", annotations where "table".tid = annotations.tid order by docid desc,page asc`)
+      // var filtered_rows = []
+      //
+      // var hey = available_documents
+      //
+      // var docids = Object.keys(available_documents)
+      //
+      // for ( var i=0; i < result.rows.length; i++ ) {
+      //
+      //   if (  docids.indexOf (result.rows[i].docid) > -1 ){
+      //     filtered_rows.push(result.rows[i])
+      //   }
+      //
+      // }
+      //
+      // result.rows = filtered_rows
+
+        // debugger
+      return result
+    },
+
+    // Gets the labellers associated w ith each document/table.
+    metadataLabellersGet: () => query(`SELECT distinct docid, page, labeller FROM metadata`),
+
+    resultsDataGet: (tids) => query(`SELECT * FROM "result" WHERE tid = ANY ($1)`, [tids]),    
   }
 }
-
-
-
-
-
-
 
 module.exports = driver

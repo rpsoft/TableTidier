@@ -1,9 +1,22 @@
-import {getAnnotationResults} from "./network_functions.js"
+// import {getAnnotationResults} from "./network_functions.js"
 const fs = require('fs');
 const path = require('path');
 
+let dbDriver = null
+
+// Set driver
+const tableDBDriverSet = (driver) => dbDriver = driver
+
 console.log("Loading Classifier")
 import {attempt_predictions, classify, grouped_predictor} from "./classifier.js"
+
+async function refreshDocuments() {
+  // debugger
+  var res = await prepareAvailableDocuments()
+  available_documents = res.available_documents
+  abs_index = res.abs_index
+  DOCS = res.DOCS
+}
 
 var readyTable = async (docname, page, collection_id, enablePrediction = false) => {
   try {
@@ -470,6 +483,9 @@ var attemptPrediction = async (actual_table) => {
 }
 
 var prepareAvailableDocuments = async (collection_id) => {
+        if (!dbDriver) {
+          throw new Error('Required DB Driver')
+        }
 
         var ftop = []
         var ftyp = []
@@ -492,7 +508,7 @@ var prepareAvailableDocuments = async (collection_id) => {
 
         var filtered_docs_ttype = []
 
-        var allAnnotations = await getAnnotationResults()
+        var allAnnotations = await dbDriver.annotationResultsGet()
 
         var all_annotated_docids = Array.from(new Set(allAnnotations.rows.reduce( (acc,ann) => {
             acc = acc ? acc : []
@@ -718,6 +734,8 @@ var prepareAvailableDocuments = async (collection_id) => {
 }
 
 module.exports = {
+  tableDBDriverSet,
+  refreshDocuments,
   readyTable,
   prepareAvailableDocuments,
 }

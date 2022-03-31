@@ -44,13 +44,19 @@ global.umls_data_buffer = {};
 
 // TTidier subsystems load.
 console.log("Loading Files Management")
-import {refreshDocuments} from "./files.js"
 
 console.log("Loading Security")
 import passport, {initialiseUsers, createUser, getUserHash}  from "./security.js"
 
 console.log("Loading Table Libs")
-import { readyTable, prepareAvailableDocuments } from "./table.js"
+import {
+  tableDBDriverSet,
+  readyTable,
+  prepareAvailableDocuments,
+  refreshDocuments,
+} from "./table.js"
+// configure table with dbDriver
+tableDBDriverSet(dbDriver)
 
 console.log("Loading MetaMap Docker Comms Module")
 import { metamap } from "./metamap.js"
@@ -112,44 +118,41 @@ const storage = multer.diskStorage({
   }
 })
 
-const moveFileToCollection = (filedata, coll) => {
-
-  var tables_folder_target = (coll.indexOf("delete") > -1 ? global.tables_folder_deleted : global.tables_folder)
-  fs.mkdirSync(path.join(tables_folder_target, coll), { recursive: true })
-  fs.renameSync( filedata.path, path.join(tables_folder_target, coll, filedata.originalname) );
-
+const moveFileToCollection = async (filedata, coll) => {
+  const tables_folder_target = (coll.indexOf("delete") > -1 ? global.tables_folder_deleted : global.tables_folder)
+  await fs.mkdirSync(path.join(tables_folder_target, coll), { recursive: true })
+  fs.rename( filedata.path, path.join(tables_folder_target, coll, filedata.originalname) );
 }
 
 app.get("/api/test", function(req,res){
   res.send("here we are")
 })
 
-
 var tableSplitter = async ( tablePath ) => {
 
   var tablesHTML = new Promise ( (accept, reject) => {
-            fs.readFile(tablePath,
-                      "utf8",
-                      (err, data) => {
-                        var tablePage = cheerio.load(data);
-                        var tables  = tablePage("table")
+    fs.readFile(tablePath,
+              "utf8",
+              (err, data) => {
+                var tablePage = cheerio.load(data);
+                var tables  = tablePage("table")
 
-                        var tablesHTML = []
+                var tablesHTML = []
 
-                        // If only one table in the file, just return the whole file. Let the user clean up
-                        if ( tables.length <= 1 ){
-                          tablesHTML.push(data)
-                        } else {
-                          // we attempt automatic splitting here.
-                          for ( var t = 0; t < tables.length; t++){
-                            tablesHTML.push("<table>"+tablePage(tables[t]).html()+"</table>")
-                          }
-                        }
+                // If only one table in the file, just return the whole file. Let the user clean up
+                if ( tables.length <= 1 ){
+                  tablesHTML.push(data)
+                } else {
+                  // we attempt automatic splitting here.
+                  for ( var t = 0; t < tables.length; t++){
+                    tablesHTML.push("<table>"+tablePage(tables[t]).html()+"</table>")
+                  }
+                }
 
-                        accept(tablesHTML)
+                accept(tablesHTML)
 
-                      });
-                  })
+              });
+          })
 
   tablesHTML = await tablesHTML
   return tablesHTML
@@ -157,51 +160,48 @@ var tableSplitter = async ( tablePath ) => {
 
 app.post(CONFIG.api_base_url+'/tableUploader', async function(req, res) {
 
- let upload = multer({ storage: storage }).array('fileNames');
+  let upload = multer({ storage: storage }).array('fileNames');
 
- upload(req, res, async function(err) {
+  upload(req, res, async function(err) {
 
-     const files = req.files;
-     let index, len;
+    const files = req.files;
+    let index, len;
 
-     var results = []
+    var results = []
 
-     // Loop through all the uploaded files and return names to frontend
-     for (index = 0, len = files.length; index < len; ++index) {
-       try{
+    // Loop through all the uploaded files and return names to frontend
+    for (index = 0, len = files.length; index < len; ++index) {
+      try{
+        var tables_html = await tableSplitter(files[index].path)
+        var cleanFilename = files[index].originalname.replaceAll("_", "-")
+        var file_elements = cleanFilename.split(".")
+        var extension = file_elements.pop()
+        var baseFilename = file_elements.join(".")
 
-         var tables_html = await tableSplitter(files[index].path)
-         var cleanFilename = files[index].originalname.replaceAll("_", "-")
-         var file_elements = cleanFilename.split(".")
-         var extension = file_elements.pop()
-         var baseFilename = file_elements.join(".")
+        fs.mkdirSync(path.join(global.tables_folder, req.body.collection_id), { recursive: true })
 
-         fs.mkdirSync(path.join(global.tables_folder, req.body.collection_id), { recursive: true })
+        tables_html.map( async (table,t) => {
 
-         tables_html.map( async (table,t) => {
+          var page = t+1
+          var docid = baseFilename
 
-           var page = (t+1)
-           var docid = baseFilename
+          var newTableFilename = docid+"_"+page+"."+extension
 
-           var newTableFilename = docid+"_"+page+"."+extension
+          fs.writeFileSync(path.join(global.tables_folder, req.body.collection_id, newTableFilename), table)
 
-           fs.writeFileSync(path.join(global.tables_folder, req.body.collection_id, newTableFilename), table)
+          await createTable(docid, page, req.body.username_uploader, req.body.collection_id, newTableFilename)
+          results.push({filename: newTableFilename, status:"success"})
+        })
 
-           await createTable(docid, page, req.body.username_uploader, req.body.collection_id, newTableFilename)
-           results.push({filename: newTableFilename, status:"success"})
-         }
-         )
+      } catch(err){
+        console.log(err)
+        console.log("file: " + files[index].originalname + " failed to process")
+        results.push({filename: files[index].originalname, status:"failed"})
+      }
+    }
 
-       } catch(err){
-         console.log(err)
-         console.log("file: " + files[index].originalname + " failed to process")
-         results.push({filename: files[index].originalname, status:"failed"})
-       }
-     }
-
-     res.send(results);
- });
-
+    res.send(results);
+  });
 });
 
 async function UMLSData() {
@@ -274,7 +274,7 @@ async function CUIData (){
 
     var umlsData = await UMLSData();
 
-    var results = await getAnnotationResults()
+    var results = await dbDriver.annotationResultsGet()
 
     var rres = results.rows.reduce(
             (acc,ann,i) => {
@@ -303,34 +303,12 @@ async function CUIData (){
     return { cui_def: umlsData.cui_def, cui_concept: umlsData.cui_concept, actual_results: rres, semtypes: umlsData.semtypes }
 }
 
-
-// Gets the labellers associated w ith each document/table.
-async function getMetadataLabellers(){
-
-  var client = await pool.connect()
-  var result = await client.query(`select distinct docid, page, labeller from metadata`)
-        client.release()
-
-  return result
-}
-
 // Returns the annotation for a single document/table
-async function getAnnotationByID(docid,page,collId){
-
+async function getAnnotationByID(docid, page, collId) {
   if ( docid == "undefined" || page == "undefined" || collId == "undefined" ){
     return {rows:[]}
   }
-
-  var client = await pool.connect()
-  var result = await client.query(`
-    SELECT docid, page, "user", notes, collection_id, file_path, "tableType", "table".tid, completion, annotation
-    FROM "table"
-    LEFT JOIN annotations
-    ON  "table".tid = annotations.tid
-    WHERE docid=$1 AND page=$2 AND collection_id = $3 `,[docid,page,collId])
-  client.release()
-
-  return result
+  return dbDriver.annotationByIDGet(docid, page, collId)
 }
 
 const rebuildSearchIndex = async () => {
@@ -1404,7 +1382,7 @@ app.post(CONFIG.api_base_url+'/annotationPreview',async function(req,res){
 // Returns all annotations for all document/tables.
 app.get(CONFIG.api_base_url+'/formattedResults', async function (req,res){
 
-       var results = await getAnnotationResults()
+       var results = await dbDriver.annotationResultsGet()
 
        if ( results ){
 

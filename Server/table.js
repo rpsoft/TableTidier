@@ -8,15 +8,50 @@ var _toConsumableArray2 = _interopRequireDefault(require("@babel/runtime/helpers
 
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
-var _network_functions = require("./network_functions.js");
-
 var _classifier = require("./classifier.js");
 
+// import {getAnnotationResults} from "./network_functions.js"
 var fs = require('fs');
 
 var path = require('path');
 
+var dbDriver = null; // Set driver
+
+var tableDBDriverSet = function tableDBDriverSet(driver) {
+  return dbDriver = driver;
+};
+
 console.log("Loading Classifier");
+
+function refreshDocuments() {
+  return _refreshDocuments.apply(this, arguments);
+}
+
+function _refreshDocuments() {
+  _refreshDocuments = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee5() {
+    var res;
+    return _regenerator["default"].wrap(function _callee5$(_context5) {
+      while (1) {
+        switch (_context5.prev = _context5.next) {
+          case 0:
+            _context5.next = 2;
+            return prepareAvailableDocuments();
+
+          case 2:
+            res = _context5.sent;
+            available_documents = res.available_documents;
+            abs_index = res.abs_index;
+            DOCS = res.DOCS;
+
+          case 6:
+          case "end":
+            return _context5.stop();
+        }
+      }
+    }, _callee5);
+  }));
+  return _refreshDocuments.apply(this, arguments);
+}
 
 var readyTable = /*#__PURE__*/function () {
   var _ref = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2(docname, page, collection_id) {
@@ -682,6 +717,14 @@ var prepareAvailableDocuments = /*#__PURE__*/function () {
       while (1) {
         switch (_context4.prev = _context4.next) {
           case 0:
+            if (dbDriver) {
+              _context4.next = 2;
+              break;
+            }
+
+            throw new Error('Required DB Driver');
+
+          case 2:
             ftop = [];
             ftyp = [];
             fgroup = [];
@@ -700,10 +743,10 @@ var prepareAvailableDocuments = /*#__PURE__*/function () {
             }
 
             filtered_docs_ttype = [];
-            _context4.next = 10;
-            return (0, _network_functions.getAnnotationResults)();
+            _context4.next = 12;
+            return dbDriver.annotationResultsGet();
 
-          case 10:
+          case 12:
             allAnnotations = _context4.sent;
             all_annotated_docids = Array.from(new Set(allAnnotations.rows.reduce(function (acc, ann) {
               acc = acc ? acc : [];
@@ -912,13 +955,13 @@ var prepareAvailableDocuments = /*#__PURE__*/function () {
                 }
               });
             });
-            _context4.next = 25;
+            _context4.next = 27;
             return results;
 
-          case 25:
+          case 27:
             return _context4.abrupt("return", _context4.sent);
 
-          case 26:
+          case 28:
           case "end":
             return _context4.stop();
         }
@@ -932,6 +975,8 @@ var prepareAvailableDocuments = /*#__PURE__*/function () {
 }();
 
 module.exports = {
+  tableDBDriverSet: tableDBDriverSet,
+  refreshDocuments: refreshDocuments,
   readyTable: readyTable,
   prepareAvailableDocuments: prepareAvailableDocuments
 };

@@ -61,16 +61,28 @@ function driver(config) {
   }();
 
   return {
-    // * :-)  Sqlite version transform "annotations".annotation from text to json
-    annotationDataGet: function () {
-      var _annotationDataGet = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2(tids) {
+    annotationByIDGet: function annotationByIDGet(docid, page, collId) {
+      return query("SELECT \n        docid,\n        \"user\",\n        notes,\n        collection_id,\n        file_path,\n        \"tableType\",\n        \"table\".tid,\n        completion,\n        annotation\n      FROM \n        \"table\"\n      LEFT JOIN\n        annotations\n      ON\n        \"table\".tid = annotations.tid\n      WHERE\n      docid=$1 AND page=$2 AND collection_id = $3", [docid, page, collId]);
+    },
+    annotationDataGet: function annotationDataGet(tids) {
+      return query( // * :-)  Sqlite version transform "annotations".annotation from text to json
+      "SELECT \n  docid,\n  page,\n  collection_id,\n  file_path,\n  \"table\".tid,\n  \"annotations\".annotation\nFROM \n  \"table\",\n  \"annotations\"\nWHERE\n  \"table\".tid = \"annotations\".tid AND \"table\".tid = ANY ($1)", [tids]);
+    },
+    annotationResultsGet: function () {
+      var _annotationResultsGet = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2() {
+        var result;
         return _regenerator["default"].wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
-                return _context2.abrupt("return", query("SELECT \n  docid,\n  page,\n  collection_id,\n  file_path,\n  \"table\".tid,\n  \"annotations\".annotation\nFROM \n  \"table\",\n  \"annotations\"\nwhere\n  \"table\".tid = \"annotations\".tid AND \"table\".tid = ANY ($1)", [tids]));
+                _context2.next = 2;
+                return query("SELECT * FROM \"table\", annotations where \"table\".tid = annotations.tid order by docid desc,page asc");
 
-              case 1:
+              case 2:
+                result = _context2.sent;
+                return _context2.abrupt("return", result);
+
+              case 4:
               case "end":
                 return _context2.stop();
             }
@@ -78,34 +90,19 @@ function driver(config) {
         }, _callee2);
       }));
 
-      function annotationDataGet(_x3) {
-        return _annotationDataGet.apply(this, arguments);
+      function annotationResultsGet() {
+        return _annotationResultsGet.apply(this, arguments);
       }
 
-      return annotationDataGet;
+      return annotationResultsGet;
     }(),
-    resultsDataGet: function () {
-      var _resultsDataGet = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee3(tids) {
-        return _regenerator["default"].wrap(function _callee3$(_context3) {
-          while (1) {
-            switch (_context3.prev = _context3.next) {
-              case 0:
-                return _context3.abrupt("return", query("SELECT * FROM \"result\" WHERE tid = ANY ($1)", [tids]));
-
-              case 1:
-              case "end":
-                return _context3.stop();
-            }
-          }
-        }, _callee3);
-      }));
-
-      function resultsDataGet(_x4) {
-        return _resultsDataGet.apply(this, arguments);
-      }
-
-      return resultsDataGet;
-    }()
+    // Gets the labellers associated w ith each document/table.
+    metadataLabellersGet: function metadataLabellersGet() {
+      return query("SELECT distinct docid, page, labeller FROM metadata");
+    },
+    resultsDataGet: function resultsDataGet(tids) {
+      return query("SELECT * FROM \"result\" WHERE tid = ANY ($1)", [tids]);
+    }
   };
 }
 
