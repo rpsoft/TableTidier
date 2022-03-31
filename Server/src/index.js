@@ -1,3 +1,6 @@
+// Load config
+const GENERAL_CONFIG = require('./config.json')
+
 const express = require('express');
 
 const bodyParser = require('body-parser');
@@ -11,6 +14,9 @@ const fs = require('fs/promises');
 const path = require('path');
 
 const { Pool, Client, Query } = require('pg')
+// DB driver
+const dbDriver = require('./db/postgres-driver')({...GENERAL_CONFIG.db})
+
 
 const csv = require('csv-parser');
 const CsvReadableStream = require('csv-reader');
@@ -22,8 +28,8 @@ import usersRoutes from './routes/users'
 
 // I want to access cheerio from everywhere.
 global.cheerio = require('cheerio');
-global.CONFIG = require('./config.json')
 
+global.CONFIG = GENERAL_CONFIG
 global.available_documents = {}
 global.abs_index = []
 global.tables_folder = "HTML_TABLES"
@@ -819,25 +825,14 @@ var deleteCollection = async (collection_id) => {
   client.release()
 }
 
-const getResults = async ( tids ) => {
-  console.log(JSON.stringify(tids))
-  var client = await pool.connect()
-  var result = await client.query(`SELECT * FROM "result" WHERE tid = ANY ($1)`,[tids])
-        client.release()
-  return result
-}
-
 const getResultsRefreshed = async ( tids ) => {
-
-  var client = await pool.connect()
-  var annotation_data = await client.query(`SELECT docid, page, collection_id, file_path, "table".tid, "annotations".annotation	FROM "table", "annotations" where "table".tid = "annotations".tid AND "table".tid = ANY ($1)`,[tids])
-  client.release()
-
+ 
+  const annotation_data = await dbDriver.annotationDataGet(tids)
   var table_results = []
 
   for ( var ann in annotation_data.rows ) {
 
-    console.log( "Preparing Table: "+ann+" / "+annotation_data.rows.length )
+    console.log(`Preparing Table: ${ann} / ` + annotation_data.rows.length )
     try{
       var entry = annotation_data.rows[ann]
 
@@ -849,8 +844,9 @@ const getResultsRefreshed = async ( tids ) => {
 
       table_results = [...table_results, table_res]
 
-    } catch( e ){
+    } catch( err ){
       console.log( "Failed: "+ path.join(entry.collection_id, entry.file_path) )
+      console.log(err)
     }
 
   }
@@ -934,13 +930,15 @@ app.post(CONFIG.api_base_url+'/collections', async function(req,res){
 
       var tids = JSON.parse(req.body.tid);
 
-
-
+      // Download file
       if ( req.body.target.indexOf("results") > -1 ){
-        result = await getResults( tids );
+        // data csv
+        result = await dbDriver.resultsDataGet( tids );
       } else if( req.body.target.indexOf("metadata") > -1 ) {
+        // metadata csv
         result = await getMetadata( tids );
       } else {
+        // data & metadata json
         // Default Action.
         var result_res = await getResultsRefreshed( tids )
         var result_met = await getMetadata( tids );
