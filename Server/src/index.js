@@ -325,34 +325,37 @@ const tabularFromAnnotation = async ( annotation ) => {
   const htmlFile = annotation.file_path
 
   //If an override file exists then use it!. Overrides are those produced by the editor.
-  var file_exists = await fs.existsSync( path.join(global.tables_folder_override, annotation.collection_id, htmlFile) )
+  let file_exists = true
+  try {
+    await fs.open(path.join(global.tables_folder_override, annotation.collection_id, htmlFile))
+  } catch (err) {
+    file_exists = false
+  }
 
-  var htmlFolder = path.join(global.tables_folder, annotation.collection_id)
+  let htmlFolder = path.join(global.tables_folder, annotation.collection_id)
   if ( file_exists ) {
     htmlFolder = path.join(global.tables_folder_override, annotation.collection_id) //"HTML_TABLES_OVERRIDE/"
   }
 
   try {
-    fs.readFile(path.join(htmlFolder,htmlFile),
-                "utf8",
-                function(err, data) {
-                  var ann = annotation
-                  var tablePage = cheerio.load(data);
+    const data = await fs.readFile(path.join(htmlFolder,htmlFile), {encoding: 'utf8'})
+    const ann = annotation
+    const tablePage = cheerio.load(data);
 
-                  var tableData = tablePage("tr").get().map( (row) => {
-                    var rowValues = cheerio(row).children().get().map(
-                      (i,e) => {
-                        return {
-                          text : cheerio(i).text(),
-                          isIndent : (cheerio(i).find('.indent1').length + cheerio(i).find('.indent2').length + cheerio(i).find('.indent3').length + cheerio(i).find('.indent').length) > 0,
-                          isBold : (cheerio(i).find('.bold').length + cheerio(i).find('strong').length) > 0,
-                          isItalic : (cheerio(i).find('em').length) > 0,
-                        }
-                      }
-                    )
-                    return rowValues
-                  });
-                })
+    const tableData = tablePage("tr").get().map( (row) => {
+      const rowValues = cheerio(row).children().get().map(
+        (i,e) => ({
+          text : cheerio(i).text(),
+          isIndent : (cheerio(i).find('.indent1').length +
+                      cheerio(i).find('.indent2').length +
+                      cheerio(i).find('.indent3').length +
+                      cheerio(i).find('.indent').length) > 0,
+          isBold : (cheerio(i).find('.bold').length + cheerio(i).find('strong').length) > 0,
+          isItalic : (cheerio(i).find('em').length) > 0,
+        })
+      )
+      return rowValues
+    });
   } catch (e){
     console.log(e)
   }
