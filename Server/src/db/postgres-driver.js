@@ -111,6 +111,8 @@ WHERE
 
     metadataClear: (tid) => query('DELETE FROM metadata WHERE tid = $1', [tid]),
 
+    metadataGet: (tids) => query(`SELECT * FROM metadata WHERE tid = ANY ($1)`,[tids]),
+
     metadataSet: (
       concept_source,
       concept_root,

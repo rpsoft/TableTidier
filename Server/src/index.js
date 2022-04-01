@@ -549,13 +549,6 @@ const setMetadata = async ( metadata ) => {
   return results
 }
 
-const getMetadata = async ( tids ) => {
-  var client = await pool.connect()
-  var result = await client.query(`SELECT * FROM metadata WHERE tid = ANY ($1)`,[tids])
-        client.release()
-  return result
-}
-
 // important. Use this to recover the table id (tid). tid is used as primary key in many tables. uniquely identifying tables across sql tables.
 const getTid = async ( docid, page, collId ) => {
 
@@ -610,10 +603,10 @@ app.post(CONFIG.api_base_url+'/metadata', async function(req,res){
         }
         break;
       case "get":
-        result = (await getMetadata([tid])).rows //req.body.docid, req.body.page, req.body.collId,
+        result = (await dbDriver.metadataGet([tid])).rows //req.body.docid, req.body.page, req.body.collId,
         break;
       case "get_multiple":
-        result = (await getMetadata(req.body.tids)).rows //req.body.docid, req.body.page, req.body.collId,
+        result = (await dbDriver.metadataGet(req.body.tids)).rows //req.body.docid, req.body.page, req.body.collId,
         break;
       default:
     }
@@ -920,12 +913,12 @@ app.post(CONFIG.api_base_url+'/collections', async function(req,res){
         result = await dbDriver.resultsDataGet( tids );
       } else if( req.body.target.indexOf("metadata") > -1 ) {
         // metadata csv
-        result = await getMetadata( tids );
+        result = await dbDriver.metadataGet( tids );
       } else {
         // data & metadata json
         // Default Action.
         var result_res = await getResultsRefreshed( tids )
-        var result_met = await getMetadata( tids );
+        var result_met = await dbDriver.metadataGet( tids );
         // var result =
 
         result = {data: result_res, metadata: result_met?.rows}
