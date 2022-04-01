@@ -549,26 +549,6 @@ const setMetadata = async ( metadata ) => {
   return results
 }
 
-// important. Use this to recover the table id (tid). tid is used as primary key in many tables. uniquely identifying tables across sql tables.
-const getTid = async ( docid, page, collId ) => {
-
-  if ( docid == "undefined" || page == "undefined" || collId == "undefined" ){
-    return -1
-  }
-
-  var client = await pool.connect()
-  var result = await client.query(`SELECT tid FROM public."table" WHERE docid = $1 AND page = $2 AND collection_id = $3`,[docid, page, collId])
-        client.release()
-
-  var tid
-
-  if ( result.rows && result.rows.length > 0 ){
-    tid = result.rows[0].tid
-  }
-
-  return tid
-}
-
 app.post(CONFIG.api_base_url+'/metadata', async function(req,res){
 
   if ( req.body && ( ! req.body.action ) ){
@@ -576,49 +556,66 @@ app.post(CONFIG.api_base_url+'/metadata', async function(req,res){
     return
   }
 
-  var validate_user = validateUser(req.body.username, req.body.hash);
+  const {
+    username,
+    hash,
 
-  var collectionPermissions = await getResourcePermissions('collections', validate_user ? req.body.username : "")
+    action,
 
-  if ( collectionPermissions.read.indexOf(req.body.collId) > -1 ){
+    docid,
+    page,
+    collId,
 
-    var tid = req.body.tid
-    if ( tid == "undefined" ){
-      tid = await getTid( req.body.docid, req.body.page, req.body.collId )
-    }
+    payload,
+    tids,
+  } = req.body
 
-    let result = {};
+  // * :-) User validation...
+  var validate_user = validateUser(username, hash);
 
-    switch (req.body.action) {
-      case "clear":
-        if ( collectionPermissions.write.indexOf(req.body.collId) > -1 ){
-          result = await dbDriver.metadataClear(tid)
-          console.log("deleted: "+ new Date())
-        }
-        break;
-      case "save":
-        if ( collectionPermissions.write.indexOf(req.body.collId) > -1 ){
-          const metadata = JSON.parse(req.body.payload).metadata
-          result = await setMetadata(metadata)
-        }
-        break;
-      case "get":
-        result = (await dbDriver.metadataGet([tid])).rows //req.body.docid, req.body.page, req.body.collId,
-        break;
-      case "get_multiple":
-        result = (await dbDriver.metadataGet(req.body.tids)).rows //req.body.docid, req.body.page, req.body.collId,
-        break;
-      default:
-    }
-    // Always return the updated collection details
-    // result = await getCollection(req.body.collection_id);
-    res.json({status: "success", data: result})
-  } else {
+  var collectionPermissions = await getResourcePermissions('collections', validate_user ? username : "")
+
+  if ( collectionPermissions.read.indexOf(collId) <= -1 ) {
     res.json({status:"unauthorised", payload: null})
   }
 
-});
+  let tid = req.body.tid
 
+  if ( tid == "undefined" ) {
+    tid = await getTid(
+      docid,
+      page,
+      collId,
+    )
+  }
+
+  let result = {};
+
+  switch (action) {
+    case "clear":
+      if ( collectionPermissions.write.indexOf(collId) > -1 ){
+        result = await dbDriver.metadataClear(tid)
+        console.log("deleted: "+ new Date())
+      }
+      break;
+    case "save":
+      if ( collectionPermissions.write.indexOf(collId) > -1 ){
+        const metadata = JSON.parse(payload).metadata
+        result = await setMetadata(metadata)
+      }
+      break;
+    case "get":
+      result = (await dbDriver.metadataGet([tid])).rows //req.body.docid, req.body.page, req.body.collId,
+      break;
+    case "get_multiple":
+      result = (await dbDriver.metadataGet(tids)).rows //req.body.docid, req.body.page, req.body.collId,
+      break;
+    default:
+  }
+  // Always return the updated collection details
+  // result = await getCollection(req.body.collection_id);
+  res.json({status: "success", data: result})
+});
 
 const getCUISIndex = async () => {
 

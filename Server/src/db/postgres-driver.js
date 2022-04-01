@@ -145,6 +145,8 @@ WHERE
     // Gets the labellers associated w ith each document/table.
     metadataLabellersGet: () => query(`SELECT distinct docid, page, labeller FROM metadata`),
 
+    resultsDataGet: (tids) => query(`SELECT * FROM "result" WHERE tid = ANY ($1)`, [tids]),
+
     tableCreate: async (docid, page, user, collection_id, file_path) => query(
       `INSERT INTO public."table"(
 	       docid, page, "user", notes, collection_id, file_path, "tableType")
@@ -152,7 +154,29 @@ WHERE
       [docid, page, user, '', collection_id, file_path, '']
     ),
 
-    resultsDataGet: (tids) => query(`SELECT * FROM "result" WHERE tid = ANY ($1)`, [tids]),    
+    // Table id Get
+    // important.
+    // Use this to recover the table id (tid).
+    // tid is used as primary key in many tables.
+    // uniquely identifying tables across sql tables.
+    tidGet: async (docid, page, collId) => {
+      if (
+        docid == "undefined" ||
+        page == "undefined" || 
+        collId == "undefined" 
+      ) {
+        return -1
+      }
+      let tid = await query(
+        `SELECT tid FROM public."table" WHERE docid = $1 AND page = $2 AND collection_id = $3`,
+        [docid, page, collId]
+      )
+      if ( tid.rows && tid.rows.length > 0 ){
+        tid = result.rows[0].tid
+      }
+      return tid
+    },
+    
   }
 }
 
