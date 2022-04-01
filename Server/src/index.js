@@ -443,7 +443,7 @@ app.get(CONFIG.api_base_url+'/modifyCUIData', async (req, res) => {
   }
 
   try {
-    const result = await dbDriver.CUIDataModify(
+    const result = await dbDriver.cuiDataModify(
       cui,
       preferred,
       adminApproved,
@@ -455,25 +455,27 @@ app.get(CONFIG.api_base_url+'/modifyCUIData', async (req, res) => {
   }
 });
 
-app.get(CONFIG.api_base_url+'/cuiDeleteIndex', async function(req,res){
-
-  var cuiDeleteIndex = async (cui) => {
-      var client = await pool.connect()
-
-      var done = await client.query('delete from cuis_index where cui = $1', [cui ])
-        .then(result => console.log("deleted: "+ new Date()))
-        .catch(e => console.error(e.stack))
-        .then(() => client.release())
-
+// * :-) Use html DELETE verb
+app.get(CONFIG.api_base_url+'/cuiDeleteIndex', async (req, res) => {
+  if ( !req.query ) {
+    res.send('CUI delete index failed. No query');
   }
 
-  if ( req.query && req.query.cui){
-    await cuiDeleteIndex(req.query.cui)
-    res.send("done")
-  } else {
-    res.send("clear failed");
+  const {
+    cui,
+  } = req.query
+
+  if ( !cui ) {
+    res.send('CUI delete index failed. Check parameters');
   }
 
+  try {
+    await dbDriver.cuiDeleteIndex( cui )
+    console.log("deleted: "+ new Date())
+    res.send('done')
+  } catch (err) {
+    res.status(500).send('CUI delete index Failed.')
+  }
 });
 
 app.get(CONFIG.api_base_url+'/getMetadataForCUI', async function(req,res){

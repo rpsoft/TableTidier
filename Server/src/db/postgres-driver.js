@@ -87,7 +87,7 @@ WHERE
       return result
     },
 
-    CUIDataModify: async (cui, preferred, adminApproved, prevcui) => {
+    cuiDataModify: async (cui, preferred, adminApproved, prevcui) => {
       let result = await query(`UPDATE cuis_index SET cui=$1, preferred=$2, admin_approved=$3 WHERE cui = $4`,
         [cui, preferred, adminApproved, prevcui] )
 
@@ -104,6 +104,8 @@ WHERE
 
       return result
     },
+
+    cuiDeleteIndex: (cui) => query('delete from cuis_index where cui = $1', [cui]),
 
     tableCreate: async (docid, page, user, collection_id, file_path) => query(
       `INSERT INTO public."table"(
