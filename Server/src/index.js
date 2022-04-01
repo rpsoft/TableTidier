@@ -417,7 +417,7 @@ async function main(){
 //     res.send("table recovered")
 // });
 
-app.get(CONFIG.api_base_url+'/listDeletedTables', async function(req,res){
+app.get(CONFIG.api_base_url+'/listDeletedTables', async (req,res) => {
 
   fs.readdir( tables_folder_deleted, function(err, items) {
 
@@ -431,30 +431,33 @@ app.get(CONFIG.api_base_url+'/listDeletedTables', async function(req,res){
 
 });
 
-app.get(CONFIG.api_base_url+'/modifyCUIData', async function(req,res){
-
-  var modifyCUIData = async (cui, preferred, adminApproved, prevcui) => {
-      var client = await pool.connect()
-
-      var result = await client.query(`UPDATE cuis_index SET cui=$1, preferred=$2, admin_approved=$3 WHERE cui = $4`,
-        [cui, preferred, adminApproved, prevcui] )
-
-      if ( result && result.rowCount ){
-        var q = new Query(`UPDATE metadata SET cuis = array_to_string(array_replace(regexp_split_to_array(cuis, ';'), $2, $1), ';'), cuis_selected = array_to_string(array_replace(regexp_split_to_array(cuis_selected, ';'), $2, $1), ';')`, [cui, prevcui])
-        result = await client.query( q )
-      }
-
-      client.release()
-      return result
+app.get(CONFIG.api_base_url+'/modifyCUIData', async (req, res) => {
+  if ( !req.query ) {
+    res.send("UPDATE failed. No query");
   }
 
-  if ( req.query && req.query.cui && req.query.preferred && req.query.adminApproved && req.query.prevcui ){
-    var result = await modifyCUIData(req.query.cui, req.query.preferred, req.query.adminApproved, req.query.prevcui)
+  const {
+    cui,
+    preferred,
+    adminApproved,
+    prevcui
+  } = req.query
+
+  if ( !(cui && preferred && adminApproved && prevcui) ) {
+    res.send("UPDATE failed. Check parameters");
+  }
+
+  try {
+    const result = await dbDriver.CUIDataModify(
+      cui,
+      preferred,
+      adminApproved,
+      prevcui,
+    )
     res.send(result)
-  } else {
-    res.send("UPDATE failed");
+  } catch (err) {
+    res.status(500).send('Failing updating cui data.')
   }
-
 });
 
 app.get(CONFIG.api_base_url+'/cuiDeleteIndex', async function(req,res){

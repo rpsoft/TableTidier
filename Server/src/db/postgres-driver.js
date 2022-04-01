@@ -64,7 +64,9 @@ WHERE
     ),
 
     annotationResultsGet: async () => {
-      const result = await query(`SELECT * FROM "table", annotations where "table".tid = annotations.tid order by docid desc,page asc`)
+      const result = await query(
+        `SELECT * FROM "table", annotations where "table".tid = annotations.tid order by docid desc,page asc`
+      )
       // var filtered_rows = []
       //
       // var hey = available_documents
@@ -84,6 +86,25 @@ WHERE
         // debugger
       return result
     },
+
+    CUIDataModify: async (cui, preferred, adminApproved, prevcui) => {
+      let result = await query(`UPDATE cuis_index SET cui=$1, preferred=$2, admin_approved=$3 WHERE cui = $4`,
+        [cui, preferred, adminApproved, prevcui] )
+
+      if ( result && result.rowCount ){
+        const q = new Query(
+          `UPDATE metadata 
+          SET
+            cuis = array_to_string(array_replace(regexp_split_to_array(cuis, ';'), $2, $1), ';'),
+            cuis_selected = array_to_string(array_replace(regexp_split_to_array(cuis_selected, ';'), $2, $1), ';')`
+          , [cui, prevcui]
+        )
+        result = await query( q )
+      }
+
+      return result
+    },
+
     tableCreate: async (docid, page, user, collection_id, file_path) => query(
       `INSERT INTO public."table"(
 	       docid, page, "user", notes, collection_id, file_path, "tableType")
