@@ -418,22 +418,17 @@ async function main(){
 // });
 
 app.get(CONFIG.api_base_url+'/listDeletedTables', async (req,res) => {
-
-  fs.readdir( tables_folder_deleted, function(err, items) {
-
-    if (err) {
-      res.send("failed listing "+err)
-    } else {
-      res.send(items)
-    }
-
-  });
-
+  try {
+    const items = await fs.readdir( tables_folder_deleted )
+    res.send(items)
+  } catch (err) {
+    res.status(500).send('failed listing deleted tables:' + err)
+  }
 });
 
 app.get(CONFIG.api_base_url+'/modifyCUIData', async (req, res) => {
   if ( !req.query ) {
-    res.send("UPDATE failed. No query");
+    res.send('UPDATE failed. No query');
   }
 
   const {
@@ -444,7 +439,7 @@ app.get(CONFIG.api_base_url+'/modifyCUIData', async (req, res) => {
   } = req.query
 
   if ( !(cui && preferred && adminApproved && prevcui) ) {
-    res.send("UPDATE failed. Check parameters");
+    res.send('UPDATE failed. Check parameters');
   }
 
   try {
