@@ -107,6 +107,8 @@ WHERE
 
     cuiDeleteIndex: (cui) => query('delete from cuis_index where cui = $1', [cui]),
 
+    cuiMetadataGet: (cui) => query(`select docid,page,"user" from metadata where cuis like $1 `, ["%"+cui+"%"]),
+
     tableCreate: async (docid, page, user, collection_id, file_path) => query(
       `INSERT INTO public."table"(
 	       docid, page, "user", notes, collection_id, file_path, "tableType")

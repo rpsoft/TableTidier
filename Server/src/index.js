@@ -428,7 +428,7 @@ app.get(CONFIG.api_base_url+'/listDeletedTables', async (req,res) => {
 
 app.get(CONFIG.api_base_url+'/modifyCUIData', async (req, res) => {
   if ( !req.query ) {
-    res.send('UPDATE failed. No query');
+    res.status(400).send('UPDATE failed. No query');
   }
 
   const {
@@ -439,7 +439,7 @@ app.get(CONFIG.api_base_url+'/modifyCUIData', async (req, res) => {
   } = req.query
 
   if ( !(cui && preferred && adminApproved && prevcui) ) {
-    res.send('UPDATE failed. Check parameters');
+    res.status(400).send('UPDATE failed. Check parameters');
   }
 
   try {
@@ -458,7 +458,7 @@ app.get(CONFIG.api_base_url+'/modifyCUIData', async (req, res) => {
 // * :-) Use html DELETE verb
 app.get(CONFIG.api_base_url+'/cuiDeleteIndex', async (req, res) => {
   if ( !req.query ) {
-    res.send('CUI delete index failed. No query');
+    res.status(400).send('CUI delete index failed. No query');
   }
 
   const {
@@ -466,7 +466,7 @@ app.get(CONFIG.api_base_url+'/cuiDeleteIndex', async (req, res) => {
   } = req.query
 
   if ( !cui ) {
-    res.send('CUI delete index failed. Check parameters');
+    res.status(400).send('CUI delete index failed. Check parameters');
   }
 
   try {
@@ -479,24 +479,25 @@ app.get(CONFIG.api_base_url+'/cuiDeleteIndex', async (req, res) => {
 });
 
 app.get(CONFIG.api_base_url+'/getMetadataForCUI', async function(req,res){
-
-  var getCuiTables = async (cui) => {
-      var client = await pool.connect()
-      var result = await client.query(`select docid,page,"user" from metadata where cuis like $1 `, ["%"+cui+"%"])
-            client.release()
-      return result
-
+  if ( !req.query ) {
+    res.status(400).send('CUI getMetadata failed. No query');
   }
 
-  if ( req.query && req.query.cui ){
-    var meta = await getCuiTables(req.query.cui)
+  const {
+    cui,
+  } = req.query
+
+  if ( !cui ) {
+    res.status(400).send('CUI getMetadata failed. Check parameters');
+  }
+
+  try {
+    const meta = await dbDriver.cuiMetadataGet( cui )
     res.send(meta)
-  } else {
-    res.send("clear failed");
+  } catch (err) {
+    res.status(500).send('CUI getMetadata Failed.')
   }
-
 });
-
 
 const clearMetadata = async (tid) => {
     var client = await pool.connect()
