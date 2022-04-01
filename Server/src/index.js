@@ -499,48 +499,51 @@ app.get(CONFIG.api_base_url+'/getMetadataForCUI', async function(req,res){
   }
 });
 
-const clearMetadata = async (tid) => {
-    var client = await pool.connect()
-
-    var done = await client.query('DELETE FROM metadata WHERE tid = $1', [tid])
-      .then(result => console.log("deleted: "+ new Date()))
-      .catch(e => console.error(e.stack))
-      .then(() => client.release())
-
-}
-
 const setMetadata = async ( metadata ) => {
 
   if ( Object.keys(metadata).length > 0 ){
-      var tid = metadata[Object.keys(metadata)[0]].tid
-      console.log("HERE DELETE: "+tid)
-      await clearMetadata(tid)
+      const tidDelete = metadata[Object.keys(metadata)[0]].tid
+      console.log("HERE DELETE: "+tidDelete)
+      await dbDriver.metadataClear(tidDelete)
+      console.log("deleted: "+ new Date())
   }
 
-  var results = []
+  const results = []
 
-  for ( var m = 0; m < Object.keys(metadata).length; m++){
+  for ( let m = 0; m < Object.keys(metadata).length; m++){
 
-      var key = Object.keys(metadata)[m]
+    const key = Object.keys(metadata)[m]
 
-      var client = await pool.connect()
-
-      var done = await client.query(`
-        INSERT INTO metadata(concept_source, concept_root, concept, cuis, cuis_selected, qualifiers, qualifiers_selected, istitle, labeller, tid)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-        ON CONFLICT (concept_source, concept_root, concept, tid)
-        DO UPDATE SET cuis = $4, cuis_selected = $5, qualifiers = $6, qualifiers_selected = $7, istitle = $8, labeller = $9`,
-                [ metadata[key].concept_source, metadata[key].concept_root, metadata[key].concept,
-                  metadata[key].cuis.join(";"), metadata[key].cuis_selected.join(";"), metadata[key].qualifiers.join(";"), metadata[key].qualifiers_selected.join(";"),
-                  metadata[key].istitle, metadata[key].labeller, metadata[key].tid ])
-
-          .then(result => console.log("insert: "+key+" -- "+ new Date()))
-          .catch(e => {
-            console.error(metadata[key].concept+" -- "+"insert failed: "+key+" -- "+ new Date())
-          })
-          .then(() => client.release())
-
+    const {
+      concept_source,
+      concept_root,
+      concept,
+      cuis,
+      cuis_selected,
+      qualifiers,
+      qualifiers_selected,
+      istitle,
+      labeller,
+      tid,
+    } = metadata[key]
+    try {
+      const done = await dbDriver.metadataSet(
+        concept_source,
+        concept_root,
+        concept,
+        cuis.join(";"),
+        cuis_selected.join(";"),
+        qualifiers.join(";"),
+        qualifiers_selected.join(";"),
+        istitle,
+        labeller,
+        tid
+      )
       results.push(done);
+      console.log("insert: "+key+" -- "+ new Date())
+    } catch (err) {
+      console.error(concept+" -- "+"insert failed: "+key+" -- " + new Date() + ' ' + err)
+    }
   }
 
   return results
@@ -591,17 +594,18 @@ app.post(CONFIG.api_base_url+'/metadata', async function(req,res){
       tid = await getTid( req.body.docid, req.body.page, req.body.collId )
     }
 
-    var result = {};
+    let result = {};
 
     switch (req.body.action) {
       case "clear":
         if ( collectionPermissions.write.indexOf(req.body.collId) > -1 ){
-          result = await clearMetadata(tid)
+          result = await dbDriver.metadataClear(tid)
+          console.log("deleted: "+ new Date())
         }
         break;
       case "save":
         if ( collectionPermissions.write.indexOf(req.body.collId) > -1 ){
-          var metadata = JSON.parse(req.body.payload).metadata
+          const metadata = JSON.parse(req.body.payload).metadata
           result = await setMetadata(metadata)
         }
         break;

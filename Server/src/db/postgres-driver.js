@@ -109,14 +109,46 @@ WHERE
 
     cuiMetadataGet: (cui) => query(`select docid,page,"user" from metadata where cuis like $1 `, ["%"+cui+"%"]),
 
+    metadataClear: (tid) => query('DELETE FROM metadata WHERE tid = $1', [tid]),
+
+    metadataSet: (
+      concept_source,
+      concept_root,
+      concept,
+      cuis,
+      cuis_selected,
+      qualifiers,
+      qualifiers_selected,
+      istitle,
+      labeller,
+      tid
+    ) => query(`
+    INSERT INTO metadata(concept_source, concept_root, concept, cuis, cuis_selected, qualifiers, qualifiers_selected, istitle, labeller, tid)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+    ON CONFLICT (concept_source, concept_root, concept, tid)
+    DO UPDATE SET cuis = $4, cuis_selected = $5, qualifiers = $6, qualifiers_selected = $7, istitle = $8, labeller = $9`,
+    [
+      concept_source,
+      concept_root,
+      concept,
+      cuis,
+      cuis_selected,
+      qualifiers,
+      qualifiers_selected,
+      istitle,
+      labeller,
+      tid
+    ]),
+
+    // Gets the labellers associated w ith each document/table.
+    metadataLabellersGet: () => query(`SELECT distinct docid, page, labeller FROM metadata`),
+
     tableCreate: async (docid, page, user, collection_id, file_path) => query(
       `INSERT INTO public."table"(
 	       docid, page, "user", notes, collection_id, file_path, "tableType")
 	     VALUES ($1, $2, $3, $4, $5, $6, $7);`,
-      [docid, page, user, '', collection_id, file_path, '']),
-
-    // Gets the labellers associated w ith each document/table.
-    metadataLabellersGet: () => query(`SELECT distinct docid, page, labeller FROM metadata`),
+      [docid, page, user, '', collection_id, file_path, '']
+    ),
 
     resultsDataGet: (tids) => query(`SELECT * FROM "result" WHERE tid = ANY ($1)`, [tids]),    
   }
