@@ -1039,11 +1039,8 @@ app.post(CONFIG.api_base_url+'/getTableContent',async function(req,res){
 }
 
 app.get(CONFIG.api_base_url+'/cuiRecommend', async function(req,res){
-
-  var cuirec = await getRecommendedCUIS()
-
-  res.send( cuirec )
-
+  const cuiRecommend = await getRecommendedCUIS()
+  res.send( cuiRecommend )
 });
 
 const prepareAnnotationPreview = async (docid, page, collId, cachedOnly) => {
