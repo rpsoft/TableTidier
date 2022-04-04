@@ -577,10 +577,10 @@ app.post(CONFIG.api_base_url+'/metadata', async function(req,res){
   // * :-) User validation...
   var validate_user = validateUser(username, hash);
 
-  var collectionPermissions = await getResourcePermissions('collections', validate_user ? username : "")
+  var collectionPermissions = await dbDriver.permissionsResourceGet('collections', validate_user ? username : "")
 
   if ( collectionPermissions.read.indexOf(collId) <= -1 ) {
-    res.json({status:"unauthorised", payload: null})
+    return res.json({status:"unauthorised", payload: null})
   }
 
   let tid = req.body.tid
@@ -629,7 +629,7 @@ app.post(CONFIG.api_base_url+'/cuis', async function(req,res){
   }
 
   var validate_user = true //validateUser(req.body.username, req.body.hash);
-  // var collectionPermissions = await getResourcePermissions('collections', req.body.username)
+  // var collectionPermissions = await dbDriver.permissionsResourceGet('collections', req.body.username)
 
   if ( validate_user ){
 
@@ -660,45 +660,6 @@ function validateUser (username, hash){
     }
     return validate_user;
 }
-
-
-// ! :-) move to dbDriver
-// resource = {type: [collection or table], id: [collection or table id]}
-const getResourcePermissions = async (resource, user) => {
-
-  var client = await pool.connect()
-  var permissions;
-
-  switch (resource) {
-    case "collections":
-      permissions = await client.query(`select *,
-                                      (owner_username = $1) as write,
-                                      (visibility = 'public' OR owner_username = $1) as read
-                                      from collection`,[user])
-      break;
-    case "table":
-      break;
-    default:
-
-  }
-
-  client.release()
-
-  return permissions?.rows.reduce( (acc, row) => {
-            	var currentRead = acc.read
-            	var currentWrite = acc.write
-      				if (row.read){
-      					currentRead.push(row.collection_id)
-              }
-              if (row.write){
-      					currentWrite.push(row.collection_id)
-              }
-      				acc.read = currentRead
-      				acc.write = currentWrite
-            	return acc
-            },{read:[],write:[]})
-}
-
 
 // Collections
 var listCollections = async () => {
@@ -822,7 +783,7 @@ app.post(CONFIG.api_base_url+'/collections', async function(req,res){
 
   var validate_user = validateUser(req.body.username, req.body.hash);
 
-  var collectionPermissions = await getResourcePermissions('collections', validate_user ? req.body.username : "")
+  var collectionPermissions = await dbDriver.permissionsResourceGet('collections', validate_user ? req.body.username : "")
 
   var response = {status: "failed"}
 
@@ -977,7 +938,7 @@ app.post(CONFIG.api_base_url+'/tables', async function(req,res){
   }
 
   var validate_user = validateUser(req.body.username, req.body.hash);
-  var collectionPermissions = await getResourcePermissions('collections', validate_user ? req.body.username : "")
+  var collectionPermissions = await dbDriver.permissionsResourceGet('collections', validate_user ? req.body.username : "")
 
   if ( validate_user ){
 
@@ -1014,7 +975,7 @@ app.post(CONFIG.api_base_url+'/search', async function(req,res){
   var type = JSON.parse(req.body.searchType)
 
   var validate_user = validateUser(req.body.username, req.body.hash);
-  var collectionPermissions = await getResourcePermissions('collections', validate_user ? req.body.username : "")
+  var collectionPermissions = await dbDriver.permissionsResourceGet('collections', validate_user ? req.body.username : "")
   // if ( collectionPermissions.write.indexOf(req.body.collection_id) > -1 ){
 
   //if ( validate_user ){
@@ -1044,7 +1005,7 @@ app.post(CONFIG.api_base_url+'/getTableContent',async function(req,res){
 
     var validate_user = validateUser(req.body.username, req.body.hash);
 
-    var collectionPermissions = await getResourcePermissions('collections', validate_user ? req.body.username : "")
+    var collectionPermissions = await dbDriver.permissionsResourceGet('collections', validate_user ? req.body.username : "")
 
     if ( collectionPermissions.read.indexOf(req.body.collId) > -1 ){
 
@@ -1326,7 +1287,7 @@ app.post(CONFIG.api_base_url+'/annotationPreview',async function(req,res){
 
       var validate_user = validateUser(req.body.username, req.body.hash);
 
-      var collectionPermissions = await getResourcePermissions('collections', validate_user ? req.body.username : "")
+      var collectionPermissions = await dbDriver.permissionsResourceGet('collections', validate_user ? req.body.username : "")
 
       if ( collectionPermissions.read.indexOf(req.body.collId) > -1 ){
 

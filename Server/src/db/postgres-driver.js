@@ -155,6 +155,39 @@ WHERE
     // Gets the labellers associated w ith each document/table.
     metadataLabellersGet: () => query(`SELECT distinct docid, page, labeller FROM metadata`),
 
+    // resource = {type: [collection or table], id: [collection or table id]}
+    permissionsResourceGet: async (resource, user) => {
+      let permissions;
+
+      switch (resource) {
+        case "collections":
+          permissions = await query(
+            `select *,
+            (owner_username = $1) as write,
+            (visibility = 'public' OR owner_username = $1) as read
+            from collection`,
+            [user]
+          )
+          break;
+        case "table":
+          break;
+        default:
+    
+      }
+    
+      return permissions?.rows.reduce( (acc, row) => {
+        if (row.read) {
+          acc.read.push(row.collection_id)
+        }
+        if (row.write) {
+          acc.write.push(row.collection_id)
+        }
+        return acc
+      },
+        {read:[], write:[]}
+      )
+    },
+
     resultsDataGet: (tids) => query(`SELECT * FROM "result" WHERE tid = ANY ($1)`, [tids]),
 
     tableCreate: async (docid, page, user, collection_id, file_path) => query(
