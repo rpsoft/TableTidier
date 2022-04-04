@@ -656,24 +656,6 @@ function validateUser (username, hash){
     return validate_user;
 }
 
-// Collections
-//  ! :-)
-var deleteCollection = async (collection_id) => {
-  var client = await pool.connect()
-
-  var tables = await client.query(
-    `SELECT docid, page FROM public."table" WHERE collection_id = $1`,[collection_id]
-  )
-
-  tables = tables.rows
-  var result = await dbDriver.tablesRemove(tables, collection_id, true);
-
-  var results = await client.query(
-    `DELETE FROM collection WHERE collection_id = $1`, [collection_id]
-  )
-  client.release()
-}
-
 const getResultsRefreshed = async ( tids ) => {
  
   const annotation_data = await dbDriver.annotationDataGet(tids)
@@ -708,6 +690,7 @@ const getResultsRefreshed = async ( tids ) => {
   return table_results
 }
 
+// Collections
 app.post(CONFIG.api_base_url+'/collections', async function(req,res){
 
   if ( req.body && ( ! req.body.action ) ){
@@ -715,28 +698,43 @@ app.post(CONFIG.api_base_url+'/collections', async function(req,res){
     return
   }
 
-  var validate_user = validateUser(req.body.username, req.body.hash);
+  const {
+    username=undefined,
+    hash=undefined,
 
-  var collectionPermissions = await dbDriver.permissionsResourceGet('collections', validate_user ? req.body.username : "")
+    action,
 
-  var response = {status: "failed"}
+    collection_id,
+    collectionData,
+
+    tid,
+    target,
+  } = req.body
+  var validate_user = validateUser(
+    username,
+    hash,
+  );
+
+  const collectionPermissions = await dbDriver.permissionsResourceGet('collections', validate_user ? username : "")
+
+  let response = {status: "failed"}
 
   var result;
 
-  switch (req.body.action) {
+  switch (action) {
     case "list":
       result = await dbDriver.collectionsList();
-      result = result.filter( (elm) => {return collectionPermissions.read.indexOf(elm.collection_id) > -1} )
+      result = result.filter( (elm) => collectionPermissions.read.includes(elm.collection_id) )
       response = {status: "success", data: result}
       break;
 
     case "get":
-      if ( collectionPermissions.read.indexOf(req.body.collection_id) > -1 ){
-        result = await dbDriver.collectionGet(req.body.collection_id);
+      if ( collectionPermissions.read.includes(collection_id) ){
+        result = await dbDriver.collectionGet(collection_id);
 
         result.permissions = {
-          read: collectionPermissions.read.indexOf(req.body.collection_id) > -1,
-          write: collectionPermissions.write.indexOf(req.body.collection_id) > -1
+          read: collectionPermissions.read.includes(collection_id),
+          write: collectionPermissions.write.includes(collection_id)
         }
 
         response = {status: "success", data: result}
@@ -746,8 +744,8 @@ app.post(CONFIG.api_base_url+'/collections', async function(req,res){
       break;
 
     case "delete":
-      if ( collectionPermissions.write.indexOf(req.body.collection_id) > -1 ){
-        await dbDriver.collectionDelete(req.body.collection_id);
+      if ( collectionPermissions.write.includes(collection_id) ){
+        await dbDriver.collectionDelete(collection_id);
         response = {status: "success", data: {}}
       } else {
         response = {status:"unauthorised operation", payload: req.body}
@@ -756,7 +754,7 @@ app.post(CONFIG.api_base_url+'/collections', async function(req,res){
 
     case "create":
       if ( validate_user ){
-        result = await dbDriver.collectionCreate("new collection", "", req.body.username);
+        result = await dbDriver.collectionCreate("new collection", '', username);
         response = {status:"success", data: result}
       } else {
         response = {status:"login to create collection", payload: req.body}
@@ -765,10 +763,10 @@ app.post(CONFIG.api_base_url+'/collections', async function(req,res){
 
     // Well use edit to create Collection on the fly
     case "edit":
-      if ( collectionPermissions.write.indexOf(req.body.collection_id) > -1 ){
-        var allCollectionData = JSON.parse( req.body.collectionData )
+      if ( collectionPermissions.write.indexOf(collection_id) > -1 ){
+        var allCollectionData = JSON.parse( collectionData )
         result = await dbDriver.collectionEdit(allCollectionData);
-        result = await dbDriver.collectionGet(req.body.collection_id);
+        result = await dbDriver.collectionGet(collection_id);
         response = {status: "success", data: result}
       } else {
         response = {status:"unauthorised operation", payload: req.body}
@@ -777,13 +775,13 @@ app.post(CONFIG.api_base_url+'/collections', async function(req,res){
 
     case "download":  //
 
-      var tids = JSON.parse(req.body.tid);
+      var tids = JSON.parse(tid);
 
       // Download file
-      if ( req.body.target.indexOf("results") > -1 ){
+      if ( target.includes("results") ){
         // data csv
         result = await dbDriver.resultsDataGet( tids );
-      } else if( req.body.target.indexOf("metadata") > -1 ) {
+      } else if( target.includes("metadata") ) {
         // metadata csv
         result = await dbDriver.metadataGet( tids );
       } else {
