@@ -196,6 +196,11 @@ WHERE
 
     cuiDeleteIndex: (cui) => query('delete from cuis_index where cui = $1', [cui]),
 
+    cuiRecommend: async () => {
+      const result = await query(`select * from cuis_recommend`)
+      return result.rows
+    },
+
     cuisIndexGet: async () => {
       const cuis = {}
       const result = await query(`select * from cuis_index ORDER BY preferred ASC`)

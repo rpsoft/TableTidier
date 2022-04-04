@@ -996,48 +996,45 @@ app.post(CONFIG.api_base_url+'/getTableContent',async function(req,res){
 });
 
 // Extracts all recommended CUIs from the DB and formats them as per the "recommend_cuis" variable a the bottom of the function.
-async function getRecommendedCUIS(){
-  var cuiRecommend = async () => {
-    var client = await pool.connect()
-    var result = await client.query(`select * from cuis_recommend`)
-          client.release()
-    return result
+ const getRecommendedCUIS = async () => {
+  const recommend_cuis = {}
+
+  let rec_cuis = await dbDriver.cuiRecommend()
+
+  const splitConcepts = ( c ) => {
+    if ( c == null ) {
+      return []
+    }
+    // remove trailing ;
+    var ret = c[0] == ";" ? c.slice(1) : c
+
+    return ret.length > 0 ? ret.split(";") : []
   }
 
-  var recommend_cuis = {}
-
-  var rec_cuis = (await cuiRecommend()).rows
-
-  var splitConcepts = ( c ) => {
-
-      if ( c == null ){
-        return []
-      }
-
-      var ret = c[0] == ";" ? c.slice(1) : c // remove trailing ;
-
-      return ret.length > 0 ? ret.split(";") : []
+  if (!rec_cuis) {
+    return recommend_cuis
   }
 
-  rec_cuis ? rec_cuis.map ( item => {
+  rec_cuis.forEach( item => {
+    const cuis = splitConcepts(item.cuis)
+    const rep_cuis = splitConcepts(item.rep_cuis)
+    const excluded_cuis = splitConcepts(item.excluded_cuis)
 
-    var cuis = splitConcepts(item.cuis)
-    var rep_cuis = splitConcepts(item.rep_cuis)
-    var excluded_cuis = splitConcepts(item.excluded_cuis)
+    const rec_cuisInner = []
 
-    var rec_cuis = []
-
-    cuis.forEach(function(cui) {
-    	if ( excluded_cuis.indexOf(cui) < 0 ){
-        if ( rep_cuis.indexOf(cui) < 0 ){
-            rec_cuis.push(cui)
+    cuis.forEach((cui) => {
+    	if ( excluded_cuis.includes(cui) == false ) {
+        if ( rep_cuis.includes(cui) == false ) {
+          rec_cuisInner.push(cui)
         }
       }
     });
 
-    recommend_cuis[item.concept] = { cuis: rep_cuis.concat(rec_cuis), cc: item.cc }
-
-  }) : ""
+    recommend_cuis[item.concept] = {
+      cuis: rep_cuis.concat(rec_cuisInner),
+      cc: item.cc
+    }
+  })
   return recommend_cuis
 }
 
