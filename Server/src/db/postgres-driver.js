@@ -87,7 +87,7 @@ WHERE
       return result
     },
 
-    collectionsCreate: async (title, description, owner) => {
+    collectionCreate: async (title, description, owner) => {
       await query(
         `INSERT INTO public.collection(
         title, description, owner_username, visibility, completion)
@@ -126,7 +126,7 @@ WHERE
       return result
     },
 
-    collectionsGet: async (collection_id) => { 
+    collectionGet: async (collection_id) => { 
       let result = await query(
         `SELECT *
         FROM public.collection WHERE collection_id = $1`, [collection_id])
