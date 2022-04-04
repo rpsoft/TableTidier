@@ -884,86 +884,115 @@ app.post(CONFIG.api_base_url+'/search', async (req,res) => {
 
 app.post(CONFIG.api_base_url+'/getTableContent',async function(req,res){
 
+  const {
+    username=undefined,
+    hash=undefined,
 
-    var bod = req.body.searchContent
+    enablePrediction,
 
-    var validate_user = validateUser(req.body.username, req.body.hash);
+    docid,
+    page,
+    collId,
+  } = req.body
 
-    var collectionPermissions = await dbDriver.permissionsResourceGet('collections', validate_user ? req.body.username : "")
+  const validate_user = validateUser(username, hash);
+  const collectionPermissions = await dbDriver.permissionsResourceGet('collections', validate_user ? username : "")
 
-    if ( collectionPermissions.read.indexOf(req.body.collId) > -1 ){
+  if ( collectionPermissions.read.includes(collId) == false ){
+    res.json({status: "unauthorised", body : req.body})
+  }
 
-      try{
-
-        if(req.body.docid && req.body.page && req.body.collId ){
-          var collection_data = await dbDriver.collectionGet(req.body.collId)
-
-          var enablePrediction = JSON.parse(req.body.enablePrediction)
-
-          var tableData = await readyTable(req.body.docid, req.body.page, req.body.collId, enablePrediction ) // false, predictions are disabled.
-
-          var annotation = await getAnnotationByID(req.body.docid, req.body.page, req.body.collId)
-
-          tableData.collectionData = collection_data
-
-          tableData.annotationData = annotation && annotation.rows.length > 0 ? annotation.rows[0] : {}
-
-          if ( enablePrediction ){
-            var rows = tableData.predictedAnnotation.rows.map( ann  => {
-              return {
-                location: "Row",
-                content: ann.descriptors.reduce( (acc,d) => { acc[d] = true; return acc },{}),
-                number: (ann.c+1)+"",
-                qualifiers: ann.unique_modifier == "" ? {} : ann.unique_modifier.split(";").filter( a => a.length > 1).reduce( (acc,d) => { acc[d] = true; return acc }, {}),
-                subannotation: false }
-              })
-
-            var cols = tableData.predictedAnnotation.cols.map( ann  => {
-              return {
-                location: "Col",
-                content: ann.descriptors.reduce( (acc,d) => { acc[d] = true; return acc },{}),
-                number: (ann.c+1)+"",
-                qualifiers: ann.unique_modifier == "" ? {} : ann.unique_modifier.split(";").filter( a => a.length > 1).reduce( (acc,d) => { acc[d] = true; return acc }, {}),
-                subannotation: false }
-              })
-
-            var predAnnotationData = (tableData.annotationData && tableData.annotationData.annotation) ? tableData.annotationData : {
-              annotation: {
-                  collection_id: req.body.collId,
-                  completion: "",
-                  docid: req.body.docid,
-                  file_path: req.body.docid + "_" + req.body.page + ".html",
-                  notes: "",
-                  page: req.body.page,
-                  tableType: "",
-                  tid: tableData.collectionData.tables.filter( ( table ) => { return table.docid == req.body.docid && table.page == req.body.page } )[0].tid,
-                  user: req.body.username,
-                }
-            }
-
-            // var tData = tableData.collectionData.tables.filter( ( table ) => { return table.docid == req.body.docid && table.page == req.body.page } )
-            predAnnotationData.annotation.annotations = [...rows, ...cols]
-
-
-            tableData.annotationData = predAnnotationData
-
-          }
-          tableData.permissions = {read: collectionPermissions.read.indexOf(req.body.collId) > -1 , write: collectionPermissions.write.indexOf(req.body.collId) > -1}
-
-          res.json( tableData )
-        } else {
-
-          res.json({status: "wrong parameters", body : req.body})
-        }
-      } catch (e){
-        console.log(e)
-
-        res.json({status: "getTableContent: probably page out of bounds, or document does not exist", body : req.body})
-      }
-
-    } else {
-      res.json({status: "unauthorised", body : req.body})
+  try {
+    if ((docid && page && collId) == false) {
+      res.json({status: "wrong parameters", body : req.body})
     }
+    
+    const collection_data = await dbDriver.collectionGet(collId)
+
+    const enablePrediction = JSON.parse(enablePrediction)
+
+    const tableData = await readyTable(
+      docid,
+      page,
+      collId,
+      // false, predictions are disabled.
+      enablePrediction
+    )
+
+    let annotation = await getAnnotationByID(
+      docid,
+      page,
+      collId,
+    )
+
+    tableData.collectionData = collection_data
+
+    tableData.annotationData = annotation && annotation.rows.length > 0 ? annotation.rows[0] : {}
+
+    if ( enablePrediction ) {
+      const rows = tableData.predictedAnnotation.rows.map( ann  => {
+        return {
+          location: "Row",
+          content: ann.descriptors.reduce( (acc,d) => { acc[d] = true; return acc }, {}),
+          number: (ann.c+1)+'',
+          qualifiers: ann.unique_modifier == "" ?
+            {} 
+            : ann.unique_modifier.split(";")
+              .filter( a => a.length > 1)
+              .reduce( (acc,d) => { acc[d] = true; return acc }, {}),
+          subannotation: false
+        }
+      })
+
+      const cols = tableData.predictedAnnotation.cols.map( ann  => {
+        return {
+          location: "Col",
+          content: ann.descriptors.reduce( (acc,d) => { acc[d] = true; return acc }, {}),
+          number: (ann.c+1)+'',
+          qualifiers: ann.unique_modifier == "" ?
+            {}
+            : ann.unique_modifier.split(";")
+              .filter( a => a.length > 1)
+              .reduce( (acc,d) => { acc[d] = true; return acc }, {}),
+          subannotation: false 
+        }
+      })
+
+      const predAnnotationData = (tableData.annotationData && tableData.annotationData.annotation) ? 
+        tableData.annotationData
+        : {
+          annotation: {
+            collection_id: collId,
+            completion: '',
+            docid,
+            file_path: `${docid}_${page}.html`,
+            notes: '',
+            page,
+            tableType: '',
+            tid: tableData.collectionData.tables.filter( table => table.docid == docid && table.page == page )[0].tid,
+            user: username,
+          }
+        }
+
+      // var tData = tableData.collectionData.tables.filter( ( table ) => { return table.docid == req.body.docid && table.page == req.body.page } )
+      predAnnotationData.annotation.annotations = [...rows, ...cols]
+
+      tableData.annotationData = predAnnotationData
+    }
+    tableData.permissions = {
+      read: collectionPermissions.read.includes(collId),
+      write: collectionPermissions.write.includes(collId)
+    }
+
+    res.json( tableData )
+  } catch (err) {
+    console.log(err)
+
+    res.json({
+      status: "getTableContent: probably page out of bounds, or document does not exist",
+      body : req.body
+    })
+  }
 });
 
 // Extracts all recommended CUIs from the DB and formats them as per the "recommend_cuis" variable a the bottom of the function.
