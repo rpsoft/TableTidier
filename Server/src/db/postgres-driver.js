@@ -286,15 +286,50 @@ WHERE
       [docid, page, user, '', collection_id, file_path, '']
     ),
 
+    tablesMove: async (tables, collection_id, target_collection_id) => {
+      const tablesDocidPage = tables.map( (tab) => {
+        const [docid, page] = tab.split("_");
+        return {docid, page}
+      })
+
+      for ( let table of tablesDocidPage) {
+        const {
+          docid,
+          page,
+        } = table
+        await query(
+          `UPDATE public."table"
+           SET collection_id=$4
+           WHERE docid = $1 AND page = $2 AND collection_id = $3;`,
+          [docid, page, collection_id, target_collection_id])
+  
+        const filename = `${docid}_${page}.html`;
+        try{
+          moveFileToCollection(
+            {
+              originalname: filename,
+              path: path.join(global.tables_folder, collection_id, filename)
+            },
+            target_collection_id
+          )
+        } catch (err){
+          console.log(`MOVE FILE DIDN't EXIST: `+JSON.stringify(err))
+        }
+      }
+  
+      return 'done'
+    },
+
     tablesRemove: async (tables, collection_id, fromSelect = false) => {
+      let tablesDocidPage = table
       if (!fromSelect){
-        tables = tables.map( (tab) => {
+        tablesDocidPage = tables.map( (tab) => {
           const [docid, page] = tab.split("_");
           return {docid, page}
         })
       }
   
-      for ( let table of tables) {
+      for ( let table of tablesDocidPage) {
         const {
           docid,
           page,

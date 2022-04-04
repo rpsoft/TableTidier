@@ -812,30 +812,6 @@ app.post(CONFIG.api_base_url+'/collections', async function(req,res){
   res.json(response)
 });
 
-const moveTables = async (tables, collection_id, target_collection_id) => {
-    tables = tables.map( (tab) => { const [docid, page] = tab.split("_"); return {docid,page} })
-
-    var client = await pool.connect()
-
-    for ( var i = 0; i < tables.length; i++){
-      var result = await client.query(
-        `UPDATE public."table"
-	       SET collection_id=$4
-         WHERE docid = $1 AND page = $2 AND collection_id = $3;`,
-        [tables[i].docid, tables[i].page, collection_id, target_collection_id])
-
-      var filename = tables[i].docid +"_"+ tables[i].page+".html";
-      try{
-        moveFileToCollection({ originalname: filename, path: path.join(global.tables_folder, collection_id, filename) }, target_collection_id )
-      } catch (err){
-        console.log("MOVE FILE DIDN't EXIST: "+JSON.stringify(err))
-      }
-    }
-
-    client.release()
-    return result
-}
-
 app.post(CONFIG.api_base_url+'/tables', async function(req,res){
 
   if ( req.body && ( ! req.body.action ) ){
@@ -843,34 +819,43 @@ app.post(CONFIG.api_base_url+'/tables', async function(req,res){
     return
   }
 
-  var validate_user = validateUser(req.body.username, req.body.hash);
-  var collectionPermissions = await dbDriver.permissionsResourceGet('collections', validate_user ? req.body.username : "")
+  const {
+    username=undefined,
+    hash=undefined,
 
-  if ( validate_user ){
+    action,
 
+    collection_id,
+    tablesList,
+    targetCollectionID,
+  } = req.body
+
+  var validate_user = validateUser(username, hash);
+  var collectionPermissions = await dbDriver.permissionsResourceGet('collections', validate_user ? username : "")
+
+  if ( validate_user ) {
     var result = {};
 
-    switch (req.body.action) {
+    switch (action) {
       case "remove":
-        if ( collectionPermissions.write.indexOf(req.body.collection_id) > -1 ){
-          result = await dbDriver.tablesRemove(JSON.parse(req.body.tablesList), req.body.collection_id);
+        if ( collectionPermissions.write.includes(collection_id) ) {
+          result = await dbDriver.tablesRemove(JSON.parse(tablesList), collection_id);
         }
         break;
       case "move":
-        if ( collectionPermissions.write.indexOf(req.body.collection_id) > -1 ){
-          result = await moveTables(JSON.parse(req.body.tablesList), req.body.collection_id, req.body.targetCollectionID);
+        if ( collectionPermissions.write.includes(collection_id) ) {
+          result = await dbDriver.tablesMove(JSON.parse(tablesList), collection_id, targetCollectionID);
         }
         break;
       case "list":  // This is the same as not doing anything and returning the collection and its tables.
       default:
     }
     // Always return the updated collection details
-    result = await dbDriver.collectionGet(req.body.collection_id);
+    result = await dbDriver.collectionGet(collection_id);
     res.json({status: "success", data: result})
   } else {
     res.json({status:"unauthorised", payload: null})
   }
-
 });
 
 
