@@ -857,11 +857,6 @@ app.post(CONFIG.api_base_url+'/search', async (req,res) => {
     username=undefined,
     hash=undefined,
     searchContent,
-    action,
-
-    collection_id,
-    tablesList,
-    targetCollectionID,
   } = req.body
   var type = JSON.parse(req.body.searchType)
 
