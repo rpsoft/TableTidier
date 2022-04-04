@@ -617,7 +617,7 @@ app.post(CONFIG.api_base_url+'/metadata', async function(req,res){
     default:
   }
   // Always return the updated collection details
-  // result = await getCollection(req.body.collection_id);
+  // result = await dbDriver.collectionsGet(req.body.collection_id);
   res.json({status: "success", data: result})
 });
 
@@ -662,30 +662,6 @@ function validateUser (username, hash){
 }
 
 // Collections
-var getCollection = async ( collection_id ) => {
-    var client = await pool.connect()
-    var result = await client.query(
-      `SELECT *
-      FROM public.collection WHERE collection_id = $1`,[collection_id])
-
-    var tables = await client.query(
-      `SELECT docid, page, "user", notes, tid, collection_id, file_path, "tableType"
-      FROM public."table" WHERE collection_id = $1 ORDER BY docid,page`,[collection_id])
-
-    var collectionsList = await client.query(
-      `SELECT * FROM public.collection ORDER BY collection_id`);
-
-    client.release()
-
-    if ( result.rows.length == 1){
-        result = result.rows[0]
-        result.tables = tables.rows;
-        result.collectionsList = collectionsList.rows;
-        return result
-    }
-    return {}
-}
-
 var createCollection = async (title, description, owner) => {
 
     var client = await pool.connect()
@@ -789,7 +765,7 @@ app.post(CONFIG.api_base_url+'/collections', async function(req,res){
 
     case "get":
       if ( collectionPermissions.read.indexOf(req.body.collection_id) > -1 ){
-        result = await getCollection(req.body.collection_id);
+        result = await dbDriver.collectionsGet(req.body.collection_id);
 
         result.permissions = {
           read: collectionPermissions.read.indexOf(req.body.collection_id) > -1,
@@ -825,7 +801,7 @@ app.post(CONFIG.api_base_url+'/collections', async function(req,res){
       if ( collectionPermissions.write.indexOf(req.body.collection_id) > -1 ){
         var allCollectionData = JSON.parse( req.body.collectionData )
         result = await editCollection(allCollectionData);
-        result = await getCollection(req.body.collection_id);
+        result = await dbDriver.collectionsGet(req.body.collection_id);
         response = {status: "success", data: result}
       } else {
         response = {status:"unauthorised operation", payload: req.body}
@@ -945,7 +921,7 @@ app.post(CONFIG.api_base_url+'/tables', async function(req,res){
       default:
     }
     // Always return the updated collection details
-    result = await getCollection(req.body.collection_id);
+    result = await dbDriver.collectionsGet(req.body.collection_id);
     res.json({status: "success", data: result})
   } else {
     res.json({status:"unauthorised", payload: null})
@@ -998,7 +974,7 @@ app.post(CONFIG.api_base_url+'/getTableContent',async function(req,res){
       try{
 
         if(req.body.docid && req.body.page && req.body.collId ){
-          var collection_data = await getCollection(req.body.collId)
+          var collection_data = await dbDriver.collectionsGet(req.body.collId)
 
           var enablePrediction = JSON.parse(req.body.enablePrediction)
 

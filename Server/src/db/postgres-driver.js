@@ -87,6 +87,29 @@ WHERE
       return result
     },
 
+    collectionsGet: async (collection_id) => { 
+      let result = await query(
+        `SELECT *
+        FROM public.collection WHERE collection_id = $1`, [collection_id])
+  
+      const tables = await query(
+        `SELECT docid, page, "user", notes, tid, collection_id, file_path, "tableType"
+        FROM public."table" WHERE collection_id = $1 ORDER BY docid,page`, [collection_id])
+  
+      const collectionsList = await query(
+        `SELECT * FROM public.collection ORDER BY collection_id`);
+  
+      client.release()
+  
+      if ( result.rows.length == 1){
+          result = result.rows[0]
+          result.tables = tables.rows;
+          result.collectionsList = collectionsList.rows;
+          return result
+      }
+      return {}
+    },
+
     collectionsList: () => query(
       `SELECT collection.collection_id, title, description, owner_username, table_n
       FROM public.collection
