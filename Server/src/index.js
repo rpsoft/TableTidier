@@ -662,18 +662,6 @@ function validateUser (username, hash){
 }
 
 // Collections
-var createCollection = async (title, description, owner) => {
-
-    var client = await pool.connect()
-    var result = await client.query(`INSERT INTO public.collection(
-                                      title, description, owner_username, visibility, completion)
-                                      VALUES ($1, $2, $3, $4, $5);`, [title, description, owner, "public", "in progress"] )
-        result = await client.query(`Select * from collection
-                                     ORDER BY collection_id DESC LIMIT 1;` )
-    client.release()
-    return result
-}
-
 var editCollection = async (collData) => {
     var client = await pool.connect()
     var result = await client.query(
@@ -789,14 +777,14 @@ app.post(CONFIG.api_base_url+'/collections', async function(req,res){
 
     case "create":
       if ( validate_user ){
-        result = await createCollection("new collection", "", req.body.username);
+        result = await dbDriver.collectionsCreate("new collection", "", req.body.username);
         response = {status:"success", data: result}
       } else {
         response = {status:"login to create collection", payload: req.body}
       }
       break;
 
-    // Well use edit to createCollection on the fly
+    // Well use edit to create Collection on the fly
     case "edit":
       if ( collectionPermissions.write.indexOf(req.body.collection_id) > -1 ){
         var allCollectionData = JSON.parse( req.body.collectionData )

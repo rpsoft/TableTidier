@@ -87,6 +87,20 @@ WHERE
       return result
     },
 
+    collectionsCreate: async (title, description, owner) => {
+      await query(
+        `INSERT INTO public.collection(
+        title, description, owner_username, visibility, completion)
+        VALUES ($1, $2, $3, $4, $5);`, 
+        [title, description, owner, "public", "in progress"]
+      )
+      const result = await query(
+        `Select * from collection
+        ORDER BY collection_id DESC LIMIT 1;`
+      )
+      return result
+    },
+
     collectionsGet: async (collection_id) => { 
       let result = await query(
         `SELECT *
