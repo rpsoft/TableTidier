@@ -101,6 +101,31 @@ WHERE
       return result
     },
 
+    collectionEdit: async (collData) => {
+      const {
+        collection_id,
+        title,
+        description,
+        owner_username,
+        completion,
+        visibility,
+      } = collData
+      const result = await query(
+        `UPDATE public.collection
+        SET title=$2, description=$3, owner_username=$4, completion=$5, visibility=$6
+        WHERE collection_id=$1`,
+        [
+          collection_id,
+          title,
+          description,
+          owner_username,
+          completion,
+          visibility
+        ]
+      )
+      return result
+    },
+
     collectionsGet: async (collection_id) => { 
       let result = await query(
         `SELECT *

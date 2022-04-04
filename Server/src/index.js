@@ -662,18 +662,6 @@ function validateUser (username, hash){
 }
 
 // Collections
-var editCollection = async (collData) => {
-    var client = await pool.connect()
-    var result = await client.query(
-      `UPDATE public.collection
-      SET title=$2, description=$3, owner_username=$4, completion=$5, visibility=$6
-      WHERE collection_id=$1`,
-      [collData.collection_id, collData.title, collData.description,
-        collData.owner_username, collData.completion, collData.visibility])
-    client.release()
-    return result
-}
-
 var deleteCollection = async (collection_id) => {
   var client = await pool.connect()
 
@@ -788,7 +776,7 @@ app.post(CONFIG.api_base_url+'/collections', async function(req,res){
     case "edit":
       if ( collectionPermissions.write.indexOf(req.body.collection_id) > -1 ){
         var allCollectionData = JSON.parse( req.body.collectionData )
-        result = await editCollection(allCollectionData);
+        result = await dbDriver.collectionEdit(allCollectionData);
         result = await dbDriver.collectionsGet(req.body.collection_id);
         response = {status: "success", data: result}
       } else {
