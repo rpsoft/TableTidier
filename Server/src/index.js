@@ -1037,146 +1037,31 @@ app.get(CONFIG.api_base_url+'/cuiRecommend', async function(req,res){
 
 const prepareAnnotationPreview = async (docid, page, collId, cachedOnly) => {
 
-      var annotations = await dbDriver.annotationByIDGet(docid, page, collId)
-      if ( annotations.rows.length > 0 ){
-        var entry = annotations.rows[0]
+  const annotations = await dbDriver.annotationByIDGet(docid, page, collId)
+  if ( annotations.rows.length <= 0 ) {
+    return {"state" : "fail", result : []}
+  }
+  const entry = annotations.rows[0]
 
-        let override_exists = true
-        try {
-          await fs.open(path.join(global.tables_folder_override, entry.collection_id, entry.file_path))
-        } catch (err) {
-          override_exists = false
-        }
+  // Check if file exist
+  let override_exists = true
+  try {
+    await fs.open(path.join(global.tables_folder_override, entry.collection_id, entry.file_path))
+  } catch (err) {
+    override_exists = false
+  }
 
-        var tableResults = await getFileResults(entry.annotation, path.join(override_exists ? tables_folder_override : global.tables_folder, entry.collection_id, entry.file_path) )
-            tableResults.map( item => { item.docid_page = entry.docid+"_"+entry.page })
+  const tableResults = await getFileResults(
+    entry.annotation,
+    path.join(
+      override_exists ? tables_folder_override : global.tables_folder,
+      entry.collection_id,
+      entry.file_path
+    )
+  )
+  tableResults.forEach( item => { item.docid_page = entry.docid+"_"+entry.page })
 
-        return {"state" : "good", result : tableResults}
-      } else {
-        return {"state" : "fail", result : []}
-      }
-
-      // debugger
-      var tid = annotations.rows.length > 0 ? annotations.rows[0].tid : -1;
-
-      if ( tid < 0 ){
-        return {status: "wrong parameters (missing tid)"};
-      }
-
-      var client = await pool.connect()
-
-      var tableResult = await client.query(
-        `SELECT tid, "tableResult" FROM result WHERE tid = $1`,[tid]
-      )
-
-      client.release()
-
-      tableResult = tableResult && (tableResult.rows.length > 0) ? tableResult.rows[0].tableResult : []
-
-      if ( cachedOnly === 'true' ){
-
-        var toReturn = {}
-        if ( tableResult.length > 0){
-          toReturn = {"state" : "good", result : tableResult }
-        } else {
-          toReturn = {"state" : "good", result : [] }
-        }
-
-        // console.log("Fast reload: "+ req.body.docid +" - "+ req.body.page +" - "+ req.body.collId)
-        return toReturn;
-      }
-
-      var final_annotations = {}
-
-      /**
-      * There are multiple versions of the annotations. When calling reading the results from the database, here we will return only the latest/ most complete version of the annotation.
-      * Independently from the author of it. Completeness here measured as the result with the highest number of annotations and the highest index number (I.e. Newest, but only if it has more information/annotations).
-      * May not be the best in some cases.
-      *
-      */
-
-      for ( var r in annotations.rows){
-        var ann = annotations.rows[r]
-        var existing = final_annotations[ann.docid+"_"+ann.page]
-        if ( existing ){
-          if ( ann.N > existing.N && ann.annotation.annotations.length >= existing.annotation.annotations.length ){
-                final_annotations[ann.docid+"_"+ann.page] = ann
-          }
-        } else { // Didn't exist so add it.
-          final_annotations[ann.docid+"_"+ann.page] = ann
-        }
-      }
-
-      var final_annotations_array = []
-      for (  var r in final_annotations ){
-        var ann = final_annotations[r]
-        final_annotations_array[final_annotations_array.length] = ann
-      }
-
-
-      if( final_annotations_array.length > 0){
-
-            var entry = final_annotations_array[0]
-                entry.annotation = !entry.annotation ? [] : entry.annotation.annotations.map( (v,i) => {
-                  var ann = v;
-                      ann.content = Object.keys(ann.content).join(";");
-                      ann.qualifiers = Object.keys(ann.qualifiers).join(";");
-                  return ann
-                })
-
-            console.log(entry)
-
-            entry.annotation.reduce( (acc, entry, i) => {
-              acc[entry.content] = acc[entry.content] ? acc[entry.content]+1 : 1;
-              entry.content = entry.content+"@"+acc[entry.content];
-              return acc
-            }, {})
-
-            console.log("TRY: "+ 'http://'+CONFIG.plumber_url+'/preview')
-
-
-            var doRequest = new Promise( async (accept, reject) => {
-
-              await request({
-                      url: 'http://'+CONFIG.plumber_url+'/preview',
-                      method: "POST",
-                      json: {
-                        anns: entry,
-                        collId: collId
-                      }
-                }, async function (error, response, body) {
-
-                  // console.log("pentada"+JSON.stringify(error))
-                  var insertResult = async (tid, tableResult) => {
-                        var client = await pool.connect()
-                        var done = await client.query('INSERT INTO result(tid, "tableResult") VALUES ($1, $2) ON CONFLICT (tid) DO UPDATE SET "tableResult" = $2',  [tid, tableResult])
-                          .then(result => console.log("insert result: "+ new Date()))
-                          .catch(e => console.error(e.stack))
-                          .then(() => client.release())
-                  }
-
-                  if ( body && body.tableResult && body.tableResult.length > 0){
-                    await insertResult(body.ann.tid[0], body.tableResult)
-                    console.log("tableresults: "+body.tableResult.length)
-                    accept({"state" : "good", result : body.tableResult})
-                  } else {
-                    console.log("tableresults: empty. Is plumber/R API running, or annotation empty?")
-                    accept({"state" : "good", result : []})
-                  }
-              });
-
-            })
-
-        var plumberResult = await doRequest
-
-
-        plumberResult["backAnnotation"] = annotations
-        return plumberResult
-      } else {
-        return {"state" : "empty"}
-      }
-
-      return {"state":"whathappened!"}
+  return {"state" : "good", result : tableResults}
 }
 
 // Generates the results table live preview, connecting to the R API.
