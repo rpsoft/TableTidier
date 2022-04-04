@@ -124,6 +124,10 @@ const moveFileToCollection = async (filedata, coll) => {
   fs.rename( filedata.path, path.join(tables_folder_target, coll, filedata.originalname) );
 }
 
+app.get(CONFIG.api_base_url+'/',function(req,res){
+  res.send("TTidier Server running.")
+});
+
 app.get("/api/test", function(req,res){
   res.send("here we are")
 })
@@ -641,10 +645,6 @@ app.post(CONFIG.api_base_url+'/cuis', async function(req,res){
     res.json({status: "unauthorised", payload: null})
   }
 
-});
-
-app.get(CONFIG.api_base_url+'/',function(req,res){
-  res.send("TTidier Server running.")
 });
 
 // Simple validation
