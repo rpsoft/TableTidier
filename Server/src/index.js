@@ -32,9 +32,10 @@ global.cheerio = require('cheerio');
 global.CONFIG = GENERAL_CONFIG
 global.available_documents = {}
 global.abs_index = []
-global.tables_folder = "HTML_TABLES"
-global.tables_folder_override = "HTML_TABLES_OVERRIDE"
-global.tables_folder_deleted = "HTML_TABLES_DELETED"
+// Moved to config.json file
+// global.tables_folder = "HTML_TABLES"
+// global.tables_folder_override = "HTML_TABLES_OVERRIDE"
+// global.tables_folder_deleted = "HTML_TABLES_DELETED"
 global.cssFolder = "HTML_STYLES"
 global.DOCS = [];
 global.msh_categories = {catIndex: {}, allcats: [], pmids_w_cat: []}
@@ -117,12 +118,6 @@ const storage = multer.diskStorage({
     cb(null, file.originalname )
   }
 })
-
-const moveFileToCollection = async (filedata, coll) => {
-  const tables_folder_target = (coll.indexOf("delete") > -1 ? global.tables_folder_deleted : global.tables_folder)
-  await fs.mkdirSync(path.join(tables_folder_target, coll), { recursive: true })
-  fs.rename( filedata.path, path.join(tables_folder_target, coll, filedata.originalname) );
-}
 
 app.get(CONFIG.api_base_url+'/',function(req,res){
   res.send("TTidier Server running.")
@@ -662,6 +657,7 @@ function validateUser (username, hash){
 }
 
 // Collections
+//  ! :-)
 var deleteCollection = async (collection_id) => {
   var client = await pool.connect()
 
@@ -670,7 +666,7 @@ var deleteCollection = async (collection_id) => {
   )
 
   tables = tables.rows
-  var result = await removeTables(tables, collection_id, true);
+  var result = await dbDriver.tablesRemove(tables, collection_id, true);
 
   var results = await client.query(
     `DELETE FROM collection WHERE collection_id = $1`, [collection_id]
@@ -816,32 +812,6 @@ app.post(CONFIG.api_base_url+'/collections', async function(req,res){
   res.json(response)
 });
 
-const removeTables = async (tables, collection_id, fromSelect = false) => {
-
-    if (!fromSelect){
-      tables = tables.map( (tab) => { const [docid, page] = tab.split("_"); return {docid,page} })
-    }
-
-    var client = await pool.connect()
-
-    for ( var i = 0; i < tables.length; i++){
-      var result = await client.query(
-        `DELETE FROM public."table"
-        	WHERE docid = $1 AND page = $2 AND collection_id = $3;`,
-           [tables[i].docid, tables[i].page, collection_id])
-
-      var filename = tables[i].docid +"_"+ tables[i].page+".html";
-      try{
-        moveFileToCollection({ originalname: filename, path: path.join(global.tables_folder, collection_id, filename) }, "deleted" )
-      } catch (err){
-        console.log("REMOVE FILE DIDN't EXIST: "+JSON.stringify(err))
-      }
-    }
-
-    client.release()
-    return result
-}
-
 const moveTables = async (tables, collection_id, target_collection_id) => {
     tables = tables.map( (tab) => { const [docid, page] = tab.split("_"); return {docid,page} })
 
@@ -866,8 +836,6 @@ const moveTables = async (tables, collection_id, target_collection_id) => {
     return result
 }
 
-
-
 app.post(CONFIG.api_base_url+'/tables', async function(req,res){
 
   if ( req.body && ( ! req.body.action ) ){
@@ -885,7 +853,7 @@ app.post(CONFIG.api_base_url+'/tables', async function(req,res){
     switch (req.body.action) {
       case "remove":
         if ( collectionPermissions.write.indexOf(req.body.collection_id) > -1 ){
-          result = await removeTables(JSON.parse(req.body.tablesList), req.body.collection_id);
+          result = await dbDriver.tablesRemove(JSON.parse(req.body.tablesList), req.body.collection_id);
         }
         break;
       case "move":

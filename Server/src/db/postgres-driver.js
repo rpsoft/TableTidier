@@ -1,4 +1,7 @@
 const { Pool, Client, Query } = require('pg')
+const {
+  moveFileToCollection,
+} = require('../utils/files')
 
 function driver(config) {
   // :-) Check config has valid fields
@@ -99,6 +102,20 @@ WHERE
         ORDER BY collection_id DESC LIMIT 1;`
       )
       return result
+    },
+
+    collectionDelete: async function (collection_id) {
+      let tables = await query(
+        `SELECT docid, page FROM public."table" WHERE collection_id = $1`,[collection_id]
+      )
+    
+      tables = tables.rows
+      await this.tablesRemove(tables, collection_id, true);
+    
+      await query(
+        `DELETE FROM collection WHERE collection_id = $1`, [collection_id]
+      )
+      return 'done'
     },
 
     collectionEdit: async (collData) => {
@@ -268,6 +285,42 @@ WHERE
 	     VALUES ($1, $2, $3, $4, $5, $6, $7);`,
       [docid, page, user, '', collection_id, file_path, '']
     ),
+
+    tablesRemove: async (tables, collection_id, fromSelect = false) => {
+      if (!fromSelect){
+        tables = tables.map( (tab) => {
+          const [docid, page] = tab.split("_");
+          return {docid, page}
+        })
+      }
+  
+      for ( let table of tables) {
+        const {
+          docid,
+          page,
+        } = table
+        await query(
+          `DELETE FROM public."table"
+          WHERE docid = $1 AND page = $2 AND collection_id = $3;`,
+          [docid, page, collection_id]
+        )
+  
+        const filename = `${docid}_${page}.html`;
+
+        try{
+          moveFileToCollection(
+            {
+              originalname: filename,
+              path: path.join(collection_id, filename) 
+            },
+            'deleted' 
+          )
+        } catch (err){
+          console.log(`REMOVE FILE DIDN't EXIST: `+JSON.stringify(err))
+        }
+      }
+      return 'done'
+    },
 
     // Table id Get
     // important.
