@@ -721,11 +721,6 @@ app.post(CONFIG.api_base_url+'/collections', async function(req,res){
 
   var response = {status: "failed"}
 
-  // var available_options = {
-  //
-  // }
-  // if ( validate_user ){
-
   var result;
 
   switch (req.body.action) {
@@ -752,7 +747,7 @@ app.post(CONFIG.api_base_url+'/collections', async function(req,res){
 
     case "delete":
       if ( collectionPermissions.write.indexOf(req.body.collection_id) > -1 ){
-        await deleteCollection(req.body.collection_id);
+        await dbDriver.collectionDelete(req.body.collection_id);
         response = {status: "success", data: {}}
       } else {
         response = {status:"unauthorised operation", payload: req.body}
