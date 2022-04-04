@@ -295,14 +295,6 @@ async function CUIData (){
     return { cui_def: umlsData.cui_def, cui_concept: umlsData.cui_concept, actual_results: rres, semtypes: umlsData.semtypes }
 }
 
-// Returns the annotation for a single document/table
-async function getAnnotationByID(docid, page, collId) {
-  if ( docid == "undefined" || page == "undefined" || collId == "undefined" ){
-    return {rows:[]}
-  }
-  return dbDriver.annotationByIDGet(docid, page, collId)
-}
-
 const rebuildSearchIndex = async () => {
   let tables = fs.readdir(path.join(global.tables_folder))
   let tables_folder_override = fs.readdir(path.join(global.tables_folder_override))
@@ -373,7 +365,7 @@ async function main(){
 
   await initialiseUsers()
 
-  // var annotation = await getAnnotationByID("11442551", 1, 1);
+  // var annotation = await dbDriver.annotationByIDGet("11442551", 1, 1);
   // // var tableData = await readyTable("11442551", 1, 1, false)
   // await tabularFromAnnotation(annotation)
 }
@@ -919,7 +911,7 @@ app.post(CONFIG.api_base_url+'/getTableContent',async function(req,res){
       enablePrediction
     )
 
-    let annotation = await getAnnotationByID(
+    let annotation = await dbDriver.annotationByIDGet(
       docid,
       page,
       collId,
@@ -1045,7 +1037,7 @@ app.get(CONFIG.api_base_url+'/cuiRecommend', async function(req,res){
 
 const prepareAnnotationPreview = async (docid, page, collId, cachedOnly) => {
 
-      var annotations = await getAnnotationByID(docid, page, collId)
+      var annotations = await dbDriver.annotationByIDGet(docid, page, collId)
       if ( annotations.rows.length > 0 ){
         var entry = annotations.rows[0]
 

@@ -27,7 +27,13 @@ function driver(config) {
   }
 
   return {
-    annotationByIDGet: (docid, page, collId) => query(
+    // Returns the annotation for a single document/table
+    annotationByIDGet: (docid, page, collId) => {
+      if ( docid == "undefined" || page == "undefined" || collId == "undefined" ) {
+        return {rows:[]}
+      }
+
+      return query(
       `SELECT 
         docid,
         "user",
@@ -46,8 +52,9 @@ function driver(config) {
         "table".tid = annotations.tid
       WHERE
       docid=$1 AND page=$2 AND collection_id = $3`,
-            [docid, page, collId]
-          ),
+        [docid, page, collId]
+      ) 
+    },
 
     annotationDataGet: (tids) => query(
     // * :-)  Sqlite version transform "annotations".annotation from text to json
