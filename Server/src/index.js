@@ -561,8 +561,8 @@ app.post(CONFIG.api_base_url+'/metadata', async function(req,res){
   }
 
   const {
-    username,
-    hash,
+    username=undefined,
+    hash=undefined,
 
     action,
 
@@ -586,7 +586,7 @@ app.post(CONFIG.api_base_url+'/metadata', async function(req,res){
   let tid = req.body.tid
 
   if ( tid == "undefined" ) {
-    tid = await getTid(
+    tid = await dbDriver.tidGet(
       docid,
       page,
       collId,
@@ -647,6 +647,7 @@ app.post(CONFIG.api_base_url+'/cuis', async function(req,res){
 
 });
 
+// :-) move to JWT
 // Simple validation
 function validateUser (username, hash){
     var validate_user;
@@ -660,6 +661,8 @@ function validateUser (username, hash){
     return validate_user;
 }
 
+
+// ! :-) move to dbDriver
 // resource = {type: [collection or table], id: [collection or table id]}
 const getResourcePermissions = async (resource, user) => {
 
@@ -1712,7 +1715,7 @@ app.post(CONFIG.api_base_url+'/getTable',async function(req,res){
 
 });
 
-app.post(CONFIG.api_base_url+'/saveAnnotation',async function(req,res){
+app.post(CONFIG.api_base_url+'/saveAnnotation',async function(req,res) {
 
 
   if ( req.body && ( ! req.body.action ) ){
@@ -1720,13 +1723,24 @@ app.post(CONFIG.api_base_url+'/saveAnnotation',async function(req,res){
     return
   }
 
-  var validate_user = validateUser(req.body.username, req.body.hash);
+  const {
+    username=undefined,
+    hash=undefined,
+
+    docid,
+    page,
+    collId,
+
+    payload,
+  } = req.body
+
+  var validate_user = validateUser(username, hash);
 
   if ( validate_user ){
 
-      console.log("Recording Annotation: "+req.body.docid + "_" +req.body.page + "_" + req.body.collId)
+      console.log(`Recording Annotation: ${docid}_${page}_${collId}`)
 
-      var tid = await getTid ( req.body.docid, req.body.page, req.body.collId )
+      var tid = await dbDriver.tidGet ( docid, page, collId )
 
       var insertAnnotation = async (tid, annotation) => {
 
@@ -1739,8 +1753,7 @@ app.post(CONFIG.api_base_url+'/saveAnnotation',async function(req,res){
 
       }
 
-
-      var annotationData = JSON.parse(req.body.payload)
+      var annotationData = JSON.parse(payload)
 
       annotationData.annotations.map( (row) => {
 
