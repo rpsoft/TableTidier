@@ -96,8 +96,8 @@ WHERE
           `UPDATE metadata 
           SET
             cuis = array_to_string(array_replace(regexp_split_to_array(cuis, ';'), $2, $1), ';'),
-            cuis_selected = array_to_string(array_replace(regexp_split_to_array(cuis_selected, ';'), $2, $1), ';')`
-          , [cui, prevcui]
+            cuis_selected = array_to_string(array_replace(regexp_split_to_array(cuis_selected, ';'), $2, $1), ';')`,
+          [cui, prevcui]
         )
         result = await query( q )
       }
@@ -106,6 +106,16 @@ WHERE
     },
 
     cuiDeleteIndex: (cui) => query('delete from cuis_index where cui = $1', [cui]),
+
+    cuisIndexGet: async () => {
+      const cuis = {}
+      const result = await query(`select * from cuis_index ORDER BY preferred ASC`)
+      result.rows.forEach( row => {
+        cuis[row.cui] = {preferred : row.preferred, hasMSH: row.hasMSH, userDefined: row.user_defined, adminApproved: row.admin_approved}
+      })
+    
+      return cuis
+    },
 
     cuiMetadataGet: (cui) => query(`select docid,page,"user" from metadata where cuis like $1 `, ["%"+cui+"%"]),
 

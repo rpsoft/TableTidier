@@ -617,22 +617,6 @@ app.post(CONFIG.api_base_url+'/metadata', async function(req,res){
   res.json({status: "success", data: result})
 });
 
-const getCUISIndex = async () => {
-
-  var cuis = {}
-
-  var client = await pool.connect()
-  var result = await client.query(`select * from cuis_index ORDER BY preferred ASC`)
-        client.release()
-
-  result.rows.map( row => {
-    cuis[row.cui] = {preferred : row.preferred, hasMSH: row.hasMSH, userDefined: row.user_defined, adminApproved: row.admin_approved}
-  })
-
-  return cuis
-}
-
-
 app.post(CONFIG.api_base_url+'/cuis', async function(req,res){
 
   if ( req.body && ( ! req.body.action ) ){
@@ -649,7 +633,7 @@ app.post(CONFIG.api_base_url+'/cuis', async function(req,res){
 
     switch (req.body.action) {
       case "get":
-        result = await getCUISIndex() //req.body.docid, req.body.page, req.body.collId,
+        result = await dbDriver.cuisIndexGet() //req.body.docid, req.body.page, req.body.collId,
       default:
     }
     res.json({status: "success", data: result})
@@ -658,8 +642,6 @@ app.post(CONFIG.api_base_url+'/cuis', async function(req,res){
   }
 
 });
-
-
 
 app.get(CONFIG.api_base_url+'/',function(req,res){
   res.send("TTidier Server running.")
@@ -1522,7 +1504,7 @@ const processHeaders = async (headers) => {
              .then(() => client.release())
        }
 
-       var cuis_index = await getCUISIndex()
+       var cuis_index = await dbDriver.cuisIndexGet()
 
        await Promise.all(results.flat().flat().map( async (cuiData,i) => {
 
