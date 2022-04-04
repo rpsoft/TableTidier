@@ -87,6 +87,16 @@ WHERE
       return result
     },
 
+    collectionsList: () => query(
+      `SELECT collection.collection_id, title, description, owner_username, table_n
+      FROM public.collection
+      LEFT JOIN
+      ( SELECT collection_id, count(docid) as table_n FROM
+      ( select distinct docid, page, collection_id from public.table ) as interm
+      group by collection_id ) as coll_counts
+      ON collection.collection_id = coll_counts.collection_id ORDER BY collection_id`
+    ),
+
     cuiDataModify: async (cui, preferred, adminApproved, prevcui) => {
       let result = await query(`UPDATE cuis_index SET cui=$1, preferred=$2, admin_approved=$3 WHERE cui = $4`,
         [cui, preferred, adminApproved, prevcui] )

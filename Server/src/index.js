@@ -662,20 +662,6 @@ function validateUser (username, hash){
 }
 
 // Collections
-var listCollections = async () => {
-    var client = await pool.connect()
-    var result = await client.query(
-      `SELECT collection.collection_id, title, description, owner_username, table_n
-       FROM public.collection
-       LEFT JOIN
-       ( SELECT collection_id, count(docid) as table_n FROM
-       ( select distinct docid, page, collection_id from public.table ) as interm
-       group by collection_id ) as coll_counts
-       ON collection.collection_id = coll_counts.collection_id ORDER BY collection_id`)
-        client.release()
-    return result.rows
-}
-
 var getCollection = async ( collection_id ) => {
     var client = await pool.connect()
     var result = await client.query(
@@ -796,7 +782,7 @@ app.post(CONFIG.api_base_url+'/collections', async function(req,res){
 
   switch (req.body.action) {
     case "list":
-      result = await listCollections();
+      result = await dbDriver.collectionsList();
       result = result.filter( (elm) => {return collectionPermissions.read.indexOf(elm.collection_id) > -1} )
       response = {status: "success", data: result}
       break;
