@@ -691,7 +691,7 @@ const getResultsRefreshed = async ( tids ) => {
 }
 
 // Collections
-app.post(CONFIG.api_base_url+'/collections', async function(req,res){
+app.post(CONFIG.api_base_url+'/collections', async (req, res) => {
 
   if ( req.body && ( ! req.body.action ) ){
     res.json({status: "undefined", received : req.query})
@@ -715,7 +715,7 @@ app.post(CONFIG.api_base_url+'/collections', async function(req,res){
     hash,
   );
 
-  const collectionPermissions = await dbDriver.permissionsResourceGet('collections', validate_user ? username : "")
+  const collectionPermissions = await dbDriver.permissionsResourceGet('collections', validate_user ? username : '')
 
   let response = {status: "failed"}
 
@@ -805,7 +805,7 @@ app.post(CONFIG.api_base_url+'/collections', async function(req,res){
   res.json(response)
 });
 
-app.post(CONFIG.api_base_url+'/tables', async function(req,res){
+app.post(CONFIG.api_base_url+'/tables', async (req, res) => {
 
   if ( req.body && ( ! req.body.action ) ){
     res.json({status: "undefined", received : req.query})
@@ -851,24 +851,31 @@ app.post(CONFIG.api_base_url+'/tables', async function(req,res){
   }
 });
 
+app.post(CONFIG.api_base_url+'/search', async (req,res) => {
 
+  const {
+    username=undefined,
+    hash=undefined,
+    searchContent,
+    action,
 
-app.post(CONFIG.api_base_url+'/search', async function(req,res){
-
-  var bod = req.body.searchContent
+    collection_id,
+    tablesList,
+    targetCollectionID,
+  } = req.body
   var type = JSON.parse(req.body.searchType)
 
-  var validate_user = validateUser(req.body.username, req.body.hash);
-  var collectionPermissions = await dbDriver.permissionsResourceGet('collections', validate_user ? req.body.username : "")
+  var validate_user = validateUser(username, hash);
+  var collectionPermissions = await dbDriver.permissionsResourceGet('collections', validate_user ? username : '')
   // if ( collectionPermissions.write.indexOf(req.body.collection_id) > -1 ){
 
   //if ( validate_user ){
 
-  var search_results = easysearch.search( global.searchIndex, bod)
+  let search_results = easysearch.search( global.searchIndex, searchContent)
 
-  search_results = search_results.filter( (elm) => { return collectionPermissions.read.indexOf(elm.doc.split("/")[0]) > -1  } )
+  search_results = search_results.filter( (elm) => collectionPermissions.read.includes( elm.doc.split("/")[0] ) )
 
-  console.log("SEARCH: "+ search_results.length+ " for " + bod )
+  console.log(`SEARCH: ${search_results.length} for ${searchContent}`)
 
   // if ( search_results.length > 100){
   //   search_results = search_results.slice(0,100)
@@ -878,9 +885,7 @@ app.post(CONFIG.api_base_url+'/search', async function(req,res){
   // } else {
   //   res.json([])
   // }
-
 });
-
 
 app.post(CONFIG.api_base_url+'/getTableContent',async function(req,res){
 
