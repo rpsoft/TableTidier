@@ -814,8 +814,7 @@ app.post(CONFIG.api_base_url+'/collections', async (req, res) => {
 app.post(CONFIG.api_base_url+'/tables', async (req, res) => {
 
   if ( req.body && ( ! req.body.action ) ){
-    res.json({status: "undefined", received : req.query})
-    return
+    return res.json({status: "undefined", received : req.query})
   }
 
   const {
@@ -888,7 +887,7 @@ app.post(CONFIG.api_base_url+'/search', async (req,res) => {
   // }
 });
 
-app.post(CONFIG.api_base_url+'/getTableContent',async function(req,res){
+app.post(CONFIG.api_base_url+'/getTableContent',async (req,res) => {
 
   const {
     username=undefined,
@@ -905,12 +904,12 @@ app.post(CONFIG.api_base_url+'/getTableContent',async function(req,res){
   const collectionPermissions = await dbDriver.permissionsResourceGet('collections', validate_user ? username : "")
 
   if ( collectionPermissions.read.includes(collId) == false ){
-    res.json({status: "unauthorised", body : req.body})
+    return res.json({status: "unauthorised", body : req.body})
   }
 
   try {
     if ((docid && page && collId) == false) {
-      res.json({status: "wrong parameters", body : req.body})
+      return res.json({status: "wrong parameters", body : req.body})
     }
     
     const collection_data = await dbDriver.collectionGet(collId)
