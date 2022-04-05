@@ -1487,11 +1487,15 @@ app.get(CONFIG.api_base_url+'/removeOverrideTable', async (req, res) => {
   res.send({status: 'override removed'})
 });
 
-app.get(CONFIG.api_base_url+'/classify', async function(req,res){
-  if(req.query && req.query.terms){
-    console.log(req.query.terms)
+// * :-) where lives function classify? 
+app.get(CONFIG.api_base_url+'/classify', async (req, res) => {
+  const {
+    terms
+  } = req?.query
+  if(req.query && terms){
+    console.log(terms)
 
-    res.send({results : await classify(req.query.terms.split(","))})
+    res.send({results: await classify(terms.split(","))})
   }
 });
 
