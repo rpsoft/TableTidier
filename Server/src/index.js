@@ -1,27 +1,24 @@
 // Load config
 const GENERAL_CONFIG = require('./config.json')
 
-const express = require('express');
+const fs = require('fs/promises');
+const path = require('path');
+const exec = require('child_process').exec;
 
+const express = require('express');
+const multer = require('multer');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 const html = require("html");
 
 const axios = require('axios');
-
-const multer = require('multer');
-
-const fs = require('fs/promises');
-const path = require('path');
 
 const { Pool, Client, Query } = require('pg')
 // DB driver
 const dbDriver = require('./db/postgres-driver')({...GENERAL_CONFIG.db})
 
-
 const csv = require('csv-parser');
 const CsvReadableStream = require('csv-reader');
-
-const cors = require('cors');
 
 // Import routes
 import usersRoutes from './routes/users'
@@ -1753,9 +1750,7 @@ const processAnnotationAndMetadata = async (docid, page, collId) => {
 // ui_port
 // ui_host
 
-const exec = require('child_process').exec;
-
-const myShellScript = exec('fuser -k '+CONFIG.api_port+'/tcp');
+const myShellScript = exec(`fuser -k ${CONFIG.api_port}/tcp`);
 
 app.listen(CONFIG.api_port, '0.0.0.0', () => {
   console.log(`Table Tidier Server running on port ${CONFIG.api_port} with base: ${CONFIG.api_base_url}  :: ${new Date().toISOString()}`);
