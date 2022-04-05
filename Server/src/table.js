@@ -461,254 +461,267 @@ const attemptPrediction = async (actual_table) => {
 }
 
 const prepareAvailableDocuments = async (collection_id) => {
-        if (!dbDriver) {
-          throw new Error('Required DB Driver')
+  if (!dbDriver) {
+    throw new Error('Required DB Driver')
+  }
+
+  const ftop = []
+  const ftyp = []
+  const fgroup = []
+  const flgroup = []
+
+  const hua = false
+
+  const type_lookup = {
+    'Baseline Characteristics': 'baseline_table',
+    'Results with subgroups': 'result_table_subgroup',
+    'Results without subgroups': 'result_table_without_subgroup',
+    'Other': 'other_table',
+    'Unassigned': 'NA'
+  }
+
+  // * :-) never gets in. ftyp length always 0
+  for ( let i = 0; i < ftyp.length; i++) {
+    ftyp[i] = type_lookup[ftyp[i]]
+  }
+
+  let filtered_docs_ttype = []
+
+  const allAnnotations = await dbDriver.annotationResultsGet()
+
+  const all_annotated_docids = Array.from(new Set(allAnnotations.rows.reduce( (acc,ann) => {
+      acc = acc ? acc : []
+
+      acc.push(ann.docid+"_"+ann.page);
+
+      return acc
+    }, [] )))
+
+  if( ftop.length+ftyp.length > 0 ) {
+    filtered_docs_ttype = allAnnotations.rows.reduce( (acc,ann) => {
+      acc = acc ? acc : []
+
+      if ( ann.tableType != "" && ftyp.indexOf(ann.tableType) > -1 ){
+          acc.push(ann.docid+"_"+ann.page);
+      }
+
+      return acc
+    }, [] )
+
+    filtered_docs_ttype = Array.from(new Set(filtered_docs_ttype));
+  }
+
+  const ordered_Splits = []
+  const ordered_docs_to_label = []
+
+  // * :-) never used allLabelled
+  let allLabelled = []
+  allLabelled = allLabelled.map( d => d+".html")
+
+  let selected_group_docs = []
+
+  if (fgroup == "all" || (fgroup.indexOf("all") > -1)){
+    selected_group_docs = ordered_Splits.flat()
+  } else {
+    for ( i in fgroup ) {
+      const group_index = parseInt(fgroup[i])-1;
+      selected_group_docs = [...selected_group_docs, ...ordered_Splits[group_index]]
+    }
+  }
+
+  let selected_label_docs = []
+
+  if (flgroup == "all" || (flgroup.indexOf("all") > -1)){
+    selected_label_docs = ordered_docs_to_label.flat()
+  } else {
+    for ( i in flgroup ) {
+      const label_index = parseInt(flgroup[i])-1;
+      selected_label_docs = [...selected_label_docs, ...ordered_docs_to_label[label_index]]
+    }
+  }
+
+  selected_group_docs = selected_group_docs.flat();
+
+  const available_documents = {}
+  const abs_index = []
+  let DOCS = []
+
+  const fixVersionOrder = (a) => {
+    const i = a.indexOf("v");
+    if ( i > -1 ) {
+      return a.slice(0,i)+a.slice(i+2,a.length)+a.slice(i, i+2)
+    }
+    return a;
+  }
+
+
+  let folderItems 
+  try {
+    folderItems = await fs.readdir( path.join(tables_folder, collection_id) )
+  } catch(err) {
+    console.log(err)
+  }
+
+  // * :-) never used label_filters and unannotated
+  var label_filters = flgroup;
+  var unannotated = ordered_Splits;
+
+  if ( selected_group_docs.length > 0 ) {
+    DOCS = selected_group_docs
+  }
+
+  if ( selected_label_docs.length > 0 ) {
+    DOCS = selected_label_docs
+  }
+
+  if ( DOCS.length < 1) {
+    if ( !folderItems ){
+      folderItems = []
+    }
+    folderItems = folderItems.reduce( async (acc,filename) => {
+        const doc_path = path.join(tables_folder,collection_id,filename)
+        let docPathExist = true
+        try {
+          const fd = await fs.open(doc_path)
+          fd.close()
+        } catch (err) {
+          docPathExist = false
         }
-
-        var ftop = []
-        var ftyp = []
-        var fgroup = []
-        var flgroup = []
-
-        var hua = false
-
-        var type_lookup = {
-               "Baseline Characteristics" : "baseline_table",
-               "Results with subgroups" : "result_table_subgroup",
-               "Results without subgroups" : "result_table_without_subgroup",
-               "Other" : "other_table",
-               "Unassigned" : "NA"
-             }
-
-        for ( var i = 0; i < ftyp.length; i++){
-            ftyp[i] = type_lookup[ftyp[i]]
+        const docPathIsADirecotry = await fs.lstatSync(doc_path).isDirectory()
+        if ( docPathExist && docPathIsADirecotry == false ) {
+          acc.push(filename)
         }
+        return acc
+      },
+      []
+    )
 
-        var filtered_docs_ttype = []
+    DOCS = folderItems.sort( (a,b) => {return fixVersionOrder(a).localeCompare(fixVersionOrder(b))} );
+  }
 
-        var allAnnotations = await dbDriver.annotationResultsGet()
+  DOCS = DOCS.sort( (a, b) => {
+    a = a.match(/([\w\W]*)_([0-9]*).html/)
+    b = b.match(/([\w\W]*)_([0-9]*).html/)
+    const st_a = {docid: a[1], page:a[2]}
+    const st_b = {docid: b[1], page:b[2]}
+    const dd = st_a.docid.localeCompare(st_b.docid);
+    return dd == 0 ? parseInt(st_a.page) - parseInt(st_b.page) : dd
+  });
 
-        var all_annotated_docids = Array.from(new Set(allAnnotations.rows.reduce( (acc,ann) => {
-            acc = acc ? acc : []
+  DOCS = DOCS.reduce( (acc, docfile) => {
+    const file_parts = docfile.match(/([\w\W]*)_([0-9]*).html/)
 
-            acc.push(ann.docid+"_"+ann.page);
+    const docid = file_parts[1]
+    const docid_V = file_parts[1]
+    const page = file_parts[2]
 
-            return acc
-          }, [] )))
+    if (
+      (ftop.length + ftyp.length > 0) && 
+      msh_categories &&
+      msh_categories.catIndex 
+    ) {
+      const topic_enabled = ftop.length > 0
 
+      const topic_intersection = ftop.reduce( (acc, cat) => {
+          return acc || (msh_categories.catIndex[cat].indexOf(docid) > -1)
+        }, false
+      );
 
-        if( ftop.length+ftyp.length > 0 ){
-
-            filtered_docs_ttype = allAnnotations.rows.reduce( (acc,ann) => {
-          			acc = acc ? acc : []
-
-          			if ( ann.tableType != "" && ftyp.indexOf(ann.tableType) > -1 ){
-                  	acc.push(ann.docid+"_"+ann.page);
-                }
-
-          			return acc
-          		}, [] )
-
-              filtered_docs_ttype = Array.from(new Set(filtered_docs_ttype));
+      if ( ftop.indexOf("NA") > -1 ) {
+        if ( msh_categories.pmids_w_cat.indexOf(docid) < 0 ){
+          topic_intersection = true
         }
+      }
 
-        var ordered_Splits = []
-        var ordered_docs_to_label = []
+      const type_enabled = ftyp.length > 0
+      const type_intersection = (
+        type_enabled && (filtered_docs_ttype.length > 0) &&
+        (filtered_docs_ttype.indexOf(docid_V+"_"+page) > -1)
+      )
 
+      const isAnnotated = all_annotated_docids.indexOf(docid_V+"_"+page) > -1
 
-        var allLabelled = []
-        allLabelled = allLabelled.map( d => d+".html")
+      const show_not_annotated = !hua
 
-        var selected_group_docs = []
+      let accept_docid = false
 
-        if (fgroup == "all" || (fgroup.indexOf("all") > -1)){
-          selected_group_docs = ordered_Splits.flat()
-        } else {
-          for ( i in fgroup ) {
-            var group_index = parseInt(fgroup[i])-1;
-            selected_group_docs = [...selected_group_docs, ...ordered_Splits[group_index]]
-          }
+      // Logic to control the filter.
+      // It depends in many variables with many controlled outcomes, so it looks a bit complicated
+      if ( topic_enabled && type_enabled ) {
+
+        accept_docid = topic_intersection ? true : accept_docid
+        accept_docid = type_intersection || (show_not_annotated && !isAnnotated) ? accept_docid : false
+
+      } else if (topic_enabled && !type_enabled){
+
+        accept_docid = topic_intersection ? true : accept_docid
+        accept_docid = !show_not_annotated ? ( isAnnotated && topic_intersection ) : accept_docid
+
+      } else if (!topic_enabled && type_enabled){
+
+        accept_docid = type_intersection || (show_not_annotated && !isAnnotated) ? true : false
+
+      } else if ( (!topic_enabled) && (!type_enabled) ){
+        accept_docid = !show_not_annotated ? ( isAnnotated ) : true
+      }
+      // End of filter logic.
+
+      if ( accept_docid ) {
+        acc.push(docfile)
+      }
+    } else { // Default path when no filters are enabled
+
+      if ( !hua ){ // The document is not annotated, so always add.
+        acc.push(docfile)
+      } else {
+        if ( all_annotated_docids.indexOf(docid_V+"_"+page) > -1 ){
+          acc.push(docfile)
         }
+      }
+    }
 
+    return acc
+  },[])
 
-        var selected_label_docs = []
+  DOCS = Array.from(new Set(DOCS))
 
-        if (flgroup == "all" || (flgroup.indexOf("all") > -1)){
-          selected_label_docs = ordered_docs_to_label.flat()
-        } else {
-          for ( i in flgroup ) {
-            var label_index = parseInt(flgroup[i])-1;
-            selected_label_docs = [...selected_label_docs, ...ordered_docs_to_label[label_index]]
-          }
+  try {
+    for ( let d in DOCS ){
+
+      const docfile = DOCS[d]
+
+      const fileElements = docfile.match(/([\w\W]*)_([0-9]*).html/);
+      const docid = fileElements[1]
+      const page = fileElements[2] //.split(".")[0]
+      const extension = ".html" //fileElements[1].split(".")[1]
+
+      if ( available_documents[docid] ) {
+        const prev_data = available_documents[docid]
+        prev_data.pages[prev_data.pages.length] = page
+        prev_data.abs_pos[prev_data.abs_pos.length] = abs_index.length
+        prev_data.maxPage = page > prev_data.maxPage ? page : prev_data.maxPage
+        available_documents[docid] = prev_data
+      } else {
+        available_documents[docid] = {
+          abs_pos: [ abs_index.length ],
+          pages: [ page ],
+          extension,
+          maxPage: page
         }
+      }
 
-        selected_group_docs = selected_group_docs.flat();
+      abs_index[abs_index.length] = {docid, page, extension, docfile}
+    }
 
-        var results = new Promise(function(resolve, reject) {
-
-                var available_documents = {}
-                var abs_index = []
-                var DOCS = []
-
-                var fixVersionOrder = (a) => {
-                	var i = a.indexOf("v");
-                	if ( i > -1 ){
-                		return a.slice(0,i)+a.slice(i+2,a.length)+a.slice(i,i+2)
-                    } else {
-                		return a;
-                    }
-
-                }
-
-                fs.readdir( path.join(tables_folder,collection_id) , function(err, items) {
-
-                    var label_filters = flgroup;
-
-                    var unannotated = ordered_Splits;
-
-                    if ( selected_group_docs.length > 0 ){
-                      DOCS = selected_group_docs
-                    }
-
-                    if ( selected_label_docs.length > 0 ){
-                      DOCS = selected_label_docs
-                    }
-
-
-                    if ( DOCS.length < 1) {
-                      if ( !items ){
-                        items = []
-                      }
-                      items = items.reduce ( (acc,filename) => {
-                              var doc_path = path.join(tables_folder,collection_id,filename)
-                              if ( fs.existsSync(doc_path) && (!fs.lstatSync(doc_path).isDirectory()) ) {
-                                acc.push(filename)
-                              }
-                              return acc
-                              },[])
-
-                      DOCS = items.sort(  (a,b) => {return fixVersionOrder(a).localeCompare(fixVersionOrder(b))} );
-                    }
-
-
-                    DOCS = DOCS.sort(  (a,b) => {
-
-                        a = a.match(/([\w\W]*)_([0-9]*).html/)
-                        b = b.match(/([\w\W]*)_([0-9]*).html/)
-                        var st_a = {docid: a[1], page:a[2]}
-                        var st_b = {docid: b[1], page:b[2]}
-                        var dd = st_a.docid.localeCompare(st_b.docid);
-                        return dd == 0 ? parseInt(st_a.page) - parseInt(st_b.page) : dd
-
-                    });
-
-                    DOCS = DOCS.reduce( (acc,docfile) => {
-
-                        var file_parts = docfile.match(/([\w\W]*)_([0-9]*).html/)
-
-                        var docid = file_parts[1]
-                        var docid_V = file_parts[1]
-                        var page = file_parts[2]
-
-                        if( (ftop.length+ftyp.length > 0) && msh_categories && msh_categories.catIndex ){
-
-                          var topic_enabled = ftop.length > 0
-
-                          var topic_intersection = ftop.reduce( (acc, cat) => { return acc || (msh_categories.catIndex[cat].indexOf(docid) > -1) }, false );
-
-                          if ( ftop.indexOf("NA") > -1 ){
-                            if ( msh_categories.pmids_w_cat.indexOf(docid) < 0 ){
-                                topic_intersection = true
-                            }
-                          }
-
-                          var type_enabled = ftyp.length > 0
-                          var type_intersection = (type_enabled && (filtered_docs_ttype.length > 0) && (filtered_docs_ttype.indexOf(docid_V+"_"+page) > -1))
-
-                          var isAnnotated = all_annotated_docids.indexOf(docid_V+"_"+page) > -1
-
-                          var show_not_annotated = !hua
-
-                          var accept_docid = false
-
-                          // Logic to control the filter. It depends in many variables with many controlled outcomes, so it looks a bit complicated
-                          if ( topic_enabled && type_enabled ){
-
-                            accept_docid = topic_intersection ? true : accept_docid
-                            accept_docid = type_intersection || (show_not_annotated && !isAnnotated) ? accept_docid : false
-
-                          } else if (topic_enabled && !type_enabled){
-
-                            accept_docid = topic_intersection ? true : accept_docid
-                            accept_docid = !show_not_annotated ? ( isAnnotated && topic_intersection ) : accept_docid
-
-                          } else if (!topic_enabled && type_enabled){
-
-                            accept_docid = type_intersection || (show_not_annotated && !isAnnotated) ? true : false
-
-                          } else if ( (!topic_enabled) && (!type_enabled) ){
-                            accept_docid = !show_not_annotated ? ( isAnnotated ) : true
-                          }
-                          // End of filter logic.
-
-                          if ( accept_docid ) {
-                            acc.push(docfile)
-                          }
-
-                        } else { // Default path when no filters are enabled
-
-                          if ( !hua ){ // The document is not annotated, so always add.
-                            acc.push(docfile)
-                          } else {
-                            if ( all_annotated_docids.indexOf(docid_V+"_"+page) > -1 ){
-                              acc.push(docfile)
-                            }
-                          }
-                        }
-
-                        return acc
-                    },[])
-
-                    DOCS = Array.from(new Set(DOCS))
-
-                    try{
-                      for ( var d in DOCS ){
-
-                        var docfile = DOCS[d]
-
-                        var fileElements = docfile.match(/([\w\W]*)_([0-9]*).html/);
-                        var docid = fileElements[1]
-                        var page = fileElements[2] //.split(".")[0]
-                        var extension = ".html" //fileElements[1].split(".")[1]
-
-                        if ( available_documents[docid] ){
-                          var prev_data = available_documents[docid]
-                              prev_data.pages[prev_data.pages.length] = page
-                              prev_data.abs_pos[prev_data.abs_pos.length] = abs_index.length
-                              prev_data.maxPage = page > prev_data.maxPage ? page : prev_data.maxPage
-                              available_documents[docid] = prev_data
-                        } else {
-                              available_documents[docid] = {abs_pos: [ abs_index.length ], pages : [ page ] , extension, maxPage : page}
-                        }
-
-                        abs_index[abs_index.length] = {docid, page, extension, docfile}
-
-                      }
-
-                      resolve({available_documents, abs_index, DOCS})
-                    } catch (e){
-
-                      console.log("FAILED: "+JSON.stringify(e))
-
-                      reject(e)
-                    }
-                });
-
-          });
-
-
-
-          return await results
+    return {
+      available_documents,
+      abs_index,
+      DOCS
+    }
+  } catch (err) {
+    console.log('FAILED: ' + JSON.stringify(err))
+    return err
+  }
 }
 
 module.exports = {
