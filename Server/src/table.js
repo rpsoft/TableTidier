@@ -54,7 +54,7 @@ const readyTable = async (docname, page, collection_id, enablePrediction = false
       tablePage = cheerio.load(data.replace(/[^\x20-\x7E]+/g, ''));
 
       if ( (!tablePage) || (data.trim().length < 1)) {
-        // resolve({htmlHeader: "",formattedPage : "", title: "" }) //Failed or empty
+        // return ({htmlHeader: "",formattedPage : "", title: "" }) //Failed or empty
         return {status: 'failed', tableTitle: '', tableBody: '', predictedAnnotation: {} }
       }
 
@@ -79,15 +79,22 @@ const readyTable = async (docname, page, collection_id, enablePrediction = false
       }
 
       if ( tablePage("strong").length > 0 || tablePage("b").length > 0 || tablePage("i").length > 0){
+        const appendToParent = (i, el) => {
+          const content = cheerio(el).html();
+          const parent = cheerio(el).parent();
+          cheerio(el).remove();
+          parent.append( content )
+        }
+
         // fixing strong, b and i tags on the fly. using "bold" and "italic" classes is preferred
         tablePage("strong").closest("td").addClass("bold")
-        tablePage("strong").map( (i,el) => { var content = cheerio(el).html(); var parent = cheerio(el).parent(); cheerio(el).remove(); parent.append( content ) } )
+        tablePage("strong").forEach( appendToParent )
 
         tablePage("b").closest("td").addClass("bold")
-        tablePage("b").map( (i,el) => { var content = cheerio(el).html(); var parent = cheerio(el).parent(); cheerio(el).remove(); parent.append( content ) } )
+        tablePage("b").map( appendToParent )
 
         tablePage("i").closest("td").addClass("italic")
-        tablePage("i").map( (i,el) => { var content = cheerio(el).html(); var parent = cheerio(el).parent(); cheerio(el).remove(); parent.append( content ) } )
+        tablePage("i").map( appendToParent )
 
         tableEdited = true
         // fs.writeFile(htmlFolder+htmlFile,  tablePage.html(), function (err) {
@@ -110,7 +117,7 @@ const readyTable = async (docname, page, collection_id, enablePrediction = false
     }
 
     // var spaceRow = -1;
-    var htmlHeader = ''
+    let htmlHeader = ''
 
     const findHeader = (tablePage, tag) => {
       let totalTextChars = 0
@@ -118,7 +125,7 @@ const readyTable = async (docname, page, collection_id, enablePrediction = false
       const headerNodes = [cheerio(tablePage(tag)[0]).remove()]
       let htmlHeader = ''
       const textLimit = 400
-      for ( var h in headerNodes ) {
+      for ( let h in headerNodes ) {
         // cheerio(headerNodes[h]).css("font-size","20px");
         const headText = cheerio(headerNodes[h]).text().trim()
         const actualText = (headText.length > textLimit ? headText.slice(0,textLimit-1) +" [...] " : headText)
@@ -168,294 +175,289 @@ const readyTable = async (docname, page, collection_id, enablePrediction = false
 
     let predicted = {};
 
-    if ( enablePrediction ){
-      console.log("predicting")
+    if ( enablePrediction ) {
+      console.log('predicting')
       predicted = await attemptPrediction(actual_table);
     }
 
     return {
-      status: "good",
+      status: 'good',
       tableTitle: htmlHeader,
       tableBody: formattedPage,
       predictedAnnotation: predicted
     }
-  } catch ( err ) {
+  } catch (err) {
     console.log(err)
-    reject({status:"bad"})
+    return {status: 'bad'}
   }
 }
 
 const attemptPrediction = async (actual_table) => {
+  const predictions = await attempt_predictions(actual_table)
+
+  const terms_matrix = predictions.map(
+    e => e.terms.map(
+      term => term
+    )
+  )
+
+  const preds_matrix = predictions.map(
+    e => e.terms.map(
+      term => e.pred_class[term]
+    )
+  )
+
+  const format_matrix = predictions.map( e => e.cellClasses.map( cellClass => cellClass ))
+
+  // :-) never used
+  // var feature_matrix = predictions.map(
+  //   e => e.terms_features.map(
+  //     term => term
+  //   )
+  // )
+
+  // values in this matrix represent the cell contents, and can be: "text", "numeric" or ""
+  const content_type_matrix = predictions.map(
+    e => e.terms.map(
+      term => {
+        const _term = term.replace(/\$nmbr\$/g, 0)
+        const numberless_size = _term.replace(/([^A-z0-9 ])/g, '').replace(/[0-9]+/g, '').replace(/ +/g,' ').trim().length
+        const spaceless_size = _term.replace(/([^A-z0-9 ])/g, '').replace(/ +/g," ").trim().length
+        return spaceless_size == 0 ? '' : (numberless_size >= spaceless_size/2 ? 'text' : 'numeric')
+      }
+    )
+  )
+
+  // :-) never used
+  // var cleanModifier = (modifier) => {
+  //   modifier = modifier ? modifier : ""; //prevent blow up
+  //   return modifier.replace("firstCol","empty_row").replace("firstLastCol","empty_row_with_p_value")
+  //                   .replace("indent0","indent").replace("indent1","indent")
+  //                   .replace("indent2","indent").replace("indent3","indent")
+  //                   .replace("indent4","indent").trim()
+  // }
+
+  const isTermNumber = (term) => {
+    term = term ? term : '' ; // Just in case term is undefined
+
+    const statsRelated = ['nmbr', 'mean', 'median', 'percent', 'mode', 'std', 'nan', 'na', 'nr']
+    const stats = term.toLowerCase().replace(/[^A-z0-9 ]/gi, " ")
+                .replace(/ +/gi," ").trim().split(" ").filter( el => el.length > 1)
+                .reduce( (acc, term) => {
+                  if (statsRelated.indexOf(term) > -1) { acc.numbers++ };
+                  acc.total++;
+                  return acc },
+                  {numbers: 0, total: 0} )
+    return stats.numbers > stats.total/2
+  }
+
+  const getColumnAsArray = (matrix, c) => matrix.map( (row,r) => row[c] )
+
+  const getFreqs = (elements) => {
+    return elements.reduce( (countMap, word) => {
+            countMap.freqs[word] = ++countMap.freqs[word] || 1
+            const max = (countMap["max"] || 0)
+            countMap["max"] = max < countMap.freqs[word] ? countMap.freqs[word] : max
+            countMap["total"] = ++countMap["total"] || 1
+            return countMap
+        },{total:0,freqs:{}})
+  }
+
+  const getMatchingIndices = (elements, items) => elements.reduce(
+    (indices, el, i ) => { 
+      if ( items.indexOf(el) > -1 ) { indices.push(i) }
+      return indices
+    }
+    ,[]
+  )
+
+  const getElementsByIndices = (elements, indices) => elements.reduce(
+    (res, el, i ) => {
+      if ( indices.indexOf(i) > -1 ){ res.push(elements[i]) }
+      return res
+    }
+    ,[]
+  )
+
+  const getTopDescriptors = (freqs, rowFirstCellEmpty = false) => {
+
+    if ( rowFirstCellEmpty ){
+      delete freqs['']
+    }
+
+    const sum = Object.values(freqs).reduce ( (total, i) => total+i, 0 )
+    const avg = (sum / Object.values(freqs).length) * 0.85 // just a bit under the average
+
+    return Object.keys(freqs).reduce( (acc, k, i) => {
+      const exclude = ['undefined', undefined, '']
+      if ( freqs[k] >= avg && exclude.indexOf(k) < 0){
+          acc.push(k)
+      }
+      return acc
+    }, [])
+  }
 
-            var predictions = await attempt_predictions(actual_table)
-
-            var terms_matrix = predictions.map(
-              e => e.terms.map(
-                term => term
-              )
-            )
-
-            var preds_matrix = predictions.map(
-              e => e.terms.map(
-                term => e.pred_class[term]
-              )
-            )
-
-            var format_matrix = predictions.map( e => e.cellClasses.map( cellClass => cellClass ))
-
-            var feature_matrix = predictions.map(
-              e => e.terms_features.map(
-                term => term
-              )
-            )
-
-            // values in this matrix represent the cell contents, and can be: "text", "numeric" or ""
-            var content_type_matrix = predictions.map(
-              e => e.terms.map(
-                term => {
-                  var term = term.replace(/\$nmbr\$/g, 0)
-                  var numberless_size = term.replace(/([^A-z0-9 ])/g, "").replace(/[0-9]+/g, '').replace(/ +/g," ").trim().length
-                  var spaceless_size = term.replace(/([^A-z0-9 ])/g, "").replace(/ +/g," ").trim().length
-                  return spaceless_size == 0 ? "" : (numberless_size >= spaceless_size/2 ? "text" : "numeric")
-
-                }
-              )
-            )
-
-
-            var cleanModifier = (modifier) => {
-              modifier = modifier ? modifier : ""; //prevent blow up
-              return modifier.replace("firstCol","empty_row").replace("firstLastCol","empty_row_with_p_value")
-                             .replace("indent0","indent").replace("indent1","indent")
-                             .replace("indent2","indent").replace("indent3","indent")
-                             .replace("indent4","indent").trim()
-            }
-
-            var isTermNumber = (term) => {
-
-              term = term ? term : "" ; // Just in case term is undefined
-
-              var statsRelated = ["nmbr", "mean", "median", "percent", "mode", "std","nan","na","nr"]
-              var stats = term.toLowerCase().replace(/[^A-z0-9 ]/gi, " ")
-                          .replace(/ +/gi," ").trim().split(" ").filter( el => el.length > 1)
-                          .reduce( (acc, term) => {
-                            if (statsRelated.indexOf(term) > -1){ acc.numbers++ };
-                              acc.total++;
-                            return acc }, {numbers: 0, total: 0} )
-              return stats.numbers > stats.total/2
-            }
-
-            var getColumnAsArray = (matrix , c) => {
-              return matrix.map( (row,r) => row[c] )
-            }
-
-            var getFreqs = (elements) => {
-                return elements.reduce( (countMap, word) => {
-                        countMap.freqs[word] = ++countMap.freqs[word] || 1
-                        var max = (countMap["max"] || 0)
-                        countMap["max"] = max < countMap.freqs[word] ? countMap.freqs[word] : max
-                        countMap["total"] = ++countMap["total"] || 1
-                        return countMap
-                    },{total:0,freqs:{}})
-            }
-
-            var getMatchingIndices = (elements, items) => {
-               return elements.reduce( (indices, el, i ) => { if ( items.indexOf(el) > -1 ){ indices.push(i) } return indices   },[] )
-            }
-
-            var getElementsByIndices = (elements, indices) =>{
-              return elements.reduce( (res, el, i ) => { if ( indices.indexOf(i) > -1 ){ res.push(elements[i]) } return res },[] )
-            }
-
-            var getTopDescriptors = (freqs, rowFirstCellEmpty = false) => {
-
-              if ( rowFirstCellEmpty ){
-                delete freqs[""]
-              }
-
-              var sum = Object.values(freqs).reduce ( (total, i) => total+i, 0 )
-              var avg = (sum / Object.values(freqs).length) * 0.85 // just a bit under the average
-
-              return Object.keys(freqs).reduce( (acc, k, i) => {
-                var exclude = ["undefined", undefined, ""]
-                if ( freqs[k] >= avg && exclude.indexOf(k) < 0){
-                    acc.push(k)
-                }
-                return acc
-              }, [])
-
-            }
-            /*
-              Used to check if more than half elements in the column/row are just numbers.
-              This is useful as they can be detected as characteristic_level by the classifier.
-              We use this function to not accept predictions if most elements are just numbers, I.e very likely a results column/row
-            */
-            var isMostlyNumbers = (all_terms, equals=false) => {
-                var numberTerms_number = all_terms.map( (term) => isTermNumber(term)).reduce( (sum,isNumber) => isNumber ? sum+1 : sum , 0 )
-                return equals ? numberTerms_number >= all_terms.length/2 : numberTerms_number > all_terms.length/2
-            }
-
-
-            var max_col = preds_matrix.reduce( (acc,n) => n.length > acc ? n.length : acc, 0);
-            var max_row = preds_matrix.length
-
-            //Estimate column predictions.
-            var col_top_descriptors = []
-            var row_top_descriptors = []
-
-            var format_units = Array.from(new Set(format_matrix.flat()))
-
-
-            for ( var f in format_units){
-              var format_key = format_units[f]
-
-              var format_unit = {}
-
-              for ( var col = 0 ; col < max_col; col++ ){
-
-                var col_array = getColumnAsArray(format_matrix,col)
-
-                var indices_w_format = getMatchingIndices( col_array, [format_key])
-                // If the cells with this formatting are rare. then ignore.
-                if ( format_key.indexOf("empty_row") < 0 && indices_w_format.length <= 2){ // Emptyrows are rare so, they are exempt
-                  continue
-                }
-
-                if ( isMostlyNumbers(getColumnAsArray(terms_matrix, col)) ){
-                  continue
-                }
-
-                var pred_array = getColumnAsArray(preds_matrix,col)
-                var predictions_w_format = getElementsByIndices( pred_array, indices_w_format)
-
-                    predictions_w_format = predictions_w_format.join(";").split(";")
-
-                var content_array = getColumnAsArray(content_type_matrix, col)
-
-
-                if (getFreqs(content_array).freqs["text"] < (content_array.length/2) ){
-                  continue;
-                }
-
-                var descriptors = getTopDescriptors(getFreqs(predictions_w_format).freqs)
-
-                if ( descriptors.length > 0 ){
-                  col_top_descriptors[col_top_descriptors.length] = {descriptors, c : col , unique_modifier: format_key.split(" ").join(";")}
-                }
-              }
-            }
-
-
-
-            // Rows are run once, and not dependant on format, unlike cols.
-            for ( var row = 0 ; row < max_row; row++ ){
-
-
-              if ( isMostlyNumbers(terms_matrix[row]) ){ // if the row contains mostly numbers, there is no reason to check it.
-                continue;
-              }
-
-
-              var row_predictions = preds_matrix[row]
-                  row_predictions = row_predictions.join(";").split(";")
-
-              var content_array = content_type_matrix[row]
-
-              content_array = content_array.reduce( (acc,it) => { if (it.length > 0){ acc.push(it) }; return acc}, []);
-
-              if (getFreqs(content_array).freqs["text"] < (content_array.length/2) ){
-                continue;
-              }
-
-
-              var rowFirstCellEmpty = terms_matrix[row][0].trim() == "" // very likely to be a heading row, since the first empty cell indicates a indentation.
-
-
-              var descriptors = getTopDescriptors(getFreqs(row_predictions).freqs, rowFirstCellEmpty )
-
-              var is_empty_or_P = format_matrix[row][0].indexOf("empty_row") > -1
-
-              if ( is_empty_or_P ){
-                continue
-              }
-
-              if ( descriptors.length > 0 ){
-                row_top_descriptors[row_top_descriptors.length] = {descriptors, c : row , unique_modifier: ""}
-              }
-            }
-
-
-            // Estimate row predictions
-
-            // NEed some sanitation here.
-
-            // If many rows, or many columns, chose only top one.
-
-            // col_top_descriptors[col_top_descriptors.length] = {descriptors, c , unique_modifier}
-            // row_top_descriptors[row_top_descriptors.length] = {descriptors, c : r , unique_modifier:""}
-            // Eliminates rows/cols given a descriptor set that exceeds the amount allowed by the threshold w.r.t. the total.
-            var sanitiseItemRepetition = (top_descriptors, total, threshold = 0.40) => {
-              var similarRowCounts = top_descriptors.reduce( (acc, row_item, r) => {
-                    var thekey = row_item.descriptors.join(";")
-                    var storedRow = acc[thekey]
-                    if ( storedRow ){
-                      storedRow.push(row_item.c)
-                    } else {
-                      storedRow = [row_item.c]
-                    }
-                    acc[thekey] = storedRow
-                    return acc
-              }  , {})
-
-
-              var clean_top_descriptors = []
-
-              for ( var d in top_descriptors ){
-                  var thekey = top_descriptors[d].descriptors.join(";")
-
-                  for ( var r in similarRowCounts ){
-                      if (similarRowCounts[thekey].length < total * threshold){
-                        clean_top_descriptors.push(top_descriptors[d])
-                        break;
-                      }
-                  }
-              }
-
-              return clean_top_descriptors
-            }
-
-
-            row_top_descriptors = sanitiseItemRepetition( row_top_descriptors, max_row )
-
-            var reduceFormatRedundancy = ( descriptors ) => {
-              var references = {}
-
-              var finalDescriptors = []
-
-              for ( var c in descriptors){
-                if ( descriptors[c].unique_modifier == "" ){
-                  references[descriptors[c].c] = descriptors[c].descriptors.join(";")
-                  finalDescriptors.push(descriptors[c])
-                }
-              }
-
-              for ( var c in descriptors){
-                if ( descriptors[c].descriptors.join(";") != references[descriptors[c].c] ){
-                  finalDescriptors.push(descriptors[c])
-                }
-              }
-
-              return finalDescriptors
-            }
-
-            col_top_descriptors = reduceFormatRedundancy(col_top_descriptors)
-
-            var predicted = {
-                            cols: col_top_descriptors,
-                            rows: row_top_descriptors,
-                            predictions : predictions
-                          }
-        return predicted;
+  // Used to check if more than half elements in the column/row are just numbers.
+  // This is useful as they can be detected as characteristic_level by the classifier.
+  // We use this function to not accept predictions if most elements are just numbers,
+  //   I.e very likely a results column/row
+  const isMostlyNumbers = (all_terms, equals=false) => {
+    const numberTerms_number = all_terms.map( (term) => isTermNumber(term) )
+      .reduce( (sum, isNumber) => isNumber ? sum+1 : sum , 0 )
+    return equals ? numberTerms_number >= all_terms.length/2 : numberTerms_number > all_terms.length/2
+  }
+
+  const max_col = preds_matrix.reduce( (acc,n) => n.length > acc ? n.length : acc, 0);
+  const max_row = preds_matrix.length
+
+  //Estimate column predictions.
+  let col_top_descriptors = []
+  let row_top_descriptors = []
+
+  const format_units = Array.from(new Set(format_matrix.flat()))
+
+  for ( let f in format_units ) {
+    const format_key = format_units[f]
+
+    for ( let col = 0 ; col < max_col; col++ ){
+
+      const col_array = getColumnAsArray(format_matrix,col)
+
+      const indices_w_format = getMatchingIndices( col_array, [format_key])
+      // If the cells with this formatting are rare. then ignore.
+      if ( format_key.indexOf("empty_row") < 0 && indices_w_format.length <= 2){ // Emptyrows are rare so, they are exempt
+        continue
+      }
+
+      if ( isMostlyNumbers(getColumnAsArray(terms_matrix, col)) ){
+        continue
+      }
+
+      const pred_array = getColumnAsArray(preds_matrix,col)
+      let predictions_w_format = getElementsByIndices( pred_array, indices_w_format)
+          predictions_w_format = predictions_w_format.join(";").split(";")
+
+      const content_array = getColumnAsArray(content_type_matrix, col)
+
+
+      if (getFreqs(content_array).freqs["text"] < (content_array.length/2) ){
+        continue;
+      }
+
+      const descriptors = getTopDescriptors(getFreqs(predictions_w_format).freqs)
+
+      if ( descriptors.length > 0 ){
+        col_top_descriptors[col_top_descriptors.length] = {
+          descriptors,
+          c: col,
+          unique_modifier: format_key.split(" ").join(";")
+        }
+      }
+    }
+  }
+
+  // Rows are run once, and not dependant on format, unlike cols.
+  for ( let row = 0 ; row < max_row; row++ ) {
+    if ( isMostlyNumbers(terms_matrix[row]) ) { // if the row contains mostly numbers, there is no reason to check it.
+      continue;
+    }
+
+    let row_predictions = preds_matrix[row]
+        row_predictions = row_predictions.join(";").split(";")
+
+    let content_array = content_type_matrix[row]
+    content_array = content_array.reduce( (acc, it) => {
+      if (it.length > 0){ acc.push(it) };
+      return acc
+    }, []);
+
+    if (getFreqs(content_array).freqs["text"] < (content_array.length/2) ) {
+      continue;
+    }
+
+    // very likely to be a heading row, since the first empty cell indicates a indentation.
+    const rowFirstCellEmpty = terms_matrix[row][0].trim() == ''
+
+    const descriptors = getTopDescriptors( getFreqs(row_predictions).freqs, rowFirstCellEmpty )
+
+    const is_empty_or_P = format_matrix[row][0].indexOf("empty_row") > -1
+
+    if ( is_empty_or_P ){
+      continue
+    }
+
+    if ( descriptors.length > 0 ){
+      row_top_descriptors[row_top_descriptors.length] = {descriptors, c : row , unique_modifier: ""}
+    }
+  }
+
+  // Estimate row predictions
+
+  // NEed some sanitation here.
+
+  // If many rows, or many columns, chose only top one.
+
+  // col_top_descriptors[col_top_descriptors.length] = {descriptors, c , unique_modifier}
+  // row_top_descriptors[row_top_descriptors.length] = {descriptors, c : r , unique_modifier:""}
+  // Eliminates rows/cols given a descriptor set that exceeds the amount allowed by the threshold w.r.t. the total.
+  const sanitiseItemRepetition = (top_descriptors, total, threshold = 0.40) => {
+    const similarRowCounts = top_descriptors.reduce( (acc, row_item, r) => {
+      const thekey = row_item.descriptors.join(";")
+      let storedRow = acc[thekey]
+      if ( storedRow ){
+        storedRow.push(row_item.c)
+      } else {
+        storedRow = [row_item.c]
+      }
+      acc[thekey] = storedRow
+      return acc
+    }, {})
+
+    const clean_top_descriptors = []
+
+    for ( let d in top_descriptors ){
+      const thekey = top_descriptors[d].descriptors.join(";")
+
+      for ( let r in similarRowCounts ){
+          if (similarRowCounts[thekey].length < total * threshold){
+            clean_top_descriptors.push(top_descriptors[d])
+            break;
+          }
+      }
+    }
+    return clean_top_descriptors
+  }
+
+  row_top_descriptors = sanitiseItemRepetition( row_top_descriptors, max_row )
+
+  const reduceFormatRedundancy = ( descriptors ) => {
+    const references = {}
+
+    const finalDescriptors = []
+
+    for ( let c in descriptors){
+      if ( descriptors[c].unique_modifier == '' ){
+        references[descriptors[c].c] = descriptors[c].descriptors.join(';')
+        finalDescriptors.push(descriptors[c])
+      }
+    }
+
+    for ( let c in descriptors){
+      if ( descriptors[c].descriptors.join(';') != references[descriptors[c].c] ) {
+        finalDescriptors.push(descriptors[c])
+      }
+    }
+
+    return finalDescriptors
+  }
+
+  col_top_descriptors = reduceFormatRedundancy(col_top_descriptors)
+
+  return {
+    cols: col_top_descriptors,
+    rows: row_top_descriptors,
+    predictions: predictions
+  }
 }
 
 const prepareAvailableDocuments = async (collection_id) => {
