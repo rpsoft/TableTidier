@@ -202,7 +202,6 @@ app.post(CONFIG.api_base_url+'/tableUploader', async function(req, res) {
 async function UMLSData() {
 
     let semtypes = new Promise( async (resolve,reject) => {
-        // :-> :-)
         const fd = await fs.open(CONFIG.system_path+ "Tools/metamap_api/"+'cui_def.csv', 'r');
         let inputStream = fd.createReadStream({encoding: 'utf8'});
 
@@ -330,7 +329,8 @@ const tabularFromAnnotation = async ( annotation ) => {
   //If an override file exists then use it!. Overrides are those produced by the editor.
   let file_exists = true
   try {
-    await fs.open(path.join(tables_folder_override, annotation.collection_id, htmlFile))
+    const fd = await fs.open(path.join(tables_folder_override, annotation.collection_id, htmlFile))
+    fd.close()
   } catch (err) {
     file_exists = false
   }
@@ -677,7 +677,8 @@ const getResultsRefreshed = async ( tids ) => {
 
       let override_exists = true
       try {
-        await fs.open(path.join(tables_folder_override, entry.collection_id, entry.file_path))
+        const fd = await fs.open(path.join(tables_folder_override, entry.collection_id, entry.file_path))
+        fd.close()
       } catch (err) {
         override_exists = false
       }
@@ -1064,7 +1065,8 @@ const prepareAnnotationPreview = async (docid, page, collId, cachedOnly) => {
   // Check if file exist
   let override_exists = true
   try {
-    await fs.open(path.join(tables_folder_override, entry.collection_id, entry.file_path))
+    const fd = await fs.open(path.join(tables_folder_override, entry.collection_id, entry.file_path))
+    fd.close()
   } catch (err) {
     override_exists = false
   }
@@ -1438,7 +1440,8 @@ app.get(CONFIG.api_base_url+'/removeOverrideTable', async function(req,res){
   if(req.query && req.query.docid && req.query.page  ){
     let file_exists = true
     try {
-      await fs.open(tables_folder_override+"/"+req.query.docid+"_"+req.query.page+".html")
+      const fd = await fs.open(tables_folder_override+"/"+req.query.docid+"_"+req.query.page+".html")
+      fd.close()
     } catch (err) {
       file_exists = false
     }
@@ -1459,14 +1462,11 @@ app.get(CONFIG.api_base_url+'/removeOverrideTable', async function(req,res){
 });
 
 app.get(CONFIG.api_base_url+'/classify', async function(req,res){
-
   if(req.query && req.query.terms){
     console.log(req.query.terms)
 
     res.send({results : await classify(req.query.terms.split(","))})
-
   }
-
 });
 
 app.get(CONFIG.api_base_url+'/getTable',async function(req,res){
