@@ -1437,7 +1437,7 @@ app.post(CONFIG.api_base_url+'/text', async (req, res) => {
   const completeFile = '<html><body>'+titleText+body+'</body></html>'
 
   try {
-    await fs.writeFile( path.join(tables_folder_override, collId, (docid+'_'+page+'.html') ), completeFile )
+    await fs.writeFile( path.join(tables_folder_override, collId, `${docid}_${page}.html`), completeFile )
     const textResponse = `Written replacement for: ${collId} // ${docid}_${page}.html`
     console.log(textResponse);
     res.json({
@@ -1449,34 +1449,42 @@ app.post(CONFIG.api_base_url+'/text', async (req, res) => {
   };
 })
 
-app.get(CONFIG.api_base_url+'/removeOverrideTable', async function(req,res){
+app.get(CONFIG.api_base_url+'/removeOverrideTable', async (req, res) => {
    // Path to tables
    const {
     tables_folder_override,
   } = global.CONFIG
 
-  if(req.query && req.query.docid && req.query.page  ){
-    let file_exists = true
-    try {
-      const fd = await fs.open(tables_folder_override+"/"+req.query.docid+"_"+req.query.page+".html")
-      fd.close()
-    } catch (err) {
-      file_exists = false
-    }
+  const {
+    docid,
+    page,
+    collId,
+  } = req.body
 
-    if ( file_exists ) {
-      try {
-        await fs.unlink(tables_folder_override+"/"+req.query.docid+"_"+req.query.page+".html")
-      } catch (err) {
-        console.log(`REMOVED : ${tables_folder_override}/${req.query.docid}_${req.query.page}.html`);
-        throw err;
-      }
-    }
-
-    res.send({status: "override removed"})
-  } else {
-    res.send({status: "no changes"})
+  if (
+    (
+      req.query &&
+      docid &&
+      page 
+    ) == false
+  ) {
+    return res.send({status: 'no changes'})
   }
+
+  const pathToFile = path.join(tables_folder_override, collId, `${docid}_${page}.html`)
+  const file_exists = await fs.stat(pathToFile)
+    .then(() => true, () => false)
+
+  if ( file_exists ) {
+    try {
+      await fs.unlink(pathToFile)
+    } catch (err) {
+      console.log(`REMOVED : ${pathToFile} Error: ${err}`);
+      throw err;
+    }
+  }
+
+  res.send({status: 'override removed'})
 });
 
 app.get(CONFIG.api_base_url+'/classify', async function(req,res){
