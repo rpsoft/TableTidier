@@ -162,8 +162,6 @@ WHERE
       const collectionsList = await query(
         `SELECT * FROM public.collection ORDER BY collection_id`);
   
-      client.release()
-  
       if ( result.rows.length == 1){
           result = result.rows[0]
           result.tables = tables.rows;
@@ -174,7 +172,7 @@ WHERE
     },
 
     collectionsList: async () => {
-      const result = query(
+      const result = await query(
         `SELECT collection.collection_id, title, description, owner_username, table_n
         FROM public.collection
         LEFT JOIN
