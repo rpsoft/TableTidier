@@ -1626,7 +1626,7 @@ const prepareMetadata = (headerData, tableResults) => {
 
       acc[group.join()] = concepts;
       return acc;
-    },{})
+    }, {})
 
     let meta_concepts = Object.keys(grouped_headers).reduce( (mcon, group) => {
       const alreadyshown = []
@@ -1650,7 +1650,7 @@ const prepareMetadata = (headerData, tableResults) => {
         }, [])
 
       return mcon
-    },{})
+    }, {})
 
     const unfoldConcepts = (concepts) => {
       const unfolded = concepts.reduce ( (stor, elm, i) => {
@@ -1678,72 +1678,75 @@ const prepareMetadata = (headerData, tableResults) => {
   return meta_concepts
 }
 
-const processAnnotationAndMetadata = async (docid,page,collId) => {
+// * :-) not used? 
+const processAnnotationAndMetadata = async (docid, page, collId) => {
+  const tabularData = await prepareAnnotationPreview(docid, page, collId, false)
 
-    var tabularData = await prepareAnnotationPreview(docid, page, collId, false)
+  if (
+    (
+      tabularData.backAnnotation &&
+      tabularData.backAnnotation.rows.length > 0 &&
+      tabularData.backAnnotation.rows[0].annotation
+    ) == false
+  ) {
+    throw new Error('invalid tabularData')
+  }
 
-    if (tabularData.backAnnotation && tabularData.backAnnotation.rows.length > 0 && tabularData.backAnnotation.rows[0].annotation ){
+  // .annotations.map( ann => { return {head: Object.keys(ann.content).join(";"), sub: ann.subAnnotation } })
 
-      // .annotations.map( ann => { return {head: Object.keys(ann.content).join(";"), sub: ann.subAnnotation } })
+  const tid = tabularData.backAnnotation.rows[0].tid
 
-      var tid = tabularData.backAnnotation.rows[0].tid
+  let header_data = tabularData.backAnnotation.rows[0].annotation.map( ann => { return {head: [ann.content.split("@")[0]].join(";"), sub: ann.subAnnotation } })
 
-      var header_data = tabularData.backAnnotation.rows[0].annotation.map( ann => { return {head: [ann.content.split("@")[0]].join(";"), sub: ann.subAnnotation } })
+  header_data = header_data.reduce( (acc, header,i) => {
+                          acc.count[header.head] = acc.count[header.head] ? acc.count[header.head]+1 : 1;
+                          acc.headers.push(header.head+"@"+acc.count[header.head]);
+                          acc.subs.push(header.sub);
+                          return acc;
+                        }, {count:{},headers:[],subs:[]} )
 
-      header_data = header_data.reduce( (acc, header,i) => {
-                              acc.count[header.head] = acc.count[header.head] ? acc.count[header.head]+1 : 1;
-                              acc.headers.push(header.head+"@"+acc.count[header.head]);
-                              acc.subs.push(header.sub);
-                              return acc;
-                            }, {count:{},headers:[],subs:[]} )
+  // * :-) not used? 
+  var headerData = tabularData.result.reduce( (acc, item) => {
 
+    Object.keys(item).map( (head) => {
+      if ( ["col","row","docid_page","value"].indexOf(head) < 0 ){
+        var currentItem = acc[head]
 
-
-      var headerData = tabularData.result.reduce( (acc, item) => {
-
-        Object.keys(item).map( (head) => {
-          if ( ["col","row","docid_page","value"].indexOf(head) < 0 ){
-            var currentItem = acc[head]
-
-            if( !currentItem ){
-              currentItem = []
-            }
-
-            currentItem.push(item[head])
-
-            acc[head] = [...new Set(currentItem)]
-          }
-        })
-
-        return acc
-
-      }, {})
-
-
-      var headDATA = prepareMetadata(header_data, tabularData.result)
-
-      var hedDatra = await processHeaders(headDATA)
-
-      var metadata = Object.keys(hedDatra).map( (key) => {
-        var cuis = hedDatra[key].labels.map( (label) => {return label.CUI} )
-
-        return {
-          concept: hedDatra[key].concept,
-          concept_root: hedDatra[key].root,
-          concept_source: "",
-          cuis: cuis,
-          cuis_selected: cuis.slice(0,2),
-          istitle: false,
-          labeller: "suso",
-          qualifiers: [""],
-          qualifiers_selected: [""],
-          tid: tid
+        if( !currentItem ){
+          currentItem = []
         }
-      })
 
-      var result = await setMetadata(metadata)
+        currentItem.push(item[head])
+
+        acc[head] = [...new Set(currentItem)]
+      }
+    })
+    return acc
+  }, {})
+
+
+  const headDATA = prepareMetadata(header_data, tabularData.result)
+
+  const hedDatra = await processHeaders(headDATA)
+
+  const metadata = Object.keys(hedDatra).map( (key) => {
+    var cuis = hedDatra[key].labels.map( (label) => {return label.CUI} )
+
+    return {
+      concept: hedDatra[key].concept,
+      concept_root: hedDatra[key].root,
+      concept_source: "",
+      cuis: cuis,
+      cuis_selected: cuis.slice(0,2),
+      istitle: false,
+      labeller: "suso",
+      qualifiers: [""],
+      qualifiers_selected: [""],
+      tid: tid
     }
+  })
 
+  const result = await setMetadata(metadata)
 }
 
 // api_host
