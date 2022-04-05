@@ -6,7 +6,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const html = require("html");
 
-const request = require("request");
+const axios = require('axios');
 
 const multer = require('multer');
 
@@ -1244,7 +1244,7 @@ const getMMatch = async (phrase) => {
                              )
                            )
                          )
-
+    // ! :-)
     // // This removes duplicate cuis
     // r = r.reduce( (acc,el) => {if ( acc.cuis.indexOf(el.CUI) < 0 ){acc.cuis.push(el.CUI); acc.data.push(el)}; return acc }, {cuis: [], data: []} ).data
     r = r
@@ -1268,61 +1268,67 @@ const getMMatch = async (phrase) => {
 }
 
 const processHeaders = async (headers) => {
+  // ! :-)
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat
+  // flat deep 4
+  debugger
+  const all_concepts = Array.from(new Set(Object.values(headers).flat().flat().flat().flat()))
 
-       var all_concepts = Array.from(new Set(Object.values(headers).flat().flat().flat().flat()))
+  let results = await Promise.all(
+    // extract mm_match
+    all_concepts.map( concept => getMMatch(concept.toLowerCase()) )
+  )
 
-       var results = await Promise.all(all_concepts.map( async (concept,i) => {
-                                     var mm_match = await getMMatch(concept.toLowerCase())
-                                     return mm_match
-                                   }))
+  const cuis_index = await dbDriver.cuisIndexGet()
 
-       var insertCUI = async (cui,preferred,hasMSH) => {
-           var client = await pool.connect()
-           var done = await client.query('INSERT INTO cuis_index(cui,preferred,"hasMSH",user_defined,admin_approved) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (cui) DO UPDATE SET preferred = $2, "hasMSH" = $3, user_defined = $4, admin_approved = $5',  [cui,preferred,hasMSH,true,false])
-             .then(result => console.log("insert: "+ new Date()))
-             .catch(e => console.error(e.stack))
-             .then(() => client.release())
-       }
+  try {
+    await Promise.all(results.flat().flat().map( async (cuiData,i) => {
+      if ( cuis_index[cuiData.CUI] ){
+          return
+      }
+      console.log("insert: "+ new Date())
+      return dbDriver.cuiInsert(cuiData.CUI, cuiData.preferred, cuiData.hasMSH)
+    }))
+  } catch (err) {
+    throw new Error(err)
+  }
 
-       var cuis_index = await dbDriver.cuisIndexGet()
+  results = all_concepts.reduce( (acc,con,i) => {
+    acc[con.toLowerCase().trim()] = { concept: con.trim(), labels: results[i] };
+    return acc
+  }, {})
 
-       await Promise.all(results.flat().flat().map( async (cuiData,i) => {
+  const allConceptPairs = Object.keys(headers).reduce ( (acc,concepts) => {acc.push(headers[concepts]); return acc} , [] ).flat()
 
-            if ( cuis_index[cuiData.CUI] ){
-                return
-            } else {
-                return await insertCUI(cuiData.CUI, cuiData.preferred, cuiData.hasMSH)
-            }
-       }))
+  const final = allConceptPairs.reduce ( (acc,con,i) => {
+    const concept = con[con.length-1].toLowerCase().trim()
+    const root = con.slice(0,con.length-1).join(" ").toLowerCase().trim()
+    const rootWCase = con.slice(0,con.length-1).join(" ").trim()
+    const key = root + concept
 
-       results = all_concepts.reduce( (acc,con,i) => {acc[con.toLowerCase().trim()] = {concept:con.trim(), labels:results[i]}; return acc},{})
+    acc[key] = {
+      concept: con[con.length-1].trim(),
+      root: rootWCase,
+      labels: results[concept].labels
+    };
+    return acc
+  }, {})
 
-       var allConceptPairs = Object.keys(headers).reduce ( (acc,concepts) => {acc.push(headers[concepts]); return acc} , [] ).flat()
-
-       var final = allConceptPairs.reduce ( (acc,con,i) => {
-                var concept = con[con.length-1].toLowerCase().trim()
-                var root = con.slice(0,con.length-1).join(" ").toLowerCase().trim()
-                var rootWCase = con.slice(0,con.length-1).join(" ").trim()
-                var key = root+concept
-
-                acc[key] = {concept:con[con.length-1].trim(), root: rootWCase, labels: results[concept].labels};
-                return acc
-            },{})
-
-      return final
+  return final
 }
 
-app.post(CONFIG.api_base_url+'/auto', async function(req,res){
-
+/** 
+* auto
+*/
+app.post(CONFIG.api_base_url+'/auto', async function(req,res) {
   try{
-   if(req.body && req.body.headers ){
+    if( (req.body && req.body.headers) == false ) {
+      return res.send({status: "wrong parameters", query : req.query})
+    }
 
-     var headers = JSON.parse(req.body.headers)
+    const headers = JSON.parse(req.body.headers)
 
-     res.send({autoLabels : await processHeaders(headers) })
-   } else {
-     res.send({status: "wrong parameters", query : req.query})
-   }
+    res.send({autoLabels : await processHeaders(headers) })
  } catch(e){
    console.log(e)
    res.send({status: "error", query : e})
