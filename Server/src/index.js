@@ -1322,59 +1322,69 @@ const processHeaders = async (headers) => {
 * auto
 */
 // :-) auto what?
-app.post(CONFIG.api_base_url+'/auto', async function(req,res) {
+app.post(CONFIG.api_base_url+'/auto', async (req, res) => {
   try{
     if( (req.body && req.body.headers) == false ) {
-      return res.send({status: "wrong parameters", query : req.query})
+      return res.send({status: 'wrong parameters', query : req.query})
     }
     const headers = JSON.parse(req.body.headers)
 
     res.send({autoLabels : await processHeaders(headers) })
   } catch(err){
     console.log(e)
-    res.send({status: "error", query : err})
+    res.send({status: 'error', query : err})
   }
 });
 
-app.get(CONFIG.api_base_url+'/getMMatch',async function(req,res){
+app.get(CONFIG.api_base_url+'/getMMatch',async (req, res) => {
   try{
     if(req.query && req.query.phrase ){
       const mm_match = await getMMatch(req.query.phrase)
       return res.send( mm_match )
     }
-    res.send({status: "wrong parameters", query : req.query})
+    res.send({status: 'wrong parameters', query : req.query})
   } catch(err){
     console.log(err)
   }
 });
 
-app.post(CONFIG.api_base_url+'/notes', async function (req, res) {
+app.post(CONFIG.api_base_url+'/notes', async (req, res) => {
+  if ( req.body && ( ! req.body.action ) ) {
+    res.json({status: 'undefined', received : req.query})
+    return
+  }
+  const {
+    username=undefined,
+    hash=undefined,
 
-    if ( req.body && ( ! req.body.action ) ){
-      res.json({status: "undefined", received : req.query})
-      return
-    }
+    payload,
+    docid,
+    page,
+    collId,
+  } = req.body
 
-    var validate_user = validateUser(req.body.username, req.body.hash);
+  const validate_user = validateUser(username, hash);
+  if ( !validate_user ) {
+    res.json({status: 'unauthorised', payload: null})
+  }
 
-    if ( validate_user ){
+  const notesData = JSON.parse(payload)
 
-      var notesData = JSON.parse(req.body.payload)
+  try {
+    await dbDriver.notesUpdate(
+      docid,
+      page,
+      collId,
+      notesData.textNotes,
+      notesData.tableType,
+      notesData.tableStatus
+    )
+    console.log(`Updated records for ${docid}_${page}_${collId} result: `+ new Date())
+  } catch(err) {
+    console.error(err.stack)
+  }
 
-      var updateNotes = async (docid,page,collid,notes,tableType,completion) => {
-            var client = await pool.connect()
-            var done = await client.query('UPDATE public."table" SET notes=$4, "tableType"=$5, completion=$6 WHERE docid=$1 AND page=$2 AND collection_id=$3', [docid,page,collid,notes,tableType,completion])
-              .then(result => console.log("Updated records for "+req.body.docid + "_" +req.body.page + "_" + req.body.collId+" result: "+ new Date()))
-              .catch(e => console.error(e.stack))
-              .then(() => client.release())
-      }
-
-      await updateNotes(req.body.docid, req.body.page, req.body.collId, notesData.textNotes, notesData.tableType, notesData.tableStatus)
-      res.json({status:"Successful", payload: null})
-    } else {
-      res.json({status:"unauthorised", payload: null})
-    }
-
+  res.json({status:'Successful', payload: null})
 })
 
 app.post(CONFIG.api_base_url+'/text', async function (req, res) {
@@ -1504,8 +1514,6 @@ app.post(CONFIG.api_base_url+'/getTable',async function(req,res){
 });
 
 app.post(CONFIG.api_base_url+'/saveAnnotation',async function(req,res) {
-
-
   if ( req.body && ( ! req.body.action ) ){
     res.json({status: "undefined", received : req.query})
     return

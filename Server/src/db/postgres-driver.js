@@ -22,7 +22,7 @@ function driver(config) {
       client.release()
       return result   
     } catch (err) {
-      return err
+      throw err
     }
   }
 
@@ -263,6 +263,17 @@ WHERE
 
     // Gets the labellers associated w ith each document/table.
     metadataLabellersGet: () => query(`SELECT distinct docid, page, labeller FROM metadata`),
+
+    notesUpdate: (docid, page, collid, notes, tableType, completion) => query(
+      `UPDATE public."table"
+      SET
+        notes=$4,
+        "tableType"=$5,
+        completion=$6
+      WHERE
+        docid=$1 AND page=$2 AND collection_id=$3`,
+      [docid, page, collid, notes, tableType, completion]
+    ),
 
     // resource = {type: [collection or table], id: [collection or table id]}
     permissionsResourceGet: async (resource, user) => {
