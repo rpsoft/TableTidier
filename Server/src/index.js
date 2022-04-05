@@ -1586,18 +1586,17 @@ app.post(CONFIG.api_base_url+'/saveAnnotation',async (req, res) => {
 
 const prepareMetadata = (headerData, tableResults) => {
 
-    if(!headerData.headers || headerData.headers.length < 1 || (!tableResults) ){
+    if (!headerData.headers || headerData.headers.length < 1 || (!tableResults) ) {
       return {}
     }
 
-    tableResults = tableResults.sort( (a,b) => a.row-b.row)
-
-    var headerDataCopy = JSON.parse(JSON.stringify(headerData))
+    const _tableResults = tableResults.sort( (a,b) => a.row-b.row)
+    const headerDataCopy = JSON.parse(JSON.stringify(headerData))
 
     headerDataCopy.headers.reverse()
     headerDataCopy.subs.reverse()
 
-    var annotation_groups = headerDataCopy.headers.reduce(
+    let annotation_groups = headerDataCopy.headers.reduce(
         (acc,item,i) => {
           if ( headerDataCopy.subs[i]) {
             acc.temp.push(item)
@@ -1608,11 +1607,14 @@ const prepareMetadata = (headerData, tableResults) => {
           return acc
         }, {groups:[], temp: []})
 
-      annotation_groups.groups[annotation_groups.groups.length-1] = [...annotation_groups.groups[annotation_groups.groups.length-1], ...annotation_groups.temp ]
-      annotation_groups = annotation_groups.groups.reverse()
+    annotation_groups.groups[annotation_groups.groups.length-1] = [
+      ...annotation_groups.groups[annotation_groups.groups.length-1],
+      ...annotation_groups.temp
+    ]
+    annotation_groups = annotation_groups.groups.reverse()
 
-    var grouped_headers = annotation_groups.reduce( (acc,group,i) => {
-      var concepts = tableResults.reduce( (cons,res,j)  => {
+    const grouped_headers = annotation_groups.reduce( (acc,group,i) => {
+      const concepts = _tableResults.reduce( (cons,res,j)  => {
         cons.push (
           group.map( (head) => {
             if ( res[head] )
@@ -1626,48 +1628,42 @@ const prepareMetadata = (headerData, tableResults) => {
       return acc;
     },{})
 
-
-    var meta_concepts = Object.keys(grouped_headers).reduce( (mcon, group) => {
-      var alreadyshown = []
-      var lastConcept = ""
+    let meta_concepts = Object.keys(grouped_headers).reduce( (mcon, group) => {
+      const alreadyshown = []
+      const lastConcept = ''
 
       mcon[group] = grouped_headers[group].reduce(
-          (acc, concepts) => {
-              var key = concepts.join()
-              if ( !alreadyshown[key] ){
-                alreadyshown[key] = true
-                concepts = concepts.filter( b => b != undefined )
+        (acc, concepts) => {
+          const key = concepts.join()
+          if ( !alreadyshown[key] ){
+            alreadyshown[key] = true
+            concepts = concepts.filter( b => b != undefined )
 
-                if ( concepts[concepts.length-1] == lastConcept ){
+            if ( concepts[concepts.length-1] == lastConcept ){
+              concepts = concepts.slice(concepts.length-2, 1)
+            }
 
-                  concepts = concepts.slice(concepts.length-2,1)
-                }
+            acc.push( concepts )
+          }
 
-                acc.push( concepts )
-              }
-
-              return acc
-          }, [])
+          return acc
+        }, [])
 
       return mcon
     },{})
 
     const unfoldConcepts = (concepts) => {
-      var unfolded = concepts.reduce ( (stor, elm, i) => {
+      const unfolded = concepts.reduce ( (stor, elm, i) => {
+        for ( let e = 1; e <= elm.length; e++ ) {
+          const partial_elm = elm.slice(0, e)
+          const key = partial_elm.join()
 
-            for ( var e = 1; e <= elm.length; e++ ){
-
-                var partial_elm = elm.slice(0,e)
-                var key = partial_elm.join()
-
-                if ( stor.alreadyThere.indexOf(key) < 0 ){
-                  stor.unfolded.push(partial_elm)
-                  stor.alreadyThere.push(key)
-                }
-
-            }
-
-            return stor;
+          if ( stor.alreadyThere.includes(key) == false ){
+            stor.unfolded.push(partial_elm)
+            stor.alreadyThere.push(key)
+          }
+        }
+        return stor;
       }, { unfolded:[], alreadyThere:[] })
 
       return unfolded.unfolded
@@ -1677,7 +1673,7 @@ const prepareMetadata = (headerData, tableResults) => {
     (acc,mcon,j) => {
       acc[mcon] = unfoldConcepts(meta_concepts[mcon]);
       return acc
-    },{} )
+    }, {})
 
   return meta_concepts
 }
