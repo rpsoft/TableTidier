@@ -1499,22 +1499,30 @@ app.get(CONFIG.api_base_url+'/classify', async (req, res) => {
   }
 });
 
-app.get(CONFIG.api_base_url+'/getTable',async function(req,res){
-
-   try{
-    if(req.query && req.query.docid && req.query.page && req.query.collId ){
-
-      var tableData = await readyTable(req.query.docid, req.query.page, req.query.collId, false)
-
-      res.send( tableData  )
-    } else {
-      res.send({status: "wrong parameters", query : req.query})
+app.get(CONFIG.api_base_url+'/getTable',async (req, res) => {
+  const {
+    docid,
+    page,
+    collId,
+  } = req?.query
+  try {
+    if ( (req.query && docid && page && collId) == false ) {
+      return res.send({status: 'wrong parameters', query: req.query})
     }
-  } catch (e){
-    console.log(e)
-    res.send({status: "getTable: probably page out of bounds, or document does not exist", query : req.query})
+    const tableData = await readyTable(
+      req.query.docid,
+      req.query.page,
+      req.query.collId,
+      false
+    )
+    return res.send(tableData)
+  } catch (err) {
+    console.log(err)
+    res.send({
+      status: 'getTable: probably page out of bounds, or document does not exist',
+      query: req.query
+    })
   }
-
 });
 
 app.post(CONFIG.api_base_url+'/getTable',async function(req,res){
