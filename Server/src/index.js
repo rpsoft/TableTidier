@@ -1185,6 +1185,7 @@ app.get(CONFIG.api_base_url+'/formattedResults', async function (req,res){
   res.send(formattedRes)
 })
 
+// ! :-)
 // app.get('/api/abs_index',function(req,res){
 //
 //   var output = "";
@@ -1204,39 +1205,31 @@ app.get(CONFIG.api_base_url+'/formattedResults', async function (req,res){
 //   res.send({total : DOCS.length})
 // });
 
-
 const getMMatch = async (phrase) => {
-
   phrase = phrase.trim().replace(/[^A-Za-z 0-9 \.,\?""!@#\$%\^&\*\(\)-_=\+;:<>\/\\\|\}\{\[\]`~]*/g, '') //.replace(/[\W_]+/g," ");
 
   console.log("Asking MM for: "+ phrase)
 
-  var result = new Promise(function(resolve, reject) {
-
-    request.post({
-        headers: {'content-type' : 'application/x-www-form-urlencoded'},
-        url:     'http://'+CONFIG.metamapper_url+'/form',
-        body:    "input="+phrase+" &args=-AsI+ --JSONn -E"
-      }, (error, res, body) => {
-      if (error) {
-        reject(error)
-        return
-      }
-
-      var start = body.indexOf('{"AllDocuments"')
-      var end = body.indexOf("'EOT'.")
-
-      resolve(body.slice(start, end))
+  let result
+  let mm_match
+  try {
+    result = await axios.post({
+      headers: {'content-type' : 'application/x-www-form-urlencoded'},
+      url:     'http://'+CONFIG.metamapper_url+'/form',
+      // body
+      data:    "input="+phrase+" &args=-AsI+ --JSONn -E"
     })
 
+    const start = result.indexOf('{"AllDocuments"')
+    const end = result.indexOf("'EOT'.")
 
-  });
-
-  var mm_match = await result
+    mm_match = result.slice(start, end)
+  } catch(err) {
+    return err
+  }
 
   try{
-
-    var r = JSON.parse(mm_match).AllDocuments[0].Document.Utterances.map(
+    let r = JSON.parse(mm_match).AllDocuments[0].Document.Utterances.map(
                     utterances => utterances.Phrases.map(
                       phrases => phrases.Mappings.map(
                         mappings => mappings.MappingCandidates.map(
@@ -1254,14 +1247,23 @@ const getMMatch = async (phrase) => {
 
     // // This removes duplicate cuis
     // r = r.reduce( (acc,el) => {if ( acc.cuis.indexOf(el.CUI) < 0 ){acc.cuis.push(el.CUI); acc.data.push(el)}; return acc }, {cuis: [], data: []} ).data
-    r = r.flat().flat().flat().reduce( (acc,el) => {if ( acc.cuis.indexOf(el.CUI) < 0 ){acc.cuis.push(el.CUI); acc.data.push(el)}; return acc }, {cuis: [], data: []} ).data
+    r = r
+      .flat()
+      .flat()
+      .flat()
+      .reduce( (acc,el) => {
+        if ( acc.cuis.indexOf(el.CUI) < 0 ) {
+          acc.cuis.push(el.CUI);
+          acc.data.push(el)
+        };
+        return acc
+      }, {cuis: [], data: []} ).data
     r = r.sort( (a,b) => a.score - b.score)
 
     return r
-  } catch (e){
+  } catch (err) {
     return []
   }
-
   // return result
 }
 
