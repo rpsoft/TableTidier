@@ -914,14 +914,14 @@ app.post(CONFIG.api_base_url+'/getTableContent',async (req,res) => {
     
     const collection_data = await dbDriver.collectionGet(collId)
 
-    const enablePrediction = JSON.parse(enablePrediction)
+    const predictionEnabled = JSON.parse(enablePrediction)
 
     const tableData = await readyTable(
       docid,
       page,
       collId,
       // false, predictions are disabled.
-      enablePrediction
+      predictionEnabled
     )
 
     let annotation = await dbDriver.annotationByIDGet(
@@ -934,7 +934,7 @@ app.post(CONFIG.api_base_url+'/getTableContent',async (req,res) => {
 
     tableData.annotationData = annotation && annotation.rows.length > 0 ? annotation.rows[0] : {}
 
-    if ( enablePrediction ) {
+    if ( predictionEnabled ) {
       const rows = tableData.predictedAnnotation.rows.map( ann  => {
         return {
           location: "Row",
