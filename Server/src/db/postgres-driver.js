@@ -73,6 +73,11 @@ WHERE
       [tids]
     ),
 
+    annotationInsert: (tid, annotation) => query(
+      'INSERT INTO annotations VALUES($2,$1) ON CONFLICT (tid) DO UPDATE SET annotation = $2;',
+      [tid, annotation]
+    ),
+
     annotationResultsGet: async () => {
       const result = await query(
         `SELECT * FROM "table", annotations where "table".tid = annotations.tid order by docid desc,page asc`

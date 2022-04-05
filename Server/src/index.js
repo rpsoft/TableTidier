@@ -1542,6 +1542,7 @@ app.post(CONFIG.api_base_url+'/saveAnnotation',async (req, res) => {
   const {
     username=undefined,
     hash=undefined,
+    action,
 
     docid,
     page,
@@ -1550,46 +1551,37 @@ app.post(CONFIG.api_base_url+'/saveAnnotation',async (req, res) => {
     payload,
   } = req?.body
 
-  if ( req.body && ( ! req.body.action ) ){
-    res.json({status: "undefined", received : req.query})
+  if ( req.body && !action ){
+    res.json({status: 'undefined', received : req.body})
     return
   }
 
-
-
-  var validate_user = validateUser(username, hash);
+  const validate_user = validateUser(username, hash);
 
   if ( !validate_user ) {
-    return res.json({status:"unauthorised", payload: null})
+    return res.json({status:'unauthorised', payload: null})
   }
   console.log(`Recording Annotation: ${docid}_${page}_${collId}`)
 
-  var tid = await dbDriver.tidGet ( docid, page, collId )
+  const tid = await dbDriver.tidGet ( docid, page, collId )
 
-  var insertAnnotation = async (tid, annotation) => {
+  const annotationData = JSON.parse(payload)
 
-    var client = await pool.connect()
-
-    var done = await client.query('INSERT INTO annotations VALUES($2,$1) ON CONFLICT (tid) DO UPDATE SET annotation = $2;', [tid, annotation])
-      .then(result => console.log("Updated Annotations for "+tid+" : "+ new Date()))
-      .catch(e => console.error(e.stack))
-      .then(() => client.release())
-
-  }
-
-  var annotationData = JSON.parse(payload)
-
-  annotationData.annotations.map( (row) => {
-
-    row.content = Array.isArray(row.content) ? row.content.reduce ( (acc,item) => { acc[item] = true; return acc}, {}) : row.content
-    row.qualifiers = Array.isArray(row.qualifiers) ? row.qualifiers.reduce ( (acc,item) => { acc[item] = true; return acc}, {}) : row.qualifiers
-
-    return row
+  annotationData.annotations.forEach( (row) => {
+    row.content = Array.isArray(row.content) ?
+      row.content.reduce( (acc,item) => { acc[item] = true; return acc}, {})
+      : row.content
+    row.qualifiers = Array.isArray(row.qualifiers) ?
+      row.qualifiers.reduce ( (acc,item) => { acc[item] = true; return acc}, {})
+      : row.qualifiers
   })
 
-  await insertAnnotation( tid, {annotations: annotationData.annotations} )
-
-  res.json({status:"success", payload:""})
+  try {
+    await dbDriverb.annotationInsert( tid, {annotations: annotationData.annotations} )
+  } catch (err) {
+    console.error(err.stack)
+  }
+  res.json({status:"success", payload: ''})
 });
 
 const prepareMetadata = (headerData, tableResults) => {
