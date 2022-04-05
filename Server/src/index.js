@@ -1272,7 +1272,7 @@ const processHeaders = async (headers) => {
   // ! :-)
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat
   // flat deep 4
-  debugger
+  // debugger
   const all_concepts = Array.from(new Set(Object.values(headers).flat().flat().flat().flat()))
 
   let results = await Promise.all(
@@ -1321,34 +1321,32 @@ const processHeaders = async (headers) => {
 /** 
 * auto
 */
+// :-) auto what?
 app.post(CONFIG.api_base_url+'/auto', async function(req,res) {
   try{
     if( (req.body && req.body.headers) == false ) {
       return res.send({status: "wrong parameters", query : req.query})
     }
-
     const headers = JSON.parse(req.body.headers)
 
     res.send({autoLabels : await processHeaders(headers) })
- } catch(e){
-   console.log(e)
-   res.send({status: "error", query : e})
- }
+  } catch(err){
+    console.log(e)
+    res.send({status: "error", query : err})
+  }
 });
 
 app.get(CONFIG.api_base_url+'/getMMatch',async function(req,res){
   try{
-   if(req.query && req.query.phrase ){
-     var mm_match = await getMMatch(req.query.phrase)
-     res.send( mm_match )
-   } else {
-     res.send({status: "wrong parameters", query : req.query})
-   }
- } catch(e){
-   console.log(e)
- }
+    if(req.query && req.query.phrase ){
+      const mm_match = await getMMatch(req.query.phrase)
+      return res.send( mm_match )
+    }
+    res.send({status: "wrong parameters", query : req.query})
+  } catch(err){
+    console.log(err)
+  }
 });
-
 
 app.post(CONFIG.api_base_url+'/notes', async function (req, res) {
 
