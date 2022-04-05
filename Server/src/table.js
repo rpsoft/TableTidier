@@ -1,6 +1,8 @@
-// import {getAnnotationResults} from "./network_functions.js"
 const fs = require('fs');
 const path = require('path');
+// Import path from config.json
+const GENERAL_CONFIG = require('./config.json')
+
 
 let dbDriver = null
 
@@ -18,24 +20,24 @@ async function refreshDocuments() {
   DOCS = res.DOCS
 }
 
-var readyTable = async (docname, page, collection_id, enablePrediction = false) => {
+const readyTable = async (docname, page, collection_id, enablePrediction = false) => {
   try {
   const docid = docname+"_"+page+".html"
-  var htmlFolder = path.join(global.tables_folder, collection_id) //global.tables_folder+"/",
+  var htmlFolder = path.join(GENERAL_CONFIG.tables_folder, collection_id) //GENERAL_CONFIG.tables_folder+"/",
   const htmlFile = docid
 
-
   //If an override file exists then use it!. Overrides are those produced by the editor.
-  var override_file_exists = await fs.existsSync( path.join(global.tables_folder_override, collection_id, docid) )
+  var override_file_exists = await fs.existsSync( path.join(GENERAL_CONFIG.tables_folder_override, collection_id, docid) )
 
   if ( override_file_exists ) {
-    htmlFolder = path.join(global.tables_folder_override, collection_id) //"HTML_TABLES_OVERRIDE/"
+    htmlFolder = path.join(GENERAL_CONFIG.tables_folder_override, collection_id) //"HTML_TABLES_OVERRIDE/"
   }
 
   console.log("Loading Table: "+docid+" "+(override_file_exists ? " [Override Folder]" : ""))
 
   var result = new Promise(function(resolve, reject) {
 
+  // ! :-)
   try {
     fs.readFile(path.join(htmlFolder,htmlFile), //already has collection_id in html_folder
                 "utf8",
@@ -209,7 +211,7 @@ var readyTable = async (docname, page, collection_id, enablePrediction = false) 
     }
 }
 
-var attemptPrediction = async (actual_table) => {
+const attemptPrediction = async (actual_table) => {
 
             var predictions = await attempt_predictions(actual_table)
 
@@ -482,7 +484,7 @@ var attemptPrediction = async (actual_table) => {
         return predicted;
 }
 
-var prepareAvailableDocuments = async (collection_id) => {
+const prepareAvailableDocuments = async (collection_id) => {
         if (!dbDriver) {
           throw new Error('Required DB Driver')
         }
