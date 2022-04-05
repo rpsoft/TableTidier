@@ -155,6 +155,10 @@ app.post(CONFIG.api_base_url+'/tableUploader', async function(req, res) {
   let upload = multer({ storage: storage }).array('fileNames');
 
   upload(req, res, async function(err) {
+    // Path to tables
+    const {
+      tables_folder,
+    } = global.CONFIG
 
     const files = req.files;
     let index, len;
@@ -170,7 +174,7 @@ app.post(CONFIG.api_base_url+'/tableUploader', async function(req, res) {
         var extension = file_elements.pop()
         var baseFilename = file_elements.join(".")
 
-        await fs.mkdir(path.join(global.tables_folder, req.body.collection_id), { recursive: true })
+        await fs.mkdir(path.join(tables_folder, req.body.collection_id), { recursive: true })
 
         tables_html.map( async (table,t) => {
 
@@ -179,12 +183,11 @@ app.post(CONFIG.api_base_url+'/tableUploader', async function(req, res) {
 
           var newTableFilename = docid+"_"+page+"."+extension
 
-          await fs.writeFile(path.join(global.tables_folder, req.body.collection_id, newTableFilename), table)
+          await fs.writeFile(path.join(tables_folder, req.body.collection_id, newTableFilename), table)
 
           await tableCreate(docid, page, req.body.username_uploader, req.body.collection_id, newTableFilename)
           results.push({filename: newTableFilename, status:"success"})
         })
-
       } catch(err) {
         console.log(err)
         console.log("file: " + files[index].originalname + " failed to process")
@@ -262,8 +265,7 @@ async function UMLSData() {
     return {semtypes, cui_def, cui_concept}
 }
 
-async function CUIData (){
-
+async function CUIData () {
     var umlsData = await UMLSData();
 
     var results = await dbDriver.annotationResultsGet()
@@ -296,18 +298,28 @@ async function CUIData (){
 }
 
 const rebuildSearchIndex = async () => {
-  let tables = fs.readdir(path.join(global.tables_folder))
-  let tables_folder_override = fs.readdir(path.join(global.tables_folder_override))
+  // Path to tables
+  const {
+    tables_folder,
+    tables_folder_override,
+  } = global.CONFIG
+  let tablesInFolder = fs.readdir(path.join(tables_folder))
+  let tablesInFolderOverride = fs.readdir(path.join(tables_folder_override))
   // Join path
-  tables = (await tables).map( (dir) => path.join(global.tables_folder, dir))
-  tables_folder_override = (await tables_folder_override).map( (dir) => path.join(global.tables_folder_override, dir))
+  tablesInFolder = (await tablesInFolder).map( (dir) => path.join(tables_folder, dir))
+  tablesInFolderOverride = (await tablesInFolderOverride).map( (dir) => path.join(tables_folder_override, dir))
   global.searchIndex = await easysearch.indexFolder([
-    ...tables,
-    ...tables_folder_override
+    ...tablesInFolder,
+    ...tablesInFolderOverride
   ])
 }
 
 const tabularFromAnnotation = async ( annotation ) => {
+  // Path to tables
+  const {
+    tables_folder,
+    tables_folder_override,
+  } = global.CONFIG
 
   if ( annotation.rows.length < 1 ){ // annotation not there
     return
@@ -318,14 +330,14 @@ const tabularFromAnnotation = async ( annotation ) => {
   //If an override file exists then use it!. Overrides are those produced by the editor.
   let file_exists = true
   try {
-    await fs.open(path.join(global.tables_folder_override, annotation.collection_id, htmlFile))
+    await fs.open(path.join(tables_folder_override, annotation.collection_id, htmlFile))
   } catch (err) {
     file_exists = false
   }
 
-  let htmlFolder = path.join(global.tables_folder, annotation.collection_id)
+  let htmlFolder = path.join(tables_folder, annotation.collection_id)
   if ( file_exists ) {
-    htmlFolder = path.join(global.tables_folder_override, annotation.collection_id) //"HTML_TABLES_OVERRIDE/"
+    htmlFolder = path.join(tables_folder_override, annotation.collection_id) //"HTML_TABLES_OVERRIDE/"
   }
 
   try {
@@ -649,7 +661,11 @@ function validateUser (username, hash){
 }
 
 const getResultsRefreshed = async ( tids ) => {
- 
+   // Path to tables
+   const {
+    tables_folder,
+    tables_folder_override,
+  } = global.CONFIG
   const annotation_data = await dbDriver.annotationDataGet(tids)
   var table_results = []
 
@@ -657,17 +673,17 @@ const getResultsRefreshed = async ( tids ) => {
 
     console.log(`Preparing Table: ${ann} / ` + annotation_data.rows.length )
     try{
-      var entry = annotation_data.rows[ann]
+      const entry = annotation_data.rows[ann]
 
       let override_exists = true
       try {
-        await fs.open(path.join(global.tables_folder_override, entry.collection_id, entry.file_path))
+        await fs.open(path.join(tables_folder_override, entry.collection_id, entry.file_path))
       } catch (err) {
         override_exists = false
       }
 
       var table_res = await getFileResults( entry.annotation,
-            path.join(override_exists ? tables_folder_override : global.tables_folder, entry.collection_id,
+            path.join(override_exists ? tables_folder_override : tables_folder, entry.collection_id,
             entry.file_path) )
 
       table_results = [...table_results, table_res]
@@ -676,9 +692,7 @@ const getResultsRefreshed = async ( tids ) => {
       console.log( "Failed: "+ path.join(entry.collection_id, entry.file_path) )
       console.log(err)
     }
-
   }
-
   return table_results
 }
 
@@ -1036,6 +1050,11 @@ app.get(CONFIG.api_base_url+'/cuiRecommend', async function(req,res){
 });
 
 const prepareAnnotationPreview = async (docid, page, collId, cachedOnly) => {
+   // Path to tables
+   const {
+    tables_folder,
+    tables_folder_override,
+  } = global.CONFIG
 
   const annotations = await dbDriver.annotationByIDGet(docid, page, collId)
   if ( annotations.rows.length <= 0 ) {
@@ -1046,7 +1065,7 @@ const prepareAnnotationPreview = async (docid, page, collId, cachedOnly) => {
   // Check if file exist
   let override_exists = true
   try {
-    await fs.open(path.join(global.tables_folder_override, entry.collection_id, entry.file_path))
+    await fs.open(path.join(tables_folder_override, entry.collection_id, entry.file_path))
   } catch (err) {
     override_exists = false
   }
@@ -1054,7 +1073,7 @@ const prepareAnnotationPreview = async (docid, page, collId, cachedOnly) => {
   const tableResults = await getFileResults(
     entry.annotation,
     path.join(
-      override_exists ? tables_folder_override : global.tables_folder,
+      override_exists ? tables_folder_override : tables_folder,
       entry.collection_id,
       entry.file_path
     )
@@ -1341,68 +1360,76 @@ app.post(CONFIG.api_base_url+'/notes', async function (req, res) {
 })
 
 app.post(CONFIG.api_base_url+'/text', async function (req, res) {
+    // Path to tables
+    const {
+    tables_folder,
+    tables_folder_override,
+  } = global.CONFIG
 
-    if ( req.body && ( ! req.body.action ) ){
-      res.json({status: "undefined", received : req.query})
-      return
+  if ( req.body && ( ! req.body.action ) ){
+    res.json({status: "undefined", received : req.query})
+    return
+  }
+
+  var validate_user = validateUser(req.body.username, req.body.hash);
+
+  if ( validate_user ){
+
+    var result;
+
+    var folder_exists = await fs.existsSync( path.join(tables_folder_override, req.body.collId ) )
+
+    if ( !folder_exists ){
+        fs.mkdirSync( path.join(tables_folder_override, req.body.collId), { recursive: true })
     }
 
-    var validate_user = validateUser(req.body.username, req.body.hash);
+    var titleText = '<div class="headers"><div style="font-size:20px; font-weight:bold; white-space: normal;">'+cheerio(JSON.parse(req.body.payload).tableTitle).text()+'</div></div>'
 
-    if ( validate_user ){
+    var bodyText = JSON.parse(req.body.payload).tableBody
 
-      var result;
+    var start_body_index = bodyText.indexOf("<table")
+    var last_body_index = bodyText.lastIndexOf("</table>");
 
-      var folder_exists = await fs.existsSync( path.join(global.tables_folder_override, req.body.collId ) )
-
-      if ( !folder_exists ){
-         fs.mkdirSync( path.join(global.tables_folder_override, req.body.collId), { recursive: true })
-      }
-
-      var titleText = '<div class="headers"><div style="font-size:20px; font-weight:bold; white-space: normal;">'+cheerio(JSON.parse(req.body.payload).tableTitle).text()+'</div></div>'
-
-      var bodyText = JSON.parse(req.body.payload).tableBody
-
-      var start_body_index = bodyText.indexOf("<table")
-      var last_body_index = bodyText.lastIndexOf("</table>");
-
-      var body;
-      if ( (start_body_index > -1) && (last_body_index > -1) ){
-        body = bodyText.substring(start_body_index, last_body_index)+"</table>";
-      } else {
-        body = bodyText
-      }
-
-      var completeFile = '<html><body>'+titleText+body+'</body></html>'
-
-      fs.writeFile( path.join(global.tables_folder_override, req.body.collId, (req.body.docid+"_"+req.body.page+'.html') ),  completeFile, function (err) {
-        if (err) throw err;
-
-        console.log('Written replacement for: '+ req.body.collId+ " // " +req.body.docid+"_"+req.body.page+'.html');
-        res.json({status: "success", data: 'Written replacement for: '+ req.body.collId+ " // " +req.body.docid+"_"+req.body.page+'.html' })
-      });
-
+    var body;
+    if ( (start_body_index > -1) && (last_body_index > -1) ){
+      body = bodyText.substring(start_body_index, last_body_index)+"</table>";
     } else {
-      res.json({status:"unauthorised", payload: null})
+      body = bodyText
     }
 
+    var completeFile = '<html><body>'+titleText+body+'</body></html>'
+
+    fs.writeFile( path.join(tables_folder_override, req.body.collId, (req.body.docid+"_"+req.body.page+'.html') ),  completeFile, function (err) {
+      if (err) throw err;
+
+      console.log('Written replacement for: '+ req.body.collId+ " // " +req.body.docid+"_"+req.body.page+'.html');
+      res.json({status: "success", data: 'Written replacement for: '+ req.body.collId+ " // " +req.body.docid+"_"+req.body.page+'.html' })
+    });
+
+  } else {
+    res.json({status:"unauthorised", payload: null})
+  }
 })
 
 app.get(CONFIG.api_base_url+'/removeOverrideTable', async function(req,res){
+   // Path to tables
+   const {
+    tables_folder_override,
+  } = global.CONFIG
 
   if(req.query && req.query.docid && req.query.page  ){
     let file_exists = true
     try {
-      await fs.open(global.tables_folder_override+"/"+req.query.docid+"_"+req.query.page+".html")
+      await fs.open(tables_folder_override+"/"+req.query.docid+"_"+req.query.page+".html")
     } catch (err) {
       file_exists = false
     }
 
     if ( file_exists ) {
       try {
-        await fs.unlink(global.tables_folder_override+"/"+req.query.docid+"_"+req.query.page+".html")
+        await fs.unlink(tables_folder_override+"/"+req.query.docid+"_"+req.query.page+".html")
       } catch (err) {
-        console.log(`REMOVED : ${global.tables_folder_override}/${req.query.docid}_${req.query.page}.html`);
+        console.log(`REMOVED : ${tables_folder_override}/${req.query.docid}_${req.query.page}.html`);
         throw err;
       }
     }
