@@ -1499,20 +1499,30 @@ app.get(CONFIG.api_base_url+'/classify', async (req, res) => {
   }
 });
 
-app.get(CONFIG.api_base_url+'/getTable',async (req, res) => {
+const getTable = async (req, res) => {
+  // check if it is a get or a post
+  const dataSource = query in req ? 
+    query 
+    : body in req ?
+    body 
+    : null
+ 
+  if (!dataSource) {
+    return res.send({status: 'wrong parameters', query: dataSource})
+  }
   const {
     docid,
     page,
     collId,
-  } = req?.query
+  } = dataSource
   try {
-    if ( (req.query && docid && page && collId) == false ) {
-      return res.send({status: 'wrong parameters', query: req.query})
+    if ( (dataSource && docid && page && collId) == false ) {
+      return res.send({status: 'wrong parameters', query: dataSource})
     }
     const tableData = await readyTable(
-      req.query.docid,
-      req.query.page,
-      req.query.collId,
+      docid,
+      page,
+      collId,
       false
     )
     return res.send(tableData)
@@ -1520,35 +1530,15 @@ app.get(CONFIG.api_base_url+'/getTable',async (req, res) => {
     console.log(err)
     res.send({
       status: 'getTable: probably page out of bounds, or document does not exist',
-      query: req.query
+      query: dataSource
     })
   }
-});
+}
 
-app.post(CONFIG.api_base_url+'/getTable',async function(req,res){
+app.get(CONFIG.api_base_url+'/getTable', getTable);
+app.post(CONFIG.api_base_url+'/getTable', getTable);
 
-   try{
-    if(req.body && req.body.docid && req.body.page && req.body.collId ){
-
-      var tableData = await readyTable(req.body.docid, req.body.page, req.body.collId, false)
-
-      res.json( tableData  )
-    } else {
-      res.json({status: "wrong parameters", query : req.body})
-    }
-  } catch (e){
-    console.log(e)
-    res.json({status: "getTable: probably page out of bounds, or document does not exist", query : req.body})
-  }
-
-});
-
-app.post(CONFIG.api_base_url+'/saveAnnotation',async function(req,res) {
-  if ( req.body && ( ! req.body.action ) ){
-    res.json({status: "undefined", received : req.query})
-    return
-  }
-
+app.post(CONFIG.api_base_url+'/saveAnnotation',async (req, res) => {
   const {
     username=undefined,
     hash=undefined,
@@ -1558,44 +1548,48 @@ app.post(CONFIG.api_base_url+'/saveAnnotation',async function(req,res) {
     collId,
 
     payload,
-  } = req.body
+  } = req?.body
+
+  if ( req.body && ( ! req.body.action ) ){
+    res.json({status: "undefined", received : req.query})
+    return
+  }
+
+
 
   var validate_user = validateUser(username, hash);
 
-  if ( validate_user ){
-
-      console.log(`Recording Annotation: ${docid}_${page}_${collId}`)
-
-      var tid = await dbDriver.tidGet ( docid, page, collId )
-
-      var insertAnnotation = async (tid, annotation) => {
-
-        var client = await pool.connect()
-
-        var done = await client.query('INSERT INTO annotations VALUES($2,$1) ON CONFLICT (tid) DO UPDATE SET annotation = $2;', [tid, annotation])
-          .then(result => console.log("Updated Annotations for "+tid+" : "+ new Date()))
-          .catch(e => console.error(e.stack))
-          .then(() => client.release())
-
-      }
-
-      var annotationData = JSON.parse(payload)
-
-      annotationData.annotations.map( (row) => {
-
-        row.content = Array.isArray(row.content) ? row.content.reduce ( (acc,item) => { acc[item] = true; return acc}, {}) : row.content
-        row.qualifiers = Array.isArray(row.qualifiers) ? row.qualifiers.reduce ( (acc,item) => { acc[item] = true; return acc}, {}) : row.qualifiers
-
-        return row
-      })
-
-      await insertAnnotation( tid, {annotations: annotationData.annotations} )
-
-      res.json({status:"success", payload:""})
-
-  } else {
-      res.json({status:"unauthorised", payload: null})
+  if ( !validate_user ) {
+    return res.json({status:"unauthorised", payload: null})
   }
+  console.log(`Recording Annotation: ${docid}_${page}_${collId}`)
+
+  var tid = await dbDriver.tidGet ( docid, page, collId )
+
+  var insertAnnotation = async (tid, annotation) => {
+
+    var client = await pool.connect()
+
+    var done = await client.query('INSERT INTO annotations VALUES($2,$1) ON CONFLICT (tid) DO UPDATE SET annotation = $2;', [tid, annotation])
+      .then(result => console.log("Updated Annotations for "+tid+" : "+ new Date()))
+      .catch(e => console.error(e.stack))
+      .then(() => client.release())
+
+  }
+
+  var annotationData = JSON.parse(payload)
+
+  annotationData.annotations.map( (row) => {
+
+    row.content = Array.isArray(row.content) ? row.content.reduce ( (acc,item) => { acc[item] = true; return acc}, {}) : row.content
+    row.qualifiers = Array.isArray(row.qualifiers) ? row.qualifiers.reduce ( (acc,item) => { acc[item] = true; return acc}, {}) : row.qualifiers
+
+    return row
+  })
+
+  await insertAnnotation( tid, {annotations: annotationData.annotations} )
+
+  res.json({status:"success", payload:""})
 });
 
 const prepareMetadata = (headerData, tableResults) => {
