@@ -1086,33 +1086,41 @@ const prepareAnnotationPreview = async (docid, page, collId, cachedOnly) => {
 // Generates the results table live preview, connecting to the R API.
 app.post(CONFIG.api_base_url+'/annotationPreview',async function(req,res){
 
-      var bod = req.body.searchContent
+  const {
+    username=undefined,
+    hash=undefined,
 
-      var validate_user = validateUser(req.body.username, req.body.hash);
+    docid,
+    page,
+    collId,
 
-      var collectionPermissions = await dbDriver.permissionsResourceGet('collections', validate_user ? req.body.username : "")
+    cachedOnly,
+  } = req.body
 
-      if ( collectionPermissions.read.indexOf(req.body.collId) > -1 ){
+  const validate_user = validateUser(username, hash);
+  const collectionPermissions = await dbDriver.permissionsResourceGet('collections', validate_user ? username : '')
 
-        try{
+  if ( collectionPermissions.read.includes(collId) == false ) {
+    return res.json([])
+  }
 
-          if(req.body.docid && req.body.page && req.body.collId ){
+  try{
+    if (
+      (
+        docid &&
+        page &&
+        collId
+      ) == false
+    ) {
+      return res.json({status: "wrong parameters", body : req.body})
+    }
 
-            res.json(await prepareAnnotationPreview(req.body.docid , req.body.page, req.body.collId, req.body.cachedOnly))
-
-          } else {
-            res.json({status: "wrong parameters", body : req.body})
-          }
-
-        } catch (e){
-          console.log(e)
-          res.json({status: "annotationPreview : probably page out of bounds, or document does not exist", body : req.body})
-        }
-
-      } else {
-        res.json([])
-      }
-      // res.json( {"state" : "reached end", result : []} )
+    res.json(await prepareAnnotationPreview(docid , page, collId, cachedOnly))
+  } catch (err) {
+    console.log(err)
+    res.json({status: "annotationPreview : probably page out of bounds, or document does not exist", body : req.body})
+  }
+  // res.json( {"state" : "reached end", result : []} )
 });
 
 // Returns all annotations for all document/tables.
