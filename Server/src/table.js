@@ -1,8 +1,7 @@
-const fs = require('fs');
+const fs = require('fs/promises');
 const path = require('path');
 // Import path from config.json
 const GENERAL_CONFIG = require('./config.json')
-
 
 let dbDriver = null
 
@@ -13,202 +12,177 @@ console.log("Loading Classifier")
 import {attempt_predictions, classify, grouped_predictor} from "./classifier.js"
 
 async function refreshDocuments() {
-  // debugger
-  var res = await prepareAvailableDocuments()
+  const res = await prepareAvailableDocuments()
   available_documents = res.available_documents
   abs_index = res.abs_index
   DOCS = res.DOCS
 }
 
 const readyTable = async (docname, page, collection_id, enablePrediction = false) => {
-  try {
   const docid = docname+"_"+page+".html"
-  var htmlFolder = path.join(GENERAL_CONFIG.tables_folder, collection_id) //GENERAL_CONFIG.tables_folder+"/",
+  let htmlFolder = path.join(GENERAL_CONFIG.tables_folder, collection_id) //GENERAL_CONFIG.tables_folder+"/",
   const htmlFile = docid
 
   //If an override file exists then use it!. Overrides are those produced by the editor.
-  var override_file_exists = await fs.existsSync( path.join(GENERAL_CONFIG.tables_folder_override, collection_id, docid) )
+  let override_file_exists = true
+  try {
+    const fd = await fs.open(path.join(GENERAL_CONFIG.tables_folder_override, collection_id, docid))
+    fd.close()
+  } catch (err) {
+    override_file_exists = false
+  }
 
   if ( override_file_exists ) {
     htmlFolder = path.join(GENERAL_CONFIG.tables_folder_override, collection_id) //"HTML_TABLES_OVERRIDE/"
   }
 
-  console.log("Loading Table: "+docid+" "+(override_file_exists ? " [Override Folder]" : ""))
+  console.log("Loading Table: "+docid+" "+(override_file_exists ? " [Override Folder]" : ''))
 
-  var result = new Promise(function(resolve, reject) {
-
-  // ! :-)
   try {
-    fs.readFile(path.join(htmlFolder,htmlFile), //already has collection_id in html_folder
-                "utf8",
-                function(err, data) {
+    //already has collection_id in html_folder
+    const data = await fs.readFile(path.join(htmlFolder,htmlFile), {encoding: 'utf8'})
 
-                  if ( (!data) || (data.trim().length < 1)){
-                      resolve({status: "failed", tableTitle: "", tableBody: "", predictedAnnotation: {} })
-                      return;
-                  }
-
-                  fs.readFile(path.join(global.cssFolder,"stylesheet.css"),
-                              "utf8",
-                              async function(err2, data_ss) {
-
-                                  var tablePage;
-
-                                  try{
-                                      // data = data.replace(/[^\x20-\x7E]+/g, "")  This removes any non-printable characters
-                                      tablePage = cheerio.load(data.replace(/[^\x20-\x7E]+/g, ""));
-
-                                      if ( (!tablePage) || (data.trim().length < 1)){
-                                            // resolve({htmlHeader: "",formattedPage : "", title: "" }) //Failed or empty
-                                            resolve({status: "failed", tableTitle: "", tableBody: "", predictedAnnotation: {} })
-                                            return;
-
-                                      }
-
-                                      var tableEdited = false;
-
-                                      if ( ! (tablePage('table').text().length > 0) ){ // Prevents infinite loop caused when no tables are present.
-                                          resolve({status: "failed no table tag found ", tableTitle: "", tableBody: "", predictedAnnotation: {} })
-                                          return;
-                                      }
-
-                                      // Remove all empty rows from the top.
-                                      while ( (tablePage('table').text().length > 0) && (tablePage('table tr:nth-child(1)').text().trim().length == 0 )) {
-                                        tablePage('table tr:nth-child(1)').remove()
-                                        tableEdited = true;
-                                      }
-
-                                      // "remove NCT column on the fly"
-
-                                      var firstColContent = tablePage('table tr td:nth-child(1)').text().trim()
-                                      if ( firstColContent.indexOf("NCT") == 0 ){
-                                          tablePage('table tr td:nth-child(1)').remove()
-                                          tablePage('table tr td:nth-child(1)').remove()
-                                          tableEdited = true;
-                                      }
-
-                                      if ( tablePage("strong").length > 0 || tablePage("b").length > 0 || tablePage("i").length > 0){
-
-                                        // fixing strong, b and i tags on the fly. using "bold" and "italic" classes is preferred
-                                        tablePage("strong").closest("td").addClass("bold")
-                                        tablePage("strong").map( (i,el) => { var content = cheerio(el).html(); var parent = cheerio(el).parent(); cheerio(el).remove(); parent.append( content ) } )
-
-                                        tablePage("b").closest("td").addClass("bold")
-                                        tablePage("b").map( (i,el) => { var content = cheerio(el).html(); var parent = cheerio(el).parent(); cheerio(el).remove(); parent.append( content ) } )
-
-                                        tablePage("i").closest("td").addClass("italic")
-                                        tablePage("i").map( (i,el) => { var content = cheerio(el).html(); var parent = cheerio(el).parent(); cheerio(el).remove(); parent.append( content ) } )
-
-                                        tableEdited = true
-                                        // fs.writeFile(htmlFolder+htmlFile,  tablePage.html(), function (err) {
-                                        //   if (err) throw err;
-                                        //   console.log('Substituted strong tags by "bold" class for: '+htmlFolder+htmlFile);
-                                        // });
-
-                                      }
-
-                                      if ( tableEdited ){
-                                        console.log('Table corrected on the fly: '+path.join(htmlFolder,htmlFile));
-                                        fs.writeFile(path.join(htmlFolder,htmlFile),  tablePage.html(), function (err) {
-                                          if (err) throw err;
-                                          console.log('Table corrected on the fly: '+path.join(htmlFolder,htmlFile));
-                                        });
-                                      }
-
-
-
-
-
-                                  } catch (e){
-                                    // console.log(JSON.stringify(e)+" -- " + JSON.stringify(data))
-                                    resolve({htmlHeader: "",formattedPage : "", title: "" })
-                                    return;
-                                  }
-
-                                  var spaceRow = -1;
-                                  var htmlHeader = ""
-
-                                  var findHeader = (tablePage, tag) => {
-                                    var totalTextChars = 0
-
-                                    var headerNodes = [cheerio(tablePage(tag)[0]).remove()]
-                                    var htmlHeader = ""
-                                    for ( var h in headerNodes){
-                                        // cheerio(headerNodes[h]).css("font-size","20px");
-                                        var headText = cheerio(headerNodes[h]).text().trim()
-                                        var textLimit = 400
-                                        var actualText = (headText.length > textLimit ? headText.slice(0,textLimit-1) +" [...] " : headText)
-                                            totalTextChars += actualText.length
-
-                                        htmlHeader = htmlHeader + '<tr ><td style="font-size:20px; font-weight:bold; white-space: normal;">' + actualText + "</td></tr>"
-                                    }
-
-                                    return {htmlHeader, totalTextChars}
-                                  }
-
-                                  var possible_tags_for_title = [".headers",".caption",".captions",".article-table-caption"]
-
-                                  for (var t in possible_tags_for_title){
-
-                                    htmlHeader = findHeader(tablePage, possible_tags_for_title[t])
-                                    if ( htmlHeader.totalTextChars > 0){
-                                      break;
-                                    }
-
-                                  }
-
-                                  htmlHeader = "<table>"+htmlHeader.htmlHeader+"</table>"
-
-                                  var htmlHeaderText = cheerio(htmlHeader).find("td").text()
-
-                                  var actual_table = tablePage("table").parent().html();
-                                      actual_table = cheerio.load(actual_table);
-
-
-                                  // The following lines remove, line numbers present in some tables, as well as positions in headings derived from the excel sheets  if present.
-                                  var colum_with_numbers = actual_table("tr > td:nth-child(1), tr > td:nth-child(2), tr > th:nth-child(1), tr > th:nth-child(2)")
-
-                                  if ( colum_with_numbers.text().replace( /[0-9]/gi, "").replace(/\s+/g,"").toLowerCase() === "row/col" ){
-                                    colum_with_numbers.remove()
-                                  }
-
-                                  if ( actual_table("thead").text().trim().indexOf("1(A)") > -1 ){
-                                      actual_table("thead").remove();
-                                  }
-                                  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-                                  // Correction here for bold
-
-                                  actual_table = actual_table.html();
-
-                                  // var ss = "<style>"+data_ss+" td {width: auto;} tr:hover {background: aliceblue} td:hover {background: #82c1f8} col{width:100pt} </style>"
-                                  var styles = actual_table.indexOf('<style type="text/css">.indent0') > -1 ? "" : "<style>"+data_ss+"</style>"
-
-                                  var formattedPage = actual_table.indexOf("tr:hover" < 0) ? "<div>"+styles+actual_table+"</div>" : actual_table
-
-
-                                  var predicted = {};
-
-                                  if ( enablePrediction ){
-                                    console.log("predicting")
-                                    predicted = await attemptPrediction(actual_table);
-                                  }
-
-                                  resolve({status: "good", tableTitle: htmlHeader, tableBody: formattedPage, predictedAnnotation: predicted })
-                              });
-
-                });
-        } catch ( e ){
-          console.log(e)
-            reject({status:"bad"})
-        }
-      });
-
-      return result
-    } catch (e){
-      console.log(e)
-      return {status:"bad"}
+    if ( (!data) || (data.trim().length < 1)) {
+      return {status: 'failed', tableTitle: '', tableBody: '', predictedAnnotation: {} }
     }
+
+    const data_ss = await fs.readFile(path.join(global.cssFolder,"stylesheet.css"), {encoding: 'utf8'})
+    let tablePage;
+
+    try {
+      // data = data.replace(/[^\x20-\x7E]+/g, "")  This removes any non-printable characters
+      tablePage = cheerio.load(data.replace(/[^\x20-\x7E]+/g, ''));
+
+      if ( (!tablePage) || (data.trim().length < 1)) {
+        // resolve({htmlHeader: "",formattedPage : "", title: "" }) //Failed or empty
+        return {status: 'failed', tableTitle: '', tableBody: '', predictedAnnotation: {} }
+      }
+
+      let tableEdited = false;
+
+      if ( ! (tablePage('table').text().length > 0) ){ // Prevents infinite loop caused when no tables are present.
+        return {status: 'failed no table tag found ', tableTitle: '', tableBody: '', predictedAnnotation: {} }
+      }
+
+      // Remove all empty rows from the top.
+      while ( (tablePage('table').text().length > 0) && (tablePage('table tr:nth-child(1)').text().trim().length == 0 )) {
+        tablePage('table tr:nth-child(1)').remove()
+        tableEdited = true;
+      }
+
+      // "remove NCT column on the fly"
+      const firstColContent = tablePage('table tr td:nth-child(1)').text().trim()
+      if ( firstColContent.indexOf("NCT") == 0 ){
+          tablePage('table tr td:nth-child(1)').remove()
+          tablePage('table tr td:nth-child(1)').remove()
+          tableEdited = true;
+      }
+
+      if ( tablePage("strong").length > 0 || tablePage("b").length > 0 || tablePage("i").length > 0){
+        // fixing strong, b and i tags on the fly. using "bold" and "italic" classes is preferred
+        tablePage("strong").closest("td").addClass("bold")
+        tablePage("strong").map( (i,el) => { var content = cheerio(el).html(); var parent = cheerio(el).parent(); cheerio(el).remove(); parent.append( content ) } )
+
+        tablePage("b").closest("td").addClass("bold")
+        tablePage("b").map( (i,el) => { var content = cheerio(el).html(); var parent = cheerio(el).parent(); cheerio(el).remove(); parent.append( content ) } )
+
+        tablePage("i").closest("td").addClass("italic")
+        tablePage("i").map( (i,el) => { var content = cheerio(el).html(); var parent = cheerio(el).parent(); cheerio(el).remove(); parent.append( content ) } )
+
+        tableEdited = true
+        // fs.writeFile(htmlFolder+htmlFile,  tablePage.html(), function (err) {
+        //   if (err) throw err;
+        //   console.log('Substituted strong tags by "bold" class for: '+htmlFolder+htmlFile);
+        // });
+      }
+
+      if ( tableEdited ) {
+        console.log('Table corrected on the fly: '+path.join(htmlFolder,htmlFile));
+        fs.writeFile(path.join(htmlFolder,htmlFile),  tablePage.html())
+        .catch((err) => {
+          console.log('Error: Table corrected on the fly: '+path.join(htmlFolder,htmlFile) + ' ' + err);
+          if (err) throw err;
+        });
+      }
+    } catch (err) {
+      // console.log(JSON.stringify(e)+" -- " + JSON.stringify(data))
+      return { htmlHeader: '',formattedPage : '', title: '' }
+    }
+
+    // var spaceRow = -1;
+    var htmlHeader = ''
+
+    const findHeader = (tablePage, tag) => {
+      let totalTextChars = 0
+
+      const headerNodes = [cheerio(tablePage(tag)[0]).remove()]
+      let htmlHeader = ''
+      const textLimit = 400
+      for ( var h in headerNodes ) {
+        // cheerio(headerNodes[h]).css("font-size","20px");
+        const headText = cheerio(headerNodes[h]).text().trim()
+        const actualText = (headText.length > textLimit ? headText.slice(0,textLimit-1) +" [...] " : headText)
+        totalTextChars += actualText.length
+
+        htmlHeader = htmlHeader + '<tr ><td style="font-size:20px; font-weight:bold; white-space: normal;">' + actualText + "</td></tr>"
+      }
+      return {htmlHeader, totalTextChars}
+    }
+
+    const possible_tags_for_title = [".headers",".caption",".captions",".article-table-caption"]
+
+    for (let t in possible_tags_for_title){
+      htmlHeader = findHeader(tablePage, possible_tags_for_title[t])
+      if ( htmlHeader.totalTextChars > 0){
+        break;
+      }
+    }
+
+    htmlHeader = "<table>"+htmlHeader.htmlHeader+"</table>"
+
+    // var htmlHeaderText = cheerio(htmlHeader).find("td").text()
+
+    let actual_table = tablePage("table").parent().html();
+    actual_table = cheerio.load(actual_table);
+
+    // The following lines remove, line numbers present in some tables, as well as positions in headings derived from the excel sheets  if present.
+    let colum_with_numbers = actual_table("tr > td:nth-child(1), tr > td:nth-child(2), tr > th:nth-child(1), tr > th:nth-child(2)")
+
+    if ( colum_with_numbers.text().replace( /[0-9]/gi, "").replace(/\s+/g,"").toLowerCase() === "row/col" ){
+      colum_with_numbers.remove()
+    }
+
+    if ( actual_table("thead").text().trim().indexOf("1(A)") > -1 ){
+        actual_table("thead").remove();
+    }
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // Correction here for bold
+
+    actual_table = actual_table.html();
+
+    // var ss = "<style>"+data_ss+" td {width: auto;} tr:hover {background: aliceblue} td:hover {background: #82c1f8} col{width:100pt} </style>"
+    const styles = actual_table.indexOf('<style type="text/css">.indent0') > -1 ? "" : "<style>"+data_ss+"</style>"
+
+    const formattedPage = actual_table.indexOf("tr:hover" < 0) ? "<div>"+styles+actual_table+"</div>" : actual_table
+
+    let predicted = {};
+
+    if ( enablePrediction ){
+      console.log("predicting")
+      predicted = await attemptPrediction(actual_table);
+    }
+
+    return {
+      status: "good",
+      tableTitle: htmlHeader,
+      tableBody: formattedPage,
+      predictedAnnotation: predicted
+    }
+  } catch ( err ) {
+    console.log(err)
+    reject({status:"bad"})
+  }
 }
 
 const attemptPrediction = async (actual_table) => {
