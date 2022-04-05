@@ -1387,56 +1387,66 @@ app.post(CONFIG.api_base_url+'/notes', async (req, res) => {
   res.json({status:'Successful', payload: null})
 })
 
-app.post(CONFIG.api_base_url+'/text', async function (req, res) {
-    // Path to tables
-    const {
+app.post(CONFIG.api_base_url+'/text', async (req, res) => {
+  // Path to tables
+  const {
     tables_folder,
     tables_folder_override,
   } = global.CONFIG
 
   if ( req.body && ( ! req.body.action ) ){
-    res.json({status: "undefined", received : req.query})
+    res.json({status: 'undefined', received : req.query})
     return
   }
+  const {
+    username=undefined,
+    hash=undefined,
 
-  var validate_user = validateUser(req.body.username, req.body.hash);
+    payload,
+    docid,
+    page,
+    collId,
+  } = req.body
 
-  if ( validate_user ){
-
-    var result;
-
-    var folder_exists = await fs.existsSync( path.join(tables_folder_override, req.body.collId ) )
-
-    if ( !folder_exists ){
-        fs.mkdirSync( path.join(tables_folder_override, req.body.collId), { recursive: true })
-    }
-
-    var titleText = '<div class="headers"><div style="font-size:20px; font-weight:bold; white-space: normal;">'+cheerio(JSON.parse(req.body.payload).tableTitle).text()+'</div></div>'
-
-    var bodyText = JSON.parse(req.body.payload).tableBody
-
-    var start_body_index = bodyText.indexOf("<table")
-    var last_body_index = bodyText.lastIndexOf("</table>");
-
-    var body;
-    if ( (start_body_index > -1) && (last_body_index > -1) ){
-      body = bodyText.substring(start_body_index, last_body_index)+"</table>";
-    } else {
-      body = bodyText
-    }
-
-    var completeFile = '<html><body>'+titleText+body+'</body></html>'
-
-    fs.writeFile( path.join(tables_folder_override, req.body.collId, (req.body.docid+"_"+req.body.page+'.html') ),  completeFile, function (err) {
-      if (err) throw err;
-
-      console.log('Written replacement for: '+ req.body.collId+ " // " +req.body.docid+"_"+req.body.page+'.html');
-      res.json({status: "success", data: 'Written replacement for: '+ req.body.collId+ " // " +req.body.docid+"_"+req.body.page+'.html' })
-    });
-
-  } else {
-    res.json({status:"unauthorised", payload: null})
+  const validate_user = validateUser(username, hash);
+  if ( !validate_user ) {
+    res.json({status: 'unauthorised', payload: null})
   }
+
+  const folder_exists = await fs.stat( path.join(tables_folder_override, collId ))
+    .then(() => true, () => false)
+
+  if ( !folder_exists ) {
+    await fs.mkdir( path.join(tables_folder_override, collId), { recursive: true })
+  }
+
+  const titleText = '<div class="headers"><div style="font-size:20px; font-weight:bold; white-space: normal;">'+
+    cheerio(JSON.parse(payload).tableTitle).text()+'</div></div>'
+
+  const bodyText = JSON.parse(payload).tableBody
+  const start_body_index = bodyText.indexOf("<table")
+  const last_body_index = bodyText.lastIndexOf("</table>");
+  let body;
+
+  if ( (start_body_index > -1) && (last_body_index > -1) ){
+    body = bodyText.substring(start_body_index, last_body_index)+"</table>";
+  } else {
+    body = bodyText
+  }
+
+  const completeFile = '<html><body>'+titleText+body+'</body></html>'
+
+  try {
+    await fs.writeFile( path.join(tables_folder_override, collId, (docid+'_'+page+'.html') ), completeFile )
+    const textResponse = `Written replacement for: ${collId} // ${docid}_${page}.html`
+    console.log(textResponse);
+    res.json({
+      status: 'success',
+      data: textResponse,
+    })
+  } catch(err) {
+    throw err;
+  };
 })
 
 app.get(CONFIG.api_base_url+'/removeOverrideTable', async function(req,res){
