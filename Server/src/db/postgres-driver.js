@@ -173,14 +173,24 @@ WHERE
       return {}
     },
 
-    collectionsList: () => query(
-      `SELECT collection.collection_id, title, description, owner_username, table_n
-      FROM public.collection
-      LEFT JOIN
-      ( SELECT collection_id, count(docid) as table_n FROM
-      ( select distinct docid, page, collection_id from public.table ) as interm
-      group by collection_id ) as coll_counts
-      ON collection.collection_id = coll_counts.collection_id ORDER BY collection_id`
+    collectionsList: async () => {
+      const result = query(
+        `SELECT collection.collection_id, title, description, owner_username, table_n
+        FROM public.collection
+        LEFT JOIN
+        ( SELECT collection_id, count(docid) as table_n FROM
+        ( select distinct docid, page, collection_id from public.table ) as interm
+        group by collection_id ) as coll_counts
+        ON collection.collection_id = coll_counts.collection_id ORDER BY collection_id`
+      )
+      return result.rows
+    },
+
+    cuiInsert: async (cui, preferred, hasMSH) => query(
+      `INSERT INTO cuis_index(cui,preferred,"hasMSH",user_defined,admin_approved)
+      VALUES ($1, $2, $3, $4, $5) ON CONFLICT (cui) DO UPDATE 
+      SET preferred = $2, "hasMSH" = $3, user_defined = $4, admin_approved = $5`,
+      [cui,preferred,hasMSH,true,false]
     ),
 
     cuiDataModify: async (cui, preferred, adminApproved, prevcui) => {
