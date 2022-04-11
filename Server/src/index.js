@@ -15,7 +15,9 @@ const axios = require('axios');
 
 const { Pool, Client, Query } = require('pg')
 // DB driver
-const dbDriver = require('./db/postgres-driver')({...GENERAL_CONFIG.db})
+const pgDriver = require('./db/postgres-driver')({...GENERAL_CONFIG.db})
+const dbDriver = require('./db/sniffer-driver')
+dbDriver.addDriver(pgDriver)
 
 const csv = require('csv-parser');
 const CsvReadableStream = require('csv-reader');
@@ -39,6 +41,9 @@ global.msh_categories = {catIndex: {}, allcats: [], pmids_w_cat: []}
 global.PRED_METHOD = "grouped_predictor"
 
 global.umls_data_buffer = {};
+
+// :-)
+global.pool = pgDriver.pool
 
 // TTidier subsystems load.
 console.log("Loading Files Management")
@@ -66,21 +71,7 @@ console.log("Loading Extra Functions")
 import ef from "./extra_functions.js"
 
 console.log("Loading Search Module")
-var easysearch = require('@sephir/easy-search')
-
-console.log("Configuring DB client: Postgres")
-// Postgres configuration.
-global.pool = new Pool({
-    user: CONFIG.db.user,
-    password: CONFIG.db.password,
-    host: CONFIG.db.host,
-    port: CONFIG.db.port,
-    database: CONFIG.db.database,
-})
-
-//Network functions
-import { getAnnotationResults } from "./network_functions.js"
-
+const easysearch = require('@sephir/easy-search')
 
 console.log("Configuring Server")
 var app = express();
@@ -581,7 +572,10 @@ app.post(CONFIG.api_base_url+'/metadata', async function(req,res){
 
   let tid = req.body.tid
 
-  if ( tid == "undefined" ) {
+  if (
+    tid === 'undefined' ||
+    tid === 'null'
+  ) {
     tid = await dbDriver.tidGet(
       docid,
       page,
