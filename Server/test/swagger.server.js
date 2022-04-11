@@ -20,4 +20,4 @@ app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocs));
 
 // app.use('/', books)
 
-app.listen(PORT, () => console.log(`listening on: http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`listening on: http://localhost:${PORT}/api-docs`));
