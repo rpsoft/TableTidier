@@ -5,7 +5,7 @@ const {
 
 function driver(config) {
   // :-) Check config has valid fields
-
+  console.log("Configuring DB client: Postgres")
   const pool = new Pool({
     user: config.user,
     password: config.password,
@@ -14,7 +14,7 @@ function driver(config) {
     database: config.database,
   })
 
-  // Generic 
+   // Generic 
   const query = async (queryText, values) => {
     try {
       const client = await pool.connect()
@@ -27,6 +27,9 @@ function driver(config) {
   }
 
   return {
+    // Return db handler
+    pool: pool,
+
     // Returns the annotation for a single document/table
     annotationByIDGet: (docid, page, collId) => {
       if ( docid == "undefined" || page == "undefined" || collId == "undefined" ) {
@@ -411,7 +414,7 @@ WHERE
         [docid, page, collId]
       )
       if ( tid.rows && tid.rows.length > 0 ){
-        tid = result.rows[0].tid
+        tid = tid.rows[0].tid
       }
       return tid
     },
