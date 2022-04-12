@@ -24,6 +24,7 @@ const CsvReadableStream = require('csv-reader');
 
 // Import routes
 import usersRoutes from './routes/users'
+usersRoutes.addDriver(dbDriver)
 
 // I want to access cheerio from everywhere.
 global.cheerio = require('cheerio');
@@ -49,7 +50,12 @@ global.pool = pgDriver.pool
 console.log("Loading Files Management")
 
 console.log("Loading Security")
-import passport, {initialiseUsers, createUser, getUserHash}  from "./security.js"
+import 
+  passport,
+  {
+    getUserHash
+  }
+from "./security.js"
 
 console.log("Loading Table Libs")
 import {
@@ -94,7 +100,7 @@ app.use(passport.initialize());
 // Add routes:
 //  /login
 //  /createUser
-app.use(usersRoutes);
+app.use('/api/', usersRoutes);
 
 
 // const storage = multer.memoryStorage();
@@ -363,7 +369,10 @@ async function main(){
 
   // await refreshDocuments()
 
-  await initialiseUsers()
+
+  // Load Users
+  const users = await dbDriver.usersGet()
+  global.records = users
 
   // var annotation = await dbDriver.annotationByIDGet("11442551", 1, 1);
   // // var tableData = await readyTable("11442551", 1, 1, false)

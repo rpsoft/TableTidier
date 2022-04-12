@@ -418,7 +418,42 @@ WHERE
       }
       return tid
     },
+
+    userCreate: async (userData) => {
+      const {
+        username,
+        password,
+        displayName,
+        email,
+      } = userData
+      
+      if (
+        username == "undefined" ||
+        password == "undefined" ||
+        email == "undefined" 
+      ) {
+        return {code: 'invalid_parameters', error: 'invalid user data'}
+      }
+
+      let result = await query(
+        'INSERT INTO public.users( username, password, "displayName", email, registered, role) VALUES ($1, $2, $3, $4, $5, $6)',
+        [
+          username,
+          password,
+          displayName,
+          email,
+          Date.now(),
+          "standard"
+        ]
+      );
+
+      return 'done'
+    },
     
+    usersGet: async () => {
+      const result = await query('SELECT id, username, password, "displayName", email, registered, role FROM public.users')
+      return result.rows
+    },
   }
 }
 

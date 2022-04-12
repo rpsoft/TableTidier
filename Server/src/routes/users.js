@@ -3,7 +3,15 @@
 const express = require('express');
 const router = express.Router()
 
-import passport, {initialiseUsers, createUser, getUserHash}  from "../security.js"
+import 
+  passport,
+  {
+    getUserHash,
+  }
+from "../security.js"
+
+let dbDriver
+router.addDriver = (driver) => dbDriver = driver
 
 // CONFIG.api_base_url+'/login'
 router.route('/login')
@@ -109,9 +117,15 @@ router.route('/createUser')
  *         description: Failed
  */
 .post(async (req, res) => {
-  var result;
+  let result;
   try{
-    result = await createUser(req.body)
+    // :-)
+    // check (req.body)
+    result = await dbDriver.userCreate(req.body)
+
+    // :-) remove when use JWT
+    const users = await dbDriver.usersGet()
+    global.records = users
     res.status(200).json({status:'success', payload: result })
   } catch (err) {
     res.status(500).json({status:'failed', payload: err })
