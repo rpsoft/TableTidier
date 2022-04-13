@@ -40,7 +40,7 @@
     "babel-template": "^6.26.0",
     "babel-traverse": "^6.26.0",
     "browser-sync": "^2.26.14",
-    "cssnano": "^4.1.10",
+    "cssnano": "^5.1.7",
     "debug": "^4.3.4",
     "del": "^6.0.0",
     "gulp": "^4.0.2",
@@ -81,8 +81,6 @@
     "just-clone": "^3.2.1",
     "morgan": "^1.10.0",
     "multer": "^1.4.2",
-    "ndb": "^1.1.5",
-    "npm": "^7.7.6",
     "parse-domain": "~3.0.3",
     "passport": "^0.4.1",
     "passport-custom": "^1.1.1",
@@ -90,7 +88,6 @@
     "passport-localapikey": "0.0.3",
     "pg": "^8.5.1",
     "python-bridge": "^1.1.0",
-    "r-script": "0.0.4",
     "util": "^0.12.3",
     "workerpool": "^6.2.0"
   }
