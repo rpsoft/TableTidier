@@ -1,5 +1,7 @@
 // Load config
-const GENERAL_CONFIG = require('./config.json')
+import 'dotenv/config'
+const CONFIG_PATH = process.env.CONFIG_PATH || null
+const GENERAL_CONFIG = require(CONFIG_PATH ? CONFIG_PATH+'/config.json' : './config.json')
 
 const fs = require('fs/promises');
 const path = require('path');

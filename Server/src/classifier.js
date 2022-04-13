@@ -7,7 +7,8 @@ let python = pythonBridge({
     python: 'python3'
 });
 
-const CONFIG = require('./config.json')
+const CONFIG_PATH = process.env.CONFIG_PATH || null
+const CONFIG = require(CONFIG_PATH ? CONFIG_PATH+'/config.json' : './config.json')
 
 var classifierFile = CONFIG.system_path+"Classifier/trained/umls_full.model"
 

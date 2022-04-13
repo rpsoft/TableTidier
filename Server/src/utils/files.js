@@ -1,7 +1,9 @@
 const fs = require('fs/promises');
 const path = require('path');
 
-const GENERAL_CONFIG = require('../config.json')
+const CONFIG_PATH = process.env.CONFIG_PATH || null
+const GENERAL_CONFIG = require(CONFIG_PATH ? CONFIG_PATH+'/config.json' : './config.json')
+
 const {
   tables_folder,
   // tables_folder_override,

@@ -1,7 +1,8 @@
 const fs = require('fs/promises');
 const path = require('path');
 // Import path from config.json
-const GENERAL_CONFIG = require('./config.json')
+const CONFIG_PATH = process.env.CONFIG_PATH || null
+const GENERAL_CONFIG = require(CONFIG_PATH ? CONFIG_PATH+'/config.json' : './config.json')
 
 let dbDriver = null
 
