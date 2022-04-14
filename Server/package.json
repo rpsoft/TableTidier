@@ -39,7 +39,7 @@
     "babel-runtime": "^6.26.0",
     "babel-template": "^6.26.0",
     "babel-traverse": "^6.26.0",
-    "browser-sync": "^2.26.14",
+    "browser-sync": "^2.27.9",
     "cssnano": "^5.1.7",
     "debug": "^4.3.4",
     "del": "^6.0.0",
@@ -49,7 +49,7 @@
     "nodemon": "^2.0.15",
     "swagger-jsdoc": "github:Surnet/swagger-jsdoc",
     "swagger-ui-express": "^4.3.0",
-    "webpack": "^5.28.0",
+    "webpack": "^5.72.0",
     "webpack-stream": "^6.1.2"
   },
   "dependencies": {
@@ -88,6 +88,7 @@
     "passport-localapikey": "0.0.3",
     "pg": "^8.5.1",
     "python-bridge": "^1.1.0",
+    "sqlite3": "^5.0.3",
     "util": "^0.12.3",
     "workerpool": "^6.2.0"
   }
