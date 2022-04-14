@@ -75,7 +75,7 @@
     "gulp-concat": "^2.6.1",
     "gulp-less": "^4.0.1",
     "gulp-sourcemaps": "^3.0.0",
-    "gulp-watch": "^4.3.11",
+    "gulp-watch": "^5.0.1",
     "html": "~1.0.0",
     "js-base64": "^3.6.0",
     "just-clone": "^3.2.1",
