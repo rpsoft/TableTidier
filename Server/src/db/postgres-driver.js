@@ -1,4 +1,5 @@
 const { Pool, Client, Query } = require('pg')
+const path = require('path');
 const {
   moveFileToCollection,
 } = require('../utils/files')
@@ -29,6 +30,8 @@ function driver(config) {
   return {
     // Return db handler
     pool: pool,
+    db: pool,
+    close: () => pool.end(),
 
     // Returns the annotation for a single document/table
     annotationByIDGet: (docid, page, collId) => {
@@ -106,60 +109,69 @@ WHERE
     },
 
     collectionCreate: async (title, description, owner) => {
-      await query(
+      const result = await query(
         `INSERT INTO public.collection(
         title, description, owner_username, visibility, completion)
-        VALUES ($1, $2, $3, $4, $5);`, 
-        [title, description, owner, "public", "in progress"]
+        VALUES ($1, $2, $3, $4, $5)
+        returning *;`, 
+        [title, description, owner, 'public', 'in progress']
       )
-      const result = await query(
-        `Select * from collection
-        ORDER BY collection_id DESC LIMIT 1;`
-      )
-      return result
+      // const result = await query(
+      //   `Select * from collection
+      //   ORDER BY collection_id DESC LIMIT 1;`
+      // )
+      return result.rows[0]
     },
 
     collectionDelete: async function (collection_id) {
-      let tables = await query(
-        `SELECT docid, page FROM public."table" WHERE collection_id = $1`,[collection_id]
-      )
-    
-      tables = tables.rows
-      await this.tablesRemove(tables, collection_id, true);
-    
-      await query(
-        `DELETE FROM collection WHERE collection_id = $1`, [collection_id]
-      )
+      try {
+        let tables = await query(
+          `SELECT docid, page FROM public."table" WHERE collection_id = $1`,[collection_id]
+        )
+        tables = tables.rows
+        await this.tablesRemove(tables, collection_id, true);
+        await query(
+          `DELETE FROM collection WHERE collection_id = $1`, [collection_id]
+        )
+      } catch (err) {
+        return err
+      }
       return 'done'
     },
 
     collectionEdit: async (collData) => {
-      const {
-        collection_id,
-        title,
-        description,
-        owner_username,
-        completion,
-        visibility,
-      } = collData
-      const result = await query(
-        `UPDATE public.collection
-        SET title=$2, description=$3, owner_username=$4, completion=$5, visibility=$6
-        WHERE collection_id=$1`,
-        [
-          collection_id,
-          title,
-          description,
-          owner_username,
-          completion,
-          visibility
-        ]
-      )
-      return result
+      if (collData?.collection_id == undefined) return 'warning, collection_id not found'
+      if (Object.keys(collData).length == 1) return 'warning, more parameters needed' 
+      // Generate query in function of parameters.
+      const collDataFormated = [collData.collection_id]
+      // collection_id is parameter 1, so start by 2
+      let counterParams = 2
+      let _query = `UPDATE public.collection
+      SET `
+      const footer = ` WHERE collection_id=$1 returning *;`
+      for (const item in collData) {
+        if (item == 'collection_id') continue
+        collDataFormated.push(collData[item])
+        _query += `${item}=$${counterParams}, `
+        counterParams++
+      }
+      _query = _query.slice(0, -2).concat(footer)
+      console.log(_query)
+      console.log(collDataFormated)
+      try {
+        const result = await query(
+          _query,
+          collDataFormated
+        )
+        console.log(result)
+        return result.rows[0]
+      } catch (err) {
+        return err
+      }
     },
 
     collectionGet: async (collection_id) => { 
-      let result = await query(
+      const result = await query(
         `SELECT *
         FROM public.collection WHERE collection_id = $1`, [collection_id])
   
@@ -171,10 +183,11 @@ WHERE
         `SELECT * FROM public.collection ORDER BY collection_id`);
   
       if ( result.rows.length == 1){
-          result = result.rows[0]
-          result.tables = tables.rows;
-          result.collectionsList = collectionsList.rows;
-          return result
+          return {
+            ...result.rows[0],
+            tables: tables.rows,
+            collectionsList: collectionsList.rows,
+          }
       }
       return {}
     },
@@ -318,18 +331,41 @@ WHERE
 
     resultsDataGet: (tids) => query(`SELECT * FROM "result" WHERE tid = ANY ($1)`, [tids]),
 
-    tableCreate: async (docid, page, user, collection_id, file_path) => query(
-      `INSERT INTO public."table"(
-	       docid, page, "user", notes, collection_id, file_path, "tableType")
-	     VALUES ($1, $2, $3, $4, $5, $6, $7);`,
-      [docid, page, user, '', collection_id, file_path, '']
-    ),
+    tableCreate: async (docid, page, user, collection_id, file_path) => {
+      // not valid parameters?
+      if (!!(docid && page && user && collection_id && file_path) == false) {
+        return `parameters no valid`
+      }
+      try {
+        await query(
+        `INSERT INTO public."table"(
+          docid, page, "user", notes, collection_id, file_path, "tableType")
+        VALUES ($1, $2, $3, $4, $5, $6, $7);`,
+        [docid, page, user, '', collection_id, file_path, '']
+        )
+      } catch (err) {
+        return err
+      }
+      return 'done'
+    },
 
     tablesMove: async (tables, collection_id, target_collection_id) => {
-      const tablesDocidPage = tables.map( (tab) => {
-        const [docid, page] = tab.split("_");
-        return {docid, page}
-      })
+      if (Array.isArray(tables) == false) return 'tables not valid, array expected'
+      if (tables.length == 0) return 'tables empty'
+
+      let tablesDocidPage
+      try {
+        tablesDocidPage = tables.map( (tab, index) => {
+          const [docid, page] = tab.split("_");
+          // if invalid docid or page throw err
+          if (!docid || !page) {
+            throw `Param docid=${docid} or page=${page} not valid at index ${index}`
+          }
+          return {docid, page}
+        })
+      } catch(err) {
+        return err
+      }
 
       for ( let table of tablesDocidPage) {
         const {
@@ -344,15 +380,19 @@ WHERE
   
         const filename = `${docid}_${page}.html`;
         try{
-          moveFileToCollection(
+          await moveFileToCollection(
             {
               originalname: filename,
-              path: path.join(global.tables_folder, collection_id, filename)
+              path: path.join(
+                collection_id.toString(),
+                filename
+              )
             },
             target_collection_id
           )
         } catch (err){
-          console.log(`MOVE FILE DIDN't EXIST: `+JSON.stringify(err))
+          const errorText = `MOVE FAil: ` + err + JSON.stringify(err)
+          return errorText
         }
       }
   
@@ -360,12 +400,23 @@ WHERE
     },
 
     tablesRemove: async (tables, collection_id, fromSelect = false) => {
-      let tablesDocidPage = table
-      if (!fromSelect){
-        tablesDocidPage = tables.map( (tab) => {
-          const [docid, page] = tab.split("_");
-          return {docid, page}
-        })
+      if (Array.isArray(tables) == false) return 'tables not valid, array expected'
+      if (tables.length == 0) return 'tables empty'
+
+      let tablesDocidPage
+      try {
+        if (!fromSelect) {
+          tablesDocidPage = tables.map( (tab, index) => {
+            const [docid, page] = tab.split("_");
+            // if invalid docid or page throw err
+            if (!docid || !page) {
+              throw `Param docid=${docid} or page=${page} not valid at index ${index}`
+            }
+            return {docid, page}
+          })
+        }
+      } catch(err) {
+        return err
       }
   
       for ( let table of tablesDocidPage) {
@@ -380,17 +431,20 @@ WHERE
         )
   
         const filename = `${docid}_${page}.html`;
-
         try{
-          moveFileToCollection(
+          await moveFileToCollection(
             {
               originalname: filename,
-              path: path.join(collection_id, filename) 
+              path: path.join(
+                collection_id.toString(),
+                filename
+              ) 
             },
             'deleted' 
           )
         } catch (err){
-          console.log(`REMOVE FILE DIDN't EXIST: `+JSON.stringify(err))
+          const errorText = `REMOVE FAil: ` + err + JSON.stringify(err)
+          return errorText
         }
       }
       return 'done'
@@ -413,10 +467,10 @@ WHERE
         `SELECT tid FROM public."table" WHERE docid = $1 AND page = $2 AND collection_id = $3`,
         [docid, page, collId]
       )
-      if ( tid.rows && tid.rows.length > 0 ){
-        tid = tid.rows[0].tid
+      if ( tid.rows && tid.rows.length == 0 ){
+        return 'not found'
       }
-      return tid
+      return tid.rows[0].tid
     },
 
     userCreate: async (userData) => {
@@ -449,10 +503,29 @@ WHERE
 
       return 'done'
     },
+
+    userDelete: async (email) => {
+      const user = await query(`
+      DELETE FROM public.users
+	    WHERE email=$1`, [email])
+      return 'done'
+    },
     
+    userGet: async (email) => {
+      const user = await query(`
+      SELECT
+        id, username, password, "displayName", email, registered, role
+      FROM users
+      WHERE email = $1`, [email])
+      return user.rows[0]
+    },
+
     usersGet: async () => {
-      const result = await query('SELECT id, username, password, "displayName", email, registered, role FROM public.users')
-      return result.rows
+      const users = await query('SELECT id, username, password, "displayName", email, registered, role FROM public.users')
+      // convert registered from string to number
+      // bigint (64 bits) returned as string by pg module
+      users.rows.forEach(row => row.registered = parseInt(row.registered))
+      return users.rows
     },
   }
 }
