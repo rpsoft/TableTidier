@@ -59,6 +59,11 @@ nano config.json
 cd ..
 ```
 
+Add a .env file with path to 'config.json' <br>
+Example:
+```
+CONFIG_PATH=/home/rp/recreo/TableTidier/Server
+```
 
 ## Run
 
@@ -66,7 +71,23 @@ To start the development version of the project:
 
 ```bash
 cd Server
+
+# Run gulp script to compile server in build folder
+npm run gulpWatch
+
+# add database.json
+database.json
+
 # Open Byobu development session
 ./startWork
 
 ```
+
+
+## db-migrate
+
+Database migration framework for node.js
+
+
+
+[configuration](https://db-migrate.readthedocs.io/en/latest/Getting%20Started/configuration/)
