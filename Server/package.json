@@ -6,8 +6,21 @@
   "scripts": {
     "gulpWatch": "./node_modules/gulp/bin/gulp.js watch",
     "openapi": "./node_modules/nodemon/bin/nodemon.js ./test/swagger.server.js",
+    "db:create:pg": "db-migrate db:create ihw_annotator_test -e postgres",
+    "db:up:pg": "db-migrate up:postgres users -e postgres",
+    "db:down:pg": "db-migrate down:postgres -e postgres",
+    "db:reset:pg": "db-migrate reset:postgres -e postgres",
+    "db:create:sqlite": "touch dev.db",
+    "db:up:sqlite": "db-migrate up:sqlite users -e sqlite",
+    "db:down:sqlite": "db-migrate down:sqlite -e sqlite",
+    "db:reset:sqlite": "db-migrate reset:sqlite -e sqlite",
     "test": "mocha testing/tabuliser_testing.js",
-    "test_brk": "mocha --inspect-brk testing/tabuliser_testing.js"
+    "test_brk": "mocha --inspect-brk testing/tabuliser_testing.js",
+    "test:pg": "DB_DRIVER_TYPE=postgres jest",
+    "test:sqlite": "DB_DRIVER_TYPE=sqlite jest",
+    "test:watch": "jest --watch",
+    "test:watch:pg": "DB_DRIVER_TYPE=postgres CONFIG_PATH=${PWD}/test/database jest --watch",
+    "test:watch:sqlite": "DB_DRIVER_TYPE=sqlite CONFIG_PATH=${PWD}/test/database jest --watch"
   },
   "repository": {
     "type": "git",
@@ -64,6 +77,8 @@
     "csv-parser": "^3.0.0",
     "csv-reader": "^1.0.7",
     "csv-writer": "^1.6.0",
+    "db-migrate": "^1.0.0-beta.18",
+    "db-migrate-pg": "^1.2.2",
     "db-migrate-sqlite3": "^0.4.0",
     "dotenv": "^16.0.0",
     "double-ended-queue": "^2.1.0-0",
