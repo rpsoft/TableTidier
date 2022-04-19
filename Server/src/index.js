@@ -1,7 +1,7 @@
 // Load config
 import 'dotenv/config'
-const CONFIG_PATH = process.env.CONFIG_PATH || null
-const GENERAL_CONFIG = require(CONFIG_PATH ? CONFIG_PATH+'/config.json' : './config.json')
+const CONFIG_PATH = process.env.CONFIG_PATH || process.cwd()
+const GENERAL_CONFIG = require(CONFIG_PATH + '/config.json')
 
 const fs = require('fs/promises');
 const path = require('path');
@@ -725,7 +725,6 @@ app.post(CONFIG.api_base_url+'/collections', async (req, res) => {
   );
 
   const collectionPermissions = await dbDriver.permissionsResourceGet('collections', validate_user ? username : '')
-
   let response = {status: "failed"}
 
   var result;
