@@ -61,12 +61,12 @@ function driver(config) {
     close: () => db.close(),
 
     // Returns the annotation for a single document/table
-    annotationByIDGet: (docid, page, collId) => {
+    annotationByIDGet: async (docid, page, collId) => {
       if ( docid == "undefined" || page == "undefined" || collId == "undefined" ) {
-        return {rows:[]}
+        return `parameters not valid`
       }
 
-      return query(
+      const annotations = await queryGet(
       `SELECT 
         docid,
         "user",
@@ -86,25 +86,39 @@ function driver(config) {
       WHERE
       docid=$1 AND page=$2 AND collection_id = $3`,
         [docid, page, collId]
-      ) 
+      )
+      if (annotations == undefined) {
+        return null
+      }
+      annotations.annotation = JSON.parse(annotations.annotation)
+      return annotations
     },
 
-    annotationDataGet: (tids) => query(
-    // * :-)  Sqlite version transform "annotations".annotation from text to json
-    `SELECT 
-  docid,
-  page,
-  collection_id,
-  file_path,
-  "table".tid,
-  "annotations".annotation
-FROM 
-  "table",
-  "annotations"
-WHERE
-  "table".tid = "annotations".tid AND "table".tid = ANY ($1)`,
-      [tids]
-    ),
+    annotationDataGet: async (tids) => {
+      if (Array.isArray(tids) == false) return 'tids not valid, array expected'
+      const annotations = await queryAll(
+        `SELECT 
+          docid,
+          page,
+          collection_id,
+          file_path,
+          "table".tid,
+          "annotations".annotation
+        FROM 
+          "table",
+          "annotations"
+        WHERE
+          "table".tid = "annotations".tid AND "table".tid IN (${tids})`
+      )
+      if (
+        annotations == undefined ||
+        annotations.length == 0
+      ) {
+        return []
+      }
+      annotations.forEach(row => row.annotation = JSON.parse(row.annotation))
+      return annotations
+    },
 
     annotationInsert: (tid, annotation) => query(
       'INSERT INTO annotations VALUES($2,$1) ON CONFLICT (tid) DO UPDATE SET annotation = $2;',
@@ -112,8 +126,10 @@ WHERE
     ),
 
     annotationResultsGet: async () => {
-      const result = await query(
-        `SELECT * FROM "table", annotations where "table".tid = annotations.tid order by docid desc,page asc`
+      const result = await queryAll(
+        `SELECT * FROM "table", annotations 
+        WHERE "table".tid = annotations.tid
+        ORDER BY docid desc, page ASC`
       )
       // var filtered_rows = []
       //
@@ -355,7 +371,7 @@ WHERE
     tableCreate: async (docid, page, user, collection_id, file_path) => {
       // not valid parameters?
       if (!!(docid && page && user && collection_id && file_path) == false) {
-        return `parameters no valid`
+        return `parameters not valid`
       }
       try {
         await queryRun(
