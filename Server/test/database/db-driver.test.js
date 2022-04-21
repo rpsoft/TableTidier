@@ -111,7 +111,7 @@ describe('dbDriver', () => {
       const page = 1
       const collId = 1
       const result = await dbDriver.tableCreate(docid, page, collId);
-      expect(result).toEqual('parameters no valid');
+      expect(result).toEqual('parameters not valid');
     });
     test('Create table', async () => {
       const docid = docidValid
@@ -242,6 +242,54 @@ describe('dbDriver', () => {
       const collectionsList = await dbDriver.collectionsList();
       const result = await dbDriver.collectionDelete(collectionsList.at(-1).collection_id);
       expect(result).toEqual('done');
+    });
+  });
+  describe('Annotations', () => {
+    // "annotationInsert": [Function annotationInsert], "annotationResultsGet"
+
+    // annotationByIDGet
+    test('annotationByIDGet table not valid', async () => {
+      const docid = '3333333'
+      const page = 2
+      const collId = 1
+      const annotations = await dbDriver.annotationByIDGet(docid, page, collId);
+      expect(annotations).toEqual(null);
+    });
+    test('annotationByIDGet table page without anotations ', async () => {
+      const docid = '28905478'
+      const page = 2
+      const collId = 1
+      const annotations = await dbDriver.annotationByIDGet(docid, page, collId);
+      expect(typeof annotations).toEqual('object');
+      expect(annotations.annotation).toEqual(null);
+    });
+    test('annotationByIDGet', async () => {
+      const docid = '28905478'
+      const page = 1
+      const collId = 1
+      const annotations = await dbDriver.annotationByIDGet(docid, page, collId);
+      expect(annotations.annotation.annotations.length).toEqual(5);
+    });
+    // annotationDataGet
+    test('annotationDataGet table not valid', async () => {
+      const tids = null
+      const annotations = await dbDriver.annotationDataGet(tids);
+      expect(annotations).toEqual('tids not valid, array expected');
+    });
+    test('annotationDataGet table not valid', async () => {
+      const tids = []
+      const annotations = await dbDriver.annotationDataGet(tids);
+      expect(annotations).toEqual([]);
+    });
+    test('annotationDataGet', async () => {
+      const tids = [1, 2]
+      const annotations = await dbDriver.annotationDataGet(tids);
+      expect(annotations.length).toEqual(1);
+    });
+    test('annotationResultsGet', async () => {
+      const tids = [1, 2]
+      const annotations = await dbDriver.annotationResultsGet(tids);
+      expect(annotations.length).toEqual(1);
     });
   });
 });
