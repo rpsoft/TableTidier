@@ -245,8 +245,6 @@ describe('dbDriver', () => {
     });
   });
   describe('Annotations', () => {
-    // "annotationInsert": [Function annotationInsert], "annotationResultsGet"
-
     // annotationByIDGet
     test('annotationByIDGet table not valid', async () => {
       const docid = '3333333'
@@ -286,10 +284,40 @@ describe('dbDriver', () => {
       const annotations = await dbDriver.annotationDataGet(tids);
       expect(annotations.length).toEqual(1);
     });
+    // annotationResultsGet
     test('annotationResultsGet', async () => {
-      const tids = [1, 2]
-      const annotations = await dbDriver.annotationResultsGet(tids);
+      const annotations = await dbDriver.annotationResultsGet();
       expect(annotations.length).toEqual(1);
+    });
+    // annotationInsert
+    test('annotationInsert fail tid = array', async () => {
+      const tid = [1, 2]
+      const annotations = await dbDriver.annotationInsert(tid);
+      expect(annotations).toEqual('tid not valid, enter integer Number or String');
+    });
+    test('annotationInsert fail tid = array', async () => {
+      const tid = 1
+      let annotationsTableTest = await dbDriver.annotationDataGet([tid]);
+
+      annotationsTableTest[0].annotation.annotations.push(
+        {
+          content: { characteristic_level: true },
+          location: 'Col',
+          number: '2',
+          qualifiers: { indented: true }
+        },
+      )
+      // Add annotation
+      const annotations = await dbDriver.annotationInsert(tid, annotationsTableTest[0].annotation);
+      expect(annotations).toEqual(undefined);
+      annotationsTableTest = await dbDriver.annotationDataGet([tid]);
+      console.log(JSON.stringify(annotationsTableTest, null,' '))
+      expect(annotationsTableTest[0].annotation.annotations.length).toEqual(6);
+      // Remove added annotation
+      annotationsTableTest[0].annotation.annotations.pop()
+      await dbDriver.annotationInsert(tid, annotationsTableTest[0].annotation);
+      annotationsTableTest = await dbDriver.annotationDataGet([tid]);
+      expect(annotationsTableTest[0].annotation.annotations.length).toEqual(5);
     });
   });
 });

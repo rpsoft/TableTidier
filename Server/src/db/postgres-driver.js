@@ -1,4 +1,8 @@
-const { Pool, Client, Query } = require('pg')
+const {
+  Pool,
+  // Client,
+  Query
+} = require('pg')
 const path = require('path');
 const {
   moveFileToCollection,
@@ -17,14 +21,10 @@ function driver(config) {
 
    // Generic 
   const query = async (queryText, values) => {
-    try {
-      const client = await pool.connect()
-      const result = await client.query(queryText, values)
-      client.release()
-      return result   
-    } catch (err) {
-      throw err
-    }
+    const client = await pool.connect()
+    const result = await client.query(queryText, values)
+    client.release()
+    return result
   }
 
   return {
@@ -67,6 +67,7 @@ function driver(config) {
       return annotations.rows[0]
     },
 
+    // Get multiple tables and annotations
     annotationDataGet: async (tids) => {
       if (Array.isArray(tids) == false) return 'tids not valid, array expected'
       const annotations = await query(
@@ -90,11 +91,19 @@ function driver(config) {
       return annotations.rows
     },
 
-    annotationInsert: (tid, annotation) => query(
-      'INSERT INTO annotations VALUES($2,$1) ON CONFLICT (tid) DO UPDATE SET annotation = $2;',
-      [tid, annotation]
-    ),
+    annotationInsert: async (tid, annotation) => {
+      if (Array.isArray(tid) == true) return 'tid not valid, enter integer Number or String'
+      if (/^[0-9]+$/.test(tid) == false) return 'tid not valid, enter integer Number or String'
 
+      const result = await query(
+        `INSERT INTO annotations
+        VALUES($2,$1) ON CONFLICT (tid) DO UPDATE SET annotation = $2;`,
+        [tid, annotation]
+      )
+      return result.rows[0]
+    },
+
+    // Get tables with its annotations
     annotationResultsGet: async () => {
       const result = await query(
         `SELECT * FROM "table", annotations 
@@ -502,15 +511,17 @@ function driver(config) {
         return {code: 'invalid_parameters', error: 'invalid user data'}
       }
 
-      let result = await query(
-        'INSERT INTO public.users( username, password, "displayName", email, registered, role) VALUES ($1, $2, $3, $4, $5, $6)',
+      await query(
+        `INSERT INTO public.users 
+        (username, password, "displayName", email, registered, role)
+        VALUES ($1, $2, $3, $4, $5, $6)`,
         [
           username,
           password,
           displayName,
           email,
           Date.now(),
-          "standard"
+          'standard'
         ]
       );
 
@@ -518,7 +529,7 @@ function driver(config) {
     },
 
     userDelete: async (email) => {
-      const user = await query(`
+      await query(`
       DELETE FROM public.users
 	    WHERE email=$1`, [email])
       return 'done'

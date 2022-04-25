@@ -94,6 +94,7 @@ function driver(config) {
       return annotations
     },
 
+    // Get multiple tables and annotations
     annotationDataGet: async (tids) => {
       if (Array.isArray(tids) == false) return 'tids not valid, array expected'
       const annotations = await queryAll(
@@ -120,11 +121,21 @@ function driver(config) {
       return annotations
     },
 
-    annotationInsert: (tid, annotation) => query(
-      'INSERT INTO annotations VALUES($2,$1) ON CONFLICT (tid) DO UPDATE SET annotation = $2;',
-      [tid, annotation]
-    ),
+    annotationInsert: (tid, annotation) => {
+      if (Array.isArray(tid) == true) return 'tid not valid, enter integer Number or String'
+      if (/^[0-9]+$/.test(tid) == false) return 'tid not valid, enter integer Number or String'
 
+      return queryRun(
+        `INSERT INTO annotations 
+        VALUES($annotation, $tid) ON CONFLICT (tid) DO UPDATE SET annotation = $annotation;`,
+        {
+          $tid: tid,
+          $annotation: JSON.stringify(annotation)
+        }
+      )
+    },
+
+    // Get all tables with its annotations
     annotationResultsGet: async () => {
       const result = await queryAll(
         `SELECT * FROM "table", annotations 
@@ -537,7 +548,7 @@ function driver(config) {
         return {code: 'invalid_parameters', error: 'invalid user data'}
       }
 
-      let result = await queryRun(
+      await queryRun(
         `INSERT INTO users
         (id, username, password, "displayName", email, registered, role)
         VALUES ((SELECT IFNULL(max(id), 0) + 1 FROM users), $1, $2, $3, $4, $5, $6)`,
@@ -547,7 +558,7 @@ function driver(config) {
           displayName,
           email,
           Date.now(),
-          "standard"
+          'standard'
         ]
       );
 
@@ -555,7 +566,7 @@ function driver(config) {
     },
     
     userDelete: async (email) => {
-      const user = await queryRun(`
+      await queryRun(`
       DELETE FROM users
 	    WHERE email=$1`, [email])
       return 'done'
