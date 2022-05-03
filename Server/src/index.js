@@ -419,6 +419,7 @@ async function main(){
 //     res.send("table recovered")
 // });
 
+// * :-) check calls from ui
 app.get(CONFIG.api_base_url+'/listDeletedTables', async (req,res) => {
   try {
     const items = await fs.readdir( tables_folder_deleted )
@@ -597,23 +598,25 @@ app.post(CONFIG.api_base_url+'/metadata', async function(req,res){
   let result = {};
 
   switch (action) {
-    case "clear":
-      if ( collectionPermissions.write.indexOf(collId) > -1 ){
+    case 'clear':
+      if ( collectionPermissions.write.includes(collId) ){
         result = await dbDriver.metadataClear(tid)
         console.log("deleted: "+ new Date())
       }
       break;
-    case "save":
-      if ( collectionPermissions.write.indexOf(collId) > -1 ){
+    case 'save':
+      if ( collectionPermissions.write.includes(collId) ){
         const metadata = JSON.parse(payload).metadata
         result = await setMetadata(metadata)
       }
       break;
-    case "get":
-      result = (await dbDriver.metadataGet([tid])).rows //req.body.docid, req.body.page, req.body.collId,
+    case 'get':
+      //req.body.docid, req.body.page, req.body.collId,
+      result = await dbDriver.metadataGet([tid])
       break;
-    case "get_multiple":
-      result = (await dbDriver.metadataGet(tids)).rows //req.body.docid, req.body.page, req.body.collId,
+    case 'get_multiple':
+      //req.body.docid, req.body.page, req.body.collId,
+      result = await dbDriver.metadataGet(tids)
       break;
     default:
   }
