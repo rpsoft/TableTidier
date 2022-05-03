@@ -178,14 +178,12 @@ function driver(config) {
         counterParams++
       }
       _query = _query.slice(0, -2).concat(footer)
-      console.log(_query)
-      console.log(collDataFormated)
+
       try {
         const result = await query(
           _query,
           collDataFormated
         )
-        console.log(result)
         return result.rows[0]
       } catch (err) {
         return err
@@ -271,11 +269,24 @@ function driver(config) {
 
     cuiMetadataGet: (cui) => query(`select docid,page,"user" from metadata where cuis like $1 `, ["%"+cui+"%"]),
 
-    metadataClear: (tid) => query('DELETE FROM metadata WHERE tid = $1', [tid]),
+    metadataClear: async (tid) => {
+      const result = await query('DELETE FROM metadata WHERE tid = $1', [tid])
+      return undefined
+    },
 
-    metadataGet: (tids) => query(`SELECT * FROM metadata WHERE tid = ANY ($1)`,[tids]),
+    metadataGet: async (tids) => {
+      let _tids = tids
+      if (Number.isInteger(tids)) {
+        _tids = [tids]
+      }
+      const result = await query(`SELECT * FROM metadata WHERE tid = ANY ($1)`, [_tids])
+      // convert registered from string to number
+      // bigint (64 bits) returned as string by pg module
+      result.rows.forEach(row => row.tid = parseInt(row.tid))
+      return result.rows
+    },
 
-    metadataSet: (
+    metadataSet: async (
       concept_source,
       concept_root,
       concept,
@@ -283,26 +294,44 @@ function driver(config) {
       cuis_selected,
       qualifiers,
       qualifiers_selected,
-      istitle,
+      istitle=false,
       labeller,
       tid
-    ) => query(`
-    INSERT INTO metadata(concept_source, concept_root, concept, cuis, cuis_selected, qualifiers, qualifiers_selected, istitle, labeller, tid)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-    ON CONFLICT (concept_source, concept_root, concept, tid)
-    DO UPDATE SET cuis = $4, cuis_selected = $5, qualifiers = $6, qualifiers_selected = $7, istitle = $8, labeller = $9`,
-    [
-      concept_source,
-      concept_root,
-      concept,
-      cuis,
-      cuis_selected,
-      qualifiers,
-      qualifiers_selected,
-      istitle,
-      labeller,
-      tid
-    ]),
+    ) => {
+      const result = await query(`
+      INSERT INTO 
+      metadata(
+        concept_source,
+        concept_root,
+        concept,
+        cuis,
+        cuis_selected,
+        qualifiers,
+        qualifiers_selected,
+        istitle,
+        labeller,
+        tid
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      ON CONFLICT (concept_source, concept_root, concept, tid)
+      DO UPDATE SET cuis = $4, cuis_selected = $5, qualifiers = $6, qualifiers_selected = $7, istitle = $8, labeller = $9`,
+      [
+        concept_source,
+        concept_root,
+        concept,
+        cuis,
+        cuis_selected,
+        qualifiers,
+        qualifiers_selected,
+        istitle,
+        labeller,
+        tid
+      ])
+      if (result.rows.length == 0) {
+        return undefined
+      }
+      return result.rows
+    },
 
     // Gets the labellers associated w ith each document/table.
     metadataLabellersGet: () => query(`SELECT distinct docid, page, labeller FROM metadata`),

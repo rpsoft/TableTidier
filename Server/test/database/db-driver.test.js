@@ -311,7 +311,6 @@ describe('dbDriver', () => {
       const annotations = await dbDriver.annotationInsert(tid, annotationsTableTest[0].annotation);
       expect(annotations).toEqual(undefined);
       annotationsTableTest = await dbDriver.annotationDataGet([tid]);
-      console.log(JSON.stringify(annotationsTableTest, null,' '))
       expect(annotationsTableTest[0].annotation.annotations.length).toEqual(6);
       // Remove added annotation
       annotationsTableTest[0].annotation.annotations.pop()
@@ -320,4 +319,70 @@ describe('dbDriver', () => {
       expect(annotationsTableTest[0].annotation.annotations.length).toEqual(5);
     });
   });
+  describe('Metadata', () => {
+    // metadataGet
+    test('metadataGet', async () => {
+      const tids = 1
+      const metadata = await dbDriver.metadataGet(tids);
+      expect(metadata.length).toEqual(1);
+      expect(metadata[0].tid).toEqual(1);
+    });
+    test('metadataGet multiple tids', async () => {
+      const tids = [1, 2]
+      const metadata = await dbDriver.metadataGet(tids);
+      expect(metadata.length).toEqual(1);
+      expect(metadata[0].tid).toEqual(1);
+    });
+
+    // metadataSet
+    test('metadataSet', async () => {
+      const {
+        concept_source,
+        concept_root,
+        concept,
+        cuis,
+        cuis_selected,
+        qualifiers,
+        qualifiers_selected,
+        istitle,
+        labeller,
+        tid
+      } = {
+        concept_source: '',
+        concept_root: '',
+        concept: '£90 ml/minute',
+        cuis: 'C0439232;C0700321',
+        cuis_selected: 'C0439232;C0700321',
+        qualifiers: '',
+        qualifiers_selected: '',
+        istitle: false,
+        labeller: 'james@example.com',
+        tid: 2
+      }
+      const tids = 1
+      const metadata = await dbDriver.metadataSet(
+        concept_source,
+        concept_root,
+        concept,
+        cuis,
+        cuis_selected,
+        qualifiers,
+        qualifiers_selected,
+        istitle,
+        labeller,
+        tid
+      );
+      expect(metadata).toEqual(undefined);
+    });
+    // metadataClear
+    test('metadataClear', async () => {
+      const tid = 2
+      const metadata = await dbDriver.metadataClear(tid);
+      expect(metadata).toEqual(undefined);
+    });
+
+    // metadataLabellersGet
+  });
+
+
 });

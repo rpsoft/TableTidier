@@ -297,9 +297,9 @@ function driver(config) {
 
     cuiMetadataGet: (cui) => query(`select docid,page,"user" from metadata where cuis like $1 `, ["%"+cui+"%"]),
 
-    metadataClear: (tid) => query('DELETE FROM metadata WHERE tid = $1', [tid]),
+    metadataClear: (tid) => queryRun('DELETE FROM metadata WHERE tid = $1', [tid]),
 
-    metadataGet: (tids) => query(`SELECT * FROM metadata WHERE tid = ANY ($1)`,[tids]),
+    metadataGet: (tids) => queryAll(`SELECT * FROM metadata WHERE tid IN (${tids})`),
 
     metadataSet: (
       concept_source,
@@ -309,15 +309,12 @@ function driver(config) {
       cuis_selected,
       qualifiers,
       qualifiers_selected,
-      istitle,
+      istitle=false,
       labeller,
       tid
-    ) => query(`
-    INSERT INTO metadata(concept_source, concept_root, concept, cuis, cuis_selected, qualifiers, qualifiers_selected, istitle, labeller, tid)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-    ON CONFLICT (concept_source, concept_root, concept, tid)
-    DO UPDATE SET cuis = $4, cuis_selected = $5, qualifiers = $6, qualifiers_selected = $7, istitle = $8, labeller = $9`,
-    [
+    ) => queryRun(`
+    INSERT INTO 
+    metadata(
       concept_source,
       concept_root,
       concept,
@@ -328,7 +325,39 @@ function driver(config) {
       istitle,
       labeller,
       tid
-    ]),
+    )
+    VALUES (
+      $concept_source,
+      $concept_root,
+      $concept,
+      $cuis,
+      $cuis_selected,
+      $qualifiers,
+      $qualifiers_selected,
+      $istitle,
+      $labeller,
+      $tid
+    )
+    ON CONFLICT (concept_source, concept_root, concept, tid)
+    DO UPDATE SET
+      cuis = $cuis,
+      cuis_selected = $cuis_selected,
+      qualifiers = $qualifiers,
+      qualifiers_selected = $qualifiers_selected,
+      istitle = $istitle,
+      labeller = $labeller`,
+    {
+      $concept_source: concept_source,
+      $concept_root: concept_root,
+      $concept: concept,
+      $cuis: cuis,
+      $cuis_selected: cuis_selected,
+      $qualifiers: qualifiers,
+      $qualifiers_selected: qualifiers_selected,
+      $istitle: istitle,
+      $labeller: labeller,
+      $tid: tid
+    }),
 
     // Gets the labellers associated w ith each document/table.
     metadataLabellersGet: () => query(`SELECT distinct docid, page, labeller FROM metadata`),
