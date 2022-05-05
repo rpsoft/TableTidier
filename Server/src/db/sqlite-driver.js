@@ -418,8 +418,8 @@ function driver(config) {
       let permissions;
 
       switch (resource) {
-        case "collections":
-          permissions = await query(
+        case 'collections':
+          permissions = await queryAll(
             `select *,
             (owner_username = $1) as write,
             (visibility = 'public' OR owner_username = $1) as read
@@ -427,13 +427,12 @@ function driver(config) {
             [user]
           )
           break;
-        case "table":
+        case 'table':
           break;
         default:
-    
       }
-    
-      return permissions?.rows.reduce( (acc, row) => {
+
+      return permissions?.reduce( (acc, row) => {
         if (row.read) {
           acc.read.push(row.collection_id)
         }

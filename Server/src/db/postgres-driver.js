@@ -368,7 +368,7 @@ function driver(config) {
       let permissions;
 
       switch (resource) {
-        case "collections":
+        case 'collections':
           permissions = await query(
             `select *,
             (owner_username = $1) as write,
@@ -377,18 +377,17 @@ function driver(config) {
             [user]
           )
           break;
-        case "table":
+        case 'table':
           break;
         default:
-    
       }
-    
+
       return permissions?.rows.reduce( (acc, row) => {
         if (row.read) {
-          acc.read.push(row.collection_id)
+          acc.read.push(parseInt(row.collection_id))
         }
         if (row.write) {
-          acc.write.push(row.collection_id)
+          acc.write.push(parseInt(row.collection_id))
         }
         return acc
       },
