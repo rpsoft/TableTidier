@@ -183,6 +183,37 @@ describe('dbDriver', () => {
     });
 
     // notesUpdate
+    test('notesUpdate', async () => {
+      const docid = '28905478'
+      const page = 2
+      const collId = 1
+      const notes = 'TEST NOTES'
+      const tableType = 'result_table_subgroup'
+      const completion = 28905478
+      // Add note test
+      let result = await dbDriver.notesUpdate(
+        docid,
+        page,
+        collId,
+        notes,
+        tableType,
+        completion
+      );
+      let table = await dbDriver.tableGet(docid, page, collId);
+      expect(table.notes).toEqual(notes);
+      // Undo changes
+      result = await dbDriver.notesUpdate(
+        docid,
+        page,
+        collId,
+        '',
+        tableType,
+        completion
+      );
+      table = await dbDriver.tableGet(docid, page, collId);
+      expect(table.notes).toEqual('');
+    });
+
   });
   describe('Collections', () => {
     // permissionsResourceGet from collection
@@ -380,9 +411,98 @@ describe('dbDriver', () => {
       const metadata = await dbDriver.metadataClear(tid);
       expect(metadata).toEqual(undefined);
     });
-
+    // cuiMetadataGet
+    test.skip('cuiMetadataGet', async () => {
+      const cui = 'C0439232'
+      const metadataInfo = await dbDriver.cuiMetadataGet();
+      expect(dbDriver).toEqual(null);
+    });
     // metadataLabellersGet
   });
+  describe('Cuis', () => {
+    // cuisIndexGet
+    test('cuisIndexGet', async () => {
+      const result = {
+        "C0001551": {
+          "adminApproved": false, "hasMSH": true, "preferred": "Immunologic Adjuvants", "userDefined": false
+        },
+        "C0001552": {
+          "adminApproved": false, "hasMSH": true, "preferred": "Pharmaceutical Adjuvants", "userDefined": false
+        },
+        "C0001613": {
+          "adminApproved": false, "hasMSH": true, "preferred": "Adrenal Cortex", "userDefined": false
+        }
+      }
+      const cuis = await dbDriver.cuisIndexGet();
+      expect(cuis).toEqual(result);
+    });
+    // cuiInsert
+    test('cuiInsert', async () => {
+      const cui = 'C0001675'
+      const preferred = 'Adult'
+      const hasMSH = true
+      const result = await dbDriver.cuiInsert(
+        cui,
+        preferred,
+        hasMSH,
+      );
+      expect(result).toEqual('done');
+    });
+    // cuiDataModify
+    test('cuiDataModify', async () => {
+      const cui = 'C0001675'
+      const preferred = 'Adult UPDATED VALUE'
+      const hasMSH = true
+      const cuis = await dbDriver.cuiDataModify(
+        cui,
+        preferred,
+        // adminApproved,
+        true,
+        cui,
+      );
 
+      expect(cuis).toEqual('done');
+    });
+    test('cuiDataModify changes metadata', async () => {
+      const preferred = 'Adult UPDATED VALUE'
+      const hasMSH = true
+      // Change metadata cui
+      await dbDriver.cuiDataModify(
+        'C0439233',
+        preferred,
+        // adminApproved,
+        true,
+        'C0439232',
+      );
+      // Check metadata change
+      let metadata = await dbDriver.metadataGet(1);
+      expect(metadata[0].cuis.includes('C0439233')).toEqual(true);
+      
+      // Return metadata to original
+      await dbDriver.cuiDataModify(
+        'C0439232',
+        preferred,
+        // adminApproved,
+        true,
+        'C0439233',
+      );
+      metadata = await dbDriver.metadataGet(1);
+      expect(metadata[0].cuis.includes('C0439233')).toEqual(false);
+    });
 
+    // cuiDeleteIndex
+    test('cuiDeleteIndex', async () => {
+      const cui = 'C0001675'
+      const result = await dbDriver.cuiDeleteIndex(cui);
+      expect(result).toEqual('done');
+    });
+    // cuiRecommend
+    test('cuiRecommend', async () => {
+      const recommend = await dbDriver.cuiRecommend();
+      expect(recommend.length).toEqual(2);
+      expect(recommend[0].concept).toEqual('aminosalicylate');
+    });
+  });
+  // resultsDataGet
+  // permissionsResourceGet
 });
