@@ -64,7 +64,8 @@ The config file will be used by the migrations scripts.
   }
 }
 ```
-> In case of change the sqlite filename change also the package.json create script
+
+> In case of change the sqlite filename, also change it at the 'package.json' create script
 
 ```bash
 # Create DB
@@ -80,6 +81,21 @@ npm run db:reset:pg
 npm run db:reset:sqlite
 
 ```
+
+### Testing
+
+> Config testing environment 'Server/.env':
+```bash
+CONFIG_PATH=/PATH/TO/TableTidier/Server
+```
+
+Run test scripts:
+```bash
+# Before run the test load migration db
+npm run test:watch:pg
+npm run test:watch:sqlite
+```
+
 
 ## Project
 
