@@ -10,41 +10,17 @@ global.records = [
   // , { id: 3, username: 'suso', password: 'me', displayName: 'Jesus', email: 'suso@example.com', registered : "1588283589667", role: "admin" }
 ];
 
-
-export async function initialiseUsers() {
-  var client = await global.pool.connect()
-  var result = await client.query('SELECT id, username, password, "displayName", email, registered, role FROM public.users')
-        client.release()
-
-  global.records = result.rows;
-}
-
-
-export async function createUser(userData) {
-  var client = await global.pool.connect()
-
-  var result = await client.query(
-    'INSERT INTO public.users( username, password, "displayName", email, registered, role) VALUES ($1, $2, $3, $4, $5, $6)',
-    [userData.username, userData.password, userData.displayName, userData.email,  Date.now(), "standard" ]);
-
-  client.release()
-
-  await initialiseUsers()
-
-  return result
-}
-
-
-
-
 export function getUserHash(user){
-  var hash = crypto.createHmac('sha256', CONFIG.hashSecret)
-                     .update(user.username+user.password+user.registered)
+  const hash = crypto.createHmac('sha256', CONFIG.hashSecret)
+                     .update(user.username + user.password + user.registered)
                      .digest('hex');
 
- return {username : user.username, password: user.password, hash}
+  return {
+    username: user.username,
+    password: user.password,
+    hash
+  }
 }
-
 
 passport.use(new CustomStrategy(
   function(req, done) {
@@ -56,7 +32,7 @@ passport.use(new CustomStrategy(
         }
         return done(null, getUserHash(records[i]));
       }
-    }ns
+    }
 
     return done(null, false);
   }
@@ -75,5 +51,7 @@ passport.deserializeUser(function(id, cb) {
   return cb(null,false)
 });
 
-
 export default passport;
+
+// :-)
+// future use JWT and passport

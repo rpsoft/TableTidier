@@ -107,6 +107,11 @@ Classifier/trained/
 
 temp/
 
+
+UI/build/
+
+Server/uploads/
+Server/build/
 Server/COVID_TABLES/
 
 Server/HTML_TABLES/
@@ -114,7 +119,3 @@ Server/HTML_TABLES/
 Server/HTML_TABLES_DELETED/
 
 Server/HTML_TABLES_OVERRIDE/
-
-UI/build/
-
-Server/uploads/

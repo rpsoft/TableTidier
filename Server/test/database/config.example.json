@@ -1,0 +1,5 @@
+{
+  "tables_folder": "test/database/HTML_TABLES",
+  "tables_folder_override": "test/database/HTML_TABLES_OVERRIDE",
+  "tables_folder_deleted": "test/database/HTML_TABLES_DELETED"
+}

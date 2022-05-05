@@ -1,31 +1,43 @@
-const express = require('express');
-
-const bodyParser = require('body-parser');
-const html = require("html");
-
-const request = require("request");
-
-const multer = require('multer');
+// Load config
+import 'dotenv/config'
+const CONFIG_PATH = process.env.CONFIG_PATH || process.cwd()
+const GENERAL_CONFIG = require(CONFIG_PATH + '/config.json')
 
 const fs = require('fs/promises');
 const path = require('path');
+const exec = require('child_process').exec;
+
+const express = require('express');
+const multer = require('multer');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const html = require("html");
+
+const axios = require('axios');
 
 const { Pool, Client, Query } = require('pg')
+// DB driver
+const pgDriver = require('./db/postgres-driver')({...GENERAL_CONFIG.db})
+const dbDriver = require('./db/sniffer-driver')
+dbDriver.addDriver(pgDriver)
 
 const csv = require('csv-parser');
 const CsvReadableStream = require('csv-reader');
 
-const cors = require('cors');
+// Import routes
+import usersRoutes from './routes/users'
+usersRoutes.addDriver(dbDriver)
 
 // I want to access cheerio from everywhere.
 global.cheerio = require('cheerio');
-global.CONFIG = require('./config.json')
 
+global.CONFIG = GENERAL_CONFIG
 global.available_documents = {}
 global.abs_index = []
-global.tables_folder = "HTML_TABLES"
-global.tables_folder_override = "HTML_TABLES_OVERRIDE"
-global.tables_folder_deleted = "HTML_TABLES_DELETED"
+// Moved to config.json file
+// global.tables_folder = "HTML_TABLES"
+// global.tables_folder_override = "HTML_TABLES_OVERRIDE"
+// global.tables_folder_deleted = "HTML_TABLES_DELETED"
 global.cssFolder = "HTML_STYLES"
 global.DOCS = [];
 global.msh_categories = {catIndex: {}, allcats: [], pmids_w_cat: []}
@@ -33,15 +45,29 @@ global.PRED_METHOD = "grouped_predictor"
 
 global.umls_data_buffer = {};
 
+// :-)
+global.pool = pgDriver.pool
+
 // TTidier subsystems load.
 console.log("Loading Files Management")
-import {refreshDocuments} from "./files.js"
 
 console.log("Loading Security")
-import passport, {initialiseUsers, createUser, getUserHash}  from "./security.js"
+import 
+  passport,
+  {
+    getUserHash
+  }
+from "./security.js"
 
 console.log("Loading Table Libs")
-import { readyTable, prepareAvailableDocuments } from "./table.js"
+import {
+  tableDBDriverSet,
+  readyTable,
+  prepareAvailableDocuments,
+  refreshDocuments,
+} from "./table.js"
+// configure table with dbDriver
+tableDBDriverSet(dbDriver)
 
 console.log("Loading MetaMap Docker Comms Module")
 import { metamap } from "./metamap.js"
@@ -53,23 +79,7 @@ console.log("Loading Extra Functions")
 import ef from "./extra_functions.js"
 
 console.log("Loading Search Module")
-var easysearch = require('@sephir/easy-search')
-
-console.log("Configuring DB client: Postgres")
-// Postgres configuration.
-global.pool = new Pool({
-    user: CONFIG.db.user,
-    password: CONFIG.db.password,
-    host: CONFIG.db.host,
-    port: CONFIG.db.port,
-    database: CONFIG.db.database,
-  })
-
-//Network functions
-import { getAnnotationResults } from "./network_functions.js"
-
-
-
+const easysearch = require('@sephir/easy-search')
 
 console.log("Configuring Server")
 var app = express();
@@ -89,30 +99,10 @@ app.use(bodyParser.urlencoded({
 
 app.use(passport.initialize());
 
-app.post(CONFIG.api_base_url+'/login', function(req, res, next) {
-  passport.authenticate('custom', function(err, user, info) {
-    // console.log("login_req",JSON.stringify(req))
-    if ( err ){
-      res.json({status:"failed", payload: null})
-    } else if ( !user ) {
-      res.json({status:"unauthorised", payload: null})
-    } else {
-      res.json({status:"success", payload: user})
-    }
-
-    })(req, res, next)
-  });
-
-app.post(CONFIG.api_base_url+'/createUser', async function(req, res) {
-  var result;
-  try{
-    result = await createUser(req.body)
-    res.json({status:"success", payload: result })
-  } catch (e){
-    res.json({status:"failed", payload: "" })
-  }
-
-});
+// Add routes:
+//  /login
+//  /createUser
+app.use('/api/', usersRoutes);
 
 
 // const storage = multer.memoryStorage();
@@ -125,102 +115,89 @@ const storage = multer.diskStorage({
   }
 })
 
-const moveFileToCollection = (filedata, coll) => {
-
-  var tables_folder_target = (coll.indexOf("delete") > -1 ? global.tables_folder_deleted : global.tables_folder)
-  fs.mkdirSync(path.join(tables_folder_target, coll), { recursive: true })
-  fs.renameSync( filedata.path, path.join(tables_folder_target, coll, filedata.originalname) );
-
-}
+app.get(CONFIG.api_base_url+'/',function(req,res){
+  res.send("TTidier Server running.")
+});
 
 app.get("/api/test", function(req,res){
   res.send("here we are")
 })
 
-
 var tableSplitter = async ( tablePath ) => {
+  try {
+    const data = await fs.readFile(tablePath, {encoding: "utf8"})
+    const tablePage = cheerio.load(data);
+    const tables  = tablePage("table")
 
-  var tablesHTML = new Promise ( (accept, reject) => {
-            fs.readFile(tablePath,
-                      "utf8",
-                      (err, data) => {
-                        var tablePage = cheerio.load(data);
-                        var tables  = tablePage("table")
+    const tablesHTML = []
 
-                        var tablesHTML = []
-
-                        // If only one table in the file, just return the whole file. Let the user clean up
-                        if ( tables.length <= 1 ){
-                          tablesHTML.push(data)
-                        } else {
-                          // we attempt automatic splitting here.
-                          for ( var t = 0; t < tables.length; t++){
-                            tablesHTML.push("<table>"+tablePage(tables[t]).html()+"</table>")
-                          }
-                        }
-
-                        accept(tablesHTML)
-
-                      });
-                  })
-
-  tablesHTML = await tablesHTML
-  return tablesHTML
+    // If only one table in the file, just return the whole file. Let the user clean up
+    if ( tables.length <= 1 ){
+      tablesHTML.push(data)
+    } else {
+      // we attempt automatic splitting here.
+      for ( var t = 0; t < tables.length; t++){
+        tablesHTML.push("<table>"+tablePage(tables[t]).html()+"</table>")
+      }
+    }
+    return tablesHTML
+  } catch (err) {
+    console.log(err)
+  }
 }
 
 app.post(CONFIG.api_base_url+'/tableUploader', async function(req, res) {
 
- let upload = multer({ storage: storage }).array('fileNames');
+  let upload = multer({ storage: storage }).array('fileNames');
 
- upload(req, res, async function(err) {
+  upload(req, res, async function(err) {
+    // Path to tables
+    const {
+      tables_folder,
+    } = global.CONFIG
 
-     const files = req.files;
-     let index, len;
+    const files = req.files;
+    let index, len;
 
-     var results = []
+    var results = []
 
-     // Loop through all the uploaded files and return names to frontend
-     for (index = 0, len = files.length; index < len; ++index) {
-       try{
+    // Loop through all the uploaded files and return names to frontend
+    for (index = 0, len = files.length; index < len; ++index) {
+      try {
+        var tables_html = await tableSplitter(files[index].path)
+        var cleanFilename = files[index].originalname.replaceAll("_", "-")
+        var file_elements = cleanFilename.split(".")
+        var extension = file_elements.pop()
+        var baseFilename = file_elements.join(".")
 
-         var tables_html = await tableSplitter(files[index].path)
-         var cleanFilename = files[index].originalname.replaceAll("_", "-")
-         var file_elements = cleanFilename.split(".")
-         var extension = file_elements.pop()
-         var baseFilename = file_elements.join(".")
+        await fs.mkdir(path.join(tables_folder, req.body.collection_id), { recursive: true })
 
-         fs.mkdirSync(path.join(global.tables_folder, req.body.collection_id), { recursive: true })
+        tables_html.map( async (table,t) => {
 
-         tables_html.map( async (table,t) => {
+          var page = t+1
+          var docid = baseFilename
 
-           var page = (t+1)
-           var docid = baseFilename
+          var newTableFilename = docid+"_"+page+"."+extension
 
-           var newTableFilename = docid+"_"+page+"."+extension
+          await fs.writeFile(path.join(tables_folder, req.body.collection_id, newTableFilename), table)
 
-           fs.writeFileSync(path.join(global.tables_folder, req.body.collection_id, newTableFilename), table)
+          await tableCreate(docid, page, req.body.username_uploader, req.body.collection_id, newTableFilename)
+          results.push({filename: newTableFilename, status:"success"})
+        })
+      } catch(err) {
+        console.log(err)
+        console.log("file: " + files[index].originalname + " failed to process")
+        results.push({filename: files[index].originalname, status:"failed"})
+      }
+    }
 
-           await createTable(docid, page, req.body.username_uploader, req.body.collection_id, newTableFilename)
-           results.push({filename: newTableFilename, status:"success"})
-         }
-         )
-
-       } catch(err){
-         console.log(err)
-         console.log("file: " + files[index].originalname + " failed to process")
-         results.push({filename: files[index].originalname, status:"failed"})
-       }
-     }
-
-     res.send(results);
- });
-
+    res.send(results);
+  });
 });
 
 async function UMLSData() {
 
     let semtypes = new Promise( async (resolve,reject) => {
-        // :-> :-)
         const fd = await fs.open(CONFIG.system_path+ "Tools/metamap_api/"+'cui_def.csv', 'r');
         let inputStream = fd.createReadStream({encoding: 'utf8'});
 
@@ -283,11 +260,10 @@ async function UMLSData() {
     return {semtypes, cui_def, cui_concept}
 }
 
-async function CUIData (){
-
+async function CUIData () {
     var umlsData = await UMLSData();
 
-    var results = await getAnnotationResults()
+    var results = await dbDriver.annotationResultsGet()
 
     var rres = results.rows.reduce(
             (acc,ann,i) => {
@@ -316,49 +292,29 @@ async function CUIData (){
     return { cui_def: umlsData.cui_def, cui_concept: umlsData.cui_concept, actual_results: rres, semtypes: umlsData.semtypes }
 }
 
-
-// Gets the labellers associated w ith each document/table.
-async function getMetadataLabellers(){
-
-  var client = await pool.connect()
-  var result = await client.query(`select distinct docid, page, labeller from metadata`)
-        client.release()
-
-  return result
-}
-
-// Returns the annotation for a single document/table
-async function getAnnotationByID(docid,page,collId){
-
-  if ( docid == "undefined" || page == "undefined" || collId == "undefined" ){
-    return {rows:[]}
-  }
-
-  var client = await pool.connect()
-  var result = await client.query(`
-    SELECT docid, page, "user", notes, collection_id, file_path, "tableType", "table".tid, completion, annotation
-    FROM "table"
-    LEFT JOIN annotations
-    ON  "table".tid = annotations.tid
-    WHERE docid=$1 AND page=$2 AND collection_id = $3 `,[docid,page,collId])
-  client.release()
-
-  return result
-}
-
 const rebuildSearchIndex = async () => {
-  let tables = fs.readdir(path.join(global.tables_folder))
-  let tables_folder_override = fs.readdir(path.join(global.tables_folder_override))
+  // Path to tables
+  const {
+    tables_folder,
+    tables_folder_override,
+  } = global.CONFIG
+  let tablesInFolder = fs.readdir(path.join(tables_folder))
+  let tablesInFolderOverride = fs.readdir(path.join(tables_folder_override))
   // Join path
-  tables = (await tables).map( (dir) => path.join(global.tables_folder, dir))
-  tables_folder_override = (await tables_folder_override).map( (dir) => path.join(global.tables_folder_override, dir))
+  tablesInFolder = (await tablesInFolder).map( (dir) => path.join(tables_folder, dir))
+  tablesInFolderOverride = (await tablesInFolderOverride).map( (dir) => path.join(tables_folder_override, dir))
   global.searchIndex = await easysearch.indexFolder([
-    ...tables,
-    ...tables_folder_override
+    ...tablesInFolder,
+    ...tablesInFolderOverride
   ])
 }
 
 const tabularFromAnnotation = async ( annotation ) => {
+  // Path to tables
+  const {
+    tables_folder,
+    tables_folder_override,
+  } = global.CONFIG
 
   if ( annotation.rows.length < 1 ){ // annotation not there
     return
@@ -367,34 +323,38 @@ const tabularFromAnnotation = async ( annotation ) => {
   const htmlFile = annotation.file_path
 
   //If an override file exists then use it!. Overrides are those produced by the editor.
-  var file_exists = await fs.existsSync( path.join(global.tables_folder_override, annotation.collection_id, htmlFile) )
+  let file_exists = true
+  try {
+    const fd = await fs.open(path.join(tables_folder_override, annotation.collection_id, htmlFile))
+    fd.close()
+  } catch (err) {
+    file_exists = false
+  }
 
-  var htmlFolder = path.join(global.tables_folder, annotation.collection_id)
+  let htmlFolder = path.join(tables_folder, annotation.collection_id)
   if ( file_exists ) {
-    htmlFolder = path.join(global.tables_folder_override, annotation.collection_id) //"HTML_TABLES_OVERRIDE/"
+    htmlFolder = path.join(tables_folder_override, annotation.collection_id) //"HTML_TABLES_OVERRIDE/"
   }
 
   try {
-    fs.readFile(path.join(htmlFolder,htmlFile),
-                "utf8",
-                function(err, data) {
-                  var ann = annotation
-                  var tablePage = cheerio.load(data);
+    const data = await fs.readFile(path.join(htmlFolder,htmlFile), {encoding: 'utf8'})
+    const ann = annotation
+    const tablePage = cheerio.load(data);
 
-                  var tableData = tablePage("tr").get().map( (row) => {
-                    var rowValues = cheerio(row).children().get().map(
-                      (i,e) => {
-                        return {
-                          text : cheerio(i).text(),
-                          isIndent : (cheerio(i).find('.indent1').length + cheerio(i).find('.indent2').length + cheerio(i).find('.indent3').length + cheerio(i).find('.indent').length) > 0,
-                          isBold : (cheerio(i).find('.bold').length + cheerio(i).find('strong').length) > 0,
-                          isItalic : (cheerio(i).find('em').length) > 0,
-                        }
-                      }
-                    )
-                    return rowValues
-                  });
-                })
+    const tableData = tablePage("tr").get().map( (row) => {
+      const rowValues = cheerio(row).children().get().map(
+        (i,e) => ({
+          text : cheerio(i).text(),
+          isIndent : (cheerio(i).find('.indent1').length +
+                      cheerio(i).find('.indent2').length +
+                      cheerio(i).find('.indent3').length +
+                      cheerio(i).find('.indent').length) > 0,
+          isBold : (cheerio(i).find('.bold').length + cheerio(i).find('strong').length) > 0,
+          isItalic : (cheerio(i).find('em').length) > 0,
+        })
+      )
+      return rowValues
+    });
   } catch (e){
     console.log(e)
   }
@@ -411,9 +371,12 @@ async function main(){
 
   // await refreshDocuments()
 
-  await initialiseUsers()
 
-  // var annotation = await getAnnotationByID("11442551", 1, 1);
+  // Load Users
+  const users = await dbDriver.usersGet()
+  global.records = users
+
+  // var annotation = await dbDriver.annotationByIDGet("11442551", 1, 1);
   // // var tableData = await readyTable("11442551", 1, 1, false)
   // await tabularFromAnnotation(annotation)
 }
@@ -456,159 +419,137 @@ async function main(){
 //     res.send("table recovered")
 // });
 
-app.get(CONFIG.api_base_url+'/listDeletedTables', async function(req,res){
-
-  fs.readdir( tables_folder_deleted, function(err, items) {
-
-    if (err) {
-      res.send("failed listing "+err)
-    } else {
-      res.send(items)
-    }
-
-  });
-
+// * :-) check calls from ui
+app.get(CONFIG.api_base_url+'/listDeletedTables', async (req,res) => {
+  try {
+    const items = await fs.readdir( tables_folder_deleted )
+    res.send(items)
+  } catch (err) {
+    res.status(500).send('failed listing deleted tables:' + err)
+  }
 });
 
-app.get(CONFIG.api_base_url+'/modifyCUIData', async function(req,res){
-
-  var modifyCUIData = async (cui, preferred, adminApproved, prevcui) => {
-      var client = await pool.connect()
-
-      var result = await client.query(`UPDATE cuis_index SET cui=$1, preferred=$2, admin_approved=$3 WHERE cui = $4`,
-        [cui, preferred, adminApproved, prevcui] )
-
-      if ( result && result.rowCount ){
-        var q = new Query(`UPDATE metadata SET cuis = array_to_string(array_replace(regexp_split_to_array(cuis, ';'), $2, $1), ';'), cuis_selected = array_to_string(array_replace(regexp_split_to_array(cuis_selected, ';'), $2, $1), ';')`, [cui, prevcui])
-        result = await client.query( q )
-      }
-
-      client.release()
-      return result
+app.get(CONFIG.api_base_url+'/modifyCUIData', async (req, res) => {
+  if ( !req.query ) {
+    res.status(400).send('UPDATE failed. No query');
   }
 
-  if ( req.query && req.query.cui && req.query.preferred && req.query.adminApproved && req.query.prevcui ){
-    var result = await modifyCUIData(req.query.cui, req.query.preferred, req.query.adminApproved, req.query.prevcui)
+  const {
+    cui,
+    preferred,
+    adminApproved,
+    prevcui
+  } = req.query
+
+  if ( !(cui && preferred && adminApproved && prevcui) ) {
+    res.status(400).send('UPDATE failed. Check parameters');
+  }
+
+  try {
+    const result = await dbDriver.cuiDataModify(
+      cui,
+      preferred,
+      adminApproved,
+      prevcui,
+    )
     res.send(result)
-  } else {
-    res.send("UPDATE failed");
+  } catch (err) {
+    res.status(500).send('Failing updating cui data.')
   }
-
 });
 
-app.get(CONFIG.api_base_url+'/cuiDeleteIndex', async function(req,res){
-
-  var cuiDeleteIndex = async (cui) => {
-      var client = await pool.connect()
-
-      var done = await client.query('delete from cuis_index where cui = $1', [cui ])
-        .then(result => console.log("deleted: "+ new Date()))
-        .catch(e => console.error(e.stack))
-        .then(() => client.release())
-
+// * :-) Use html DELETE verb
+app.get(CONFIG.api_base_url+'/cuiDeleteIndex', async (req, res) => {
+  if ( !req.query ) {
+    res.status(400).send('CUI delete index failed. No query');
   }
 
-  if ( req.query && req.query.cui){
-    await cuiDeleteIndex(req.query.cui)
-    res.send("done")
-  } else {
-    res.send("clear failed");
+  const {
+    cui,
+  } = req.query
+
+  if ( !cui ) {
+    res.status(400).send('CUI delete index failed. Check parameters');
   }
 
+  try {
+    await dbDriver.cuiDeleteIndex( cui )
+    console.log("deleted: "+ new Date())
+    res.send('done')
+  } catch (err) {
+    res.status(500).send('CUI delete index Failed.')
+  }
 });
 
 app.get(CONFIG.api_base_url+'/getMetadataForCUI', async function(req,res){
-
-  var getCuiTables = async (cui) => {
-      var client = await pool.connect()
-      var result = await client.query(`select docid,page,"user" from metadata where cuis like $1 `, ["%"+cui+"%"])
-            client.release()
-      return result
-
+  if ( !req.query ) {
+    res.status(400).send('CUI getMetadata failed. No query');
   }
 
-  if ( req.query && req.query.cui ){
-    var meta = await getCuiTables(req.query.cui)
+  const {
+    cui,
+  } = req.query
+
+  if ( !cui ) {
+    res.status(400).send('CUI getMetadata failed. Check parameters');
+  }
+
+  try {
+    const meta = await dbDriver.cuiMetadataGet( cui )
     res.send(meta)
-  } else {
-    res.send("clear failed");
+  } catch (err) {
+    res.status(500).send('CUI getMetadata Failed.')
   }
-
 });
-
-
-const clearMetadata = async (tid) => {
-    var client = await pool.connect()
-
-    var done = await client.query('DELETE FROM metadata WHERE tid = $1', [tid])
-      .then(result => console.log("deleted: "+ new Date()))
-      .catch(e => console.error(e.stack))
-      .then(() => client.release())
-
-}
 
 const setMetadata = async ( metadata ) => {
 
   if ( Object.keys(metadata).length > 0 ){
-      var tid = metadata[Object.keys(metadata)[0]].tid
-      console.log("HERE DELETE: "+tid)
-      await clearMetadata(tid)
+      const tidDelete = metadata[Object.keys(metadata)[0]].tid
+      console.log("HERE DELETE: "+tidDelete)
+      await dbDriver.metadataClear(tidDelete)
+      console.log("deleted: "+ new Date())
   }
 
-  var results = []
+  const results = []
 
-  for ( var m = 0; m < Object.keys(metadata).length; m++){
+  for ( let m = 0; m < Object.keys(metadata).length; m++){
 
-      var key = Object.keys(metadata)[m]
+    const key = Object.keys(metadata)[m]
 
-      var client = await pool.connect()
-
-      var done = await client.query(`
-        INSERT INTO metadata(concept_source, concept_root, concept, cuis, cuis_selected, qualifiers, qualifiers_selected, istitle, labeller, tid)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-        ON CONFLICT (concept_source, concept_root, concept, tid)
-        DO UPDATE SET cuis = $4, cuis_selected = $5, qualifiers = $6, qualifiers_selected = $7, istitle = $8, labeller = $9`,
-                [ metadata[key].concept_source, metadata[key].concept_root, metadata[key].concept,
-                  metadata[key].cuis.join(";"), metadata[key].cuis_selected.join(";"), metadata[key].qualifiers.join(";"), metadata[key].qualifiers_selected.join(";"),
-                  metadata[key].istitle, metadata[key].labeller, metadata[key].tid ])
-
-          .then(result => console.log("insert: "+key+" -- "+ new Date()))
-          .catch(e => {
-            console.error(metadata[key].concept+" -- "+"insert failed: "+key+" -- "+ new Date())
-          })
-          .then(() => client.release())
-
+    const {
+      concept_source,
+      concept_root,
+      concept,
+      cuis,
+      cuis_selected,
+      qualifiers,
+      qualifiers_selected,
+      istitle,
+      labeller,
+      tid,
+    } = metadata[key]
+    try {
+      const done = await dbDriver.metadataSet(
+        concept_source,
+        concept_root,
+        concept,
+        cuis.join(";"),
+        cuis_selected.join(";"),
+        qualifiers.join(";"),
+        qualifiers_selected.join(";"),
+        istitle,
+        labeller,
+        tid
+      )
       results.push(done);
+      console.log("insert: "+key+" -- "+ new Date())
+    } catch (err) {
+      console.error(concept+" -- "+"insert failed: "+key+" -- " + new Date() + ' ' + err)
+    }
   }
 
   return results
-}
-
-const getMetadata = async ( tids ) => {
-  var client = await pool.connect()
-  var result = await client.query(`SELECT * FROM metadata WHERE tid = ANY ($1)`,[tids])
-        client.release()
-  return result
-}
-
-// important. Use this to recover the table id (tid). tid is used as primary key in many tables. uniquely identifying tables across sql tables.
-const getTid = async ( docid, page, collId ) => {
-
-  if ( docid == "undefined" || page == "undefined" || collId == "undefined" ){
-    return -1
-  }
-
-  var client = await pool.connect()
-  var result = await client.query(`SELECT tid FROM public."table" WHERE docid = $1 AND page = $2 AND collection_id = $3`,[docid, page, collId])
-        client.release()
-
-  var tid
-
-  if ( result.rows && result.rows.length > 0 ){
-    tid = result.rows[0].tid
-  }
-
-  return tid
 }
 
 app.post(CONFIG.api_base_url+'/metadata', async function(req,res){
@@ -618,64 +559,71 @@ app.post(CONFIG.api_base_url+'/metadata', async function(req,res){
     return
   }
 
-  var validate_user = validateUser(req.body.username, req.body.hash);
+  const {
+    username=undefined,
+    hash=undefined,
 
-  var collectionPermissions = await getResourcePermissions('collections', validate_user ? req.body.username : "")
+    action,
 
-  if ( collectionPermissions.read.indexOf(req.body.collId) > -1 ){
+    docid,
+    page,
+    collId,
 
-    var tid = req.body.tid
-    if ( tid == "undefined" ){
-      tid = await getTid( req.body.docid, req.body.page, req.body.collId )
-    }
+    payload,
+    tids,
+  } = req.body
 
-    var result = {};
+  // * :-) User validation...
+  var validate_user = validateUser(username, hash);
 
-    switch (req.body.action) {
-      case "clear":
-        if ( collectionPermissions.write.indexOf(req.body.collId) > -1 ){
-          result = await clearMetadata(tid)
-        }
-        break;
-      case "save":
-        if ( collectionPermissions.write.indexOf(req.body.collId) > -1 ){
-          var metadata = JSON.parse(req.body.payload).metadata
-          result = await setMetadata(metadata)
-        }
-        break;
-      case "get":
-        result = (await getMetadata([tid])).rows //req.body.docid, req.body.page, req.body.collId,
-        break;
-      case "get_multiple":
-        result = (await getMetadata(req.body.tids)).rows //req.body.docid, req.body.page, req.body.collId,
-        break;
-      default:
-    }
-    // Always return the updated collection details
-    // result = await getCollection(req.body.collection_id);
-    res.json({status: "success", data: result})
-  } else {
-    res.json({status:"unauthorised", payload: null})
+  var collectionPermissions = await dbDriver.permissionsResourceGet('collections', validate_user ? username : "")
+
+  if ( collectionPermissions.read.indexOf(collId) <= -1 ) {
+    return res.json({status:"unauthorised", payload: null})
   }
 
+  let tid = req.body.tid
+
+  if (
+    tid === 'undefined' ||
+    tid === 'null'
+  ) {
+    tid = await dbDriver.tidGet(
+      docid,
+      page,
+      collId,
+    )
+  }
+
+  let result = {};
+
+  switch (action) {
+    case 'clear':
+      if ( collectionPermissions.write.includes(collId) ){
+        result = await dbDriver.metadataClear(tid)
+        console.log("deleted: "+ new Date())
+      }
+      break;
+    case 'save':
+      if ( collectionPermissions.write.includes(collId) ){
+        const metadata = JSON.parse(payload).metadata
+        result = await setMetadata(metadata)
+      }
+      break;
+    case 'get':
+      //req.body.docid, req.body.page, req.body.collId,
+      result = await dbDriver.metadataGet([tid])
+      break;
+    case 'get_multiple':
+      //req.body.docid, req.body.page, req.body.collId,
+      result = await dbDriver.metadataGet(tids)
+      break;
+    default:
+  }
+  // Always return the updated collection details
+  // result = await dbDriver.collectionGet(req.body.collection_id);
+  res.json({status: "success", data: result})
 });
-
-
-const getCUISIndex = async () => {
-
-  var cuis = {}
-
-  var client = await pool.connect()
-  var result = await client.query(`select * from cuis_index ORDER BY preferred ASC`)
-        client.release()
-
-  result.rows.map( row => {
-    cuis[row.cui] = {preferred : row.preferred, hasMSH: row.hasMSH, userDefined: row.user_defined, adminApproved: row.admin_approved}
-  })
-
-  return cuis
-}
-
 
 app.post(CONFIG.api_base_url+'/cuis', async function(req,res){
 
@@ -685,7 +633,7 @@ app.post(CONFIG.api_base_url+'/cuis', async function(req,res){
   }
 
   var validate_user = true //validateUser(req.body.username, req.body.hash);
-  // var collectionPermissions = await getResourcePermissions('collections', req.body.username)
+  // var collectionPermissions = await dbDriver.permissionsResourceGet('collections', req.body.username)
 
   if ( validate_user ){
 
@@ -693,7 +641,7 @@ app.post(CONFIG.api_base_url+'/cuis', async function(req,res){
 
     switch (req.body.action) {
       case "get":
-        result = await getCUISIndex() //req.body.docid, req.body.page, req.body.collId,
+        result = await dbDriver.cuisIndexGet() //req.body.docid, req.body.page, req.body.collId,
       default:
     }
     res.json({status: "success", data: result})
@@ -703,12 +651,7 @@ app.post(CONFIG.api_base_url+'/cuis', async function(req,res){
 
 });
 
-
-
-app.get(CONFIG.api_base_url+'/',function(req,res){
-  res.send("TTidier Server running.")
-});
-
+// :-) move to JWT
 // Simple validation
 function validateUser (username, hash){
     var validate_user;
@@ -722,195 +665,87 @@ function validateUser (username, hash){
     return validate_user;
 }
 
-// resource = {type: [collection or table], id: [collection or table id]}
-const getResourcePermissions = async (resource, user) => {
-
-  var client = await pool.connect()
-  var permissions;
-
-  switch (resource) {
-    case "collections":
-      permissions = await client.query(`select *,
-                                      (owner_username = $1) as write,
-                                      (visibility = 'public' OR owner_username = $1) as read
-                                      from collection`,[user])
-      break;
-    case "table":
-      break;
-    default:
-
-  }
-
-  client.release()
-
-  return permissions?.rows.reduce( (acc, row) => {
-            	var currentRead = acc.read
-            	var currentWrite = acc.write
-      				if (row.read){
-      					currentRead.push(row.collection_id)
-              }
-              if (row.write){
-      					currentWrite.push(row.collection_id)
-              }
-      				acc.read = currentRead
-      				acc.write = currentWrite
-            	return acc
-            },{read:[],write:[]})
-}
-
-
-// Collections
-var listCollections = async () => {
-    var client = await pool.connect()
-    var result = await client.query(
-      `SELECT collection.collection_id, title, description, owner_username, table_n
-       FROM public.collection
-       LEFT JOIN
-       ( SELECT collection_id, count(docid) as table_n FROM
-       ( select distinct docid, page, collection_id from public.table ) as interm
-       group by collection_id ) as coll_counts
-       ON collection.collection_id = coll_counts.collection_id ORDER BY collection_id`)
-        client.release()
-    return result.rows
-}
-
-var getCollection = async ( collection_id ) => {
-    var client = await pool.connect()
-    var result = await client.query(
-      `SELECT *
-      FROM public.collection WHERE collection_id = $1`,[collection_id])
-
-    var tables = await client.query(
-      `SELECT docid, page, "user", notes, tid, collection_id, file_path, "tableType"
-      FROM public."table" WHERE collection_id = $1 ORDER BY docid,page`,[collection_id])
-
-    var collectionsList = await client.query(
-      `SELECT * FROM public.collection ORDER BY collection_id`);
-
-    client.release()
-
-    if ( result.rows.length == 1){
-        result = result.rows[0]
-        result.tables = tables.rows;
-        result.collectionsList = collectionsList.rows;
-        return result
-    }
-    return {}
-}
-
-var createCollection = async (title, description, owner) => {
-
-    var client = await pool.connect()
-    var result = await client.query(`INSERT INTO public.collection(
-                                      title, description, owner_username, visibility, completion)
-                                      VALUES ($1, $2, $3, $4, $5);`, [title, description, owner, "public", "in progress"] )
-        result = await client.query(`Select * from collection
-                                     ORDER BY collection_id DESC LIMIT 1;` )
-    client.release()
-    return result
-}
-
-var editCollection = async (collData) => {
-    var client = await pool.connect()
-    var result = await client.query(
-      `UPDATE public.collection
-      SET title=$2, description=$3, owner_username=$4, completion=$5, visibility=$6
-      WHERE collection_id=$1`,
-      [collData.collection_id, collData.title, collData.description,
-        collData.owner_username, collData.completion, collData.visibility])
-    client.release()
-    return result
-}
-
-var deleteCollection = async (collection_id) => {
-  var client = await pool.connect()
-
-  var tables = await client.query(
-    `SELECT docid, page FROM public."table" WHERE collection_id = $1`,[collection_id]
-  )
-
-  tables = tables.rows
-  var result = await removeTables(tables, collection_id, true);
-
-  var results = await client.query(
-    `DELETE FROM collection WHERE collection_id = $1`, [collection_id]
-  )
-  client.release()
-}
-
-const getResults = async ( tids ) => {
-  console.log(JSON.stringify(tids))
-  var client = await pool.connect()
-  var result = await client.query(`SELECT * FROM "result" WHERE tid = ANY ($1)`,[tids])
-        client.release()
-  return result
-}
-
 const getResultsRefreshed = async ( tids ) => {
-
-  var client = await pool.connect()
-  var annotation_data = await client.query(`SELECT docid, page, collection_id, file_path, "table".tid, "annotations".annotation	FROM "table", "annotations" where "table".tid = "annotations".tid AND "table".tid = ANY ($1)`,[tids])
-  client.release()
-
+   // Path to tables
+   const {
+    tables_folder,
+    tables_folder_override,
+  } = global.CONFIG
+  const annotation_data = await dbDriver.annotationDataGet(tids)
   var table_results = []
 
   for ( var ann in annotation_data.rows ) {
 
-    console.log( "Preparing Table: "+ann+" / "+annotation_data.rows.length )
+    console.log(`Preparing Table: ${ann} / ` + annotation_data.rows.length )
     try{
-      var entry = annotation_data.rows[ann]
+      const entry = annotation_data.rows[ann]
 
-      var override_exists = await fs.existsSync(path.join(global.tables_folder_override, entry.collection_id, entry.file_path))
+      let override_exists = true
+      try {
+        const fd = await fs.open(path.join(tables_folder_override, entry.collection_id, entry.file_path))
+        fd.close()
+      } catch (err) {
+        override_exists = false
+      }
 
       var table_res = await getFileResults( entry.annotation,
-            path.join(override_exists ? tables_folder_override : global.tables_folder, entry.collection_id,
+            path.join(override_exists ? tables_folder_override : tables_folder, entry.collection_id,
             entry.file_path) )
 
       table_results = [...table_results, table_res]
 
-    } catch( e ){
+    } catch( err ){
       console.log( "Failed: "+ path.join(entry.collection_id, entry.file_path) )
+      console.log(err)
     }
-
   }
-
   return table_results
 }
 
-app.post(CONFIG.api_base_url+'/collections', async function(req,res){
+// Collections
+app.post(CONFIG.api_base_url+'/collections', async (req, res) => {
 
   if ( req.body && ( ! req.body.action ) ){
     res.json({status: "undefined", received : req.query})
     return
   }
 
-  var validate_user = validateUser(req.body.username, req.body.hash);
+  const {
+    username=undefined,
+    hash=undefined,
 
-  var collectionPermissions = await getResourcePermissions('collections', validate_user ? req.body.username : "")
+    action,
 
-  var response = {status: "failed"}
+    collection_id,
+    collectionData,
 
-  // var available_options = {
-  //
-  // }
-  // if ( validate_user ){
+    tid,
+    target,
+  } = req.body
+  var validate_user = validateUser(
+    username,
+    hash,
+  );
+
+  const collectionPermissions = await dbDriver.permissionsResourceGet('collections', validate_user ? username : '')
+  let response = {status: "failed"}
 
   var result;
 
-  switch (req.body.action) {
+  switch (action) {
     case "list":
-      result = await listCollections();
-      result = result.filter( (elm) => {return collectionPermissions.read.indexOf(elm.collection_id) > -1} )
+      result = await dbDriver.collectionsList();
+      result = result.filter( (elm) => collectionPermissions.read.includes(elm.collection_id) )
       response = {status: "success", data: result}
       break;
 
     case "get":
-      if ( collectionPermissions.read.indexOf(req.body.collection_id) > -1 ){
-        result = await getCollection(req.body.collection_id);
+      if ( collectionPermissions.read.includes(collection_id) ){
+        result = await dbDriver.collectionGet(collection_id);
 
         result.permissions = {
-          read: collectionPermissions.read.indexOf(req.body.collection_id) > -1,
-          write: collectionPermissions.write.indexOf(req.body.collection_id) > -1
+          read: collectionPermissions.read.includes(collection_id),
+          write: collectionPermissions.write.includes(collection_id)
         }
 
         response = {status: "success", data: result}
@@ -920,8 +755,8 @@ app.post(CONFIG.api_base_url+'/collections', async function(req,res){
       break;
 
     case "delete":
-      if ( collectionPermissions.write.indexOf(req.body.collection_id) > -1 ){
-        await deleteCollection(req.body.collection_id);
+      if ( collectionPermissions.write.includes(collection_id) ){
+        await dbDriver.collectionDelete(collection_id);
         response = {status: "success", data: {}}
       } else {
         response = {status:"unauthorised operation", payload: req.body}
@@ -930,19 +765,19 @@ app.post(CONFIG.api_base_url+'/collections', async function(req,res){
 
     case "create":
       if ( validate_user ){
-        result = await createCollection("new collection", "", req.body.username);
+        result = await dbDriver.collectionCreate("new collection", '', username);
         response = {status:"success", data: result}
       } else {
         response = {status:"login to create collection", payload: req.body}
       }
       break;
 
-    // Well use edit to createCollection on the fly
+    // Well use edit to create Collection on the fly
     case "edit":
-      if ( collectionPermissions.write.indexOf(req.body.collection_id) > -1 ){
-        var allCollectionData = JSON.parse( req.body.collectionData )
-        result = await editCollection(allCollectionData);
-        result = await getCollection(req.body.collection_id);
+      if ( collectionPermissions.write.indexOf(collection_id) > -1 ){
+        var allCollectionData = JSON.parse( collectionData )
+        result = await dbDriver.collectionEdit(allCollectionData);
+        result = await dbDriver.collectionGet(collection_id);
         response = {status: "success", data: result}
       } else {
         response = {status:"unauthorised operation", payload: req.body}
@@ -951,18 +786,20 @@ app.post(CONFIG.api_base_url+'/collections', async function(req,res){
 
     case "download":  //
 
-      var tids = JSON.parse(req.body.tid);
+      var tids = JSON.parse(tid);
 
-
-
-      if ( req.body.target.indexOf("results") > -1 ){
-        result = await getResults( tids );
-      } else if( req.body.target.indexOf("metadata") > -1 ) {
-        result = await getMetadata( tids );
+      // Download file
+      if ( target.includes("results") ){
+        // data csv
+        result = await dbDriver.resultsDataGet( tids );
+      } else if( target.includes("metadata") ) {
+        // metadata csv
+        result = await dbDriver.metadataGet( tids );
       } else {
+        // data & metadata json
         // Default Action.
         var result_res = await getResultsRefreshed( tids )
-        var result_met = await getMetadata( tids );
+        var result_met = await dbDriver.metadataGet( tids );
         // var result =
 
         result = {data: result_res, metadata: result_met?.rows}
@@ -979,127 +816,71 @@ app.post(CONFIG.api_base_url+'/collections', async function(req,res){
   res.json(response)
 });
 
-// Tables
-const createTable = async (docid,page,user,collection_id,file_path) => {
-
-    var client = await pool.connect()
-    var result = await client.query(
-      `INSERT INTO public."table"(
-	       docid, page, "user", notes, collection_id, file_path, "tableType")
-	     VALUES ($1, $2, $3, $4, $5, $6, $7);`,
-         [docid,page,user,"",collection_id,file_path,""])
-
-    client.release()
-    return result
-}
-
-const removeTables = async (tables, collection_id, fromSelect = false) => {
-
-    if (!fromSelect){
-      tables = tables.map( (tab) => { const [docid, page] = tab.split("_"); return {docid,page} })
-    }
-
-    var client = await pool.connect()
-
-    for ( var i = 0; i < tables.length; i++){
-      var result = await client.query(
-        `DELETE FROM public."table"
-        	WHERE docid = $1 AND page = $2 AND collection_id = $3;`,
-           [tables[i].docid, tables[i].page, collection_id])
-
-      var filename = tables[i].docid +"_"+ tables[i].page+".html";
-      try{
-        moveFileToCollection({ originalname: filename, path: path.join(global.tables_folder, collection_id, filename) }, "deleted" )
-      } catch (err){
-        console.log("REMOVE FILE DIDN't EXIST: "+JSON.stringify(err))
-      }
-    }
-
-    client.release()
-    return result
-}
-
-const moveTables = async (tables, collection_id, target_collection_id) => {
-    tables = tables.map( (tab) => { const [docid, page] = tab.split("_"); return {docid,page} })
-
-    var client = await pool.connect()
-
-    for ( var i = 0; i < tables.length; i++){
-      var result = await client.query(
-        `UPDATE public."table"
-	       SET collection_id=$4
-         WHERE docid = $1 AND page = $2 AND collection_id = $3;`,
-        [tables[i].docid, tables[i].page, collection_id, target_collection_id])
-
-      var filename = tables[i].docid +"_"+ tables[i].page+".html";
-      try{
-        moveFileToCollection({ originalname: filename, path: path.join(global.tables_folder, collection_id, filename) }, target_collection_id )
-      } catch (err){
-        console.log("MOVE FILE DIDN't EXIST: "+JSON.stringify(err))
-      }
-    }
-
-    client.release()
-    return result
-}
-
-
-
-app.post(CONFIG.api_base_url+'/tables', async function(req,res){
+app.post(CONFIG.api_base_url+'/tables', async (req, res) => {
 
   if ( req.body && ( ! req.body.action ) ){
-    res.json({status: "undefined", received : req.query})
-    return
+    return res.json({status: "undefined", received : req.query})
   }
 
-  var validate_user = validateUser(req.body.username, req.body.hash);
-  var collectionPermissions = await getResourcePermissions('collections', validate_user ? req.body.username : "")
+  const {
+    username=undefined,
+    hash=undefined,
 
-  if ( validate_user ){
+    action,
 
+    collection_id,
+    tablesList,
+    targetCollectionID,
+  } = req.body
+
+  var validate_user = validateUser(username, hash);
+  var collectionPermissions = await dbDriver.permissionsResourceGet('collections', validate_user ? username : "")
+
+  if ( validate_user ) {
     var result = {};
 
-    switch (req.body.action) {
+    switch (action) {
       case "remove":
-        if ( collectionPermissions.write.indexOf(req.body.collection_id) > -1 ){
-          result = await removeTables(JSON.parse(req.body.tablesList), req.body.collection_id);
+        if ( collectionPermissions.write.includes(collection_id) ) {
+          result = await dbDriver.tablesRemove(JSON.parse(tablesList), collection_id);
         }
         break;
       case "move":
-        if ( collectionPermissions.write.indexOf(req.body.collection_id) > -1 ){
-          result = await moveTables(JSON.parse(req.body.tablesList), req.body.collection_id, req.body.targetCollectionID);
+        if ( collectionPermissions.write.includes(collection_id) ) {
+          result = await dbDriver.tablesMove(JSON.parse(tablesList), collection_id, targetCollectionID);
         }
         break;
       case "list":  // This is the same as not doing anything and returning the collection and its tables.
       default:
     }
     // Always return the updated collection details
-    result = await getCollection(req.body.collection_id);
+    result = await dbDriver.collectionGet(collection_id);
     res.json({status: "success", data: result})
   } else {
     res.json({status:"unauthorised", payload: null})
   }
-
 });
 
+app.post(CONFIG.api_base_url+'/search', async (req,res) => {
 
-
-app.post(CONFIG.api_base_url+'/search', async function(req,res){
-
-  var bod = req.body.searchContent
+  const {
+    username=undefined,
+    hash=undefined,
+    searchContent,
+  } = req.body
   var type = JSON.parse(req.body.searchType)
 
-  var validate_user = validateUser(req.body.username, req.body.hash);
-  var collectionPermissions = await getResourcePermissions('collections', validate_user ? req.body.username : "")
+  var validate_user = validateUser(username, hash);
+  var collectionPermissions = await dbDriver.permissionsResourceGet('collections', validate_user ? username : '')
   // if ( collectionPermissions.write.indexOf(req.body.collection_id) > -1 ){
 
   //if ( validate_user ){
 
-  var search_results = easysearch.search( global.searchIndex, bod)
+  let search_results = easysearch.search( global.searchIndex, searchContent)
 
-  search_results = search_results.filter( (elm) => { return collectionPermissions.read.indexOf(elm.doc.split("/")[0]) > -1  } )
+  search_results = search_results.filter( (elm) => collectionPermissions.read.includes( elm.doc.split("/")[0] ) )
 
-  console.log("SEARCH: "+ search_results.length+ " for " + bod )
+  console.log(`SEARCH: ${search_results.length} for ${searchContent}`)
 
   // if ( search_results.length > 100){
   //   search_results = search_results.slice(0,100)
@@ -1109,378 +890,307 @@ app.post(CONFIG.api_base_url+'/search', async function(req,res){
   // } else {
   //   res.json([])
   // }
-
 });
 
+app.post(CONFIG.api_base_url+'/getTableContent',async (req,res) => {
 
-app.post(CONFIG.api_base_url+'/getTableContent',async function(req,res){
+  const {
+    username=undefined,
+    hash=undefined,
 
+    enablePrediction,
 
-    var bod = req.body.searchContent
+    docid,
+    page,
+    collId,
+  } = req.body
 
-    var validate_user = validateUser(req.body.username, req.body.hash);
+  const validate_user = validateUser(username, hash);
+  const collectionPermissions = await dbDriver.permissionsResourceGet('collections', validate_user ? username : "")
 
-    var collectionPermissions = await getResourcePermissions('collections', validate_user ? req.body.username : "")
+  if ( collectionPermissions.read.includes(collId) == false ){
+    return res.json({status: "unauthorised", body : req.body})
+  }
 
-    if ( collectionPermissions.read.indexOf(req.body.collId) > -1 ){
-
-      try{
-
-        if(req.body.docid && req.body.page && req.body.collId ){
-          var collection_data = await getCollection(req.body.collId)
-
-          var enablePrediction = JSON.parse(req.body.enablePrediction)
-
-          var tableData = await readyTable(req.body.docid, req.body.page, req.body.collId, enablePrediction ) // false, predictions are disabled.
-
-          var annotation = await getAnnotationByID(req.body.docid, req.body.page, req.body.collId)
-
-          tableData.collectionData = collection_data
-
-          tableData.annotationData = annotation && annotation.rows.length > 0 ? annotation.rows[0] : {}
-
-          if ( enablePrediction ){
-            var rows = tableData.predictedAnnotation.rows.map( ann  => {
-              return {
-                location: "Row",
-                content: ann.descriptors.reduce( (acc,d) => { acc[d] = true; return acc },{}),
-                number: (ann.c+1)+"",
-                qualifiers: ann.unique_modifier == "" ? {} : ann.unique_modifier.split(";").filter( a => a.length > 1).reduce( (acc,d) => { acc[d] = true; return acc }, {}),
-                subannotation: false }
-              })
-
-            var cols = tableData.predictedAnnotation.cols.map( ann  => {
-              return {
-                location: "Col",
-                content: ann.descriptors.reduce( (acc,d) => { acc[d] = true; return acc },{}),
-                number: (ann.c+1)+"",
-                qualifiers: ann.unique_modifier == "" ? {} : ann.unique_modifier.split(";").filter( a => a.length > 1).reduce( (acc,d) => { acc[d] = true; return acc }, {}),
-                subannotation: false }
-              })
-
-            var predAnnotationData = (tableData.annotationData && tableData.annotationData.annotation) ? tableData.annotationData : {
-              annotation: {
-                  collection_id: req.body.collId,
-                  completion: "",
-                  docid: req.body.docid,
-                  file_path: req.body.docid + "_" + req.body.page + ".html",
-                  notes: "",
-                  page: req.body.page,
-                  tableType: "",
-                  tid: tableData.collectionData.tables.filter( ( table ) => { return table.docid == req.body.docid && table.page == req.body.page } )[0].tid,
-                  user: req.body.username,
-                }
-            }
-
-            // var tData = tableData.collectionData.tables.filter( ( table ) => { return table.docid == req.body.docid && table.page == req.body.page } )
-            predAnnotationData.annotation.annotations = [...rows, ...cols]
-
-
-            tableData.annotationData = predAnnotationData
-
-          }
-          tableData.permissions = {read: collectionPermissions.read.indexOf(req.body.collId) > -1 , write: collectionPermissions.write.indexOf(req.body.collId) > -1}
-
-          res.json( tableData )
-        } else {
-
-          res.json({status: "wrong parameters", body : req.body})
-        }
-      } catch (e){
-        console.log(e)
-
-        res.json({status: "getTableContent: probably page out of bounds, or document does not exist", body : req.body})
-      }
-
-    } else {
-      res.json({status: "unauthorised", body : req.body})
+  try {
+    if ((docid && page && collId) == false) {
+      return res.json({status: "wrong parameters", body : req.body})
     }
+    
+    const collection_data = await dbDriver.collectionGet(collId)
+
+    const predictionEnabled = JSON.parse(enablePrediction)
+
+    const tableData = await readyTable(
+      docid,
+      page,
+      collId,
+      // false, predictions are disabled.
+      predictionEnabled
+    )
+
+    let annotation = await dbDriver.annotationByIDGet(
+      docid,
+      page,
+      collId,
+    )
+
+    tableData.collectionData = collection_data
+
+    tableData.annotationData = annotation && annotation.rows.length > 0 ? annotation.rows[0] : {}
+
+    if ( predictionEnabled ) {
+      const rows = tableData.predictedAnnotation.rows.map( ann  => {
+        return {
+          location: "Row",
+          content: ann.descriptors.reduce( (acc,d) => { acc[d] = true; return acc }, {}),
+          number: (ann.c+1)+'',
+          qualifiers: ann.unique_modifier == "" ?
+            {} 
+            : ann.unique_modifier.split(";")
+              .filter( a => a.length > 1)
+              .reduce( (acc,d) => { acc[d] = true; return acc }, {}),
+          subannotation: false
+        }
+      })
+
+      const cols = tableData.predictedAnnotation.cols.map( ann  => {
+        return {
+          location: "Col",
+          content: ann.descriptors.reduce( (acc,d) => { acc[d] = true; return acc }, {}),
+          number: (ann.c+1)+'',
+          qualifiers: ann.unique_modifier == "" ?
+            {}
+            : ann.unique_modifier.split(";")
+              .filter( a => a.length > 1)
+              .reduce( (acc,d) => { acc[d] = true; return acc }, {}),
+          subannotation: false 
+        }
+      })
+
+      const predAnnotationData = (tableData.annotationData && tableData.annotationData.annotation) ? 
+        tableData.annotationData
+        : {
+          annotation: {
+            collection_id: collId,
+            completion: '',
+            docid,
+            file_path: `${docid}_${page}.html`,
+            notes: '',
+            page,
+            tableType: '',
+            tid: tableData.collectionData.tables.filter( table => table.docid == docid && table.page == page )[0].tid,
+            user: username,
+          }
+        }
+
+      // var tData = tableData.collectionData.tables.filter( ( table ) => { return table.docid == req.body.docid && table.page == req.body.page } )
+      predAnnotationData.annotation.annotations = [...rows, ...cols]
+
+      tableData.annotationData = predAnnotationData
+    }
+    tableData.permissions = {
+      read: collectionPermissions.read.includes(collId),
+      write: collectionPermissions.write.includes(collId)
+    }
+
+    res.json( tableData )
+  } catch (err) {
+    console.log(err)
+
+    res.json({
+      status: "getTableContent: probably page out of bounds, or document does not exist",
+      body : req.body
+    })
+  }
 });
 
 // Extracts all recommended CUIs from the DB and formats them as per the "recommend_cuis" variable a the bottom of the function.
-async function getRecommendedCUIS(){
-  var cuiRecommend = async () => {
-    var client = await pool.connect()
-    var result = await client.query(`select * from cuis_recommend`)
-          client.release()
-    return result
+ const getRecommendedCUIS = async () => {
+  const recommend_cuis = {}
+
+  let rec_cuis = await dbDriver.cuiRecommend()
+
+  const splitConcepts = ( c ) => {
+    if ( c == null ) {
+      return []
+    }
+    // remove trailing ;
+    var ret = c[0] == ";" ? c.slice(1) : c
+
+    return ret.length > 0 ? ret.split(";") : []
   }
 
-  var recommend_cuis = {}
-
-  var rec_cuis = (await cuiRecommend()).rows
-
-  var splitConcepts = ( c ) => {
-
-      if ( c == null ){
-        return []
-      }
-
-      var ret = c[0] == ";" ? c.slice(1) : c // remove trailing ;
-
-      return ret.length > 0 ? ret.split(";") : []
+  if (!rec_cuis) {
+    return recommend_cuis
   }
 
-  rec_cuis ? rec_cuis.map ( item => {
+  rec_cuis.forEach( item => {
+    const cuis = splitConcepts(item.cuis)
+    const rep_cuis = splitConcepts(item.rep_cuis)
+    const excluded_cuis = splitConcepts(item.excluded_cuis)
 
-    var cuis = splitConcepts(item.cuis)
-    var rep_cuis = splitConcepts(item.rep_cuis)
-    var excluded_cuis = splitConcepts(item.excluded_cuis)
+    const rec_cuisInner = []
 
-    var rec_cuis = []
-
-    cuis.forEach(function(cui) {
-    	if ( excluded_cuis.indexOf(cui) < 0 ){
-        if ( rep_cuis.indexOf(cui) < 0 ){
-            rec_cuis.push(cui)
+    cuis.forEach((cui) => {
+    	if ( excluded_cuis.includes(cui) == false ) {
+        if ( rep_cuis.includes(cui) == false ) {
+          rec_cuisInner.push(cui)
         }
       }
     });
 
-    recommend_cuis[item.concept] = { cuis: rep_cuis.concat(rec_cuis), cc: item.cc }
-
-  }) : ""
+    recommend_cuis[item.concept] = {
+      cuis: rep_cuis.concat(rec_cuisInner),
+      cc: item.cc
+    }
+  })
   return recommend_cuis
 }
 
 app.get(CONFIG.api_base_url+'/cuiRecommend', async function(req,res){
-
-  var cuirec = await getRecommendedCUIS()
-
-  res.send( cuirec )
-
+  const cuiRecommend = await getRecommendedCUIS()
+  res.send( cuiRecommend )
 });
 
 const prepareAnnotationPreview = async (docid, page, collId, cachedOnly) => {
+   // Path to tables
+   const {
+    tables_folder,
+    tables_folder_override,
+  } = global.CONFIG
 
-      var annotations = await getAnnotationByID(docid, page, collId)
-      if ( annotations.rows.length > 0 ){
-        var entry = annotations.rows[0]
+  const annotations = await dbDriver.annotationByIDGet(docid, page, collId)
+  if ( annotations.rows.length <= 0 ) {
+    return {"state" : "fail", result : []}
+  }
+  const entry = annotations.rows[0]
 
-        var override_exists = await fs.existsSync(path.join(global.tables_folder_override, entry.collection_id, entry.file_path))
+  // Check if file exist
+  let override_exists = true
+  try {
+    const fd = await fs.open(path.join(tables_folder_override, entry.collection_id, entry.file_path))
+    fd.close()
+  } catch (err) {
+    override_exists = false
+  }
 
-        var tableResults = await getFileResults(entry.annotation, path.join(override_exists ? tables_folder_override : global.tables_folder, entry.collection_id, entry.file_path) )
-            tableResults.map( item => { item.docid_page = entry.docid+"_"+entry.page })
+  const tableResults = await getFileResults(
+    entry.annotation,
+    path.join(
+      override_exists ? tables_folder_override : tables_folder,
+      entry.collection_id,
+      entry.file_path
+    )
+  )
+  tableResults.forEach( item => { item.docid_page = entry.docid+"_"+entry.page })
 
-        return {"state" : "good", result : tableResults}
-      } else {
-        return {"state" : "fail", result : []}
-      }
-
-      // debugge
-      var tid = annotations.rows.length > 0 ? annotations.rows[0].tid : -1;
-
-      if ( tid < 0 ){
-        return {status: "wrong parameters (missing tid)"};
-      }
-
-      var client = await pool.connect()
-
-      var tableResult = await client.query(
-        `SELECT tid, "tableResult" FROM result WHERE tid = $1`,[tid]
-      )
-
-      client.release()
-
-      tableResult = tableResult && (tableResult.rows.length > 0) ? tableResult.rows[0].tableResult : []
-
-      if ( cachedOnly === 'true' ){
-
-        var toReturn = {}
-        if ( tableResult.length > 0){
-          toReturn = {"state" : "good", result : tableResult }
-        } else {
-          toReturn = {"state" : "good", result : [] }
-        }
-
-        // console.log("Fast reload: "+ req.body.docid +" - "+ req.body.page +" - "+ req.body.collId)
-        return toReturn;
-      }
-
-      var final_annotations = {}
-
-      /**
-      * There are multiple versions of the annotations. When calling reading the results from the database, here we will return only the latest/ most complete version of the annotation.
-      * Independently from the author of it. Completeness here measured as the result with the highest number of annotations and the highest index number (I.e. Newest, but only if it has more information/annotations).
-      * May not be the best in some cases.
-      *
-      */
-
-      for ( var r in annotations.rows){
-        var ann = annotations.rows[r]
-        var existing = final_annotations[ann.docid+"_"+ann.page]
-        if ( existing ){
-          if ( ann.N > existing.N && ann.annotation.annotations.length >= existing.annotation.annotations.length ){
-                final_annotations[ann.docid+"_"+ann.page] = ann
-          }
-        } else { // Didn't exist so add it.
-          final_annotations[ann.docid+"_"+ann.page] = ann
-        }
-      }
-
-      var final_annotations_array = []
-      for (  var r in final_annotations ){
-        var ann = final_annotations[r]
-        final_annotations_array[final_annotations_array.length] = ann
-      }
-
-
-      if( final_annotations_array.length > 0){
-
-            var entry = final_annotations_array[0]
-                entry.annotation = !entry.annotation ? [] : entry.annotation.annotations.map( (v,i) => {
-                  var ann = v;
-                      ann.content = Object.keys(ann.content).join(";");
-                      ann.qualifiers = Object.keys(ann.qualifiers).join(";");
-                  return ann
-                })
-
-            console.log(entry)
-
-            entry.annotation.reduce( (acc, entry, i) => {
-              acc[entry.content] = acc[entry.content] ? acc[entry.content]+1 : 1;
-              entry.content = entry.content+"@"+acc[entry.content];
-              return acc
-            }, {})
-
-            console.log("TRY: "+ 'http://'+CONFIG.plumber_url+'/preview')
-
-
-            var doRequest = new Promise( async (accept, reject) => {
-
-              await request({
-                      url: 'http://'+CONFIG.plumber_url+'/preview',
-                      method: "POST",
-                      json: {
-                        anns: entry,
-                        collId: collId
-                      }
-                }, async function (error, response, body) {
-
-                  // console.log("pentada"+JSON.stringify(error))
-                  var insertResult = async (tid, tableResult) => {
-                        var client = await pool.connect()
-                        var done = await client.query('INSERT INTO result(tid, "tableResult") VALUES ($1, $2) ON CONFLICT (tid) DO UPDATE SET "tableResult" = $2',  [tid, tableResult])
-                          .then(result => console.log("insert result: "+ new Date()))
-                          .catch(e => console.error(e.stack))
-                          .then(() => client.release())
-                  }
-
-                  if ( body && body.tableResult && body.tableResult.length > 0){
-                    await insertResult(body.ann.tid[0], body.tableResult)
-                    console.log("tableresults: "+body.tableResult.length)
-                    accept({"state" : "good", result : body.tableResult})
-                  } else {
-                    console.log("tableresults: empty. Is plumber/R API running, or annotation empty?")
-                    accept({"state" : "good", result : []})
-                  }
-              });
-
-            })
-
-        var plumberResult = await doRequest
-
-
-        plumberResult["backAnnotation"] = annotations
-        return plumberResult
-      } else {
-        return {"state" : "empty"}
-      }
-
-      return {"state":"whathappened!"}
+  return {"state" : "good", result : tableResults}
 }
 
 // Generates the results table live preview, connecting to the R API.
 app.post(CONFIG.api_base_url+'/annotationPreview',async function(req,res){
 
-      var bod = req.body.searchContent
+  const {
+    username=undefined,
+    hash=undefined,
 
-      var validate_user = validateUser(req.body.username, req.body.hash);
+    docid,
+    page,
+    collId,
 
-      var collectionPermissions = await getResourcePermissions('collections', validate_user ? req.body.username : "")
+    cachedOnly,
+  } = req.body
 
-      if ( collectionPermissions.read.indexOf(req.body.collId) > -1 ){
+  const validate_user = validateUser(username, hash);
+  const collectionPermissions = await dbDriver.permissionsResourceGet('collections', validate_user ? username : '')
 
-        try{
+  if ( collectionPermissions.read.includes(collId) == false ) {
+    return res.json([])
+  }
 
-          if(req.body.docid && req.body.page && req.body.collId ){
+  try{
+    if (
+      (
+        docid &&
+        page &&
+        collId
+      ) == false
+    ) {
+      return res.json({status: "wrong parameters", body : req.body})
+    }
 
-            res.json(await prepareAnnotationPreview(req.body.docid , req.body.page, req.body.collId, req.body.cachedOnly))
-
-          } else {
-            res.json({status: "wrong parameters", body : req.body})
-          }
-
-        } catch (e){
-          console.log(e)
-          res.json({status: "annotationPreview : probably page out of bounds, or document does not exist", body : req.body})
-        }
-
-      } else {
-        res.json([])
-      }
-      // res.json( {"state" : "reached end", result : []} )
+    res.json(await prepareAnnotationPreview(docid , page, collId, cachedOnly))
+  } catch (err) {
+    console.log(err)
+    res.json({status: "annotationPreview : probably page out of bounds, or document does not exist", body : req.body})
+  }
+  // res.json( {"state" : "reached end", result : []} )
 });
 
 // Returns all annotations for all document/tables.
 app.get(CONFIG.api_base_url+'/formattedResults', async function (req,res){
+  const results = await dbDriver.annotationResultsGet()
 
-       var results = await getAnnotationResults()
+  if ( !results || !results.rows ) {
+    return res.send('No Rows')
+  }
+  const finalResults = {}
 
-       if ( results ){
+  /**
+  * There are multiple versions of the annotations. 
+  * When calling reading the results from the database,
+  * here we will return only the latest/ most complete version of the annotation.
+  * Independently from the author of it. 
+  * Completeness here measured as the result with 
+  * the highest number of annotations and the highest index number
+  * (I.e. Newest, but only if it has more information/annotations).
+  * May not be the best in some cases.
+  */
 
-          var finalResults = {}
-
-          /**
-          * There are multiple versions of the annotations. When calling reading the results from the database, here we will return only the latest/ most complete version of the annotation.
-          * Independently from the author of it. Completeness here measured as the result with the highest number of annotations and the highest index number (I.e. Newest, but only if it has more information/annotations).
-          * May not be the best in some cases.
-          */
-
-          for ( var r in results.rows){
-            var ann = results.rows[r]
-            var existing = finalResults[ann.docid+"_"+ann.page]
-            if ( existing ){
-              if ( ann.N > existing.N && ann.annotation.annotations.length >= existing.annotation.annotations.length ){
-                    finalResults[ann.docid+"_"+ann.page] = ann
-              }
-            } else { // Didn't exist so add it.
-              finalResults[ann.docid+"_"+ann.page] = ann
-            }
-          }
-
-          var finalResults_array = []
-          for (  var r in finalResults ){
-            var ann = finalResults[r]
-            finalResults_array[finalResults_array.length] = ann
-          }
-
-          var formattedRes = '"user","docid","page","corrupted_text","tableType","location","number","content","qualifiers"\n';
-
-          finalResults_array.map( (value, i) => {
-            value.annotation.annotations.map( (ann , j ) => {
-              try {
-                formattedRes = formattedRes+ '"'+value.user
-                                          +'","'+value.docid
-                                          +'","'+value.page
-                                          // +'","'+value.corrupted
-                                          +'","'+ (value.corrupted_text == "undefined" ? "" : value.corrupted_text  ).replace(/\"/g,"'")
-                                          +'","'+value.tableType
-                                          +'","'+ann.location
-                                          +'","'+ann.number
-                                          +'","'+(Object.keys(ann.content).join(';'))
-                                          +'","'+(Object.keys(ann.qualifiers).join(';'))+'"'+"\n"
-              } catch (e){
-                console.log("an empty annotation, no worries: "+JSON.stringify(ann))
-              }
-
-            })
-          })
-
-          res.send(formattedRes)
+  for ( const r in results.rows){
+    const ann = results.rows[r]
+    const existing = finalResults[ann.docid+"_"+ann.page]
+    if ( existing ){
+      if ( ann.N > existing.N && ann.annotation.annotations.length >= existing.annotation.annotations.length ) {
+        finalResults[ann.docid+"_"+ann.page] = ann
       }
+    } else { // Didn't exist so add it.
+      finalResults[ann.docid+"_"+ann.page] = ann
+    }
+  }
+
+  let finalResults_array = []
+  for (  const r in finalResults ){
+    const ann = finalResults[r]
+    finalResults_array[finalResults_array.length] = ann
+  }
+
+  let formattedRes = '"user","docid","page","corrupted_text","tableType","location","number","content","qualifiers"\n';
+
+  finalResults_array.forEach( (value, i) => {
+    value.annotation.annotations.forEach( (ann , j ) => {
+      try {
+        formattedRes = formattedRes+ '"'+value.user
+                                  +'","'+value.docid
+                                  +'","'+value.page
+                                  // +'","'+value.corrupted
+                                  +'","'+ (value.corrupted_text == "undefined" ? "" : value.corrupted_text  ).replace(/\"/g,"'")
+                                  +'","'+value.tableType
+                                  +'","'+ann.location
+                                  +'","'+ann.number
+                                  +'","'+(Object.keys(ann.content).join(';'))
+                                  +'","'+(Object.keys(ann.qualifiers).join(';'))+'"'+"\n"
+      } catch (err) {
+        console.log("an empty annotation, no worries: "+JSON.stringify(ann))
+      }
+    })
+  })
+
+  res.send(formattedRes)
 })
 
+// ! :-)
 // app.get('/api/abs_index',function(req,res){
 //
 //   var output = "";
@@ -1500,39 +1210,31 @@ app.get(CONFIG.api_base_url+'/formattedResults', async function (req,res){
 //   res.send({total : DOCS.length})
 // });
 
-
 const getMMatch = async (phrase) => {
-
   phrase = phrase.trim().replace(/[^A-Za-z 0-9 \.,\?""!@#\$%\^&\*\(\)-_=\+;:<>\/\\\|\}\{\[\]`~]*/g, '') //.replace(/[\W_]+/g," ");
 
   console.log("Asking MM for: "+ phrase)
 
-  var result = new Promise(function(resolve, reject) {
-
-    request.post({
-        headers: {'content-type' : 'application/x-www-form-urlencoded'},
-        url:     'http://'+CONFIG.metamapper_url+'/form',
-        body:    "input="+phrase+" &args=-AsI+ --JSONn -E"
-      }, (error, res, body) => {
-      if (error) {
-        reject(error)
-        return
-      }
-
-      var start = body.indexOf('{"AllDocuments"')
-      var end = body.indexOf("'EOT'.")
-
-      resolve(body.slice(start, end))
+  let result
+  let mm_match
+  try {
+    result = await axios.post({
+      headers: {'content-type' : 'application/x-www-form-urlencoded'},
+      url:     'http://'+CONFIG.metamapper_url+'/form',
+      // body
+      data:    "input="+phrase+" &args=-AsI+ --JSONn -E"
     })
 
+    const start = result.indexOf('{"AllDocuments"')
+    const end = result.indexOf("'EOT'.")
 
-  });
-
-  var mm_match = await result
+    mm_match = result.slice(start, end)
+  } catch(err) {
+    return err
+  }
 
   try{
-
-    var r = JSON.parse(mm_match).AllDocuments[0].Document.Utterances.map(
+    let r = JSON.parse(mm_match).AllDocuments[0].Document.Utterances.map(
                     utterances => utterances.Phrases.map(
                       phrases => phrases.Mappings.map(
                         mappings => mappings.MappingCandidates.map(
@@ -1547,301 +1249,358 @@ const getMMatch = async (phrase) => {
                              )
                            )
                          )
-
+    // ! :-)
     // // This removes duplicate cuis
     // r = r.reduce( (acc,el) => {if ( acc.cuis.indexOf(el.CUI) < 0 ){acc.cuis.push(el.CUI); acc.data.push(el)}; return acc }, {cuis: [], data: []} ).data
-    r = r.flat().flat().flat().reduce( (acc,el) => {if ( acc.cuis.indexOf(el.CUI) < 0 ){acc.cuis.push(el.CUI); acc.data.push(el)}; return acc }, {cuis: [], data: []} ).data
+    r = r
+      .flat()
+      .flat()
+      .flat()
+      .reduce( (acc,el) => {
+        if ( acc.cuis.indexOf(el.CUI) < 0 ) {
+          acc.cuis.push(el.CUI);
+          acc.data.push(el)
+        };
+        return acc
+      }, {cuis: [], data: []} ).data
     r = r.sort( (a,b) => a.score - b.score)
 
     return r
-  } catch (e){
+  } catch (err) {
     return []
   }
-
   // return result
 }
 
 const processHeaders = async (headers) => {
+  // ! :-)
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat
+  // flat deep 4
+  // debugger
+  const all_concepts = Array.from(new Set(Object.values(headers).flat().flat().flat().flat()))
 
-       var all_concepts = Array.from(new Set(Object.values(headers).flat().flat().flat().flat()))
+  let results = await Promise.all(
+    // extract mm_match
+    all_concepts.map( concept => getMMatch(concept.toLowerCase()) )
+  )
 
-       var results = await Promise.all(all_concepts.map( async (concept,i) => {
-                                     var mm_match = await getMMatch(concept.toLowerCase())
-                                     return mm_match
-                                   }))
+  const cuis_index = await dbDriver.cuisIndexGet()
 
-       var insertCUI = async (cui,preferred,hasMSH) => {
-           var client = await pool.connect()
-           var done = await client.query('INSERT INTO cuis_index(cui,preferred,"hasMSH",user_defined,admin_approved) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (cui) DO UPDATE SET preferred = $2, "hasMSH" = $3, user_defined = $4, admin_approved = $5',  [cui,preferred,hasMSH,true,false])
-             .then(result => console.log("insert: "+ new Date()))
-             .catch(e => console.error(e.stack))
-             .then(() => client.release())
-       }
+  try {
+    await Promise.all(results.flat().flat().map( async (cuiData,i) => {
+      if ( cuis_index[cuiData.CUI] ){
+          return
+      }
+      console.log("insert: "+ new Date())
+      return dbDriver.cuiInsert(cuiData.CUI, cuiData.preferred, cuiData.hasMSH)
+    }))
+  } catch (err) {
+    throw new Error(err)
+  }
 
-       var cuis_index = await getCUISIndex()
+  results = all_concepts.reduce( (acc,con,i) => {
+    acc[con.toLowerCase().trim()] = { concept: con.trim(), labels: results[i] };
+    return acc
+  }, {})
 
-       await Promise.all(results.flat().flat().map( async (cuiData,i) => {
+  const allConceptPairs = Object.keys(headers).reduce ( (acc,concepts) => {acc.push(headers[concepts]); return acc} , [] ).flat()
 
-            if ( cuis_index[cuiData.CUI] ){
-                return
-            } else {
-                return await insertCUI(cuiData.CUI, cuiData.preferred, cuiData.hasMSH)
-            }
-       }))
+  const final = allConceptPairs.reduce ( (acc,con,i) => {
+    const concept = con[con.length-1].toLowerCase().trim()
+    const root = con.slice(0,con.length-1).join(" ").toLowerCase().trim()
+    const rootWCase = con.slice(0,con.length-1).join(" ").trim()
+    const key = root + concept
 
-       results = all_concepts.reduce( (acc,con,i) => {acc[con.toLowerCase().trim()] = {concept:con.trim(), labels:results[i]}; return acc},{})
+    acc[key] = {
+      concept: con[con.length-1].trim(),
+      root: rootWCase,
+      labels: results[concept].labels
+    };
+    return acc
+  }, {})
 
-       var allConceptPairs = Object.keys(headers).reduce ( (acc,concepts) => {acc.push(headers[concepts]); return acc} , [] ).flat()
-
-       var final = allConceptPairs.reduce ( (acc,con,i) => {
-                var concept = con[con.length-1].toLowerCase().trim()
-                var root = con.slice(0,con.length-1).join(" ").toLowerCase().trim()
-                var rootWCase = con.slice(0,con.length-1).join(" ").trim()
-                var key = root+concept
-
-                acc[key] = {concept:con[con.length-1].trim(), root: rootWCase, labels: results[concept].labels};
-                return acc
-            },{})
-
-      return final
+  return final
 }
 
-app.post(CONFIG.api_base_url+'/auto', async function(req,res){
-
+/** 
+* auto
+*/
+// :-) auto what?
+app.post(CONFIG.api_base_url+'/auto', async (req, res) => {
   try{
-   if(req.body && req.body.headers ){
+    if( (req.body && req.body.headers) == false ) {
+      return res.send({status: 'wrong parameters', query : req.query})
+    }
+    const headers = JSON.parse(req.body.headers)
 
-     var headers = JSON.parse(req.body.headers)
-
-     res.send({autoLabels : await processHeaders(headers) })
-   } else {
-     res.send({status: "wrong parameters", query : req.query})
-   }
- } catch(e){
-   console.log(e)
-   res.send({status: "error", query : e})
- }
+    res.send({autoLabels : await processHeaders(headers) })
+  } catch(err){
+    console.log(e)
+    res.send({status: 'error', query : err})
+  }
 });
 
-app.get(CONFIG.api_base_url+'/getMMatch',async function(req,res){
+app.get(CONFIG.api_base_url+'/getMMatch',async (req, res) => {
   try{
-   if(req.query && req.query.phrase ){
-     var mm_match = await getMMatch(req.query.phrase)
-     res.send( mm_match )
-   } else {
-     res.send({status: "wrong parameters", query : req.query})
-   }
- } catch(e){
-   console.log(e)
- }
+    if(req.query && req.query.phrase ){
+      const mm_match = await getMMatch(req.query.phrase)
+      return res.send( mm_match )
+    }
+    res.send({status: 'wrong parameters', query : req.query})
+  } catch(err){
+    console.log(err)
+  }
 });
 
+app.post(CONFIG.api_base_url+'/notes', async (req, res) => {
+  if ( req.body && ( ! req.body.action ) ) {
+    res.json({status: 'undefined', received : req.query})
+    return
+  }
+  const {
+    username=undefined,
+    hash=undefined,
 
-app.post(CONFIG.api_base_url+'/notes', async function (req, res) {
+    payload,
+    docid,
+    page,
+    collId,
+  } = req.body
 
-    if ( req.body && ( ! req.body.action ) ){
-      res.json({status: "undefined", received : req.query})
-      return
-    }
+  const validate_user = validateUser(username, hash);
+  if ( !validate_user ) {
+    res.json({status: 'unauthorised', payload: null})
+  }
 
-    var validate_user = validateUser(req.body.username, req.body.hash);
+  const notesData = JSON.parse(payload)
 
-    if ( validate_user ){
+  try {
+    await dbDriver.notesUpdate(
+      docid,
+      page,
+      collId,
+      notesData.textNotes,
+      notesData.tableType,
+      notesData.tableStatus
+    )
+    console.log(`Updated records for ${docid}_${page}_${collId} result: `+ new Date())
+  } catch(err) {
+    console.error(err.stack)
+  }
 
-      var notesData = JSON.parse(req.body.payload)
-
-      var updateNotes = async (docid,page,collid,notes,tableType,completion) => {
-            var client = await pool.connect()
-            var done = await client.query('UPDATE public."table" SET notes=$4, "tableType"=$5, completion=$6 WHERE docid=$1 AND page=$2 AND collection_id=$3', [docid,page,collid,notes,tableType,completion])
-              .then(result => console.log("Updated records for "+req.body.docid + "_" +req.body.page + "_" + req.body.collId+" result: "+ new Date()))
-              .catch(e => console.error(e.stack))
-              .then(() => client.release())
-      }
-
-      await updateNotes(req.body.docid, req.body.page, req.body.collId, notesData.textNotes, notesData.tableType, notesData.tableStatus)
-      res.json({status:"Successful", payload: null})
-    } else {
-      res.json({status:"unauthorised", payload: null})
-    }
-
+  res.json({status:'Successful', payload: null})
 })
 
-app.post(CONFIG.api_base_url+'/text', async function (req, res) {
-
-    if ( req.body && ( ! req.body.action ) ){
-      res.json({status: "undefined", received : req.query})
-      return
-    }
-
-    var validate_user = validateUser(req.body.username, req.body.hash);
-
-    if ( validate_user ){
-
-      var result;
-
-      var folder_exists = await fs.existsSync( path.join(global.tables_folder_override, req.body.collId ) )
-
-      if ( !folder_exists ){
-         fs.mkdirSync( path.join(global.tables_folder_override, req.body.collId), { recursive: true })
-      }
-
-      var titleText = '<div class="headers"><div style="font-size:20px; font-weight:bold; white-space: normal;">'+cheerio(JSON.parse(req.body.payload).tableTitle).text()+'</div></div>'
-
-      var bodyText = JSON.parse(req.body.payload).tableBody
-
-      var start_body_index = bodyText.indexOf("<table")
-      var last_body_index = bodyText.lastIndexOf("</table>");
-
-      var body;
-      if ( (start_body_index > -1) && (last_body_index > -1) ){
-        body = bodyText.substring(start_body_index, last_body_index)+"</table>";
-      } else {
-        body = bodyText
-      }
-
-      var completeFile = '<html><body>'+titleText+body+'</body></html>'
-
-      fs.writeFile( path.join(global.tables_folder_override, req.body.collId, (req.body.docid+"_"+req.body.page+'.html') ),  completeFile, function (err) {
-        if (err) throw err;
-
-        console.log('Written replacement for: '+ req.body.collId+ " // " +req.body.docid+"_"+req.body.page+'.html');
-        res.json({status: "success", data: 'Written replacement for: '+ req.body.collId+ " // " +req.body.docid+"_"+req.body.page+'.html' })
-      });
-
-    } else {
-      res.json({status:"unauthorised", payload: null})
-    }
-
-})
-
-app.get(CONFIG.api_base_url+'/removeOverrideTable', async function(req,res){
-
-  if(req.query && req.query.docid && req.query.page ){
-
-    var file_exists = await fs.existsSync(global.tables_folder_override+"/"+req.query.docid+"_"+req.query.page+".html")
-    if ( file_exists ) {
-
-      fs.unlink(global.tables_folder_override+"/"+req.query.docid+"_"+req.query.page+".html", (err) => {
-        if (err) throw err;
-        console.log("REMOVED : "+global.tables_folder_override+"/"+req.query.docid+"_"+req.query.page+".html");
-      });
-
-    }
-
-    res.send({status: "override removed"})
-  } else {
-    res.send({status: "no changes"})
-  }
-});
-
-app.get(CONFIG.api_base_url+'/classify', async function(req,res){
-
-  if(req.query && req.query.terms){
-    console.log(req.query.terms)
-
-    res.send({results : await classify(req.query.terms.split(","))})
-
-  }
-
-});
-
-app.get(CONFIG.api_base_url+'/getTable',async function(req,res){
-
-   try{
-    if(req.query && req.query.docid && req.query.page && req.query.collId ){
-
-      var tableData = await readyTable(req.query.docid, req.query.page, req.query.collId, false)
-
-      res.send( tableData  )
-    } else {
-      res.send({status: "wrong parameters", query : req.query})
-    }
-  } catch (e){
-    console.log(e)
-    res.send({status: "getTable: probably page out of bounds, or document does not exist", query : req.query})
-  }
-
-});
-
-app.post(CONFIG.api_base_url+'/getTable',async function(req,res){
-
-   try{
-    if(req.body && req.body.docid && req.body.page && req.body.collId ){
-
-      var tableData = await readyTable(req.body.docid, req.body.page, req.body.collId, false)
-
-      res.json( tableData  )
-    } else {
-      res.json({status: "wrong parameters", query : req.body})
-    }
-  } catch (e){
-    console.log(e)
-    res.json({status: "getTable: probably page out of bounds, or document does not exist", query : req.body})
-  }
-
-});
-
-app.post(CONFIG.api_base_url+'/saveAnnotation',async function(req,res){
-
+app.post(CONFIG.api_base_url+'/text', async (req, res) => {
+  // Path to tables
+  const {
+    tables_folder,
+    tables_folder_override,
+  } = global.CONFIG
 
   if ( req.body && ( ! req.body.action ) ){
-    res.json({status: "undefined", received : req.query})
+    res.json({status: 'undefined', received : req.query})
+    return
+  }
+  const {
+    username=undefined,
+    hash=undefined,
+
+    payload,
+    docid,
+    page,
+    collId,
+  } = req.body
+
+  const validate_user = validateUser(username, hash);
+  if ( !validate_user ) {
+    res.json({status: 'unauthorised', payload: null})
+  }
+
+  const folder_exists = await fs.stat( path.join(tables_folder_override, collId ))
+    .then(() => true, () => false)
+
+  if ( !folder_exists ) {
+    await fs.mkdir( path.join(tables_folder_override, collId), { recursive: true })
+  }
+
+  const titleText = '<div class="headers"><div style="font-size:20px; font-weight:bold; white-space: normal;">'+
+    cheerio(JSON.parse(payload).tableTitle).text()+'</div></div>'
+
+  const bodyText = JSON.parse(payload).tableBody
+  const start_body_index = bodyText.indexOf("<table")
+  const last_body_index = bodyText.lastIndexOf("</table>");
+  let body;
+
+  if ( (start_body_index > -1) && (last_body_index > -1) ){
+    body = bodyText.substring(start_body_index, last_body_index)+"</table>";
+  } else {
+    body = bodyText
+  }
+
+  const completeFile = '<html><body>'+titleText+body+'</body></html>'
+
+  try {
+    await fs.writeFile( path.join(tables_folder_override, collId, `${docid}_${page}.html`), completeFile )
+    const textResponse = `Written replacement for: ${collId} // ${docid}_${page}.html`
+    console.log(textResponse);
+    res.json({
+      status: 'success',
+      data: textResponse,
+    })
+  } catch(err) {
+    throw err;
+  };
+})
+
+app.get(CONFIG.api_base_url+'/removeOverrideTable', async (req, res) => {
+   // Path to tables
+   const {
+    tables_folder_override,
+  } = global.CONFIG
+
+  const {
+    docid,
+    page,
+    collId,
+  } = req.body
+
+  if (
+    (
+      req.query &&
+      docid &&
+      page 
+    ) == false
+  ) {
+    return res.send({status: 'no changes'})
+  }
+
+  const pathToFile = path.join(tables_folder_override, collId, `${docid}_${page}.html`)
+  const file_exists = await fs.stat(pathToFile)
+    .then(() => true, () => false)
+
+  if ( file_exists ) {
+    try {
+      await fs.unlink(pathToFile)
+    } catch (err) {
+      console.log(`REMOVED : ${pathToFile} Error: ${err}`);
+      throw err;
+    }
+  }
+
+  res.send({status: 'override removed'})
+});
+
+// * :-) where lives function classify? 
+app.get(CONFIG.api_base_url+'/classify', async (req, res) => {
+  const {
+    terms
+  } = req?.query
+  if(req.query && terms){
+    console.log(terms)
+
+    res.send({results: await classify(terms.split(","))})
+  }
+});
+
+const getTable = async (req, res) => {
+  // check if it is a get or a post
+  const dataSource = query in req ? 
+    query 
+    : body in req ?
+    body 
+    : null
+ 
+  if (!dataSource) {
+    return res.send({status: 'wrong parameters', query: dataSource})
+  }
+  const {
+    docid,
+    page,
+    collId,
+  } = dataSource
+  try {
+    if ( (dataSource && docid && page && collId) == false ) {
+      return res.send({status: 'wrong parameters', query: dataSource})
+    }
+    const tableData = await readyTable(
+      docid,
+      page,
+      collId,
+      false
+    )
+    return res.send(tableData)
+  } catch (err) {
+    console.log(err)
+    res.send({
+      status: 'getTable: probably page out of bounds, or document does not exist',
+      query: dataSource
+    })
+  }
+}
+
+app.get(CONFIG.api_base_url+'/getTable', getTable);
+app.post(CONFIG.api_base_url+'/getTable', getTable);
+
+app.post(CONFIG.api_base_url+'/saveAnnotation',async (req, res) => {
+  const {
+    username=undefined,
+    hash=undefined,
+    action,
+
+    docid,
+    page,
+    collId,
+
+    payload,
+  } = req?.body
+
+  if ( req.body && !action ){
+    res.json({status: 'undefined', received : req.body})
     return
   }
 
-  var validate_user = validateUser(req.body.username, req.body.hash);
+  const validate_user = validateUser(username, hash);
 
-  if ( validate_user ){
-
-      console.log("Recording Annotation: "+req.body.docid + "_" +req.body.page + "_" + req.body.collId)
-
-      var tid = await getTid ( req.body.docid, req.body.page, req.body.collId )
-
-      var insertAnnotation = async (tid, annotation) => {
-
-        var client = await pool.connect()
-
-        var done = await client.query('INSERT INTO annotations VALUES($2,$1) ON CONFLICT (tid) DO UPDATE SET annotation = $2;', [tid, annotation])
-          .then(result => console.log("Updated Annotations for "+tid+" : "+ new Date()))
-          .catch(e => console.error(e.stack))
-          .then(() => client.release())
-
-      }
-
-
-      var annotationData = JSON.parse(req.body.payload)
-
-      annotationData.annotations.map( (row) => {
-
-        row.content = Array.isArray(row.content) ? row.content.reduce ( (acc,item) => { acc[item] = true; return acc}, {}) : row.content
-        row.qualifiers = Array.isArray(row.qualifiers) ? row.qualifiers.reduce ( (acc,item) => { acc[item] = true; return acc}, {}) : row.qualifiers
-
-        return row
-      })
-
-      await insertAnnotation( tid, {annotations: annotationData.annotations} )
-
-      res.json({status:"success", payload:""})
-
-  } else {
-      res.json({status:"unauthorised", payload: null})
+  if ( !validate_user ) {
+    return res.json({status:'unauthorised', payload: null})
   }
+  console.log(`Recording Annotation: ${docid}_${page}_${collId}`)
+
+  const tid = await dbDriver.tidGet ( docid, page, collId )
+
+  const annotationData = JSON.parse(payload)
+
+  annotationData.annotations.forEach( (row) => {
+    row.content = Array.isArray(row.content) ?
+      row.content.reduce( (acc,item) => { acc[item] = true; return acc}, {})
+      : row.content
+    row.qualifiers = Array.isArray(row.qualifiers) ?
+      row.qualifiers.reduce ( (acc,item) => { acc[item] = true; return acc}, {})
+      : row.qualifiers
+  })
+
+  try {
+    await dbDriverb.annotationInsert( tid, {annotations: annotationData.annotations} )
+  } catch (err) {
+    console.error(err.stack)
+  }
+  res.json({status:"success", payload: ''})
 });
 
 const prepareMetadata = (headerData, tableResults) => {
 
-    if(!headerData.headers || headerData.headers.length < 1 || (!tableResults) ){
+    if (!headerData.headers || headerData.headers.length < 1 || (!tableResults) ) {
       return {}
     }
 
-    tableResults = tableResults.sort( (a,b) => a.row-b.row)
-
-    var headerDataCopy = JSON.parse(JSON.stringify(headerData))
+    const _tableResults = tableResults.sort( (a,b) => a.row-b.row)
+    const headerDataCopy = JSON.parse(JSON.stringify(headerData))
 
     headerDataCopy.headers.reverse()
     headerDataCopy.subs.reverse()
 
-    var annotation_groups = headerDataCopy.headers.reduce(
+    let annotation_groups = headerDataCopy.headers.reduce(
         (acc,item,i) => {
           if ( headerDataCopy.subs[i]) {
             acc.temp.push(item)
@@ -1852,11 +1611,14 @@ const prepareMetadata = (headerData, tableResults) => {
           return acc
         }, {groups:[], temp: []})
 
-      annotation_groups.groups[annotation_groups.groups.length-1] = [...annotation_groups.groups[annotation_groups.groups.length-1], ...annotation_groups.temp ]
-      annotation_groups = annotation_groups.groups.reverse()
+    annotation_groups.groups[annotation_groups.groups.length-1] = [
+      ...annotation_groups.groups[annotation_groups.groups.length-1],
+      ...annotation_groups.temp
+    ]
+    annotation_groups = annotation_groups.groups.reverse()
 
-    var grouped_headers = annotation_groups.reduce( (acc,group,i) => {
-      var concepts = tableResults.reduce( (cons,res,j)  => {
+    const grouped_headers = annotation_groups.reduce( (acc,group,i) => {
+      const concepts = _tableResults.reduce( (cons,res,j)  => {
         cons.push (
           group.map( (head) => {
             if ( res[head] )
@@ -1868,50 +1630,44 @@ const prepareMetadata = (headerData, tableResults) => {
 
       acc[group.join()] = concepts;
       return acc;
-    },{})
+    }, {})
 
-
-    var meta_concepts = Object.keys(grouped_headers).reduce( (mcon, group) => {
-      var alreadyshown = []
-      var lastConcept = ""
+    let meta_concepts = Object.keys(grouped_headers).reduce( (mcon, group) => {
+      const alreadyshown = []
+      const lastConcept = ''
 
       mcon[group] = grouped_headers[group].reduce(
-          (acc, concepts) => {
-              var key = concepts.join()
-              if ( !alreadyshown[key] ){
-                alreadyshown[key] = true
-                concepts = concepts.filter( b => b != undefined )
+        (acc, concepts) => {
+          const key = concepts.join()
+          if ( !alreadyshown[key] ){
+            alreadyshown[key] = true
+            concepts = concepts.filter( b => b != undefined )
 
-                if ( concepts[concepts.length-1] == lastConcept ){
-
-                  concepts = concepts.slice(concepts.length-2,1)
-                }
-
-                acc.push( concepts )
-              }
-
-              return acc
-          }, [])
-
-      return mcon
-    },{})
-
-    const unfoldConcepts = (concepts) => {
-      var unfolded = concepts.reduce ( (stor, elm, i) => {
-
-            for ( var e = 1; e <= elm.length; e++ ){
-
-                var partial_elm = elm.slice(0,e)
-                var key = partial_elm.join()
-
-                if ( stor.alreadyThere.indexOf(key) < 0 ){
-                  stor.unfolded.push(partial_elm)
-                  stor.alreadyThere.push(key)
-                }
-
+            if ( concepts[concepts.length-1] == lastConcept ){
+              concepts = concepts.slice(concepts.length-2, 1)
             }
 
-            return stor;
+            acc.push( concepts )
+          }
+
+          return acc
+        }, [])
+
+      return mcon
+    }, {})
+
+    const unfoldConcepts = (concepts) => {
+      const unfolded = concepts.reduce ( (stor, elm, i) => {
+        for ( let e = 1; e <= elm.length; e++ ) {
+          const partial_elm = elm.slice(0, e)
+          const key = partial_elm.join()
+
+          if ( stor.alreadyThere.includes(key) == false ){
+            stor.unfolded.push(partial_elm)
+            stor.alreadyThere.push(key)
+          }
+        }
+        return stor;
       }, { unfolded:[], alreadyThere:[] })
 
       return unfolded.unfolded
@@ -1921,97 +1677,90 @@ const prepareMetadata = (headerData, tableResults) => {
     (acc,mcon,j) => {
       acc[mcon] = unfoldConcepts(meta_concepts[mcon]);
       return acc
-    },{} )
+    }, {})
 
   return meta_concepts
 }
 
-const processAnnotationAndMetadata = async (docid,page,collId) => {
+// * :-) not used? 
+const processAnnotationAndMetadata = async (docid, page, collId) => {
+  const tabularData = await prepareAnnotationPreview(docid, page, collId, false)
 
-    var tabularData = await prepareAnnotationPreview(docid, page, collId, false)
+  if (
+    (
+      tabularData.backAnnotation &&
+      tabularData.backAnnotation.rows.length > 0 &&
+      tabularData.backAnnotation.rows[0].annotation
+    ) == false
+  ) {
+    throw new Error('invalid tabularData')
+  }
 
-    if (tabularData.backAnnotation && tabularData.backAnnotation.rows.length > 0 && tabularData.backAnnotation.rows[0].annotation ){
+  // .annotations.map( ann => { return {head: Object.keys(ann.content).join(";"), sub: ann.subAnnotation } })
 
-      // .annotations.map( ann => { return {head: Object.keys(ann.content).join(";"), sub: ann.subAnnotation } })
+  const tid = tabularData.backAnnotation.rows[0].tid
 
-      var tid = tabularData.backAnnotation.rows[0].tid
+  let header_data = tabularData.backAnnotation.rows[0].annotation.map( ann => { return {head: [ann.content.split("@")[0]].join(";"), sub: ann.subAnnotation } })
 
-      var header_data = tabularData.backAnnotation.rows[0].annotation.map( ann => { return {head: [ann.content.split("@")[0]].join(";"), sub: ann.subAnnotation } })
+  header_data = header_data.reduce( (acc, header,i) => {
+                          acc.count[header.head] = acc.count[header.head] ? acc.count[header.head]+1 : 1;
+                          acc.headers.push(header.head+"@"+acc.count[header.head]);
+                          acc.subs.push(header.sub);
+                          return acc;
+                        }, {count:{},headers:[],subs:[]} )
 
-      header_data = header_data.reduce( (acc, header,i) => {
-                              acc.count[header.head] = acc.count[header.head] ? acc.count[header.head]+1 : 1;
-                              acc.headers.push(header.head+"@"+acc.count[header.head]);
-                              acc.subs.push(header.sub);
-                              return acc;
-                            }, {count:{},headers:[],subs:[]} )
+  // * :-) not used? 
+  var headerData = tabularData.result.reduce( (acc, item) => {
 
+    Object.keys(item).map( (head) => {
+      if ( ["col","row","docid_page","value"].indexOf(head) < 0 ){
+        var currentItem = acc[head]
 
-
-      var headerData = tabularData.result.reduce( (acc, item) => {
-
-        Object.keys(item).map( (head) => {
-          if ( ["col","row","docid_page","value"].indexOf(head) < 0 ){
-            var currentItem = acc[head]
-
-            if( !currentItem ){
-              currentItem = []
-            }
-
-            currentItem.push(item[head])
-
-            acc[head] = [...new Set(currentItem)]
-          }
-        })
-
-        return acc
-
-      }, {})
-
-
-      var headDATA = prepareMetadata(header_data, tabularData.result)
-
-      var hedDatra = await processHeaders(headDATA)
-
-      var metadata = Object.keys(hedDatra).map( (key) => {
-        var cuis = hedDatra[key].labels.map( (label) => {return label.CUI} )
-
-        return {
-          concept: hedDatra[key].concept,
-          concept_root: hedDatra[key].root,
-          concept_source: "",
-          cuis: cuis,
-          cuis_selected: cuis.slice(0,2),
-          istitle: false,
-          labeller: "suso",
-          qualifiers: [""],
-          qualifiers_selected: [""],
-          tid: tid
+        if( !currentItem ){
+          currentItem = []
         }
-      })
 
-      var result = await setMetadata(metadata)
+        currentItem.push(item[head])
+
+        acc[head] = [...new Set(currentItem)]
+      }
+    })
+    return acc
+  }, {})
 
 
+  const headDATA = prepareMetadata(header_data, tabularData.result)
+
+  const hedDatra = await processHeaders(headDATA)
+
+  const metadata = Object.keys(hedDatra).map( (key) => {
+    var cuis = hedDatra[key].labels.map( (label) => {return label.CUI} )
+
+    return {
+      concept: hedDatra[key].concept,
+      concept_root: hedDatra[key].root,
+      concept_source: "",
+      cuis: cuis,
+      cuis_selected: cuis.slice(0,2),
+      istitle: false,
+      labeller: "suso",
+      qualifiers: [""],
+      qualifiers_selected: [""],
+      tid: tid
     }
+  })
 
-
+  const result = await setMetadata(metadata)
 }
-
-
-
 
 // api_host
 // ui_port
 // ui_host
 
+const myShellScript = exec(`fuser -k ${CONFIG.api_port}/tcp`);
 
-
-const exec = require('child_process').exec;
-
-const myShellScript = exec('fuser -k '+CONFIG.api_port+'/tcp');
-
-app.listen(CONFIG.api_port, '0.0.0.0', function () {
-  console.log('Table Tidier Server running on port '+CONFIG.api_port+' with base: '+ CONFIG.api_base_url + "  :: " + new Date().toISOString());
+app.listen(CONFIG.api_port, '0.0.0.0', () => {
+  console.log(`Table Tidier Server running on port ${CONFIG.api_port} with base: ${CONFIG.api_base_url}  :: ${new Date().toISOString()}`);
 });
 
 main();

@@ -24,10 +24,64 @@ We need python and pandas module.
 Install pandas:
 ```bash
 # https://pandas.pydata.org/docs/getting_started/install.html
-pip install pandas
+pip3 install pandas
 ```
 
-### Project
+Install sklearn:
+```bash
+pip3 install sklearn
+```
+
+### db migrate
+
+Recreate db for development, testing and deployment.
+
+The config file will be used by the migrations scripts.
+
+> Config file 'Server/database.json':
+```json
+{
+  "dev": {
+    "driver": "sqlite3",
+    "filename": "./dev.db"
+  },
+  "test": {
+    "driver": "sqlite3",
+    "filename": ":memory:"
+  },
+  "sqlite": {
+    "driver": "sqlite3",
+    "filename": "./dev.db"
+  },
+  "postgres": {
+    "driver": "pg",
+    "user": "admin",
+    "password": "password",
+    "host": "localhost",
+    "database": "ihw_annotator_test",
+    "port": "5432",
+    "schema": "my_schema"
+  }
+}
+```
+> In case of change the sqlite filename change also the package.json create script
+
+```bash
+# Create DB
+npm run db:create:pg
+npm run db:create:sqlite
+
+# populate db
+npm run db:up:pg
+npm run db:up:sqlite
+
+# reset db
+npm run db:reset:pg
+npm run db:reset:sqlite
+
+```
+
+## Project
 
 Install node packages dependencies:
 
@@ -54,6 +108,11 @@ nano config.json
 cd ..
 ```
 
+Add a .env file with path to 'config.json' <br>
+Example:
+```
+CONFIG_PATH=/home/rp/recreo/TableTidier/Server
+```
 
 ## Run
 
@@ -61,7 +120,26 @@ To start the development version of the project:
 
 ```bash
 cd Server
+
+# Run gulp script to compile server in build folder
+npm run gulpWatch
+
+# add database.json
+database.json
+
 # Open Byobu development session
 ./startWork
 
 ```
+
+
+## db-migrate
+
+Database migration framework for node.js
+
+```bash
+# Create a new table with sql files
+node node_modules/db-migrate/bin/db-migrate create:sqlite TABLE_NAME --sql-file
+```
+
+[configuration](https://db-migrate.readthedocs.io/en/latest/Getting%20Started/configuration/)

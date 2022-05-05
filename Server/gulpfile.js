@@ -46,5 +46,5 @@ gulp.task('watch', () => {
 		plugins: ['@babel/transform-runtime']
 	}))
 	.pipe(sourcemaps.write("."))
-	.pipe(gulp.dest('./'))
+	.pipe(gulp.dest('./build'))
 } );

@@ -1,6 +1,6 @@
 const cheerio = require('cheerio');
 const axios = require('axios');
-const fs = require('fs');
+const fs = require('fs/promises');
 const clone = require( 'just-clone');
 const { mainModule } = require('process');
 
@@ -12,19 +12,15 @@ async function getFileResults (annotation, filePath){
       return []
     }
 
-    annotation.annotations.map( (ann, a) => {ann.pos = a} )
+    annotation.annotations.forEach( (ann, a) => {ann.pos = a} )
 
-    var tableData = new Promise( (resolve, reject) => {
-
-        fs.readFile(filePath, "utf8", (err, data)=>{
-            if ( err ){
-                reject(err)
-            }
-            resolve(data)
-
-        })
-
-    })
+    let tableData
+    try {
+        tableData = fs.readFile(filePath, {encoding: "utf8"})
+    } catch (err) {
+        console.log(err)
+        tableData = err
+    }
 
     var $ = cheerio.load( await tableData)
 
