@@ -225,32 +225,39 @@ function driver(config) {
       return result.rows
     },
 
-    cuiInsert: async (cui, preferred, hasMSH) => query(
-      `INSERT INTO cuis_index(cui,preferred,"hasMSH",user_defined,admin_approved)
+    cuiInsert: async (cui, preferred, hasMSH) => {
+      const result = await query(
+      `INSERT INTO cuis_index(cui, preferred, "hasMSH", user_defined, admin_approved)
       VALUES ($1, $2, $3, $4, $5) ON CONFLICT (cui) DO UPDATE 
       SET preferred = $2, "hasMSH" = $3, user_defined = $4, admin_approved = $5`,
-      [cui,preferred,hasMSH,true,false]
-    ),
-
-    cuiDataModify: async (cui, preferred, adminApproved, prevcui) => {
-      let result = await query(`UPDATE cuis_index SET cui=$1, preferred=$2, admin_approved=$3 WHERE cui = $4`,
-        [cui, preferred, adminApproved, prevcui] )
-
-      if ( result && result.rowCount ){
-        const q = new Query(
-          `UPDATE metadata 
-          SET
-            cuis = array_to_string(array_replace(regexp_split_to_array(cuis, ';'), $2, $1), ';'),
-            cuis_selected = array_to_string(array_replace(regexp_split_to_array(cuis_selected, ';'), $2, $1), ';')`,
-          [cui, prevcui]
-        )
-        result = await query( q )
-      }
-
-      return result
+      [cui, preferred, hasMSH, true, false])
+      return 'done'
     },
 
-    cuiDeleteIndex: (cui) => query('delete from cuis_index where cui = $1', [cui]),
+    cuiDataModify: async (cui, preferred, adminApproved, prevcui) => {
+      // Update cuis_index table
+      let result = await query(
+        `UPDATE cuis_index SET cui=$1, preferred=$2, admin_approved=$3 WHERE cui = $4`,
+        [cui, preferred, adminApproved, prevcui]
+      )
+
+      // Update metadata table
+      const q = new Query(
+        `UPDATE metadata 
+        SET
+          cuis = array_to_string(array_replace(regexp_split_to_array(cuis, ';'), $2, $1), ';'),
+          cuis_selected = array_to_string(array_replace(regexp_split_to_array(cuis_selected, ';'), $2, $1), ';')`,
+        [cui, prevcui]
+      )
+      result = await query( q )
+
+      return 'done'
+    },
+
+    cuiDeleteIndex: async (cui) => {
+      await query('delete from cuis_index where cui = $1', [cui])
+      return 'done'
+    },
 
     cuiRecommend: async () => {
       const result = await query(`select * from cuis_recommend`)
@@ -261,12 +268,18 @@ function driver(config) {
       const cuis = {}
       const result = await query(`select * from cuis_index ORDER BY preferred ASC`)
       result.rows.forEach( row => {
-        cuis[row.cui] = {preferred : row.preferred, hasMSH: row.hasMSH, userDefined: row.user_defined, adminApproved: row.admin_approved}
+        cuis[row.cui] = {
+          preferred : row.preferred,
+          hasMSH: row.hasMSH,
+          userDefined: row.user_defined,
+          adminApproved: row.admin_approved
+        }
       })
     
       return cuis
     },
 
+    // * :-) future check
     cuiMetadataGet: (cui) => query(`select docid,page,"user" from metadata where cuis like $1 `, ["%"+cui+"%"]),
 
     metadataClear: async (tid) => {
@@ -336,7 +349,8 @@ function driver(config) {
     // Gets the labellers associated w ith each document/table.
     metadataLabellersGet: () => query(`SELECT distinct docid, page, labeller FROM metadata`),
 
-    notesUpdate: (docid, page, collid, notes, tableType, completion) => query(
+    notesUpdate: async (docid, page, collid, notes, tableType, completion) => {
+      await query(
       `UPDATE public."table"
       SET
         notes=$4,
@@ -345,7 +359,9 @@ function driver(config) {
       WHERE
         docid=$1 AND page=$2 AND collection_id=$3`,
       [docid, page, collid, notes, tableType, completion]
-    ),
+      )
+      return 'done'
+    },
 
     // resource = {type: [collection or table], id: [collection or table id]}
     permissionsResourceGet: async (resource, user) => {
@@ -398,6 +414,17 @@ function driver(config) {
         return err
       }
       return 'done'
+    },
+
+    tableGet: async (docid, page, collId) => {
+      let tid = await query(
+        `SELECT * FROM public."table" WHERE docid = $1 AND page = $2 AND collection_id = $3`,
+        [docid, page, collId]
+      )
+      if ( tid.rows && tid.rows.length == 0 ){
+        return 'not found'
+      }
+      return tid.rows[0]
     },
 
     tablesMove: async (tables, collection_id, target_collection_id) => {

@@ -253,49 +253,79 @@ function driver(config) {
       return result
     },
 
-    cuiInsert: async (cui, preferred, hasMSH) => query(
-      `INSERT INTO cuis_index(cui,preferred,"hasMSH",user_defined,admin_approved)
-      VALUES ($1, $2, $3, $4, $5) ON CONFLICT (cui) DO UPDATE 
-      SET preferred = $2, "hasMSH" = $3, user_defined = $4, admin_approved = $5`,
-      [cui,preferred,hasMSH,true,false]
-    ),
-
-    cuiDataModify: async (cui, preferred, adminApproved, prevcui) => {
-      let result = await query(`UPDATE cuis_index SET cui=$1, preferred=$2, admin_approved=$3 WHERE cui = $4`,
-        [cui, preferred, adminApproved, prevcui] )
-
-      if ( result && result.rowCount ){
-        const q = new Query(
-          `UPDATE metadata 
-          SET
-            cuis = array_to_string(array_replace(regexp_split_to_array(cuis, ';'), $2, $1), ';'),
-            cuis_selected = array_to_string(array_replace(regexp_split_to_array(cuis_selected, ';'), $2, $1), ';')`,
-          [cui, prevcui]
-        )
-        result = await query( q )
-      }
-
-      return result
+    cuiInsert: async (cui, preferred, hasMSH) => {
+      const result = await queryRun(
+      `INSERT INTO cuis_index(cui, preferred, "hasMSH", user_defined, admin_approved)
+      VALUES (
+        $cui,
+        $preferred,
+        $hasMSH,
+        $user_defined,
+        $admin_approved
+      ) ON CONFLICT (cui) DO UPDATE 
+      SET 
+        preferred = $preferred,
+        "hasMSH" = $hasMSH,
+        user_defined = $user_defined,
+        admin_approved = $admin_approved`,
+      {
+        $cui: cui,
+        $preferred: preferred,
+        $hasMSH: hasMSH,
+        $user_defined: true,
+        $admin_approved: false
+      })
+      return 'done'
     },
 
-    cuiDeleteIndex: (cui) => query('delete from cuis_index where cui = $1', [cui]),
+    cuiDataModify: async (cui, preferred, adminApproved, prevcui) => {
+      // Update cuis_index table
+      let result = await queryRun(
+        `UPDATE cuis_index SET cui=$1, preferred=$2, admin_approved=$3 WHERE cui = $4`,
+        [cui, preferred, adminApproved, prevcui]
+      )
+
+      // Update metadata table
+      result = await queryRun(
+        `UPDATE metadata 
+        SET
+          cuis = REPLACE(cuis, $prevcui, $cui),
+          cuis_selected = REPLACE(cuis_selected, $prevcui, $cui);`,
+        {
+          $cui: cui,
+          $prevcui: prevcui
+        }
+      )
+
+      return 'done'
+    },
+
+    cuiDeleteIndex: async (cui) => {
+      await queryRun('delete from cuis_index where cui = $1', [cui])
+      return 'done'
+    },
 
     cuiRecommend: async () => {
-      const result = await query(`select * from cuis_recommend`)
-      return result.rows
+      const result = await queryAll(`select * from cuis_recommend`)
+      return result
     },
 
     cuisIndexGet: async () => {
       const cuis = {}
-      const result = await query(`select * from cuis_index ORDER BY preferred ASC`)
-      result.rows.forEach( row => {
-        cuis[row.cui] = {preferred : row.preferred, hasMSH: row.hasMSH, userDefined: row.user_defined, adminApproved: row.admin_approved}
+      const result = await queryAll(`select * from cuis_index ORDER BY preferred ASC`)
+      result.forEach( row => {
+        cuis[row.cui] = {
+          preferred : row.preferred,
+          hasMSH: row.hasMSH ? true: false,
+          userDefined: row.user_defined ? true: false,
+          adminApproved: row.admin_approved ? true: false
+        }
       })
     
       return cuis
     },
 
-    cuiMetadataGet: (cui) => query(`select docid,page,"user" from metadata where cuis like $1 `, ["%"+cui+"%"]),
+    cuiMetadataGet: (cui) => queryAll(`select docid,page,"user" from metadata where cuis like $1 `, ["%"+cui+"%"]),
 
     metadataClear: (tid) => queryRun('DELETE FROM metadata WHERE tid = $1', [tid]),
 
@@ -362,16 +392,26 @@ function driver(config) {
     // Gets the labellers associated w ith each document/table.
     metadataLabellersGet: () => query(`SELECT distinct docid, page, labeller FROM metadata`),
 
-    notesUpdate: (docid, page, collid, notes, tableType, completion) => query(
-      `UPDATE public."table"
-      SET
-        notes=$4,
-        "tableType"=$5,
-        completion=$6
-      WHERE
-        docid=$1 AND page=$2 AND collection_id=$3`,
-      [docid, page, collid, notes, tableType, completion]
-    ),
+    notesUpdate: async (docid, page, collid, notes, tableType, completion) => {
+      await queryRun(
+        `UPDATE "table"
+        SET
+          notes=$notes,
+          "tableType"=$tableType,
+          completion=$completion
+        WHERE
+          docid=$docid AND page=$page AND collection_id=$collid`,
+        {
+          $docid: docid,
+          $page: page,
+          $collid: collid,
+          $notes: notes,
+          $tableType: tableType,
+          $completion: completion
+        }
+      )
+      return 'done'
+    },
 
     // resource = {type: [collection or table], id: [collection or table id]}
     permissionsResourceGet: async (resource, user) => {
@@ -424,6 +464,17 @@ function driver(config) {
         return err
       }
       return 'done'
+    },
+
+    tableGet: async (docid, page, collId) => {
+      let tid = await queryGet(
+        `SELECT * FROM "table" WHERE docid = $1 AND page = $2 AND collection_id = $3`,
+        [docid, page, collId]
+      )
+      if ( tid && tid.length == 0 ){
+        return 'not found'
+      }
+      return tid
     },
 
     tablesMove: async (tables, collection_id, target_collection_id) => {
