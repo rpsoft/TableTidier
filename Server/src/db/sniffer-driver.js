@@ -19,11 +19,7 @@ const handler = {
     console.log(value)
     
     // Return function that will be called
-<<<<<<< HEAD
     return async function () {
-=======
-    return async function (algo) {
->>>>>>> feature/swagger-add
       // console.log(...arguments);
       debug(...arguments)
       // Store the result of calling different drivers
