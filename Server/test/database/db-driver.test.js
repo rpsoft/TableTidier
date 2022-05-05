@@ -503,6 +503,12 @@ describe('dbDriver', () => {
       expect(recommend[0].concept).toEqual('aminosalicylate');
     });
   });
+  describe('Permissions', () => {
+    // permissionsResourceGet
+    test('permissionsResourceGet', async () => {
+      const permissions = await dbDriver.permissionsResourceGet('collections', james.email);
+      expect(permissions).toEqual({read: [1], write: [1]});
+    });
+  });
   // resultsDataGet
-  // permissionsResourceGet
 });
