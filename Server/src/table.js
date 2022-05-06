@@ -1,4 +1,5 @@
 const fs = require('fs/promises');
+import cheerio from 'cheerio';
 const path = require('path');
 // Import path from config.json
 const CONFIG_PATH = process.env.CONFIG_PATH || process.cwd()
@@ -21,20 +22,31 @@ async function refreshDocuments() {
 
 const readyTable = async (docname, page, collection_id, enablePrediction = false) => {
   const docid = docname+"_"+page+".html"
-  let htmlFolder = path.join(GENERAL_CONFIG.tables_folder, collection_id) //GENERAL_CONFIG.tables_folder+"/",
+  let htmlFolder = path.join(
+    GENERAL_CONFIG.tables_folder,
+    collection_id.toString()
+  ) //GENERAL_CONFIG.tables_folder+"/",
   const htmlFile = docid
 
   //If an override file exists then use it!. Overrides are those produced by the editor.
   let override_file_exists = true
   try {
-    const fd = await fs.open(path.join(GENERAL_CONFIG.tables_folder_override, collection_id, docid))
+    const fd = await fs.open(path.join(
+      GENERAL_CONFIG.tables_folder_override,
+      collection_id.toString(),
+      docid.toString()
+    ))
     fd.close()
   } catch (err) {
     override_file_exists = false
   }
 
   if ( override_file_exists ) {
-    htmlFolder = path.join(GENERAL_CONFIG.tables_folder_override, collection_id) //"HTML_TABLES_OVERRIDE/"
+    //"HTML_TABLES_OVERRIDE/"
+    htmlFolder = path.join(
+      GENERAL_CONFIG.tables_folder_override,
+      collection_id.toString()
+    )
   }
 
   console.log("Loading Table: "+docid+" "+(override_file_exists ? " [Override Folder]" : ''))
@@ -106,9 +118,9 @@ const readyTable = async (docname, page, collection_id, enablePrediction = false
 
       if ( tableEdited ) {
         console.log('Table corrected on the fly: '+path.join(htmlFolder,htmlFile));
-        fs.writeFile(path.join(htmlFolder,htmlFile),  tablePage.html())
+        fs.writeFile(path.join(htmlFolder, htmlFile),  tablePage.html())
         .catch((err) => {
-          console.log('Error: Table corrected on the fly: '+path.join(htmlFolder,htmlFile) + ' ' + err);
+          console.log('Error: Table corrected on the fly: '+path.join(htmlFolder, htmlFile) + ' ' + err);
           if (err) throw err;
         });
       }
@@ -160,8 +172,8 @@ const readyTable = async (docname, page, collection_id, enablePrediction = false
       colum_with_numbers.remove()
     }
 
-    if ( actual_table("thead").text().trim().indexOf("1(A)") > -1 ){
-        actual_table("thead").remove();
+    if ( actual_table("thead").text().trim().indexOf("1(A)") > -1 ) {
+      actual_table("thead").remove();
     }
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -580,7 +592,11 @@ const prepareAvailableDocuments = async (collection_id) => {
       folderItems = []
     }
     folderItems = folderItems.reduce( async (acc,filename) => {
-        const doc_path = path.join(tables_folder,collection_id,filename)
+        const doc_path = path.join(
+          tables_folder,
+          collection_id.toString(),
+          filename
+        )
         let docPathExist = true
         try {
           const fd = await fs.open(doc_path)

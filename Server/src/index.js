@@ -716,7 +716,7 @@ app.post(CONFIG.api_base_url+'/collections', async (req, res) => {
 
     action,
 
-    collection_id,
+    // collection_id,
     collectionData,
 
     tid,
@@ -727,6 +727,9 @@ app.post(CONFIG.api_base_url+'/collections', async (req, res) => {
     hash,
   );
 
+  // collection_id as number
+  const collection_id = parseInt(req.body.collection_id)
+
   const collectionPermissions = await dbDriver.permissionsResourceGet('collections', validate_user ? username : '')
   let response = {status: "failed"}
 
@@ -735,7 +738,11 @@ app.post(CONFIG.api_base_url+'/collections', async (req, res) => {
   switch (action) {
     case "list":
       result = await dbDriver.collectionsList();
-      result = result.filter( (elm) => collectionPermissions.read.includes(elm.collection_id) )
+      result = result.filter(
+        elm => collectionPermissions.read.includes(
+          elm.collection_id
+        )
+      )
       response = {status: "success", data: result}
       break;
 
@@ -828,10 +835,13 @@ app.post(CONFIG.api_base_url+'/tables', async (req, res) => {
 
     action,
 
-    collection_id,
+    // collection_id,
     tablesList,
     targetCollectionID,
   } = req.body
+
+  // collection_id as number
+  const collection_id = parseInt(req.body.collection_id)
 
   var validate_user = validateUser(username, hash);
   var collectionPermissions = await dbDriver.permissionsResourceGet('collections', validate_user ? username : "")
@@ -902,8 +912,10 @@ app.post(CONFIG.api_base_url+'/getTableContent',async (req,res) => {
 
     docid,
     page,
-    collId,
+    // collId,
   } = req.body
+
+  const collId = parseInt(req.body.collId)
 
   const validate_user = validateUser(username, hash);
   const collectionPermissions = await dbDriver.permissionsResourceGet('collections', validate_user ? username : "")
@@ -937,7 +949,7 @@ app.post(CONFIG.api_base_url+'/getTableContent',async (req,res) => {
 
     tableData.collectionData = collection_data
 
-    tableData.annotationData = annotation && annotation.rows.length > 0 ? annotation.rows[0] : {}
+    tableData.annotationData = annotation ? annotation : {}
 
     if ( predictionEnabled ) {
       const rows = tableData.predictedAnnotation.rows.map( ann  => {

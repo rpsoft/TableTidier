@@ -222,6 +222,9 @@ function driver(config) {
         group by collection_id ) as coll_counts
         ON collection.collection_id = coll_counts.collection_id ORDER BY collection_id`
       )
+      // convert registered from string to number
+      // bigint (64 bits) returned as string by pg module
+      result.rows.forEach(row => row.collection_id = parseInt(row.collection_id))
       return result.rows
     },
 
