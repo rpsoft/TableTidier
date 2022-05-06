@@ -1073,15 +1073,19 @@ const prepareAnnotationPreview = async (docid, page, collId, cachedOnly) => {
   } = global.CONFIG
 
   const annotations = await dbDriver.annotationByIDGet(docid, page, collId)
-  if ( annotations.rows.length <= 0 ) {
+  if ( !annotations ) {
     return {"state" : "fail", result : []}
   }
-  const entry = annotations.rows[0]
+  const entry = annotations
 
   // Check if file exist
   let override_exists = true
   try {
-    const fd = await fs.open(path.join(tables_folder_override, entry.collection_id, entry.file_path))
+    const fd = await fs.open(path.join(
+      tables_folder_override,
+      entry.collection_id.toString(),
+      entry.file_path
+    ))
     fd.close()
   } catch (err) {
     override_exists = false
@@ -1109,10 +1113,12 @@ app.post(CONFIG.api_base_url+'/annotationPreview',async function(req,res){
 
     docid,
     page,
-    collId,
+    // collId,
 
     cachedOnly,
   } = req.body
+
+  const collId = parseInt(req.body.collId)
 
   const validate_user = validateUser(username, hash);
   const collectionPermissions = await dbDriver.permissionsResourceGet('collections', validate_user ? username : '')
