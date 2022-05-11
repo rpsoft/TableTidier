@@ -567,16 +567,19 @@ app.post(CONFIG.api_base_url+'/metadata', async function(req,res){
 
     docid,
     page,
-    collId,
+    // collId,
 
     payload,
     tids,
   } = req.body
 
-  // * :-) User validation...
-  var validate_user = validateUser(username, hash);
+  // collection_id as number
+  const collId = parseInt(req.body.collId)
 
-  var collectionPermissions = await dbDriver.permissionsResourceGet('collections', validate_user ? username : "")
+  // * :-) User validation...
+  const validate_user = validateUser(username, hash);
+
+  const collectionPermissions = await dbDriver.permissionsResourceGet('collections', validate_user ? username : '')
 
   if ( collectionPermissions.read.indexOf(collId) <= -1 ) {
     return res.json({status:"unauthorised", payload: null})
