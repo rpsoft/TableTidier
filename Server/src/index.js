@@ -8,6 +8,9 @@ const path = require('path');
 const exec = require('child_process').exec;
 
 const express = require('express');
+// morgan, HTTP request logger middleware for node.js
+const logger = require('morgan')
+// multer, middleware for handling multipart/form-data
 const multer = require('multer');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -52,7 +55,7 @@ global.pool = pgDriver.pool
 console.log("Loading Files Management")
 
 console.log("Loading Security")
-import 
+import
   passport,
   {
     getUserHash
@@ -931,7 +934,7 @@ app.post(CONFIG.api_base_url+'/getTableContent',async (req,res) => {
     if ((docid && page && collId) == false) {
       return res.json({status: "wrong parameters", body : req.body})
     }
-    
+
     const collection_data = await dbDriver.collectionGet(collId)
 
     const predictionEnabled = JSON.parse(enablePrediction)
@@ -961,7 +964,7 @@ app.post(CONFIG.api_base_url+'/getTableContent',async (req,res) => {
           content: ann.descriptors.reduce( (acc,d) => { acc[d] = true; return acc }, {}),
           number: (ann.c+1)+'',
           qualifiers: ann.unique_modifier == "" ?
-            {} 
+            {}
             : ann.unique_modifier.split(";")
               .filter( a => a.length > 1)
               .reduce( (acc,d) => { acc[d] = true; return acc }, {}),
@@ -979,11 +982,11 @@ app.post(CONFIG.api_base_url+'/getTableContent',async (req,res) => {
             : ann.unique_modifier.split(";")
               .filter( a => a.length > 1)
               .reduce( (acc,d) => { acc[d] = true; return acc }, {}),
-          subannotation: false 
+          subannotation: false
         }
       })
 
-      const predAnnotationData = (tableData.annotationData && tableData.annotationData.annotation) ? 
+      const predAnnotationData = (tableData.annotationData && tableData.annotationData.annotation) ?
         tableData.annotationData
         : {
           annotation: {
@@ -1159,11 +1162,11 @@ app.get(CONFIG.api_base_url+'/formattedResults', async function (req,res){
   const finalResults = {}
 
   /**
-  * There are multiple versions of the annotations. 
+  * There are multiple versions of the annotations.
   * When calling reading the results from the database,
   * here we will return only the latest/ most complete version of the annotation.
-  * Independently from the author of it. 
-  * Completeness here measured as the result with 
+  * Independently from the author of it.
+  * Completeness here measured as the result with
   * the highest number of annotations and the highest index number
   * (I.e. Newest, but only if it has more information/annotations).
   * May not be the best in some cases.
@@ -1343,7 +1346,7 @@ const processHeaders = async (headers) => {
   return final
 }
 
-/** 
+/**
 * auto
 */
 // :-) auto what?
@@ -1490,7 +1493,7 @@ app.get(CONFIG.api_base_url+'/removeOverrideTable', async (req, res) => {
     (
       req.query &&
       docid &&
-      page 
+      page
     ) == false
   ) {
     return res.send({status: 'no changes'})
@@ -1512,7 +1515,7 @@ app.get(CONFIG.api_base_url+'/removeOverrideTable', async (req, res) => {
   res.send({status: 'override removed'})
 });
 
-// * :-) where lives function classify? 
+// * :-) where lives function classify?
 app.get(CONFIG.api_base_url+'/classify', async (req, res) => {
   const {
     terms
@@ -1526,12 +1529,12 @@ app.get(CONFIG.api_base_url+'/classify', async (req, res) => {
 
 const getTable = async (req, res) => {
   // check if it is a get or a post
-  const dataSource = query in req ? 
-    query 
+  const dataSource = query in req ?
+    query
     : body in req ?
-    body 
+    body
     : null
- 
+
   if (!dataSource) {
     return res.send({status: 'wrong parameters', query: dataSource})
   }
@@ -1703,7 +1706,7 @@ const prepareMetadata = (headerData, tableResults) => {
   return meta_concepts
 }
 
-// * :-) not used? 
+// * :-) not used?
 const processAnnotationAndMetadata = async (docid, page, collId) => {
   const tabularData = await prepareAnnotationPreview(docid, page, collId, false)
 
@@ -1730,7 +1733,7 @@ const processAnnotationAndMetadata = async (docid, page, collId) => {
                           return acc;
                         }, {count:{},headers:[],subs:[]} )
 
-  // * :-) not used? 
+  // * :-) not used?
   var headerData = tabularData.result.reduce( (acc, item) => {
 
     Object.keys(item).map( (head) => {
