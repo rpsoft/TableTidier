@@ -15,6 +15,13 @@ const multer = require('multer');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const html = require("html");
+// JWT Authentication
+// https://github.com/MichielDeMey/express-jwt-permissions
+// https://github.com/auth0/express-jwt
+const experessJwt = require('express-jwt');
+const jwt = require('jsonwebtoken');
+const guard = require('express-jwt-permissions')()
+
 
 const axios = require('axios');
 
