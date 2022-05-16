@@ -1138,12 +1138,15 @@ const prepareAnnotationPreview = async (docid, page, collId, cachedOnly) => {
 }
 
 // Generates the results table live preview, connecting to the R API.
-app.post(CONFIG.api_base_url+'/annotationPreview',async function(req,res){
+app.post(CONFIG.api_base_url+'/annotationPreview',
+  experessJwt({
+    secret: privatekey,
+    algorithms: ['ES256'],
+    credentialsRequired: false,
+  }),
+  async (req, res) => {
 
   const {
-    username=undefined,
-    hash=undefined,
-
     docid,
     page,
     // collId,
@@ -1151,10 +1154,13 @@ app.post(CONFIG.api_base_url+'/annotationPreview',async function(req,res){
     cachedOnly,
   } = req.body
 
+  // collId as integer
   const collId = parseInt(req.body.collId)
 
-  const validate_user = validateUser(username, hash);
-  const collectionPermissions = await dbDriver.permissionsResourceGet('collections', validate_user ? username : '')
+  // req.user added by experessJwt
+  const user = req?.user
+
+  const collectionPermissions = await dbDriver.permissionsResourceGet('collections', user ? user.username : '')
 
   if ( collectionPermissions.read.includes(collId) == false ) {
     return res.json([])
