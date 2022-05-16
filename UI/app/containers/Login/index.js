@@ -79,7 +79,7 @@ export function Login({
   // import hash function argon2id for password
   const {argon2id} = window.hashwasm;
   // Salt should be at least 8 bytes long
-  const salt = 'Cerberos'
+  const salt = 'Cerberosï\x8Dzß~9ão'
 
   const [cookies, setCookie, removeCookie ] = useCookies();
 
@@ -104,9 +104,15 @@ export function Login({
 
   const logIn = async () => {
     if ( username && username != undefined && password && password != undefined ) {
+      // salt + username bit level xor
+      const _salt = Array.from(salt)
+        .map((item, idx) => username[idx] ?
+          String.fromCharCode(item.charCodeAt(0) ^ username[idx].charCodeAt(0))
+          : item)
+        .join('')
       const key = await argon2id({
         password,
-        salt, // salt is a buffer containing random bytes
+        salt: _salt, // salt is a buffer containing random bytes
         parallelism: 1,
         iterations: 128,
         memorySize: 256, // use 512KB memory
