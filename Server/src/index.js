@@ -576,7 +576,13 @@ const setMetadata = async ( metadata ) => {
   return results
 }
 
-app.post(CONFIG.api_base_url+'/metadata', async function(req,res) {
+app.post(CONFIG.api_base_url+'/metadata',
+  experessJwt({
+    secret: privatekey,
+    algorithms: ['ES256'],
+    credentialsRequired: false,
+  }),
+  async (req, res) => {
 
   if ( req.body && ( ! req.body.action ) ){
     res.json({status: "undefined", received : req.body})
@@ -584,9 +590,6 @@ app.post(CONFIG.api_base_url+'/metadata', async function(req,res) {
   }
 
   const {
-    username=undefined,
-    hash=undefined,
-
     action,
 
     docid,
@@ -600,12 +603,12 @@ app.post(CONFIG.api_base_url+'/metadata', async function(req,res) {
   // collection_id as number
   const collId = parseInt(req.body.collId)
 
-  // * :-) User validation...
-  const validate_user = validateUser(username, hash);
+  // req.user added by experessJwt
+  const user = req?.user
 
-  const collectionPermissions = await dbDriver.permissionsResourceGet('collections', validate_user ? username : '')
+  const collectionPermissions = await dbDriver.permissionsResourceGet('collections', user ? user.username : '')
 
-  if ( collectionPermissions.read.indexOf(collId) <= -1 ) {
+  if ( collectionPermissions.read.includes(collId) == false ) {
     return res.json({status:"unauthorised", payload: null})
   }
 
