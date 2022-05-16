@@ -55,8 +55,16 @@ var proc_host_vars = {
 }
 
 const initialState = {
-  app: {...proc_host_vars,
-    api_url : 'http://'+proc_host_vars.ui_host + ( proc_host_vars.server_port && (proc_host_vars.ui_host.indexOf("localhost") > -1) ? ':' + proc_host_vars.server_port : '') + URL_BASE
+  app: {
+    ...proc_host_vars,
+    api_url : location.protocol + '//' +
+              proc_host_vars.ui_host +
+              (
+                proc_host_vars.server_port && (proc_host_vars.ui_host.includes("localhost")) ?
+                  ':' + proc_host_vars.server_port
+                  : ''
+              ) +
+              URL_BASE
   }
 }
 
