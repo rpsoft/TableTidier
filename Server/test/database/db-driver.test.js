@@ -49,12 +49,12 @@ describe('dbDriver', () => {
     // userGet
     test('Get user test ', async () => {
       const email = 'james@example.com'
-      const user = await dbDriver.userGet(email);
+      const user = await dbDriver.userGet({email});
       expect(user.email).toEqual(email);
     });
     test('Get unregistered user return undefined', async () => {
       const email = 'invalid@example.com'
-      const user = await dbDriver.userGet(email);
+      const user = await dbDriver.userGet({email});
       // Usuarfio 
       expect(user).toEqual(undefined);
     });
@@ -74,7 +74,7 @@ describe('dbDriver', () => {
     test('Create user', async () => {
       const user = craig
       const result = await dbDriver.userCreate(user);
-      const userExist = await dbDriver.userGet(user.email);
+      const userExist = await dbDriver.userGet({email: user.email});
       expect(result).toEqual('done');
       expect(userExist.email).toEqual(user.email);
     });
@@ -83,7 +83,7 @@ describe('dbDriver', () => {
     test('Delete user', async () => {
       const email = 'craig@example.com'
       const result = await dbDriver.userDelete(email);
-      const user = await dbDriver.userGet(email);
+      const user = await dbDriver.userGet({email});
       expect(user).toEqual(undefined);
     });
   });

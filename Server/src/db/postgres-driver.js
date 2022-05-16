@@ -593,12 +593,24 @@ function driver(config) {
       return 'done'
     },
     
-    userGet: async (email) => {
+    userGet: async ({username, email, id}) => {
+      const fieldName = username ? 'username' :
+        email ? 'email' :
+        id ? 'id' : null
+
+      const value = username ? username :
+        email ? email :
+        id ? id : null
+
+      if (!value) {
+        return 'Invalid parameter'
+      }
+
       const user = await query(`
       SELECT
         id, username, password, "displayName", email, registered, role
       FROM users
-      WHERE email = $1`, [email])
+      WHERE ${fieldName} = $1`, [value])
       return user.rows[0]
     },
 
