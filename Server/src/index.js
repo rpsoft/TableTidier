@@ -752,11 +752,11 @@ app.post(CONFIG.api_base_url+'/collections',
     target,
   } = req.body
 
-  // req.user added by passport
-  const user = req?.user
-
   // collection_id as number
   const collection_id = parseInt(req.body.collection_id)
+
+  // req.user added by experessJwt
+  const user = req?.user
 
   const collectionPermissions = await dbDriver.permissionsResourceGet('collections', user ? user.username : '')
   let response = {status: "failed"}
@@ -929,12 +929,15 @@ app.post(CONFIG.api_base_url+'/search', async (req,res) => {
   // }
 });
 
-app.post(CONFIG.api_base_url+'/getTableContent', async (req,res) => {
-
+app.post(CONFIG.api_base_url+'/getTableContent',
+  experessJwt({
+    secret: privatekey,
+    algorithms: ['ES256'],
+    credentialsRequired: false,
+  }),
+  async (req, res) => {
+  
   const {
-    username=undefined,
-    hash=undefined,
-
     enablePrediction,
 
     docid,
@@ -942,10 +945,13 @@ app.post(CONFIG.api_base_url+'/getTableContent', async (req,res) => {
     // collId,
   } = req.body
 
+  // collId as integer
   const collId = parseInt(req.body.collId)
 
-  const validate_user = validateUser(username, hash);
-  const collectionPermissions = await dbDriver.permissionsResourceGet('collections', validate_user ? username : "")
+  // req.user added by experessJwt
+  const user = req?.user
+
+  const collectionPermissions = await dbDriver.permissionsResourceGet('collections', user ? user.username : '')
 
   if ( collectionPermissions.read.includes(collId) == false ){
     return res.json({status: "unauthorised", body : req.body})
@@ -1019,7 +1025,7 @@ app.post(CONFIG.api_base_url+'/getTableContent', async (req,res) => {
             page,
             tableType: '',
             tid: tableData.collectionData.tables.filter( table => table.docid == docid && table.page == page )[0].tid,
-            user: username,
+            user: user.username,
           }
         }
 
