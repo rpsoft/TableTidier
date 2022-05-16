@@ -19,7 +19,7 @@ export function* doLogin() {
 
   const login_details = yield select(makeSelectLogin());
   const requestURL = locationData.api_url+`login`;
-
+  // debugger
   // const requestURL = `http://localhost:6541/login`;(locationData.server_port ? `:`+locationData.server_port : "")
 
   const params = new URLSearchParams( { 'username': login_details.username, 'password': login_details.password });
@@ -34,10 +34,16 @@ export function* doLogin() {
 
     console.log("LOGIN: "+response.status);
 
-    if ( response.status && response.status == "unauthorised"){
+    if (
+      response.status &&
+      (
+        response.status == 'unauthorised' ||
+        response.status == 'failed'
+      )
+    ) {
       yield put( yield loginFailedAction(response.status));
     } else {
-      yield put( yield loginSuccessAction(response.payload.hash));
+      yield put( yield loginSuccessAction(response.payload.token));
       yield put( yield issueAlertAction({ open: true, message: "Logged in Successfully", isError: false }))
     }
   } catch (err) {

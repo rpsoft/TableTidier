@@ -8,6 +8,7 @@ import makeSelectDashboard, {makeSelectCredentials} from './selectors';
 import request from '../../utils/request';
 
 import makeSelectLocation from '../App/selectors'
+import makeSelectLogin from '../Login/selectors'
 
 import { push } from 'connected-react-router';
 
@@ -19,27 +20,31 @@ import { URL_BASE } from '../../links'
 export function* doSearch() {
 
   const dashboard_state = yield select(makeSelectDashboard());
-
   const locationData = yield select(makeSelectLocation());
+  const loginData = yield select(makeSelectLogin());
 
   const requestURL = locationData.api_url+`search`;
 
   const params = new URLSearchParams({
       'searchContent': dashboard_state.searchContent,
       'searchType': JSON.stringify(dashboard_state.searchType),
-      'hash' : dashboard_state.hash,
-      'username' :  dashboard_state.username
     });
 
   const options = {
     method: 'POST',
+    headers: {},
     body: params
+  }
+
+  // Authorization JWT
+  if (loginData.token) {
+    options.headers.Authorization = `Bearer ${loginData.token}`
   }
 
   try {
     const response = yield call(request, requestURL, options);
 
-    if ( response.status && response.status == "unauthorised"){
+    if ( response.status && response.status == "unauthorised") {
 
     } else {
       // debugger
@@ -54,22 +59,26 @@ export function* doSearch() {
 export function* listCollections() {
 
   const credentials = yield select(makeSelectCredentials());
-
   const locationData = yield select(makeSelectLocation());
+  const loginData = yield select(makeSelectLogin());
 
   const parsed = queryString.parse(location.search);
 
   const requestURL = locationData.api_url+`collections`;
 
   const params = new URLSearchParams({
-      'hash' : credentials.hash,
-      'username' :  credentials.username,
-      'action' : 'list'
-    });
+    'action': 'list'
+  });
 
   const options = {
     method: 'POST',
+    headers: {},
     body: params
+  }
+
+  // Authorization JWT
+  if (loginData.token) {
+    options.headers.Authorization = `Bearer ${loginData.token}`
   }
 
   try {
@@ -85,7 +94,6 @@ export function* listCollections() {
   }
 }
 
-
 export function* createCollection() {
 
   const credentials = yield select(makeSelectCredentials());
@@ -96,13 +104,15 @@ export function* createCollection() {
   const requestURL = locationData.api_url+`collections`;
 
   const params = new URLSearchParams({
-      'hash' : credentials.hash,
-      'username' :  credentials.username,
-      'action' : 'create'
-    });
+    'action': 'create'
+  });
 
   const options = {
     method: 'POST',
+    headers: {
+      // Authorization JWT
+      Authorization: `Bearer ${loginData.token}`,
+    },
     body: params
   }
 
@@ -110,14 +120,13 @@ export function* createCollection() {
     const response = yield call(request, requestURL, options);
 
     if ( response.status && response.status == "unauthorised"){
-
       // COUld probably redirect to /
       // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
     } else {
 
       yield listCollections()
 
-      yield put(push("/collection?collId="+response.data.rows[0].collection_id))
+      yield put(push("/collection?collId="+response.data.collection_id))
 
       // yield put( yield updateCollectionAction(response.data) );
     }

@@ -11,6 +11,8 @@ import makeSelectCollectionView, {  makeSelectCredentials } from './selectors';
 import makeSelectLocation from '../App/selectors'
 import {issueAlertAction} from '../App/actions'
 
+import makeSelectLogin from '../Login/selectors'
+
 const queryString = require('query-string');
 
 import csv from 'react-csv-downloader/dist/lib/csv';
@@ -19,39 +21,52 @@ import request from '../../utils/request';
 
 export function* getCollectionData() {
 
-  const credentials = yield select(makeSelectCredentials());
   const locationData = yield select(makeSelectLocation());
+  const loginData = yield select(makeSelectLogin());
 
   const parsed = queryString.parse(location.search);
 
   const requestURL = locationData.api_url+`collections`;
 
-  if ( parsed.collId == "new"){
-    yield put( yield updateCollectionAction({title : "", collection_id : "new", description: "", owner_username : ""}) );
+  if ( parsed.collId == 'new') {
+    yield put( yield updateCollectionAction({
+      title: '',
+      collection_id: 'new',
+      description: '',
+      owner_username : ''
+    }) );
     return
   }
 
   const params = new URLSearchParams({
-      'hash' : credentials.hash,
-      'username' :  credentials.username,
       'collection_id' : parsed.collId,
       'action' : 'get'
     });
 
   const options = {
     method: 'POST',
+    headers: {},
     body: params
+  }
+
+  // Authorization JWT
+  if (loginData.token) {
+    options.headers.Authorization = `Bearer ${loginData.token}`
   }
 
   try {
     const response = yield call(request, requestURL, options);
 
-    if ( response.status && response.status == "unauthorised"){
+    if ( response.status && response.status == 'unauthorised' ) {
       // COUld probably redirect to /
-      yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
-
+      yield put( yield updateCollectionAction({
+        title : '',
+        collection_id : '',
+        description: '',
+        owner_username : '',
+        collectionsList : []
+      }) );
     } else {
-      // debugger
       yield put( yield updateCollectionAction(response.data) );
     }
   } catch (err) {
@@ -61,20 +76,17 @@ export function* getCollectionData() {
   return {}
 }
 
-
 export function* editCollectionData() {
 
-  const credentials = yield select(makeSelectCredentials());
   const locationData = yield select(makeSelectLocation());
   const collectionState = yield select(makeSelectCollectionView());
+  const loginData = yield select(makeSelectLogin());
 
   const parsed = queryString.parse(location.search);
 
   const requestURL = locationData.api_url+`collections`;
 
   const params = new URLSearchParams({
-      'hash' : credentials.hash,
-      'username' :  credentials.username,
       'collection_id' : parsed.collId,
       'collectionData' : JSON.stringify(collectionState),
       'action' : 'edit'
@@ -82,7 +94,13 @@ export function* editCollectionData() {
 
   const options = {
     method: 'POST',
+    headers: {},
     body: params
+  }
+
+  // Authorization JWT
+  if (loginData.token) {
+    options.headers.Authorization = `Bearer ${loginData.token}`
   }
 
   try {
@@ -110,6 +128,8 @@ export function* editCollectionData() {
 export function* removeCollectionTables ( payload ) {
 
   const credentials = yield select(makeSelectCredentials());
+  const loginData = yield select(makeSelectLogin());
+
   const parsed = queryString.parse(location.search);
 
   const params = new URLSearchParams({
