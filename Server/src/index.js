@@ -3,9 +3,11 @@ import 'dotenv/config'
 const CONFIG_PATH = process.env.CONFIG_PATH || process.cwd()
 const GENERAL_CONFIG = require(CONFIG_PATH + '/config.json')
 
+const fsClassic = require('fs');
 const fs = require('fs/promises');
 const path = require('path');
 const exec = require('child_process').exec;
+const axios = require('axios');
 
 const express = require('express');
 // morgan, HTTP request logger middleware for node.js
@@ -22,10 +24,6 @@ const experessJwt = require('express-jwt');
 const jwt = require('jsonwebtoken');
 const guard = require('express-jwt-permissions')()
 
-
-const axios = require('axios');
-
-const { Pool, Client, Query } = require('pg')
 // DB driver
 const pgDriver = require('./db/postgres-driver')({...GENERAL_CONFIG.db})
 const dbDriver = require('./db/sniffer-driver')
@@ -58,6 +56,19 @@ global.umls_data_buffer = {};
 // :-)
 global.pool = pgDriver.pool
 
+// JWT, Key used to sign and encrypt
+// Generate new key
+// https://wiki.openssl.org/index.php/Command_Line_Elliptic_Curve_Operations
+// openssl ecparam -name secp256k1 -genkey -noout -out secp256k1-key.pem
+// openssl ecparam -name secp256k1 -genkey -noout -out certificates/private.pem
+
+const privatekey = fsClassic.readFileSync('./certificates/private.pem')
+
+// const SESSION_TOKEN_EXPIRATION_TIME = '24h'
+const SESSION_TOKEN_EXPIRATION_TIME = '1m'
+// In miliseconds
+const SESSION_TOKEN_REFRESH_TIME = 20*1e3
+
 // TTidier subsystems load.
 console.log("Loading Files Management")
 
@@ -65,9 +76,11 @@ console.log("Loading Security")
 import
   passport,
   {
-    getUserHash
+    passportAddDriver
   }
 from "./security.js"
+// User config use dbDriver
+passportAddDriver(dbDriver)
 
 console.log("Loading Table Libs")
 import {
@@ -93,6 +106,7 @@ const easysearch = require('@sephir/easy-search')
 
 console.log("Configuring Server")
 var app = express();
+app.use(logger('tiny'))
 
 app.use(cors("*"));
 app.options('*', cors())
@@ -308,8 +322,8 @@ const rebuildSearchIndex = async () => {
     tables_folder,
     tables_folder_override,
   } = global.CONFIG
-  let tablesInFolder = fs.readdir(path.join(tables_folder))
-  let tablesInFolderOverride = fs.readdir(path.join(tables_folder_override))
+  let tablesInFolder = await fs.readdir(path.join(tables_folder))
+  let tablesInFolderOverride = await fs.readdir(path.join(tables_folder_override))
   // Join path
   tablesInFolder = (await tablesInFolder).map( (dir) => path.join(tables_folder, dir))
   tablesInFolderOverride = (await tablesInFolderOverride).map( (dir) => path.join(tables_folder_override, dir))
@@ -562,7 +576,7 @@ const setMetadata = async ( metadata ) => {
   return results
 }
 
-app.post(CONFIG.api_base_url+'/metadata', async function(req,res){
+app.post(CONFIG.api_base_url+'/metadata', async function(req,res) {
 
   if ( req.body && ( ! req.body.action ) ){
     res.json({status: "undefined", received : req.body})
@@ -638,7 +652,7 @@ app.post(CONFIG.api_base_url+'/metadata', async function(req,res){
   res.json({status: "success", data: result})
 });
 
-app.post(CONFIG.api_base_url+'/cuis', async function(req,res){
+app.post(CONFIG.api_base_url+'/cuis', async (req, res) => {
 
   if ( req.body && ( ! req.body.action ) ){
     res.json({status: "undefined", received : req.body})
@@ -648,9 +662,8 @@ app.post(CONFIG.api_base_url+'/cuis', async function(req,res){
   var validate_user = true //validateUser(req.body.username, req.body.hash);
   // var collectionPermissions = await dbDriver.permissionsResourceGet('collections', req.body.username)
 
-  if ( validate_user ){
-
-    var result = {};
+  if ( validate_user ) {
+    let result = {};
 
     switch (req.body.action) {
       case "get":
@@ -716,7 +729,13 @@ const getResultsRefreshed = async ( tids ) => {
 }
 
 // Collections
-app.post(CONFIG.api_base_url+'/collections', async (req, res) => {
+app.post(CONFIG.api_base_url+'/collections',
+  experessJwt({
+    secret: privatekey,
+    algorithms: ['ES256'],
+    credentialsRequired: false,
+  }),
+  async (req, res) => {
 
   if ( req.body && ( ! req.body.action ) ){
     res.json({status: "undefined", received : req.query})
@@ -724,9 +743,6 @@ app.post(CONFIG.api_base_url+'/collections', async (req, res) => {
   }
 
   const {
-    username=undefined,
-    hash=undefined,
-
     action,
 
     // collection_id,
@@ -735,18 +751,16 @@ app.post(CONFIG.api_base_url+'/collections', async (req, res) => {
     tid,
     target,
   } = req.body
-  var validate_user = validateUser(
-    username,
-    hash,
-  );
+
+  // req.user added by passport
+  const user = req?.user
 
   // collection_id as number
   const collection_id = parseInt(req.body.collection_id)
 
-  const collectionPermissions = await dbDriver.permissionsResourceGet('collections', validate_user ? username : '')
+  const collectionPermissions = await dbDriver.permissionsResourceGet('collections', user ? user.username : '')
   let response = {status: "failed"}
-
-  var result;
+  let result;
 
   switch (action) {
     case "list":
@@ -784,8 +798,8 @@ app.post(CONFIG.api_base_url+'/collections', async (req, res) => {
       break;
 
     case "create":
-      if ( validate_user ){
-        result = await dbDriver.collectionCreate("new collection", '', username);
+      if ( user ) {
+        result = await dbDriver.collectionCreate('new collection', '', user.username);
         response = {status:"success", data: result}
       } else {
         response = {status:"login to create collection", payload: req.body}
@@ -794,9 +808,10 @@ app.post(CONFIG.api_base_url+'/collections', async (req, res) => {
 
     // Well use edit to create Collection on the fly
     case "edit":
-      if ( collectionPermissions.write.indexOf(collection_id) > -1 ){
+      if ( collectionPermissions.write.includes(collection_id) == true ) {
         var allCollectionData = JSON.parse( collectionData )
         result = await dbDriver.collectionEdit(allCollectionData);
+        // * :-) Collections Edit return collection_id save a step
         result = await dbDriver.collectionGet(collection_id);
         response = {status: "success", data: result}
       } else {
@@ -804,8 +819,7 @@ app.post(CONFIG.api_base_url+'/collections', async (req, res) => {
       }
       break;
 
-    case "download":  //
-
+    case "download":
       var tids = JSON.parse(tid);
 
       // Download file
@@ -822,7 +836,7 @@ app.post(CONFIG.api_base_url+'/collections', async (req, res) => {
         var result_met = await dbDriver.metadataGet( tids );
         // var result =
 
-        result = {data: result_res, metadata: result_met?.rows}
+        result = {data: result_res, metadata: result_met}
       }
 
       response = {status: "success", data: result}
@@ -915,7 +929,7 @@ app.post(CONFIG.api_base_url+'/search', async (req,res) => {
   // }
 });
 
-app.post(CONFIG.api_base_url+'/getTableContent',async (req,res) => {
+app.post(CONFIG.api_base_url+'/getTableContent', async (req,res) => {
 
   const {
     username=undefined,
@@ -1784,9 +1798,29 @@ const processAnnotationAndMetadata = async (docid, page, collId) => {
   const result = await setMetadata(metadata)
 }
 
-// api_host
-// ui_port
-// ui_host
+// catch events from Authentication, JWT, etc
+app.use(function (err, req, res, next) {
+  if (err.code === 'permission_denied') {
+    return res.status(403).json({status:'unauthorised', message:'Forbidden'});
+  }
+  // JWToken is valid?
+  if (err.code === 'invalid_token') {
+    return res.status(401).json({status:'unauthorised', message:'invalid token...'});
+  }
+  console.log(err)
+  
+  if (
+    err.status && 
+    (
+      err.status == 'failed' ||
+      err.status == 'unauthorised'
+    )
+  ) {
+    return res.status(200).json(err);
+  }
+
+  return res.status(500).json({message: err.message});
+});
 
 const myShellScript = exec(`fuser -k ${CONFIG.api_port}/tcp`);
 
