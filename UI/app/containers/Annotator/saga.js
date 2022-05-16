@@ -44,6 +44,7 @@ import {
 } from '../../links'
 
 import makeSelectAnnotator from './selectors';
+import makeSelectLogin from '../Login/selectors'
 
 import request from '../../utils/request';
 
@@ -56,21 +57,19 @@ export function* getTableContent( payload ) {
 
   const credentials = yield select(makeSelectCredentials());
   const locationData = yield select(makeSelectLocation());
+  const loginData = yield select(makeSelectLogin());
 
   const parsed = queryString.parse(location.search);
   const requestURL = locationData.api_url+`getTableContent`;
 
   // console.log("tableDAta request for "+credentials.username)
   const params = new URLSearchParams({
-      'hash' : credentials.hash,
-      'username' :  credentials.username,
-      'docid' : parsed.docid,
-      'page' : parsed.page,
-      'collId' : parsed.collId,
-      'action' : 'get',
-      'enablePrediction' : payload.enablePrediction ? true : false,
-    });
-
+    'docid' : parsed.docid,
+    'page' : parsed.page,
+    'collId' : parsed.collId,
+    'action' : 'get',
+    'enablePrediction' : payload.enablePrediction ? true : false,
+  });
 
   if ( !parsed.docid ){
     return {}
@@ -78,13 +77,19 @@ export function* getTableContent( payload ) {
 
   const options = {
     method: 'POST',
+    headers: {},
     body: params
+  }
+
+  // Authorization JWT
+  if (loginData.token) {
+    options.headers.Authorization = `Bearer ${loginData.token}`
   }
 
   try {
     const response = yield call(request, requestURL, options);
 
-    if ( response.status && response.status == "unauthorised"){
+    if ( response.status && response.status == 'unauthorised') {
       yield put(push('/dashboard'));
     } else {
 
@@ -92,17 +97,22 @@ export function* getTableContent( payload ) {
       response.page = parsed.page
       response.collId = parsed.collId
       // try{
-      response.collectionData.tables = response.collectionData.tables.sort( (a,b) => (a.docid+"_"+a.page).localeCompare((b.docid+"_"+b.page)))
+      response.collectionData.tables = response.collectionData.tables.sort(
+        (a,b) => (a.docid+'_'+a.page).localeCompare((b.docid+'_'+b.page))
+      )
       // } catch(e){
       //   debugger
       // }
 
-      response.tablePosition = response.collectionData.tables.reduce( (i, table, index) => {
-                                            if ( (table.docid+"_"+table.page).localeCompare(parsed.docid+"_"+parsed.page) == 0){
-                                               return index
-                                            } else{
-                                               return i
-                                            }; }, -1) + 1
+      response.tablePosition = response.collectionData.tables.reduce(
+        (i, table, index) => {
+          if ( (table.docid+'_'+table.page).localeCompare(parsed.docid+'_'+parsed.page) == 0){
+              return index
+          } else{
+              return i
+          };
+        },
+        -1 ) + 1
 
       response.tableStatus = response.annotationData.completion
       response.tableType = response.annotationData.tableType
@@ -116,52 +126,57 @@ export function* getTableContent( payload ) {
       yield put( yield updateTableContentAction(response) );
 
 
-      var annotations = (!_.isEmpty(response.annotationData)) && response.annotationData.annotation ? response.annotationData.annotation.annotations.map(
-        (item,id) => {
-          item.subAnnotation = item.subAnnotation ? item.subAnnotation : false; // this is to preserve compatibility with previous annotations that don't have subAnnotation
-          return item
-        }) : []
+      const annotations = (!_.isEmpty(response.annotationData)) && response.annotationData.annotation ?
+        response.annotationData.annotation.annotations.map(
+          (item,id) => {
+            item.subAnnotation = item.subAnnotation ? item.subAnnotation : false; // this is to preserve compatibility with previous annotations that don't have subAnnotation
+            return item
+          }
+        ) : []
 
       yield put( yield updateTableAnnotationsAction(annotations) );
-
     }
   } catch (err) {
     console.log(err)
   }
 
   return {}
-
 }
 
 export function* getTableResult( payload ) {
 
   const credentials = yield select(makeSelectCredentials());
   const locationData = yield select(makeSelectLocation());
+  const loginData = yield select(makeSelectLogin());
 
   const parsed = queryString.parse(location.search);
   const requestURL = locationData.api_url+`annotationPreview`;
 
   const params = new URLSearchParams({
-      'hash' : credentials.hash,
-      'username' :  credentials.username,
-      'docid' : parsed.docid,
-      'page' : parsed.page,
-      'collId' : parsed.collId,
-      'cachedOnly' : payload.cachedOnly,
-      'action' : 'get',
+    'docid' : parsed.docid,
+    'page' : parsed.page,
+    'collId' : parsed.collId,
+    'cachedOnly' : payload.cachedOnly,
+    'action' : 'get',
 
-      // 'enablePrediction' : false
-    });
+    // 'enablePrediction' : false
+  });
 
   const options = {
     method: 'POST',
+    headers: {},
     body: params
+  }
+
+  // Authorization JWT
+  if (loginData.token) {
+    options.headers.Authorization = `Bearer ${loginData.token}`
   }
 
   try {
     const response = yield call(request, requestURL, options);
 
-    if ( response.status && response.status == "unauthorised"){
+    if ( response.status && response.status == 'unauthorised'){
       // COUld probably redirect to /
       // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
       //yield put(push('/dashboard'));
@@ -180,27 +195,32 @@ export function* getTableResult( payload ) {
 
 export function* getCUISIndex( payload ) {
 
-  const credentials = yield select(makeSelectCredentials());
+  // const credentials = yield select(makeSelectCredentials());
   const locationData = yield select(makeSelectLocation());
+  const loginData = yield select(makeSelectLogin());
 
   const parsed = queryString.parse(location.search);
   const requestURL = locationData.api_url+`cuis`;
 
   const params = new URLSearchParams({
-      'hash' : credentials.hash,
-      'username' :  credentials.username,
-      'action' : 'get' // get  delete  edit
-    });
+    'action' : 'get' // get  delete  edit
+  });
 
   const options = {
     method: 'POST',
+    headers: {},
     body: params
+  }
+
+  // Authorization JWT
+  if (loginData.token) {
+    options.headers.Authorization = `Bearer ${loginData.token}`
   }
 
   try {
     const response = yield call(request, requestURL, options);
 
-    if ( response.status && response.status == "unauthorised"){
+    if ( response.status && response.status == 'unauthorised'){
       yield put( yield updateCuisIndexAction({}) );
 
       // COUld probably redirect to /
@@ -219,50 +239,58 @@ export function* getCUISIndex( payload ) {
 
 export function* getTableMetadata( payload ) {
 
-  const credentials = yield select(makeSelectCredentials());
+  // const credentials = yield select(makeSelectCredentials());
   const locationData = yield select(makeSelectLocation());
+  const loginData = yield select(makeSelectLogin());
 
   const parsed = queryString.parse(location.search);
   const requestURL = locationData.api_url+`metadata`;
 
   const params = new URLSearchParams({
-      'hash' : credentials.hash,
-      'username' :  credentials.username,
-      'docid' : parsed.docid,
-      'page' : parsed.page,
-      'collId' : parsed.collId,
-      'tid' : payload.tid,
-      'action' : 'get' // get  delete  edit
-    });
+    'docid' : parsed.docid,
+    'page' : parsed.page,
+    'collId' : parsed.collId,
+    'tid' : payload.tid,
+    'action' : 'get' // get  delete  edit
+  });
 
   const options = {
     method: 'POST',
+    headers: {},
     body: params
+  }
+
+  // Authorization JWT
+  if (loginData.token) {
+    options.headers.Authorization = `Bearer ${loginData.token}`
   }
 
   try {
     const response = yield call(request, requestURL, options);
 
-    if ( response.status && response.status == "unauthorised"){
+    if ( response.status && response.status == 'unauthorised'){
 
       // COUld probably redirect to /
       // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
     } else {
 
-      var metadata = response.data.reduce(
+      const metadata = response.data.reduce(
         (acc, meta_item, i) => {
-          var mItem = {...meta_item}
+          const mItem = {...meta_item}
 
-          mItem.cuis = mItem.cuis && mItem.cuis.length > 0 ? Array.from(new Set(mItem.cuis.split(";"))) : []
-          mItem.cuis_selected = mItem.cuis_selected && mItem.cuis_selected.length > 0 ? Array.from(new Set(mItem.cuis_selected.split(";"))) : []
-
+          mItem.cuis = mItem.cuis && mItem.cuis.length > 0 ? Array.from(new Set(mItem.cuis.split(';'))) : []
+          mItem.cuis_selected = mItem.cuis_selected && mItem.cuis_selected.length > 0 ?
+            Array.from(new Set(mItem.cuis_selected.split(';')))
+            : []
 
           mItem.cuis.sort( (a,b) => mItem.cuis_selected.indexOf(b) - mItem.cuis_selected.indexOf(a) )
 
-          mItem.qualifiers = Array.from(new Set(mItem.qualifiers.split(";")))
-          mItem.qualifiers_selected = Array.from(new Set(mItem.qualifiers_selected.split(";")))
+          mItem.qualifiers = Array.from(new Set(mItem.qualifiers.split(';')))
+          mItem.qualifiers_selected = Array.from(new Set(mItem.qualifiers_selected.split(';')))
 
-          var metaKey = meta_item.concept.toLowerCase() != meta_item.concept_root.toLowerCase() ? meta_item.concept_root.toLowerCase()+meta_item.concept.toLowerCase() : meta_item.concept.toLowerCase()
+          const metaKey = meta_item.concept.toLowerCase() != meta_item.concept_root.toLowerCase() ?
+            meta_item.concept_root.toLowerCase()+meta_item.concept.toLowerCase()
+            : meta_item.concept.toLowerCase()
 
           acc[metaKey] = mItem;
           return acc
@@ -279,103 +307,119 @@ export function* getTableMetadata( payload ) {
 
 export function* saveChanges ( payload ) {
 
-    const credentials = yield select(makeSelectCredentials());
-    const locationData = yield select(makeSelectLocation());
+  // const credentials = yield select(makeSelectCredentials());
+  const locationData = yield select(makeSelectLocation());
+  const loginData = yield select(makeSelectLogin());
 
-    const parsed = queryString.parse(location.search);
+  const parsed = queryString.parse(location.search);
 
-    var requestURL = locationData.api_url;
+  let requestURL = locationData.api_url;
 
-    var pre_params = {
-        'hash' : credentials.hash,
-        'username' :  credentials.username,
-        'docid' : parsed.docid,
-        'page' : parsed.page,
-        'collId' : parsed.collId,
+  let pre_params = {
+    'docid' : parsed.docid,
+    'page' : parsed.page,
+    'collId' : parsed.collId,
+  }
+
+  switch( payload.type ) {
+    case SAVE_TABLE_TEXT_ACTION:
+      requestURL = requestURL+`text`
+
+      pre_params = {
+        ...pre_params,
+        'action' : 'save',
+        'target' : 'text', // table / notes / annotation / metadata,
+        'payload' : JSON.stringify({
+          tableTitle: payload.tableTitle,
+          tableBody: payload.tableBody
+        }),
       }
 
-    switch( payload.type ) {
-      case SAVE_TABLE_TEXT_ACTION:
-        requestURL = requestURL+`text`
+      break;
+    case SAVE_TABLE_NOTES_ACTION:
+      requestURL = requestURL+`notes`
 
-        pre_params = {...pre_params,
-                  'action' : 'save',
-                  'target' : 'text', // table / notes / annotation / metadata,
-                  'payload' : JSON.stringify({tableTitle: payload.tableTitle, tableBody: payload.tableBody}),
-              }
-
-        break;
-      case SAVE_TABLE_NOTES_ACTION:
-        requestURL = requestURL+`notes`
-
-        pre_params = {...pre_params,
-                  'action' : 'save',
-                  'target' : 'notes', // table / notes / annotation / metadata,
-                  'payload' : JSON.stringify(payload.notes),
-              }
-
-        break;
-      case SAVE_TABLE_ANNOTATIONS_ACTION:
-        requestURL = requestURL+`saveAnnotation`
-
-        pre_params = {...pre_params,
-                  'action' : 'save',
-                  'target' : 'annotation', // table / notes / annotation / metadata,
-                  'payload' : JSON.stringify({tid: payload.tid, annotations: payload.annotations}),
-              }
-
-        break;
-      case SAVE_TABLE_METADATA_ACTION:
-        requestURL = requestURL+`metadata`
-
-        // debugger
-        pre_params = {...pre_params,
-                  'action' : 'save',
-                  'target' : 'metadata', // table / notes / annotation / metadata,
-                  'payload' : JSON.stringify({tid: payload.tid, metadata: payload.metadata}),
-              }
-
-        break;
-    }
-
-    const params = new URLSearchParams( pre_params )
-
-    const options = {
-      method: 'POST',
-      body: params
-    }
-
-    try {
-      const response = yield call(request, requestURL, options);
-
-      if ( response.status && response.status == "unauthorised"){
-        // COUld probably redirect to /
-        // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
-        // alert("unauthorised action")
-        yield put( yield issueAlertAction({ open: true, message: "unauthorised action", isError: true }))
-      } else {
-
-          // yield put( yield updateTableResultsAction(response.result) );
-          switch( payload.type ) {
-            case SAVE_TABLE_TEXT_ACTION:
-              yield put( yield issueAlertAction({ open: true, message: "Table Successfully Saved", isError: false }))
-              break;
-            case SAVE_TABLE_NOTES_ACTION:
-              yield put( yield issueAlertAction({ open: true, message: "Notes Successfully Saved", isError: false }))
-              break;
-            case SAVE_TABLE_ANNOTATIONS_ACTION:
-              yield put( yield issueAlertAction({ open: true, message: "Annotations Successfully Saved", isError: false }))
-              break;
-            case SAVE_TABLE_METADATA_ACTION:
-              yield put( yield issueAlertAction({ open: true, message: "Metadata Successfully Saved", isError: false }))
-              break;
-          }
+      pre_params = {
+        ...pre_params,
+        'action' : 'save',
+        'target' : 'notes', // table / notes / annotation / metadata,
+        'payload' : JSON.stringify(payload.notes),
       }
-    } catch (err) {
-      console.log(err)
-    }
 
-    return {}
+      break;
+    case SAVE_TABLE_ANNOTATIONS_ACTION:
+      requestURL = requestURL+`saveAnnotation`
+
+      pre_params = {
+        ...pre_params,
+        'action' : 'save',
+        'target' : 'annotation', // table / notes / annotation / metadata,
+        'payload' : JSON.stringify({
+          tid: payload.tid,
+          annotations: payload.annotations
+        }),
+      }
+
+      break;
+    case SAVE_TABLE_METADATA_ACTION:
+      requestURL = requestURL+`metadata`
+
+      // debugger
+      pre_params = {
+        ...pre_params,
+        'action' : 'save',
+        'target' : 'metadata', // table / notes / annotation / metadata,
+        'payload' : JSON.stringify({
+          tid: payload.tid,
+          metadata: payload.metadata
+        }),
+      }
+
+      break;
+  }
+
+  const params = new URLSearchParams( pre_params )
+
+  const options = {
+    method: 'POST',
+    headers: {},
+    body: params
+  }
+  // Authorization JWT
+  if (loginData.token) {
+    options.headers.Authorization = `Bearer ${loginData.token}`
+  }
+
+  try {
+    const response = yield call(request, requestURL, options);
+
+    if ( response.status && response.status == 'unauthorised'){
+      // COUld probably redirect to /
+      // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
+      // alert("unauthorised action")
+      yield put( yield issueAlertAction({ open: true, message: 'unauthorised action', isError: true }))
+    } else {
+      // yield put( yield updateTableResultsAction(response.result) );
+      switch( payload.type ) {
+        case SAVE_TABLE_TEXT_ACTION:
+          yield put( yield issueAlertAction({ open: true, message: 'Table Successfully Saved', isError: false }))
+          break;
+        case SAVE_TABLE_NOTES_ACTION:
+          yield put( yield issueAlertAction({ open: true, message: 'Notes Successfully Saved', isError: false }))
+          break;
+        case SAVE_TABLE_ANNOTATIONS_ACTION:
+          yield put( yield issueAlertAction({ open: true, message: 'Annotations Successfully Saved', isError: false }))
+          break;
+        case SAVE_TABLE_METADATA_ACTION:
+          yield put( yield issueAlertAction({ open: true, message: 'Metadata Successfully Saved', isError: false }))
+          break;
+      }
+    }
+  } catch (err) {
+    console.log(err)
+  }
+
+  return {}
 }
 
 
@@ -383,46 +427,49 @@ export function* getAutoLabels( payload ) {
 
   const credentials = yield select(makeSelectCredentials());
   const locationData = yield select(makeSelectLocation());
+  const loginData = yield select(makeSelectLogin());
 
   const parsed = queryString.parse(location.search);
-
 
   const requestURL = locationData.api_url+`auto`;
 
   const params = new URLSearchParams({
-      'hash' : credentials.hash,
-      'username' :  credentials.username,
-      'docid' : parsed.docid,
-      'page' : parsed.page,
-      'collId' : parsed.collId,
-      'tid' : payload.tid,
-      'headers' : JSON.stringify(payload.headers),
-      'action' : 'label' // get  delete  edit
-    });
+    'docid' : parsed.docid,
+    'page' : parsed.page,
+    'collId' : parsed.collId,
+    'tid' : payload.tid,
+    'headers' : JSON.stringify(payload.headers),
+    'action' : 'label' // get  delete  edit
+  });
 
   const options = {
     method: 'POST',
+    headers: {},
     body: params
   }
 
-  yield put( yield issueAlertAction({ open: true, message: "Labelling, please wait...", isError: false }))
+  // Authorization JWT
+  if (loginData.token) {
+    options.headers.Authorization = `Bearer ${loginData.token}`
+  }
+
+  yield put( yield issueAlertAction({ open: true, message: 'Labelling, please wait...', isError: false }))
 
   try {
     const response = yield call(request, requestURL, options);
 
-    if ( response.status && response.status == "unauthorised"){
+    if ( response.status && response.status == 'unauthorised' ) {
 
       // COUld probably redirect to /
       // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
     } else {
 
-
-      var metadata = Object.keys(response.autoLabels).reduce(
+      const metadata = Object.keys(response.autoLabels).reduce(
         (acc, key, i) => {
 
-          var mItem = {}
+          const mItem = {}
 
-          mItem.concept_source = ""
+          mItem.concept_source = ''
           mItem.concept = response.autoLabels[key].concept
           mItem.concept_root = response.autoLabels[key].root
 
@@ -440,7 +487,9 @@ export function* getAutoLabels( payload ) {
           mItem.labeller = credentials.username
           mItem.tid = payload.tid
 
-          var metaKey = mItem.concept.toLowerCase() != mItem.concept_root.toLowerCase() ? mItem.concept_root.toLowerCase()+mItem.concept.toLowerCase() : mItem.concept.toLowerCase()
+          const metaKey = mItem.concept.toLowerCase() != mItem.concept_root.toLowerCase() ?
+            mItem.concept_root.toLowerCase()+mItem.concept.toLowerCase()
+            : mItem.concept.toLowerCase()
 
           // debugger
 
@@ -455,7 +504,7 @@ export function* getAutoLabels( payload ) {
 
       yield put( yield loadCuisIndexAction());
 
-      yield put( yield issueAlertAction({ open: true, message: "Labels assigned", isError: false }))
+      yield put( yield issueAlertAction({ open: true, message: 'Labels assigned', isError: false }))
 
       // yield put( yield updateTableMetadataAction(metadata) );
     }
