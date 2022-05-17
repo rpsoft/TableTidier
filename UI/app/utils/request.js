@@ -1,3 +1,5 @@
+import { options } from "superagent";
+
 /**
  * Parses the JSON returned by a network request
  *
@@ -43,4 +45,19 @@ export default function request(url, options) {
   return fetch(url, options)
     .then(checkStatus)
     .then(parseJSON);
+}
+
+export function generateOptionsPost(params, token) {
+  const options = {
+    method: 'POST',
+    headers: {},
+    body: params
+  }
+
+  // Authorization JWT
+  if (token) {
+    options.headers.Authorization = `Bearer ${token}`
+  }
+
+  return options
 }
