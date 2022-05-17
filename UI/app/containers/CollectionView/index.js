@@ -138,7 +138,9 @@ const useStyles = makeStyles((theme) => ({
 
 }));
 
+
 export function CollectionView({
+  // mapDispatchToProps
   getCollectionData,
   editCollectionData,
   updateCollectionData,
@@ -147,6 +149,7 @@ export function CollectionView({
   moveTables,
   collectionView,
   goToUrl,
+  // mapStateToProps
   downloadData,
   locationData
 }) {
