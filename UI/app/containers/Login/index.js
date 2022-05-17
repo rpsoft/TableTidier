@@ -157,8 +157,6 @@ export function Login({
     //   setCookie('hash', '') // 86400 seconds in a day. Login will expire after a day.
     //   setCookie('username', '')
     // }
-
-
   }, [token]);
   //
   // useEffect(() => {
@@ -168,7 +166,7 @@ export function Login({
   useInjectReducer({ key: 'login', reducer });
   useInjectSaga({ key: 'login', saga });
 
-  var isLoggedIn = cookies.hash ? true : false;
+  const isLoggedIn = cookies.hash ? true : false;
 
 // <div style={{width:"100%"}}>
   return (
@@ -225,13 +223,26 @@ export function Login({
               />
               <br />
 
-            { loginState.loginWarning ? <div style={{color:"red",marginTop:5,marginBottom:5}}> {loginState.loginWarning} </div> : <br /> }
+            {
+              loginState.loginWarning ?
+                <div style={{color:"red",marginTop:5,marginBottom:5}}> {loginState.loginWarning} </div> 
+                : <br />
+            }
 
 
 
             <div style={{marginTop:10,textAlign:"right"}}>
-              <Button variant="contained" onClick={ () => { logIn() } } style={{backgroundColor:"#93de85"}} > Login </Button>
-              <Button disabled={!isLoggedIn} variant="contained" onClick={ () => { logOut() } } style={{marginLeft:5, backgroundColor:"#f98989"}}>Logout</Button>
+              <Button variant="contained" onClick={ () => { logIn() } } style={{backgroundColor:"#93de85"}} >
+                 Login
+              </Button>
+              <Button
+                disabled={!isLoggedIn}
+                variant="contained"
+                onClick={ () => { logOut() } }
+                style={{marginLeft:5, backgroundColor:"#f98989"}}
+              >
+                Logout
+              </Button>
             </div>
 
           </div>
