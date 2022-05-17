@@ -10,87 +10,85 @@ let dbDriver = {}
 // Pass dbDriver to access DB
 export function passportAddDriver(driver) { dbDriver = driver }
 passport.use(
-    'signup',
-    new CustomStrategy(
-      async (req, done) => {
-        const {
-          username,
-          password,
-        } = req.body
+  'signup',
+  new CustomStrategy(
+    async (req, done) => {
+      const {
+        username,
+        password,
+      } = req.body
 
-        const FAIL_GENERIC_MESSAGE = 'user or password not valid'
+      const FAIL_GENERIC_MESSAGE = 'user or password not valid'
 
-        if (!username || !password) {
-          return done(null, false, { message: FAIL_GENERIC_MESSAGE });
-        }
-
-        try {
-          const user = await dbDriver.userCreate({ email, password });
-
-          return done(null, user);
-        } catch (error) {
-          done(error);
-        }
+      if (!username || !password) {
+        return done(null, false, { message: FAIL_GENERIC_MESSAGE });
       }
-    )
-  );
+
+      try {
+        const user = await dbDriver.userCreate({ email, password });
+
+        return done(null, user);
+      } catch (error) {
+        done(error);
+      }
+    }
+  )
+);
 
 passport.use(
-    'login',
-    new CustomStrategy(
-      async (req, done) => {
-        const {
-          username,
-          password,
-        } = req.body
+  'login',
+  new CustomStrategy( async (req, done) => {
+    const {
+      username,
+      password,
+    } = req.body
 
-        const LOGIN_FAIL_GENERIC_MESSAGE = 'user or password not valid'
+    const LOGIN_FAIL_GENERIC_MESSAGE = 'user or password not valid'
 
-        if (!username || !password) {
-          return done(null, false, { message: LOGIN_FAIL_GENERIC_MESSAGE });
-        }
+    if (!username || !password) {
+      return done(null, false, { message: LOGIN_FAIL_GENERIC_MESSAGE });
+    }
 
-        try {
-          console.log('login')
-          if (password == '$argon2id$v=19$m=256,t=128,p=1$Q2VyYmVyb3M$k9fqEi5T2bWEfPEws8aH71R2nTk4nOIG/uWghCV6OVQ') {
-            console.log('hola Felix!!')
-          }
-          // Find user
-          const user = await dbDriver.userGet({username});
-
-          // User exists?
-          if (!user) {
-            return done(null, false, { message: LOGIN_FAIL_GENERIC_MESSAGE });
-          }
-
-          // Valid password?
-          if (user.password !== password) {
-            return done(null, false, { message: LOGIN_FAIL_GENERIC_MESSAGE });
-          }
-          // Add Permissions and roles
-          // Example
-          const userJWT = {
-            _id: user.id,
-            // subject
-            sub: user.username,
-            email: user.email,
-            // https://github.com/MichielDeMey/express-jwt-permissions
-            permissions: [
-              "status",
-              // "admin",
-              "user:read",
-              "user:write",
-              `role:${user.role}`
-            ],
-          }
-          // debugger
-          return done(null, {user, jwt: userJWT}, { message: 'Logged in Successfully' });
-        } catch (error) {
-          return done(error);
-        }
+    try {
+      console.log('login')
+      if (password == '$argon2id$v=19$m=256,t=128,p=1$Q2VyYmVyb3M$k9fqEi5T2bWEfPEws8aH71R2nTk4nOIG/uWghCV6OVQ') {
+        console.log('hola Felix!!')
       }
-    )
-  );
+      // Find user
+      const user = await dbDriver.userGet({username});
+
+      // User exists?
+      if (!user) {
+        return done(null, false, { message: LOGIN_FAIL_GENERIC_MESSAGE });
+      }
+
+      // Valid password?
+      if (user.password !== password) {
+        return done(null, false, { message: LOGIN_FAIL_GENERIC_MESSAGE });
+      }
+      // Add Permissions and roles
+      // Example
+      const userJWT = {
+        _id: user.id,
+        // subject
+        sub: user.username,
+        email: user.email,
+        // https://github.com/MichielDeMey/express-jwt-permissions
+        permissions: [
+          "status",
+          // "admin",
+          "user:read",
+          "user:write",
+          `role:${user.role}`
+        ],
+      }
+      // debugger
+      return done(null, {user, jwt: userJWT}, { message: 'Logged in Successfully' });
+    } catch (error) {
+      return done(error);
+    }
+  })
+);
 
 // var passport = require('passport');
 // const crypto = require('crypto');
