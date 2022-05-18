@@ -35,6 +35,7 @@ passport.use(
   )
 );
 
+// Authenticate user
 passport.use(
   'login',
   new CustomStrategy( async (req, done) => {
