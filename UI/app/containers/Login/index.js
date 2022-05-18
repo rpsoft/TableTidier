@@ -65,42 +65,44 @@ const useStyles = makeStyles((theme) => ({
  },
 }));
 
+// import hash function argon2id for password
+const {argon2id} = window.hashwasm;
+// Salt should be at least 8 bytes long
+const salt = 'Cerberosï\x8Dzß~9ão'
+const hashPassword = async (username, password) => {
+    // salt + username bit level xor
+    const _salt = Array.from(salt)
+    .map((item, idx) => username[idx] ?
+      String.fromCharCode(item.charCodeAt(0) ^ username[idx].charCodeAt(0))
+      : item)
+    .join('')
+  const key = await argon2id({
+    password,
+    salt: _salt, // salt is a buffer containing random bytes
+    parallelism: 1,
+    iterations: 128,
+    memorySize: 256, // use 512KB memory
+    hashLength: 32, // output size = 32 bytes
+    outputType: 'encoded', // return standard encoded string containing parameters needed to verify the key
+  });
+  return key
+}
+
 export function Login({
   token,
+  loginState,
+
   doLogin,
   doLogOut,
   goTo,
-  loginState,
 }) {
 
   const classes = useStyles();
   const theme = useTheme();
 
-  // import hash function argon2id for password
-  const {argon2id} = window.hashwasm;
-  // Salt should be at least 8 bytes long
-  const salt = 'Cerberosï\x8Dzß~9ão'
-  const hashPassword = async (username, password) => {
-      // salt + username bit level xor
-      const _salt = Array.from(salt)
-      .map((item, idx) => username[idx] ?
-        String.fromCharCode(item.charCodeAt(0) ^ username[idx].charCodeAt(0))
-        : item)
-      .join('')
-    const key = await argon2id({
-      password,
-      salt: _salt, // salt is a buffer containing random bytes
-      parallelism: 1,
-      iterations: 128,
-      memorySize: 256, // use 512KB memory
-      hashLength: 32, // output size = 32 bytes
-      outputType: 'encoded', // return standard encoded string containing parameters needed to verify the key
-    });
-    return key
-  }
   const [cookies, setCookie, removeCookie ] = useCookies();
 
-  const [username, setUsername] = useState(cookies.username ? cookies.username :  '' );
+  const [username, setUsername] = useState(loginState.username ? loginState.username :  '' );
   const [password, setPassword] = useState('');
 
   // const [loginWarning, setLoginWarning] = useState('');
@@ -148,27 +150,36 @@ export function Login({
 
   useEffect(() => {
     // If authentication token is available and it's different from the cookie token it will be set in the cookies.
-    if ( token ){
+    console.log('username ', loginState.username)
+    if ( loginState.username ) {
       handleLoginToggle(); // close on successful login.
-      setCookie('hash', token) // 86400 seconds in a day. Login will expire after a day.
-      setCookie('username', username)
+      setCookie('username', loginState.username)
+    } else {
+      setCookie('username', '')
     }
-    // else {
-    //   setCookie('hash', '') // 86400 seconds in a day. Login will expire after a day.
-    //   setCookie('username', '')
-    // }
-  }, [token]);
+  }, [loginState.username]);
   //
   // useEffect(() => {
   //   document.title = Date.now();
   // });
 
+  // useEffect(() => {
+  //   // If authentication token is available and it's different from the cookie token it will be set in the cookies.
+  //   console.log('token', token)
+  //   if ( token ) {
+  //     setCookie('hash', token) // 86400 seconds in a day. Login will expire after a day.
+  //     setCookie('username', loginState.username)
+  //   } else {
+  //     setCookie('hash', '') // 86400 seconds in a day. Login will expire after a day.
+  //     setCookie('username', '')
+  //   }
+  // }, [token]);
+
   useInjectReducer({ key: 'login', reducer });
   useInjectSaga({ key: 'login', saga });
 
-  const isLoggedIn = cookies.hash ? true : false;
+  const isLoggedIn = loginState.username ? true : false;
 
-// <div style={{width:"100%"}}>
   return (
     <AppBar position="fixed" className={classes.appBar} style={{backgroundColor:"#3f51b5"}}>
     <Toolbar>
@@ -178,77 +189,89 @@ export function Login({
         <meta name="description" content="Description of Login" />
       </Helmet>
 
-        <img src="./tabletidier.png" style={{height:45,width:45, cursor:"pointer", marginRight:15}} onClick={() => goTo('/')}/>
+      <img src="./tabletidier.png" style={{height:45,width:45, cursor:"pointer", marginRight:15}} onClick={() => goTo('/')}/>
 
-        <h2 style={{color:"white",margin:0}}>TableTidier <div style={{color:"red",display:"inline-block",fontSize:15}}>(beta)</div></h2>
+      <h2 style={{color:"white",margin:0}}>TableTidier <div style={{color:"red",display:"inline-block",fontSize:15}}>(beta)</div></h2>
 
-        <div style={{marginRight:0, position:"absolute",right:16}} >
-          <Button variant="contained" onClick={ handleLoginToggle }style={{marginLeft:5}}><AccountBoxIcon/> {cookies.username ? "Logged as: "+ cookies.username : " guest "}</Button>
-        </div>
-
-        <Popover
-          id={"loginDropDown"}
-          open={isLoginShown}
-          anchorEl={anchorEl}
-          onClose={ handleLoginToggle }
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'center',
-          }}
-          transformOrigin={{
-            vertical: 'top',
-            horizontal: 'center',
-          }}
+      <div style={{marginRight:0, position:"absolute",right:16}} >
+        <Button
+          variant="contained"
+          onClick={ handleLoginToggle }
+          style={{marginLeft:5}}
         >
-          <div style={{padding:20, maxWidth:300}}>
+          <AccountBoxIcon/>
+          {loginState.username ? "Logged as: "+ loginState.username : " guest "}
+        </Button>
+      </div>
 
-            <h4> Enter Your Login Details </h4>
+      <Popover
+        id={"loginDropDown"}
+        open={isLoginShown}
+        anchorEl={anchorEl}
+        onClose={ handleLoginToggle }
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'center',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'center',
+        }}
+      >
+        <div style={{padding:20, maxWidth:300}}>
 
+          <h4> Enter Your Login Details </h4>
+          <form>
             <TextField
               id="username"
               value={username}
               placeholder="Username"
+              autoComplete='login name'
               onChange={ (evt) => {setUsername(evt.currentTarget.value)} }
               onKeyDown ={onKeyDown}
-              />
-              <br />
+            />
+            <br />
 
             <TextField
               id="password"
               value={password}
               placeholder="Password"
               type="password"
+              autoComplete='login password'
               onChange={ (evt) => {setPassword(evt.currentTarget.value)} }
               onKeyDown ={onKeyDown}
-              />
-              <br />
+            />
+            <br />
+          </form>
 
-            {
-              loginState.loginWarning ?
-                <div style={{color:"red",marginTop:5,marginBottom:5}}> {loginState.loginWarning} </div> 
-                : <br />
-            }
-
-
-
-            <div style={{marginTop:10,textAlign:"right"}}>
-              <Button variant="contained" onClick={ () => { logIn() } } style={{backgroundColor:"#93de85"}} >
-                 Login
-              </Button>
-              <Button
-                disabled={!isLoggedIn}
-                variant="contained"
-                onClick={ () => { logOut() } }
-                style={{marginLeft:5, backgroundColor:"#f98989"}}
+          {
+            loginState.loginWarning ?
+              <div 
+                style={{color:"red",marginTop:5,marginBottom:5}}
               >
-                Logout
-              </Button>
-            </div>
+                {loginState.loginWarning}
+              </div>
+            : <br />
+          }
 
+          <div style={{marginTop:10,textAlign:"right"}}>
+            <Button variant="contained" onClick={ () => { logIn() } } style={{backgroundColor:"#93de85"}} >
+                Login
+            </Button>
+            <Button
+              disabled={!isLoggedIn}
+              variant="contained"
+              onClick={ () => { logOut() } }
+              style={{marginLeft:5, backgroundColor:"#f98989"}}
+            >
+              Logout
+            </Button>
           </div>
-        </Popover>
 
-      </Toolbar>
+        </div>
+      </Popover>
+
+    </Toolbar>
     </AppBar>
   );
 }
