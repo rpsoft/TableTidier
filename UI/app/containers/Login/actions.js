@@ -4,7 +4,13 @@
  *
  */
 
-import { LOGIN_ACTION, LOGIN_ACTION_SUCCESS, LOGIN_ACTION_FAILED, LOGOUT_ACTION } from './constants';
+import {
+  LOGIN_ACTION,
+  LOGIN_ACTION_SUCCESS,
+  LOGIN_ACTION_FAILED,
+  LOGIN_UPDATE_TOKEN,
+  LOGOUT_ACTION
+} from './constants';
 
 
 export function doLoginAction(username, password) {
@@ -26,6 +32,13 @@ export function loginFailedAction(error) {
   return {
     type: LOGIN_ACTION_FAILED,
     payload: error
+  };
+}
+
+export function updateToken(token) {
+  return {
+    type: LOGIN_UPDATE_TOKEN,
+    payload: token,
   };
 }
 
