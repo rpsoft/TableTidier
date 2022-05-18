@@ -20,6 +20,7 @@ import
 from "../security.js"
 
 const privatekey = fs.readFileSync('./certificates/private.pem')
+const publickey = fs.readFileSync('./certificates/public.pem')
 
 // Load token config from config.json
 const {
@@ -91,7 +92,6 @@ router.route('/login')
   passport.authenticate('login', function(err, user, info) {
     console.log("login_req", JSON.stringify(user))
     if ( err ) {
-      console.log('hola Felix!!')
       return next({status: 'failed', payload: err.message});
       // res.status(200).json({status:"failed", payload: err.message})
     } else if ( !user ) {
@@ -113,11 +113,24 @@ router.route('/login')
       }
     );
 
+    delete user.jwt.permissions
+    user.jwt.type = 'refresh-token'
+    const refreshToken = jwt.sign(
+      user.jwt,
+      // TOP_SECRET,
+      privatekey,
+      {
+        expiresIn: SESSION_TOKEN_EXPIRATION_TIME,
+        algorithm: 'ES256',
+      }
+    );
+
     res.json({
       status: 'authorised',
       payload: {
         ..._user,
         token,
+        refreshToken,
         refreshAt: SESSION_TOKEN_REFRESH_TIME,
       }
     });
@@ -180,14 +193,40 @@ router.route('/createUser')
 router.route('/refreshToken')
 .post(
   experessJwt({
-    secret: privatekey,
+    secret: publickey,
     algorithms: ['ES256'],
   }),
   function(req, res) {
-    // if (!req.user.admin) return res.sendStatus(401);
+    // has user email?
     console.log(req.user)
     if (!req.user.email) return res.sendStatus(401);
+
+    // verify requestRefreshToken
+    const requestRefreshToken = req.headers?.['refresh-token']
+    debugger
+    
+    const refreshTokenStatus = jwt.verify(
+      req.headers?.['refresh-token'],
+      publickey,
+      {algorithm: ['ES256'],
+    })
+
+    // Is refresh token valid?
+    if (refreshTokenStatus?.type == undefined) {
+      return res.status(401).json({status:'failed', payload: refreshTokenStatus.message })
+    }
+    if (refreshTokenStatus?.type !== 'refresh-token') {
+      return res.status(401).json({status:'failed', payload: 'invalid refresh token type' })
+    }
+
     const user = req.user
+
+    // remove old iat, exp
+    delete user.iat
+    delete user.exp
+    delete refreshTokenStatus.iat
+    delete refreshTokenStatus.exp
+
     const token = jwt.sign(
       user,
       // TOP_SECRET,
@@ -198,8 +237,20 @@ router.route('/refreshToken')
       }
     );
 
+    const refreshToken = jwt.sign(
+      refreshTokenStatus,
+      // TOP_SECRET,
+      privatekey,
+      {
+        expiresIn: SESSION_TOKEN_EXPIRATION_TIME,
+        algorithm: 'ES256',
+      }
+    );
+
     return res.json({
+      ...user,
       token,
+      refreshToken,
       refreshAt: SESSION_TOKEN_REFRESH_TIME,
     });
   }
