@@ -12,7 +12,10 @@ import '@babel/polyfill';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import { ConnectedRouter } from 'connected-react-router';
+// import { ConnectedRouter } from 'connected-react-router';
+import {
+  BrowserRouter,
+} from "react-router-dom";
 import history from 'utils/history';
 import 'sanitize.css/sanitize.css';
 
@@ -77,9 +80,9 @@ const render = messages => {
   ReactDOM.render(
     <Provider store={store}>
       <LanguageProvider messages={messages}>
-        <ConnectedRouter history={history}>
+        <BrowserRouter history={history}>
             <App/>
-        </ConnectedRouter>
+        </BrowserRouter>
       </LanguageProvider>
     </Provider>,
     MOUNT_NODE,
