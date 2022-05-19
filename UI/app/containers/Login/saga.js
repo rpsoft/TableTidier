@@ -46,8 +46,8 @@ export function* doLogin() {
   // const requestURL = `http://localhost:6541/login`;(locationData.server_port ? `:`+locationData.server_port : "")
 
   const params = new URLSearchParams( {
-    'username': login_details.username,
-    'password': login_details.password
+    'username': login_details.tempUser.username,
+    'password': login_details.tempUser.password
   });
 
   const options = {
@@ -79,11 +79,11 @@ export function* doLogin() {
       // starts the refresToken task in the background
       const bgRefresTokenTask = yield fork(
         refresToken,
-        response.payload.refreshToken, 
+        response.payload.refreshToken,
         response.payload.refreshAt
       )
 
-      // wait for the user stop action
+      // wait for the user logout to stop refresh token action
       yield take(LOGOUT_ACTION)
       yield cancel(bgRefresTokenTask)
     }

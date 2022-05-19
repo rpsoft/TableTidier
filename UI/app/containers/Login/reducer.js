@@ -13,6 +13,8 @@ import {
 } from './constants';
 
 export const initialState = {
+  // Store pre login user in tempUser
+  tempUser: null,
   username : '',
   password : '',
   token : '',
@@ -25,11 +27,18 @@ const loginReducer = (state = initialState, action) =>
   produce(state, draft => {
     switch (action.type) {
       case LOGIN_ACTION:
-        draft.username = action.username;
-        draft.password = action.password;
+        // store pre user in temporal user
+        draft.tempUser = {
+          username: action.username,
+          password: action.password,
+        };
         draft.loginWarning = '';
         break;
       case LOGIN_ACTION_SUCCESS:
+        // Get the user from temporal user
+        draft.username = draft.tempUser.username;
+        // clean temporal user
+        draft.tempUser = null;
         draft.token = action.payload;
         draft.error = null;
         draft.loginWarning = '';
@@ -44,7 +53,6 @@ const loginReducer = (state = initialState, action) =>
         break;
       case LOGOUT_ACTION:
         draft.username = '';
-        draft.password = '';
         draft.error = '';
         draft.token = '';
         draft.loginWarning = '';
