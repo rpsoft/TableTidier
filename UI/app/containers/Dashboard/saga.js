@@ -5,17 +5,22 @@ import { SEARCH_ACTION, REQUEST_COLLECTIONS_LIST_ACTION, CREATE_COLLECTION_ACTIO
 import { updateSearchResultsAction, updateCollectionsListAction } from './actions';
 import makeSelectDashboard, {makeSelectCredentials} from './selectors';
 
-import request from '../../utils/request';
+import 
+  request,
+  {
+    generateOptionsPost
+  }
+from '../../utils/request';
 
 import makeSelectLocation from '../App/selectors'
 import makeSelectLogin from '../Login/selectors'
 
-import { push } from 'connected-react-router';
+// import { push } from 'connected-react-router';
+const push = () => {}
 
 const queryString = require('query-string');
 
 import { URL_BASE } from '../../links'
-
 
 export function* doSearch() {
 
@@ -26,20 +31,11 @@ export function* doSearch() {
   const requestURL = locationData.api_url+`search`;
 
   const params = new URLSearchParams({
-      'searchContent': dashboard_state.searchContent,
-      'searchType': JSON.stringify(dashboard_state.searchType),
-    });
+    'searchContent': dashboard_state.searchContent,
+    'searchType': JSON.stringify(dashboard_state.searchType),
+  });
 
-  const options = {
-    method: 'POST',
-    headers: {},
-    body: params
-  }
-
-  // Authorization JWT
-  if (loginData.token) {
-    options.headers.Authorization = `Bearer ${loginData.token}`
-  }
+  const options = generateOptionsPost(params, loginData.token)
 
   try {
     const response = yield call(request, requestURL, options);
@@ -70,16 +66,7 @@ export function* listCollections() {
     'action': 'list'
   });
 
-  const options = {
-    method: 'POST',
-    headers: {},
-    body: params
-  }
-
-  // Authorization JWT
-  if (loginData.token) {
-    options.headers.Authorization = `Bearer ${loginData.token}`
-  }
+  const options = generateOptionsPost(params, loginData.token)
 
   try {
     const response = yield call(request, requestURL, options);
@@ -98,6 +85,7 @@ export function* createCollection() {
 
   const credentials = yield select(makeSelectCredentials());
   const locationData = yield select(makeSelectLocation());
+  const loginData = yield select(makeSelectLogin());
 
   const parsed = queryString.parse(location.search);
 
@@ -107,14 +95,7 @@ export function* createCollection() {
     'action': 'create'
   });
 
-  const options = {
-    method: 'POST',
-    headers: {
-      // Authorization JWT
-      Authorization: `Bearer ${loginData.token}`,
-    },
-    body: params
-  }
+  const options = generateOptionsPost(params, loginData.token)
 
   try {
     const response = yield call(request, requestURL, options);

@@ -46,11 +46,18 @@ import {
 import makeSelectAnnotator from './selectors';
 import makeSelectLogin from '../Login/selectors'
 
-import request from '../../utils/request';
+import 
+  request,
+  {
+    generateOptionsPost
+  }
+from '../../utils/request';
 
 import {makeSelectLocation, makeSelectCredentials} from '../App/selectors'
 
-import { push } from 'connected-react-router';
+// import { push } from 'connected-react-router';
+const push = () => {}
+
 const queryString = require('query-string');
 
 export function* getTableContent( payload ) {
@@ -75,16 +82,7 @@ export function* getTableContent( payload ) {
     return {}
   }
 
-  const options = {
-    method: 'POST',
-    headers: {},
-    body: params
-  }
-
-  // Authorization JWT
-  if (loginData.token) {
-    options.headers.Authorization = `Bearer ${loginData.token}`
-  }
+  const options = generateOptionsPost(params, loginData.token)
 
   try {
     const response = yield call(request, requestURL, options);
@@ -162,16 +160,7 @@ export function* getTableResult( payload ) {
     // 'enablePrediction' : false
   });
 
-  const options = {
-    method: 'POST',
-    headers: {},
-    body: params
-  }
-
-  // Authorization JWT
-  if (loginData.token) {
-    options.headers.Authorization = `Bearer ${loginData.token}`
-  }
+  const options = generateOptionsPost(params, loginData.token)
 
   try {
     const response = yield call(request, requestURL, options);
@@ -206,16 +195,7 @@ export function* getCUISIndex( payload ) {
     'action' : 'get' // get  delete  edit
   });
 
-  const options = {
-    method: 'POST',
-    headers: {},
-    body: params
-  }
-
-  // Authorization JWT
-  if (loginData.token) {
-    options.headers.Authorization = `Bearer ${loginData.token}`
-  }
+  const options = generateOptionsPost(params, loginData.token)
 
   try {
     const response = yield call(request, requestURL, options);
@@ -254,16 +234,7 @@ export function* getTableMetadata( payload ) {
     'action' : 'get' // get  delete  edit
   });
 
-  const options = {
-    method: 'POST',
-    headers: {},
-    body: params
-  }
-
-  // Authorization JWT
-  if (loginData.token) {
-    options.headers.Authorization = `Bearer ${loginData.token}`
-  }
+  const options = generateOptionsPost(params, loginData.token)
 
   try {
     const response = yield call(request, requestURL, options);
@@ -380,15 +351,7 @@ export function* saveChanges ( payload ) {
 
   const params = new URLSearchParams( pre_params )
 
-  const options = {
-    method: 'POST',
-    headers: {},
-    body: params
-  }
-  // Authorization JWT
-  if (loginData.token) {
-    options.headers.Authorization = `Bearer ${loginData.token}`
-  }
+  const options = generateOptionsPost(params, loginData.token)
 
   try {
     const response = yield call(request, requestURL, options);
@@ -442,16 +405,7 @@ export function* getAutoLabels( payload ) {
     'action' : 'label' // get  delete  edit
   });
 
-  const options = {
-    method: 'POST',
-    headers: {},
-    body: params
-  }
-
-  // Authorization JWT
-  if (loginData.token) {
-    options.headers.Authorization = `Bearer ${loginData.token}`
-  }
+  const options = generateOptionsPost(params, loginData.token)
 
   yield put( yield issueAlertAction({ open: true, message: 'Labelling, please wait...', isError: false }))
 
