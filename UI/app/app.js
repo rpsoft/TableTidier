@@ -16,7 +16,6 @@ import { Provider } from 'react-redux';
 import {
   BrowserRouter,
 } from "react-router-dom";
-import history from 'utils/history';
 import 'sanitize.css/sanitize.css';
 
 // Import root app
@@ -73,14 +72,14 @@ const initialState = {
 
 // console.log(initialState)
 
-const store = configureStore(initialState, history);
+const store = configureStore(initialState);
 const MOUNT_NODE = document.getElementById('app');
 
 const render = messages => {
   ReactDOM.render(
     <Provider store={store}>
       <LanguageProvider messages={messages}>
-        <BrowserRouter history={history}>
+        <BrowserRouter>
             <App/>
         </BrowserRouter>
       </LanguageProvider>
