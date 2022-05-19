@@ -107,7 +107,7 @@
     "react-paginate": "^6.5.0",
     "react-redux": "7.0.2",
     "react-resizable": "^1.11.0",
-    "react-router-dom": "5.0.0",
+    "react-router-dom": "6.3.0",
     "react-table": "^6.11.5",
     "react-window": "^1.8.5",
     "redux": "4.0.1",
