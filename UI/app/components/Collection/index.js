@@ -7,7 +7,9 @@
 import React, { memo, useState, useEffect } from 'react';
 // import PropTypes from 'prop-types';
 // import styled from 'styled-components';
-
+import {
+  Link,
+} from "react-router-dom";
 import { FormattedMessage } from 'react-intl';
 import messages from './messages';
 import CollectionIcon from '@material-ui/icons/DynamicFeed';
@@ -27,7 +29,7 @@ function Collection({
   description,
   owner_username,
   table_n,
-  goToUrl,
+  collectionUrl,
 }) {
 
   const [tables, setTables] = useState({})
@@ -42,14 +44,15 @@ function Collection({
       <div style={{marginTop:5, marginLeft:5}}> Description: { description || "default description"} </div>
       <div style={{marginTop:5, marginLeft:5}}> Owner: { owner_username || "default owner"} </div>
       <div style={{marginTop:5, marginLeft:5}}> { table_n || "0"} tables </div>
-      <Button variant="contained" disableElevation
-                  onClick={ () => { goToUrl() } }
-                  style={{float:"right"}}
-                  >
-        Enter Collection <ArrowForwardIcon />
-      </Button>
+      <Link to={collectionUrl}
+      >
+        <Button variant="contained" disableElevation
+          style={{float:"right"}}
+        >
+          Enter Collection <ArrowForwardIcon />
+        </Button>
+      </Link>
     </div></Card>
-
   );
 }
 

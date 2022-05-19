@@ -15,11 +15,15 @@ import { compose } from 'redux';
 import { useInjectSaga } from 'utils/injectSaga';
 import { useInjectReducer } from 'utils/injectReducer';
 import makeSelectDashboard from './selectors';
+import { makeSelectLogin } from '../Login/selectors';
+
 import reducer from './reducer';
 import saga from './saga';
 import messages from './messages';
 
-import { push } from 'connected-react-router'
+import {
+  Link,
+} from "react-router-dom";
 
 import {
   Card, Checkbox,
@@ -75,17 +79,20 @@ const useStyles = makeStyles((theme) => ({
     //   boxShadow: '0 0 0 0.2rem rgba(0,123,255,.5)',
     // },
   },
-
+  link: {
+    color: 'inherit',
+    textDecoration: 'none',
+  }
 }));
-
 
 
 export function Dashboard({
   doSearch,
   dashboard,
-  goToUrl,
   createCollection,
-  listCollections
+  listCollections,
+
+  loginState,
 }) {
   useInjectReducer({ key: 'dashboard', reducer });
   useInjectSaga({ key: 'dashboard', saga });
@@ -119,8 +126,7 @@ export function Dashboard({
 
   useEffect(() => {
     listCollections()
-  }, [cookies.hash]);
-
+  }, [loginState.username, cookies.hash]);
 
   // var table_search_results = <div>
   //   {
@@ -151,7 +157,7 @@ export function Dashboard({
           // var notes = collectionView.tables[index].notes ? collectionView.tables[index].notes : ""
           // var user = collectionView.tables[index].user ? collectionView.tables[index].user : ""
 
-          var url = "/table?docid="+docname+"&page="+page+"&collId="+collId
+          var url = `/table?docid=${docname}&page=${page}&collId=${collId}`
 
           return <div style={{...style, display: "flex", alignItems: "center"}}>
             {
@@ -161,11 +167,14 @@ export function Dashboard({
             //     />
             //     <span> -- </span>
               }
-            <span style={{marginLeft:10}}> {(index+1)+" - "}</span><SearchResult key={index} text={table_key.replace(".html","")} type={"table"} onClick={ ()=> { goToUrl(url) }}/>
+            <span style={{marginLeft:10}}> {(index+1)+" - "}</span>
+            <Link to={url} className={classes.link}>
+              <SearchResult key={index} text={table_key.replace(".html","")} type={"table"} />
+            </Link>
           </div>
         }
 
-  var table_search_results = <FixedSizeList
+  const table_search_results = <FixedSizeList
                                 height={1050}
                                 width={"100%"}
                                 itemSize={40}
@@ -174,16 +183,22 @@ export function Dashboard({
                                 {Row}
                               </FixedSizeList>
 
-  var collection_results = <div> { dashboard.collections.map(
-                                    (coll,i) => <Collection key={i}
-                                                            col_id={coll.collection_id}
-                                                            title={coll.title}
-                                                            description={coll.description}
-                                                            owner_username={coll.owner_username}
-                                                            table_n={coll.table_n}
-                                                            goToUrl={() => {goToUrl("/collection?collId="+coll.collection_id)}} />
-                                                          )
-                                 }</div>
+  const collection_results = (
+    <div> {
+      dashboard.collections.map(
+        (coll,i) => <Collection 
+                      key={i}
+                      col_id={coll.collection_id}
+                      title={coll.title}
+                      description={coll.description}
+                      owner_username={coll.owner_username}
+                      table_n={coll.table_n}
+                      collectionUrl={'/collection?collId='+coll.collection_id}
+                    />
+      )
+    }</div>
+  )
+
 
   return (
     <div style={{marginLeft:"2%", marginRight:"2%", minHeight: "84vh"}}>
@@ -217,7 +232,7 @@ export function Dashboard({
                   </Card> : ""
               }
               <Card style={{marginTop:10, minHeight: "82vh", backgroundColor: dashboard.search_results.length > 0 ? "white" : "#e4e2e2"}}>
-                 {dashboard.search_results.length > 0 ? table_search_results : collection_results}
+                {dashboard.search_results.length > 0 ? table_search_results : collection_results}
               </Card>
           </Grid>
           <Grid item xs={3}>
@@ -227,10 +242,19 @@ export function Dashboard({
             <Card style={{marginTop:10,padding:5, backgroundColor:"#e4e2e2" }}>
               <Card style={{padding:5}}>
                 <div>
-                  <div className={classes.buttonHolder}><Button style={{backgroundColor:"#98f398"}} variant="contained" onClick={ () => {createCollection();
-                                                                                      //  goToUrl("/collection?collId=new")
-                                                                                      }} > New Collection </Button> </div>
-                  <div className={classes.buttonHolder}><Button disabled={true} variant="contained" > Results to New Collection </Button> </div>
+                  <div className={classes.buttonHolder}>
+                    <Button
+                      style={{backgroundColor:"#98f398"}}
+                      variant="contained"
+                      onClick={ () => {
+                        createCollection();
+                        // goToUrl("/collection?collId=new")
+                      }}
+                    > New Collection </Button>
+                  </div>
+                  <div className={classes.buttonHolder}>
+                    <Button disabled={true} variant="contained" > Results to New Collection </Button>
+                  </div>
                   {
                   // <div className={classes.buttonHolder}><Button variant="contained" > Option 2 </Button> </div>
                   // <div className={classes.buttonHolder}><Button variant="contained" > Option 3 </Button> </div>
@@ -253,6 +277,7 @@ Dashboard.propTypes = {
 
 const mapStateToProps = createStructuredSelector({
   dashboard: makeSelectDashboard(),
+  loginState: makeSelectLogin(),
 });
 
 function mapDispatchToProps(dispatch) {
@@ -260,7 +285,6 @@ function mapDispatchToProps(dispatch) {
     dispatch,
     doSearch : (searchContent, searchType, hash, username) => dispatch( doSearchAction(searchContent, searchType, hash, username) ),
     listCollections : () => dispatch( requestCollectionsListAction() ),
-    goToUrl : (url) => dispatch(push(url)),
     createCollection : () => dispatch( createCollectionAction() ),
   };
 }

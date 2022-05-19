@@ -19,7 +19,10 @@ import reducer from './reducer';
 import saga from './saga';
 import messages from './messages';
 
-import { push } from 'connected-react-router';
+// import { push } from 'connected-react-router';
+import {
+  useNavigate,
+} from "react-router-dom";
 
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
@@ -33,10 +36,11 @@ import { registerAccountAction, registerAccountActionSuccess, registerAccountAct
 
 
 export function Register({
-  goTo,
   doRegister,
   register
 }) {
+  let navigate = useNavigate();
+
   useInjectReducer({ key: 'register', reducer });
   useInjectSaga({ key: 'register', saga });
 
@@ -128,63 +132,62 @@ export function Register({
           //
           // <br />
         }
-        { !registered ? <div><h2> Register your Account </h2>
+        { !registered ? <div>
+            <h2> Register your Account </h2>
 
-                                  <TextField
-                                    id="email"
-                                    value={email}
-                                    placeholder="Your@Email.Here *"
-                                    onChange={ (evt) => { setEmail(evt.currentTarget.value)} }
-                                    onKeyDown ={() => {}}
-                                    />
+            <TextField
+              id="email"
+              value={email}
+              placeholder="Your@Email.Here *"
+              onChange={ (evt) => { setEmail(evt.currentTarget.value)} }
+              onKeyDown ={() => {}}
+              />
 
-                                  <br /><br />
+            <br /><br />
 
 
-                                  <TextField
-                                    id="username"
-                                    value={username}
-                                    placeholder="Username *"
-                                    onChange={ (evt) => { setUsername(evt.currentTarget.value)}  }
-                                    onKeyDown ={() => {}}
-                                    />
-                                  <br /><br />
+            <TextField
+              id="username"
+              value={username}
+              placeholder="Username *"
+              onChange={ (evt) => { setUsername(evt.currentTarget.value)}  }
+              onKeyDown ={() => {}}
+              />
+            <br /><br />
 
-                                  <TextField
-                                    id="password"
-                                    value={password}
-                                    placeholder="Password *"
-                                    type="password"
-                                    onChange={ (evt) => { setPassword(evt.currentTarget.value)}  }
-                                    onKeyDown ={ () => {} }
-                                    />
+            <TextField
+              id="password"
+              value={password}
+              placeholder="Password *"
+              type="password"
+              onChange={ (evt) => { setPassword(evt.currentTarget.value)}  }
+              onKeyDown ={ () => {} }
+              />
 
-                                  <TextField
-                                    id="password_conf"
-                                    value={password_rep}
-                                    placeholder="Confirm Password *"
-                                    type="password"
-                                    onChange={ (evt) => { setPasswordRep(evt.currentTarget.value)} }
-                                    onKeyDown ={ () => {} }
-                                    />
+            <TextField
+              id="password_conf"
+              value={password_rep}
+              placeholder="Confirm Password *"
+              type="password"
+              onChange={ (evt) => { setPasswordRep(evt.currentTarget.value)} }
+              onKeyDown ={ () => {} }
+              />
 
-                                  <br /><br />
+            <br /><br />
 
-                                  <div style={{marginTop:10,textAlign:"right"}}>
-                                    <Button variant="contained" onClick={ doRegisterButton } style={{backgroundColor:"#93de85"}} > Register </Button>
-                                    <Button disabled={false} variant="contained" onClick={ () => { goTo("/") } } style={{marginLeft:5, backgroundColor:"#f98989"}}>Cancel</Button>
-                                  </div>
+            <div style={{marginTop:10,textAlign:"right"}}>
+              <Button variant="contained" onClick={ doRegisterButton } style={{backgroundColor:"#93de85"}} > Register </Button>
 
-                                  <br />
-                                  { warning ? <div style={{color:"red",marginTop:5,marginBottom:5}}> {warning} </div> : <br /> }
-                            </div>
-                  : <div> Successfully Registered <Link onClick={ () => { goTo("/") } }> Back to dashboard </Link>
+              <Button disabled={false} variant="contained" onClick={ () => { navigate("/") } } style={{marginLeft:5, backgroundColor:"#f98989"}}>Cancel</Button>
+            </div>
 
-                  </div>
-
+            <br />
+            { warning ? <div style={{color:"red",marginTop:5,marginBottom:5}}> {warning} </div> : <br /> }
+          </div>
+          : <div> Successfully Registered <Link onClick={ () => { navigate("/") } }> Back to dashboard </Link></div>
         }
 
-        </Card>
+      </Card>
     </div>
   );
 }
@@ -201,7 +204,6 @@ const preventDefault = (event) => event.preventDefault();
 
 function mapDispatchToProps(dispatch) {
   return {
-    goTo : (path) => dispatch(push(path)),
     doRegister : (userData) => dispatch( registerAccountAction(userData) ),
   };
 }

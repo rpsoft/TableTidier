@@ -26,11 +26,20 @@ import Home from '@material-ui/icons/Home';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 
-
 import AccountBoxIcon from '@material-ui/icons/AccountBox';
 
-import { loginAction, loginSuccessAction, loginFailedAction, doLoginAction, doLogOutAction } from './actions'
-import { push } from 'connected-react-router';
+import { 
+  loginAction,
+  loginSuccessAction,
+  loginFailedAction,
+  doLoginAction,
+  doLogOutAction
+} from './actions'
+
+import {
+  Link,
+  useLocation,
+} from "react-router-dom";
 import { useCookies } from 'react-cookie';
 import { useDispatch, useSelector } from "react-redux";
 
@@ -94,9 +103,10 @@ export function Login({
 
   doLogin,
   doLogOut,
-  goTo,
 }) {
 
+  // let location = useLocation()
+  // debugger
   const classes = useStyles();
   const theme = useTheme();
 
@@ -189,8 +199,9 @@ export function Login({
         <meta name="description" content="Description of Login" />
       </Helmet>
 
-      <img src="./tabletidier.png" style={{height:45,width:45, cursor:"pointer", marginRight:15}} onClick={() => goTo('/')}/>
-
+      <Link to="/">
+        <img src="./tabletidier.png" style={{height:45,width:45, cursor:"pointer", marginRight:15}} />
+      </Link>
       <h2 style={{color:"white",margin:0}}>TableTidier <div style={{color:"red",display:"inline-block",fontSize:15}}>(beta)</div></h2>
 
       <div style={{marginRight:0, position:"absolute",right:16}} >
@@ -281,7 +292,6 @@ Login.propTypes = {
   token : PropTypes.string,
   doLogin : PropTypes.func,
   doLogOut : PropTypes.func,
-  goTo : PropTypes.func,
 };
 
 const mapStateToProps = createStructuredSelector({
@@ -293,7 +303,6 @@ const mapDispatchToProps = (dispatch) => {
   return {
     doLogin : (username,password) => dispatch( doLoginAction(username,password) ),
     doLogOut : () => dispatch(doLogOutAction()),
-    goTo : (path) => dispatch(push(path)),
   };
 }
 

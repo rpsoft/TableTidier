@@ -7,9 +7,11 @@
  *
  */
 
-import React, { useEffect, memo, useState } from 'react';
-import { Switch, Route } from 'react-router-dom';
-
+import React, { useEffect, memo, useState, useRef } from 'react';
+import {
+  Routes,
+  Route,
+} from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 // import HomePage from 'containers/HomePage/Loadable';
@@ -28,6 +30,7 @@ import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { createStructuredSelector } from 'reselect';
 import makeSelectLocation from './selectors'
+import { makeSelectLogin } from '../Login/selectors';
 
 import {setLoginCredentialsAction} from './actions'
 
@@ -54,17 +57,18 @@ import { useCookies } from 'react-cookie';
 
 import PopAlert from 'components/PopAlert'
 
-
-
 export function App({
-  // appData,
+  appData,
+  loginState,
+
   setLoginCredentials,
-  appData
 }) {
 
   const [ cookies, setCookie, removeCookie ] = useCookies();
-  const [ alertData, setAlertData ]  = React.useState( appData.alertData ? appData.alertData : { open: false, message: "", isError: false } );
-
+  const [ alertData, setAlertData ]  = React.useState( appData.alertData ?
+    appData.alertData
+    : { open: false, message: '', isError: false }
+  );
 
   useEffect(() => {
 
@@ -76,26 +80,25 @@ export function App({
 
   return (
     <div id={"container"} style={{marginLeft:"auto", marginRight:"auto", minWidth:800, maxWidth:1400, width:"100%", minHeight:"100vh"}}>
-        <Login />
+      <Login />
+      <div style={{padding:5, paddingTop:65,  marginLeft:10, paddingBottom:70, minHeight:"90vh"}}>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
 
-          <div style={{padding:5, paddingTop:65,  marginLeft:10, paddingBottom:70, minHeight:"90vh"}}>
-            <Switch>
-              <Route path="/table" component={Annotator} />
-              {
-                // <Route path="/table" component={TableContainer}></Route>
-                // <Route path="/allresults" component={ResultsContainer}></Route>
-                // <Route path="/metaresults" component={MetaContainer}></Route>
-                // <Route path="/cuiadmin" component={CuiAdminContainer}></Route>
-                // <Route path="/list" component={AppContainer}></Route>
-              }
-              <Route path="/register" component={Register}></Route>
-              <Route path="/collection" component={CollectionView}></Route>
-              <Route path="/dashboard" component={Dashboard}></Route>
-              <Route path="/" component={HomePage}></Route>
-            </Switch>
-          </div>
-
-
+          <Route path="table" element={<Annotator />} />
+          {
+            // <Route path="/table" component={TableContainer}></Route>
+            // <Route path="/allresults" component={ResultsContainer}></Route>
+            // <Route path="/metaresults" component={MetaContainer}></Route>
+            // <Route path="/cuiadmin" component={CuiAdminContainer}></Route>
+            // <Route path="/list" component={AppContainer}></Route>
+          }
+          <Route path="register" element={<Register />} />
+          <Route path="collection" element={<CollectionView />} />
+          <Route path="dashboard" element={<Dashboard />} />
+        </Routes>
+      </div>
+      { loginState.username }
       <PopAlert alertData={alertData} setAlertData={setAlertData} />
 
       <div style={{position:"fixed", left:0, bottom:0, width:"100%" }}><Footer /></div>
@@ -109,7 +112,8 @@ export function App({
 //   // loginDetails: makeSelectLogin(),
 // });
 const mapStateToProps = createStructuredSelector({
-   appData : makeSelectLocation(),
+  appData : makeSelectLocation(),
+  loginState: makeSelectLogin(),
 });
 
 function mapDispatchToProps(dispatch) {

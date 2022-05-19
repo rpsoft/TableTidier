@@ -5,7 +5,6 @@
  */
  const _ = require('lodash');
 
-
 import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -43,7 +42,9 @@ import { makeStyles, useTheme } from '@material-ui/core/styles';
 
 import { ArrowDropUp, ArrowDropDown }from '@material-ui/icons';
 
-import { push } from 'connected-react-router'
+import {
+  useNavigate,
+} from "react-router-dom";
 
 // import {browserHistory} from 'react-router';
 
@@ -136,6 +137,7 @@ var diffY = 0;
 export function Annotator({
   annotator,
   credentials,
+  loginState,
 
   loadTableContent,
   loadTableResults,
@@ -143,7 +145,6 @@ export function Annotator({
 
   loadCuisIndex,
 
-  goToUrl,
   saveTextChanges,
   saveNoteChanges,
   saveAnnotationChanges,
@@ -153,6 +154,9 @@ export function Annotator({
 
   autoLabel,
 }) {
+
+  let navigate = useNavigate();
+
    var hey = _;
   useInjectReducer({ key: 'annotator', reducer });
   useInjectSaga({ key: 'annotator', saga });
@@ -293,8 +297,7 @@ export function Annotator({
     loadTableContent(false)
     loadTableResults(true)
     loadTableMetadata()
-
-  }, [location.search, credentials]);
+  }, [location.search, loginState.username]);
 
   const openMargin = bottomEnabled ? bottomSize : 65;
 
@@ -355,12 +358,12 @@ export function Annotator({
     }
 
     return () => {
-      var address = "/table?"+
+      const address = "/table?"+
                 "docid="+tables[index].docid+
                 "&page="+tables[index].page+
                 "&collId="+tables[index].collection_id;
 
-      goToUrl(address);
+      navigate(address);
     }
   }
 
@@ -415,11 +418,11 @@ export function Annotator({
               <div>
                 Show Cuis
                 <Switch
-                    checked={showEditCuis}
-                    onChange={() => { setShowEditCuis(!showEditCuis);}}
-                    name="checkedA"
-                    inputProps={{ 'aria-label': 'secondary checkbox' }}
-                  />
+                  checked={showEditCuis}
+                  onChange={() => { setShowEditCuis(!showEditCuis);}}
+                  name="checkedA"
+                  inputProps={{ 'aria-label': 'secondary checkbox' }}
+                />
               </div>
 
               { allowEdit ? <div>
@@ -639,13 +642,13 @@ Annotator.propTypes = {
   dispatch: PropTypes.func.isRequired,
   annotator: PropTypes.object,
   credentials: PropTypes.object,
-  // loginDetails: PropTypes.object,
+  loginState: PropTypes.object,
 };
 
 const mapStateToProps = createStructuredSelector({
   annotator: makeSelectAnnotator(),
   credentials: makeSelectCredentials(),
-  // loginDetails: makeSelectLogin(),
+  loginState: makeSelectLogin(),
 });
 
 function mapDispatchToProps(dispatch) {
@@ -659,7 +662,6 @@ function mapDispatchToProps(dispatch) {
     saveNoteChanges : (notes) => dispatch( saveTableNoteAction(notes)  ),
     saveAnnotationChanges : (tid, annotations) => dispatch( saveTableAnnotationAction(tid, annotations)  ),
     saveMetadataChanges : (metadata) => dispatch( saveTableMetadataAction(metadata) ),
-    goToUrl : (url) => dispatch(push(url)),
     updateTableMetadata : (metadata) => dispatch( updateTableMetadataAction(metadata) ),
     autoLabel : (headers,tid) => dispatch( autoLabelHeadersAction(headers,tid) ),
 
