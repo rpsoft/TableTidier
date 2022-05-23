@@ -32,6 +32,9 @@ import Home from '@material-ui/icons/Home';
 import AccountBoxIcon from '@material-ui/icons/AccountBox';
 import Link from '@material-ui/core/Link'
 
+import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
+import VisibilityOffOutlinedIcon from '@material-ui/icons/VisibilityOffOutlined';
+
 import { registerAccountAction, registerAccountActionSuccess, registerAccountActionFailed } from './actions';
 
 
@@ -56,39 +59,46 @@ export function Register({
   const [warning, setWarning] = useState("");
 
   const preventDefault = (event) => event.preventDefault();
+
+  const [showPassword, setShowPassword] = useState(false);
+  const toggleShowPassword = () => setShowPassword(!showPassword)
+
 // <FormattedMessage {...messages.header} />
 
   useEffect( () => {
     if ( !warning ){
       setWarning(register.status)
     }
+    return () => {
+      // Clean register status from redux store
+      
+    }
   }, [register.status])
 
 
   const checkDetails = (userDetails) => {
 
-    var status = ""
+    let status = ""
 
-    if ( userDetails.password !== userDetails.password_rep ){
+    if ( userDetails.password !== userDetails.password_rep ) {
       status = "Passwords do not match"
-    } else if ( userDetails.password.trim().length < 5 ){
+    } else if ( userDetails.password.trim().length < 5 ) {
       status = "Password should be longer than 5 characters"
-    } else if ( userDetails.password.trim().length == 0 ){
+    } else if ( userDetails.password.trim().length == 0 ) {
       status = "Type a password"
-    } else if ( userDetails.username.trim().length == 0 ){
+    } else if ( userDetails.username.trim().length == 0 ) {
       status = "Type a username"
-    } else if ( userDetails.username.trim().length < 4 ){
+    } else if ( userDetails.username.trim().length < 4 ) {
       status = "Username should be at least 4 characters long"
-    } else if ( userDetails.email.trim().split("@").length != 2 ){
+    } else if ( userDetails.email.trim().split("@").length != 2 ) {
       status = "Email missing or in the wrong format"
     }
 
     return { accept: status.length == 0, status }
-
   }
 
   const doRegisterButton = () => {
-    var logInDetails = {
+    const logInDetails = {
       'displayName': fullname,
       'email': email,
       'username': username,
@@ -96,7 +106,7 @@ export function Register({
       'password_rep': password_rep,
     }
 
-    var status = checkDetails(logInDetails)
+    const status = checkDetails(logInDetails)
 
     setWarning( status.status )
 
@@ -134,44 +144,64 @@ export function Register({
         }
         { !registered ? <div>
             <h2> Register your Account </h2>
-
+            <form autocomplete='on'>
             <TextField
-              id="email"
+              id="register_email"
               value={email}
+              label='email'
               placeholder="Your@Email.Here *"
+              inputProps={{
+                autoComplete: 'register email',
+                type: 'email',
+                required: true,
+                autoFocus: true,
+              }}
+              // htmlAutoComplete='register email'
               onChange={ (evt) => { setEmail(evt.currentTarget.value)} }
               onKeyDown ={() => {}}
               />
 
             <br /><br />
 
-
             <TextField
-              id="username"
+              id="register_username"
               value={username}
+              label='username'
               placeholder="Username *"
+              inputProps={{autoComplete: 'username', type: 'text'}}
+              // autoComplete='login username'
               onChange={ (evt) => { setUsername(evt.currentTarget.value)}  }
               onKeyDown ={() => {}}
               />
             <br /><br />
 
             <TextField
-              id="password"
+              id="register_password"
               value={password}
               placeholder="Password *"
-              type="password"
+              type={showPassword? 'text': 'password'}
+              autoComplete='login password new-password'
               onChange={ (evt) => { setPassword(evt.currentTarget.value)}  }
               onKeyDown ={ () => {} }
               />
-
+            <Button onClick={() => toggleShowPassword()}>
+              {
+                showPassword?
+                  <VisibilityOffOutlinedIcon style={{ color: 'grey' }} />
+                : <VisibilityOutlinedIcon style={{ color: 'grey' }} />
+              }
+              
+            </Button>
             <TextField
-              id="password_conf"
+              id="register_password_conf"
               value={password_rep}
               placeholder="Confirm Password *"
-              type="password"
+              type={showPassword? 'text': 'password'}
+              autoComplete='off'
               onChange={ (evt) => { setPasswordRep(evt.currentTarget.value)} }
               onKeyDown ={ () => {} }
               />
+            </form>
 
             <br /><br />
 
