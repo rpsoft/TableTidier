@@ -194,19 +194,33 @@ function driver(config) {
 
     collectionEdit: async (collData) => {
       if (collData?.collection_id == undefined) return 'warning, collection_id not found'
-      if (Object.keys(collData).length == 1) return 'warning, more parameters needed' 
+      if (Object.keys(collData).length == 1) return 'warning, more parameters needed'
+      const validFields = [
+        'collection_id', 
+        'title',
+        'description',
+        'owner_username',
+        'visibility',
+        'completion',
+      ]
       // Generate query in function of parameters.
-      const collDataFormated = {}
+      const collDataFormated = {
+        '$collection_id': collData.collection_id
+      }
       let _query = `UPDATE collection
       SET `
       const footer = ` WHERE collection_id=$collection_id returning *;`
       for (const item in collData) {
+        if (
+          // collection_id already included, skip
+          item == 'collection_id' ||
+          // or field not included in database
+          validFields.includes(item) == false
+        ) continue
         collDataFormated['$'+item] = collData[item]
-        if (item == 'collection_id') continue
         _query += `${item}=$${item}, `
       }
       _query = _query.slice(0, -2).concat(footer)
-
       try {
         const result = await queryGet(
           _query,
@@ -214,6 +228,7 @@ function driver(config) {
         )
         return result
       } catch (err) {
+        console.log(err)
         return err
       }
     },

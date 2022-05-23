@@ -163,7 +163,15 @@ function driver(config) {
 
     collectionEdit: async (collData) => {
       if (collData?.collection_id == undefined) return 'warning, collection_id not found'
-      if (Object.keys(collData).length == 1) return 'warning, more parameters needed' 
+      if (Object.keys(collData).length == 1) return 'warning, more parameters needed'
+      const validFields = [
+        'collection_id', 
+        'title',
+        'description',
+        'owner_username',
+        'visibility',
+        'completion',
+      ]
       // Generate query in function of parameters.
       const collDataFormated = [collData.collection_id]
       // collection_id is parameter 1, so start by 2
@@ -172,7 +180,12 @@ function driver(config) {
       SET `
       const footer = ` WHERE collection_id=$1 returning *;`
       for (const item in collData) {
-        if (item == 'collection_id') continue
+        if (
+          // collection_id already included, skip
+          item == 'collection_id' ||
+          // or field not included in database
+          validFields.includes(item) == false
+        ) continue
         collDataFormated.push(collData[item])
         _query += `${item}=$${counterParams}, `
         counterParams++
@@ -186,6 +199,7 @@ function driver(config) {
         )
         return result.rows[0]
       } catch (err) {
+        console.log(err)
         return err
       }
     },
