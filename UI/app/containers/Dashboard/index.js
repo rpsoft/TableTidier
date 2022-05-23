@@ -88,10 +88,10 @@ const useStyles = makeStyles((theme) => ({
 
 export function Dashboard({
   doSearch,
-  dashboard,
   createCollection,
   listCollections,
 
+  dashboard,
   loginState,
 }) {
   useInjectReducer({ key: 'dashboard', reducer });
@@ -101,7 +101,7 @@ export function Dashboard({
 
   const [searchContent, setSearchContent ] = useState(dashboard.searchContent);
   const [searchType, setSearchType ] = useState(dashboard.searchType);
-  //
+
   // const [collections, setCollections ] = useState(doSearch("placebo", searchType));
 
   const [charCount, setCharCount ]  = useState(0);
@@ -128,57 +128,59 @@ export function Dashboard({
     listCollections()
   }, [loginState.username, cookies.hash]);
 
-  // var table_search_results = <div>
-  //   {
-  //     dashboard.search_results.map( (result,i) => {
-  //
-        //
-        // var elems = result.doc.replace(".html","").split("_")
-        // var docname = elems[0].split("/")[1]
-        // var page = elems[1]
-        // var collId = elems[0].split("/")[0]
-        //
-        //
-        // var url = "/table?docid="+docname+"&page="+page+"&collId="+collId
-        // return <SearchResult key={i} text={docname+"_"+page} type={"table"} onClick={ ()=> { goToUrl(url) }}/>
-  //     })
-  //   }
-  // </div>
-
   const Row = ({ index, style }) => {
-    // debugger
-          var table_key = dashboard.search_results[index].doc
+    let {
+      doc: table_key,
+      selectedChunks,
+      score,
+     } = dashboard.search_results[index]
 
-          var elems = table_key.replace(".html","").split("_")
-          var docname = elems[0].split("/")[1]
-          var page = elems[1]
-          var collId = elems[0].split("/")[0]
-          //
-          // var notes = collectionView.tables[index].notes ? collectionView.tables[index].notes : ""
-          // var user = collectionView.tables[index].user ? collectionView.tables[index].user : ""
+    const findFirstNumber = /\d/g.exec(table_key)
+    // If text before collection number
+    if (findFirstNumber.index > 0) {
+      // remove text from begging to findFirstNumber.index
+      table_key = table_key.slice(findFirstNumber.index)
+    }
+    const elems = table_key.split('_')
 
-          var url = `/table?docid=${docname}&page=${page}&collId=${collId}`
+    const [collId, docname] = elems[0].split('/')
+    const page = elems[1]
 
-          return <div style={{...style, display: "flex", alignItems: "center"}}>
-            {
-            // <Checkbox checked={checkedTables[table_key]}
-            //     onChange={() => {toggleCheckBox(table_key)}}
-            //     inputProps={{ 'aria-label': 'primary checkbox' }}
-            //     />
-            //     <span> -- </span>
-              }
-            <span style={{marginLeft:10}}> {(index+1)+" - "}</span>
-            <Link to={url} className={classes.link}>
-              <SearchResult key={index} text={table_key.replace(".html","")} type={"table"} />
-            </Link>
-          </div>
-        }
+    // var notes = collectionView.tables[index].notes ? collectionView.tables[index].notes : ""
+    // var user = collectionView.tables[index].user ? collectionView.tables[index].user : ""
+
+    const url = `/table?docid=${docname}&page=${page}&collId=${collId}`
+
+    return <div style={{...style, display: "flex", alignItems: "center"}}>
+      {
+      // <Checkbox checked={checkedTables[table_key]}
+      //     onChange={() => {toggleCheckBox(table_key)}}
+      //     inputProps={{ 'aria-label': 'primary checkbox' }}
+      //     />
+      //     <span> -- </span>
+      }
+      <span style={{marginLeft:10}}> {(index+1)+' - '}</span>
+      <Link to={url} className={classes.link}>
+        <SearchResult
+          key={index}
+          text={table_key}
+          type={'table'}
+          selectedChunks={selectedChunks[0]}
+          score={score}
+        />
+      </Link>
+    </div>
+  }
 
   const table_search_results = <FixedSizeList
                                 height={1050}
                                 width={"100%"}
                                 itemSize={40}
-                                itemCount={dashboard.search_results ? dashboard.search_results.length : 0}
+                                itemCount={
+                                  dashboard.search_results ?
+                                    dashboard.search_results.length
+                                    : 0
+                                }
                               >
                                 {Row}
                               </FixedSizeList>
@@ -283,7 +285,7 @@ const mapStateToProps = createStructuredSelector({
 function mapDispatchToProps(dispatch) {
   return {
     dispatch,
-    doSearch : (searchContent, searchType, hash, username) => dispatch( doSearchAction(searchContent, searchType, hash, username) ),
+    doSearch : (searchContent, searchType) => dispatch( doSearchAction(searchContent, searchType) ),
     listCollections : () => dispatch( requestCollectionsListAction() ),
     createCollection : () => dispatch( createCollectionAction() ),
   };

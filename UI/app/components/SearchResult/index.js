@@ -22,6 +22,8 @@ import Button from '@material-ui/core/Button';
 function SearchResult({
   text,
   type,
+  selectedChunks,
+  score,
   data,
   onClick
 }) {
@@ -31,6 +33,13 @@ function SearchResult({
         { type == "table" ? <Table /> : <CollectionIcon /> }
         <div style={{marginLeft:5}}>{ text }</div>
       </Button>
+      {
+        score ? <>
+          <span>{ /\d+.\d{0,2}/.exec(score.toString())} - </span>
+          <span>{selectedChunks.join(' ')}</span>
+        </>
+        : null
+      }
     </div>
   );
 }
