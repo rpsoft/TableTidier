@@ -12,6 +12,9 @@ import {
 } from "react-router-dom";
 import { FormattedMessage } from 'react-intl';
 import messages from './messages';
+
+import { makeStyles } from '@material-ui/core/styles';
+
 import CollectionIcon from '@material-ui/icons/DynamicFeed';
 
 import IconButton from '@material-ui/core/IconButton';
@@ -23,6 +26,13 @@ import {
   Button,
 } from '@material-ui/core';
 
+const useStyles = makeStyles((theme) => ({
+  link: {
+    color: 'inherit',
+    textDecoration: 'none',
+  }
+}));
+
 function Collection({
   col_id,
   title,
@@ -31,7 +41,7 @@ function Collection({
   table_n,
   collectionUrl,
 }) {
-
+  const classes = useStyles();
   const [tables, setTables] = useState({})
 
   const loadTables = () => {
@@ -40,12 +50,16 @@ function Collection({
 
   return (
     <Card style={{padding:10,margin:5, fontSize: 18}}><div>
-      <div style={{fontSize:30,marginBottom:10}}> <CollectionIcon fontSize={"large"}/> {col_id+". "} { title || "default title"} </div>
+      <div style={{fontSize:30,marginBottom:10}}>
+        <CollectionIcon fontSize={"large"}/>
+        <Link to={collectionUrl}  className={classes.link}>
+          {col_id+". "} { title || "default title"}
+        </Link>
+      </div>
       <div style={{marginTop:5, marginLeft:5}}> Description: { description || "default description"} </div>
       <div style={{marginTop:5, marginLeft:5}}> Owner: { owner_username || "default owner"} </div>
       <div style={{marginTop:5, marginLeft:5}}> { table_n || "0"} tables </div>
-      <Link to={collectionUrl}
-      >
+      <Link to={collectionUrl} >
         <Button variant="contained" disableElevation
           style={{float:"right"}}
         >
