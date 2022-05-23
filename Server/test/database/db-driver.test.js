@@ -252,16 +252,28 @@ describe('dbDriver', () => {
       });
       expect(result).toEqual('warning, more parameters needed');
     });
+    test('collectionEdit invalid field', async () => {
+      const collectionsList = await dbDriver.collectionsList();
+      const collData  = {
+        // get last added collection_id
+        collection_id: collectionsList.at(-1).collection_id,
+        title: 'Testing collection',
+        owner_username: admin.email,
+        invalid_field: 'random data'
+      }
+      const result = await dbDriver.collectionEdit(collData);
+      expect(result.owner_username).toEqual(admin.email);
+    });
     test('collectionEdit', async () => {
       const collectionsList = await dbDriver.collectionsList();
       const collData  = {
         // get last added collection_id
         collection_id: collectionsList.at(-1).collection_id,
-        // title: 'algo',
+        title: 'Testing collection',
         description: 'EDITED: Description collection about health and wellbeing',
         owner_username: admin.email,
-        // completion: 'algo',
-        // visibility: 'algo',
+        completion: 'in progress',
+        visibility: 'private',
       } 
       const result = await dbDriver.collectionEdit(collData);
       expect(result.owner_username).toEqual(admin.email);
