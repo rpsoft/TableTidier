@@ -100,9 +100,11 @@ export function* refresToken(refreshTokenFromLogin, refreshPeriod) {
   let refreshToken = refreshTokenFromLogin
   try {
     while (true) {
+      // Each 5sec for testing
+      // yield delay(5000)
+      yield delay(refreshPeriod)
       console.log('refresToken!!! ', refreshPeriod)
-      yield delay(5000)
-      // yield put(actions.requestStart())
+
       const login_details = yield select(makeSelectLogin());
       const options = generateOptionsPost(params, login_details.token)
       options.headers['Refresh-Token'] = refreshToken
