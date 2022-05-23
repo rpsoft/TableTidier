@@ -4,15 +4,20 @@
  *
  */
 
-import { SEARCH_ACTION, SEARCH_RESULTS_UPDATE_ACTION, REQUEST_COLLECTIONS_LIST_ACTION, UPDATE_COLLECTIONS_LIST_ACTION, CREATE_COLLECTION_ACTION } from './constants';
+import {
+  SEARCH_ACTION,
+  SEARCH_RESULTS_UPDATE_ACTION,
 
-export function doSearchAction(searchContent, searchType, hash, username) {
+  REQUEST_COLLECTIONS_LIST_ACTION,
+  UPDATE_COLLECTIONS_LIST_ACTION,
+  CREATE_COLLECTION_ACTION
+} from './constants';
+
+export function doSearchAction(searchContent, searchType) {
   return {
     type: SEARCH_ACTION,
     searchContent,
     searchType,
-    hash,
-    username
   };
 }
 

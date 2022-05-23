@@ -7,11 +7,9 @@ import produce from 'immer';
 import { SEARCH_ACTION, SEARCH_RESULTS_UPDATE_ACTION, UPDATE_COLLECTIONS_LIST_ACTION } from './constants';
 
 export const initialState = {
-  searchContent : "",
+  searchContent : '',
   searchType : {},
   search_results : [],
-  hash: "",
-  username : "",
   collections : [],
 };
 
@@ -22,8 +20,7 @@ const dashboardReducer = (state = initialState, action) =>
       case SEARCH_ACTION:
         draft.searchContent = action.searchContent;
         draft.searchType = action.searchType;
-        draft.hash = action.hash;
-        draft.username = action.username;
+
         break;
       case SEARCH_RESULTS_UPDATE_ACTION:
         draft.search_results = action.search_results;
