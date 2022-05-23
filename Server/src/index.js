@@ -615,8 +615,9 @@ app.post(CONFIG.api_base_url+'/metadata',
 
   // req.user added by experessJwt
   const user = req?.user
-
-  const collectionPermissions = await dbDriver.permissionsResourceGet('collections', user ? user.username : '')
+  // username in user subject
+  const username = user?.sub
+  const collectionPermissions = await dbDriver.permissionsResourceGet('collections', user ? username : '')
 
   if ( collectionPermissions.read.includes(collId) == false ) {
     return res.json({status:"unauthorised", payload: null})
@@ -774,76 +775,78 @@ app.post(CONFIG.api_base_url+'/collections',
 
   // req.user added by experessJwt
   const user = req?.user
-
-  const collectionPermissions = await dbDriver.permissionsResourceGet('collections', user ? user.username : '')
-  let response = {status: "failed"}
+  // username in user subject
+  const username = user?.sub
+  const collectionPermissions = await dbDriver.permissionsResourceGet('collections', user ? username : '')
+  let response = {status: 'failed'}
   let result;
 
   switch (action) {
-    case "list":
+    case 'list':
       result = await dbDriver.collectionsList();
       result = result.filter(
         elm => collectionPermissions.read.includes(
           elm.collection_id
         )
       )
-      response = {status: "success", data: result}
+      response = {status: 'success', data: result}
       break;
 
-    case "get":
-      if ( collectionPermissions.read.includes(collection_id) ){
-        result = await dbDriver.collectionGet(collection_id);
-
-        result.permissions = {
-          read: collectionPermissions.read.includes(collection_id),
-          write: collectionPermissions.write.includes(collection_id)
-        }
-
-        response = {status: "success", data: result}
-      } else {
-        response = {status:"unauthorised operation", payload: req.body}
+    case 'get':
+      if (collectionPermissions.read.includes(collection_id) == false ){
+        response = {status:'unauthorised operation', payload: req.body}
+        break;
       }
+      result = await dbDriver.collectionGet(collection_id);
+
+      result.permissions = {
+        read: collectionPermissions.read.includes(collection_id),
+        write: collectionPermissions.write.includes(collection_id)
+      }
+
+      response = {status: 'success', data: result}
       break;
 
-    case "delete":
-      if ( collectionPermissions.write.includes(collection_id) ){
-        await dbDriver.collectionDelete(collection_id);
-        response = {status: "success", data: {}}
-      } else {
-        response = {status:"unauthorised operation", payload: req.body}
+    case 'delete':
+      if (collectionPermissions.read.includes(collection_id) == false ){
+        response = {status:'unauthorised operation', payload: req.body}
+        break;
       }
+      await dbDriver.collectionDelete(collection_id);
+      response = {status: 'success', data: {}}
       break;
 
-    case "create":
-      if ( user ) {
-        result = await dbDriver.collectionCreate('new collection', '', user.username);
-        response = {status: "success", data: result}
-      } else {
-        response = {status: "login to create collection", payload: req.body}
+    case 'create':
+      // no user?
+      if (!user) {
+        response = {status: 'login to create collection', payload: req.body}
+        break;
       }
+      result = await dbDriver.collectionCreate('new collection', '', username);
+      response = {status: 'success', data: result}
       break;
 
     // Well use edit to create Collection on the fly
-    case "edit":
-      if ( collectionPermissions.write.includes(collection_id) == true ) {
-        const allCollectionData = JSON.parse( collectionData )
-        result = await dbDriver.collectionEdit(allCollectionData);
-        // * :-) Collections Edit return collection_id save a step
-        result = await dbDriver.collectionGet(collection_id);
-        response = {status: "success", data: result}
-      } else {
-        response = {status: "unauthorised operation", payload: req.body}
+    case 'edit':
+      if (collectionPermissions.read.includes(collection_id) == false ) {
+        response = {status:'unauthorised operation', payload: req.body}
+        break;
       }
+      const allCollectionData = JSON.parse( collectionData )
+      result = await dbDriver.collectionEdit(allCollectionData);
+      // // * :-) Collections Edit return collection_id save a step
+      // result = await dbDriver.collectionGet(collection_id);
+      response = {status: 'success', data: result}
       break;
 
-    case "download":
+    case 'download':
       const tids = JSON.parse(tid);
 
       // Download file
-      if ( target.includes("results") ){
+      if ( target.includes('results') ){
         // data csv
         result = await dbDriver.resultsDataGet( tids );
-      } else if( target.includes("metadata") ) {
+      } else if ( target.includes('metadata') ) {
         // metadata csv
         result = await dbDriver.metadataGet( tids );
       } else {
@@ -856,12 +859,12 @@ app.post(CONFIG.api_base_url+'/collections',
         result = {data: result_res, metadata: result_met}
       }
 
-      response = {status: "success", data: result}
+      response = {status: 'success', data: result}
       break;
   }
   //
   // } else {
-  //   response = {status:"unauthorised", payload: null}
+  //   response = {status:'unauthorised', payload: null}
   // }
 
   res.json(response)
@@ -876,7 +879,7 @@ app.post(CONFIG.api_base_url+'/tables',
   async (req, res) => {
 
   if ( req.body && ( ! req.body.action ) ){
-    return res.json({status: "undefined", received : req.query})
+    return res.json({status: 'undefined', received : req.query})
   }
 
   const {
@@ -892,7 +895,9 @@ app.post(CONFIG.api_base_url+'/tables',
 
   // req.user added by experessJwt
   const user = req?.user
-  const collectionPermissions = await dbDriver.permissionsResourceGet('collections', user ? user.username : '')
+  // username in user subject
+  const username = user?.sub
+  const collectionPermissions = await dbDriver.permissionsResourceGet('collections', user ? username : '')
 
   if ( !user ) {
     res.json({status:'unauthorised', payload: null})
@@ -928,20 +933,28 @@ app.post(CONFIG.api_base_url+'/search',
   async (req, res) => {
 
   const {
-    username=undefined,
-    hash=undefined,
     searchContent,
   } = req.body
   var type = JSON.parse(req.body.searchType)
 
   // req.user added by experessJwt
   const user = req?.user
-
-  const collectionPermissions = await dbDriver.permissionsResourceGet('collections', user ? user.username : '')
+  // username in user subject
+  const username = user?.sub
+  const collectionPermissions = await dbDriver.permissionsResourceGet('collections', user ? username : '')
 
   let search_results = easysearch.search( global.searchIndex, searchContent)
 
-  search_results = search_results.filter( (elm) => collectionPermissions.read.includes( elm.doc.split("/")[0] ) )
+  search_results = search_results.filter(
+    (elm) => collectionPermissions.read.includes(
+      // Extract collection id from path.
+      // Example: 1 from 'HTML_TABLES/1/20463178_2.html'
+      parseInt(/\d+/g.exec(elm.doc)[0])
+    )
+  )
+
+  // remove extension
+  search_results.forEach( elm => elm.doc = elm.doc.replace('.html', '') )
 
   console.log(`SEARCH: ${search_results.length} for ${searchContent}`)
 
@@ -973,8 +986,9 @@ app.post(CONFIG.api_base_url+'/getTableContent',
 
   // req.user added by experessJwt
   const user = req?.user
-
-  const collectionPermissions = await dbDriver.permissionsResourceGet('collections', user ? user.username : '')
+  // username in user subject
+  const username = user?.sub
+  const collectionPermissions = await dbDriver.permissionsResourceGet('collections', user ? username : '')
 
   if ( collectionPermissions.read.includes(collId) == false ){
     return res.json({status: 'unauthorised', body : req.body})
@@ -1048,7 +1062,7 @@ app.post(CONFIG.api_base_url+'/getTableContent',
             page,
             tableType: '',
             tid: tableData.collectionData.tables.filter( table => table.docid == docid && table.page == page )[0].tid,
-            user: user.username,
+            user: username,
           }
         }
 
@@ -1177,8 +1191,9 @@ app.post(CONFIG.api_base_url+'/annotationPreview',
 
   // req.user added by experessJwt
   const user = req?.user
-
-  const collectionPermissions = await dbDriver.permissionsResourceGet('collections', user ? user.username : '')
+  // username in user subject
+  const username = user?.sub
+  const collectionPermissions = await dbDriver.permissionsResourceGet('collections', user ? username : '')
 
   if ( collectionPermissions.read.includes(collId) == false ) {
     return res.json([])
