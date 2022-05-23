@@ -190,6 +190,16 @@ export function Login({
 
   const isLoggedIn = loginState.username ? true : false;
 
+  const cancelButton = <>
+    <Button
+      variant="contained"
+      onClick={ () => { handleLoginToggle() } }
+      style={{marginLeft:5, backgroundColor:"#f98989"}}
+    >
+      Cancel
+    </Button>
+  </>
+
   return (
     <AppBar position="fixed" className={classes.appBar} style={{backgroundColor:"#3f51b5"}}>
     <Toolbar>
@@ -230,19 +240,47 @@ export function Login({
         }}
       >
         <div style={{padding:20, maxWidth:300}}>
+          {
+            // Is logged
+            isLoggedIn ? <>
+            Logged as 
+            <span 
+              style={{
+                fontSize: 'larger',
+                fontWeight: 'bold',
+                marginLeft: 10,
+              }}
+            >
+              {username}
+            </span>
 
-          <h4> Enter Your Login Details </h4>
-          <form>
+            <div style={{marginTop:10,textAlign:"right"}}>
+              <Button
+                disabled={!isLoggedIn}
+                variant="contained"
+                onClick={ () => { logOut() } }
+                style={{marginLeft:5, backgroundColor:"#89b6f9"}}
+              >
+                Logout
+              </Button>
+              {cancelButton}
+            </div>
+            </>
+            // Is Not logged?
+            : <>
+            <h4 style={{whiteSpace: 'nowrap'}}> Enter Your Login Details </h4>
+
+            <form>
             <TextField
               id="username"
               value={username}
               placeholder="Username"
-              autoComplete='login name'
+              autoComplete='login username'
+              autoFocus={true}
               onChange={ (evt) => {setUsername(evt.currentTarget.value)} }
               onKeyDown ={onKeyDown}
             />
             <br />
-
             <TextField
               id="password"
               value={password}
@@ -253,9 +291,8 @@ export function Login({
               onKeyDown ={onKeyDown}
             />
             <br />
-          </form>
-
-          {
+            </form>
+            {
             loginState.loginWarning ?
               <div 
                 style={{color:"red",marginTop:5,marginBottom:5}}
@@ -263,21 +300,16 @@ export function Login({
                 {loginState.loginWarning}
               </div>
             : <br />
-          }
+            }
 
-          <div style={{marginTop:10,textAlign:"right"}}>
-            <Button variant="contained" onClick={ () => { logIn() } } style={{backgroundColor:"#93de85"}} >
-                Login
-            </Button>
-            <Button
-              disabled={!isLoggedIn}
-              variant="contained"
-              onClick={ () => { logOut() } }
-              style={{marginLeft:5, backgroundColor:"#f98989"}}
-            >
-              Logout
-            </Button>
-          </div>
+            <div style={{marginTop:10,textAlign:"right"}}>
+              <Button variant="contained" onClick={ () => { logIn() } } style={{backgroundColor:"#93de85"}} >
+                  Login
+              </Button>
+              {cancelButton}
+            </div>
+            </>
+          }
 
         </div>
       </Popover>
