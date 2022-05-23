@@ -96,6 +96,7 @@ function SearchBar({
           className={ classes.input }
           value={searchContent}
           placeholder={ "Search for tables" }
+          inputProps={{autoCorrect: 'off', autoComplete: 'off', type: 'text'}}
           onChange={ (evt) => { setSearchContent(evt.currentTarget.value); setCharCount(evt.currentTarget.value.length)}}
           onKeyDown ={ onKeyDown }
         />
