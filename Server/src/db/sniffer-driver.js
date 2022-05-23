@@ -13,15 +13,16 @@ const handler = {
     }
 
     // Process call
-    console.log('get')
-    console.log(target, prop, receiver)
+    console.log('db Call:')
+    // console.log(target, prop, receiver)
     let value = Reflect.get(...arguments);
     console.log(value)
     
     // Return function that will be called
     return async function () {
+      // console.log(target, prop, receiver)
       // console.log(...arguments);
-      debug(...arguments)
+      debug(prop, ' arguments: ', ...arguments)
       // Store the result of calling different drivers
       const result = []
       for (let driver of driversList) {
