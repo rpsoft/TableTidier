@@ -43,6 +43,10 @@ import { filter, fromEvent, map, pipe, merge, scan } from 'callbag-basics';
 import { debounce } from 'callbag-debounce';
 import subscribe from 'callbag-subscribe';
 
+import {
+  hashPassword
+} from '../../utils/hash'
+
 const USERNAME_MINIMUM_LENGTH = 4
 
 const useStyles = makeStyles((theme) => ({
@@ -70,7 +74,7 @@ export function Register({
   useInjectReducer({ key: 'register', reducer });
   useInjectSaga({ key: 'register', saga });
 
-  const [fullname, setFullname] = useState("");
+  const [fullname, setFullname] = useState('');
   const [email, setEmail] = useState('');
   const [emailHelpText, setEmailHelpText] = useState({
     text: '',
@@ -83,19 +87,18 @@ export function Register({
     error: false,
   });
 
-  const [password, setPassword] = useState("");
-  const [password_rep, setPasswordRep] = useState("");
+  const [password, setPassword] = useState('');
+  const [password_rep, setPasswordRep] = useState('');
 
   const [registered, setRegistered] = useState(false);
 
-  const [warning, setWarning] = useState("");
+  const [warning, setWarning] = useState('');
 
   const preventDefault = (event) => event.preventDefault();
 
   const [showPassword, setShowPassword] = useState(false);
   const toggleShowPassword = () => setShowPassword(!showPassword)
 
-// <FormattedMessage {...messages.header} />
 
   useEffect( () => {
     if ( !warning ){
@@ -242,7 +245,7 @@ export function Register({
     return { accept: status.length == 0, status }
   }
 
-  const doRegisterButton = () => {
+  const doRegisterButton = async () => {
     const logInDetails = {
       'displayName': fullname,
       'email': email,
@@ -251,20 +254,24 @@ export function Register({
       'password_rep': password_rep,
     }
 
+
     const status = checkDetails(logInDetails)
 
-    setWarning( status.status )
-
-    if( status.accept ){
-      doRegister({
-        'username': username,
-        'password': password,
-        'displayName': fullname,
-        'email': email,
-      })
-
-      setRegistered(true);
+    if( status.accept == false ) {
+      return setWarning( status.status )
     }
+
+    // hash password
+    const key = await hashPassword(username, password)
+
+    doRegister({
+      email,
+      username,
+      password: key,
+      displayName: fullname,
+    })
+
+    setRegistered(true);
   }
 
   return (
@@ -310,7 +317,7 @@ export function Register({
             className={[
               classes.textFieldHelper,
               classes.columnTakeTwo,
-            ]}
+            ].join(' ')}
             inputProps={{
               ref: emailInput,
               autoComplete: 'register email',
@@ -322,7 +329,6 @@ export function Register({
             onChange={ (evt) => { setEmail(evt.currentTarget.value)} }
             // go next field username
             onKeyDown ={ (event) => {
-              console.log(event)
               if (event.key != "Enter") return
               usernameInput.current && usernameInput.current.focus()
             }}
@@ -346,7 +352,7 @@ export function Register({
             className={[
               classes.textFieldHelper,
               classes.columnTakeTwo,
-            ]}
+            ].join(' ')}
             inputProps={{
               ref: usernameInput,
               autoComplete: 'username',
@@ -355,7 +361,6 @@ export function Register({
             // autoComplete='login username'
             onChange={ (evt) => { setUsername(evt.currentTarget.value)}  }
             onKeyDown ={ (event) => {
-              console.log(event)
               if (event.key != "Enter") return
               passwordInput.current && passwordInput.current.focus()
             }}
@@ -372,20 +377,31 @@ export function Register({
           />
           <br /><br />
           <br /><br />
-
-          <Button
-            onClick={() => toggleShowPassword()}
-            style={{marginTop: 22}}
+          <div
             className={[
               classes.columnTakeTwo,
             ]}
+            style={{
+              textAlign: 'right',
+            }}
           >
-            {
-              showPassword?
-                <VisibilityOffOutlinedIcon style={{ color: 'grey' }} />
-              : <VisibilityOutlinedIcon style={{ color: 'grey' }} />
-            }
-          </Button>
+            <Button
+              onClick={() => toggleShowPassword()}
+              style={{
+                marginTop: 22,
+                backgroundColor: '#f3f3f3',
+              }}
+              variant="contained"
+              disableElevation
+            >
+              {
+                showPassword?
+                  <VisibilityOffOutlinedIcon style={{ color: 'grey' }} />
+                : <VisibilityOutlinedIcon style={{ color: 'grey' }} />
+              }
+            </Button>
+          </div>
+
           <TextField
             id="register_password"
             value={password}
@@ -394,10 +410,9 @@ export function Register({
             autoComplete='login password new-password'
             className={[
               classes.columnTakeTwo,
-            ]}
+            ].join(' ')}
             onChange={ (evt) => { setPassword(evt.currentTarget.value)}  }
             onKeyDown ={ (event) => {
-              console.log(event)
               if (event.key != "Enter") return
               passwordConfirmInput.current && passwordConfirmInput.current.focus()
             }}
@@ -414,7 +429,7 @@ export function Register({
             autoComplete='off'
             className={[
               classes.columnTakeTwo,
-            ]}
+            ].join(' ')}
             onChange={ (evt) => { setPasswordRep(evt.currentTarget.value)} }
             onKeyDown ={ (event) => {
               if (event.key != "Enter") return
@@ -437,7 +452,12 @@ export function Register({
               style={{backgroundColor:"#93de85"}}
             > Register </Button>
 
-            <Button disabled={false} variant="contained" onClick={ () => { navigate("/") } } style={{marginLeft:5, backgroundColor:"#f98989"}}>Cancel</Button>
+            <Button
+              disabled={false}
+              variant="contained"
+              onClick={ () => { navigate("/") } }
+              style={{marginLeft:5, backgroundColor:"#f98989"}}
+            > Cancel </Button>
           </div>
 
           <br />
