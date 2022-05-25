@@ -28,9 +28,20 @@ const {
   SESSION_TOKEN_REFRESH_TIME,
 } = GENERAL_CONFIG.jwt
 
-
 let dbDriver
 router.addDriver = (driver) => dbDriver = driver
+
+const jwtSignToken = (user) => {
+  return jwt.sign(
+    user,
+    // TOP_SECRET
+    privatekey,
+    {
+      expiresIn: SESSION_TOKEN_EXPIRATION_TIME,
+      algorithm: 'ES256',
+    }
+  );
+}
 
 
 // CONFIG.api_base_url+'/login'
@@ -94,7 +105,8 @@ router.route('/login')
     if ( err ) {
       return next({status: 'failed', payload: err.message});
       // res.status(200).json({status:"failed", payload: err.message})
-    } else if ( !user ) {
+    }
+    if ( !user ) {
       return next({status: 'unauthorised', payload: info});
       // res.status(401).json({status:"unauthorised", payload: info})
     }
@@ -103,27 +115,11 @@ router.route('/login')
     const _user = user.user
     delete _user.password
 
-    const token = jwt.sign(
-      user.jwt,
-      // TOP_SECRET,
-      privatekey,
-      {
-        expiresIn: SESSION_TOKEN_EXPIRATION_TIME,
-        algorithm: 'ES256',
-      }
-    );
+    const token = jwtSignToken(user.jwt)
 
     delete user.jwt.permissions
     user.jwt.type = 'refresh-token'
-    const refreshToken = jwt.sign(
-      user.jwt,
-      // TOP_SECRET,
-      privatekey,
-      {
-        expiresIn: SESSION_TOKEN_EXPIRATION_TIME,
-        algorithm: 'ES256',
-      }
-    );
+    const refreshToken = jwtSignToken(user.jwt)
 
     res.json({
       status: 'authorised',
@@ -173,22 +169,20 @@ router.route('/login')
  *         description: Failed
  */
 router.route('/createUser')
-.post(async (req, res) => {
-  let result;
-  try{
-    // :-)
-    // check (req.body)
-    result = await dbDriver.userCreate(req.body)
-
-    // :-) remove when use JWT
-    const users = await dbDriver.usersGet()
-    global.records = users
-    res.status(200).json({status:'success', payload: result })
-  } catch (err) {
-    res.status(200).json({status:'failed', payload: err })
-  }
+.post((req, res, next) => {
+  passport.authenticate('login', function(err, user, info) {
+    console.log("login_req", JSON.stringify(user))
+    if ( err ) {
+      // return next({status: 'failed', payload: err.message});
+      return res.status(200).json({status: 'failed', payload: err.message})
+    }
+    if ( !user ) {
+      // return next({status: 'unauthorised', payload: info});
+      return res.status(401).json({status: 'unauthorised', payload: info})
+    }
+    res.status(200).json({status:'success', payload: 'user created' })
+  })(req, res, next)
 });
-
 
 router.route('/refreshToken')
 .post(
@@ -203,8 +197,7 @@ router.route('/refreshToken')
 
     // verify requestRefreshToken
     const requestRefreshToken = req.headers?.['refresh-token']
-    debugger
-    
+
     const refreshTokenStatus = jwt.verify(
       req.headers?.['refresh-token'],
       publickey,
@@ -227,25 +220,8 @@ router.route('/refreshToken')
     delete refreshTokenStatus.iat
     delete refreshTokenStatus.exp
 
-    const token = jwt.sign(
-      user,
-      // TOP_SECRET,
-      privatekey,
-      {
-        expiresIn: SESSION_TOKEN_EXPIRATION_TIME,
-        algorithm: "ES256",
-      }
-    );
-
-    const refreshToken = jwt.sign(
-      refreshTokenStatus,
-      // TOP_SECRET,
-      privatekey,
-      {
-        expiresIn: SESSION_TOKEN_EXPIRATION_TIME,
-        algorithm: 'ES256',
-      }
-    );
+    const token = jwtSignToken(user)
+    const refreshToken = jwtSignToken(refreshTokenStatus)
 
     return res.json({
       ...user,
@@ -256,4 +232,41 @@ router.route('/refreshToken')
   }
 );
 
+/**
+ * Check that a user exists. by:
+ * @param {object} username - username.
+ * @param {object} email - email.
+ *
+ */
+router.route('/register/check')
+.post( async (req, res) => {
+  const {
+    email,
+    username,
+  } = req.body
+  req.error = 'err';
+
+  const question = username ? {username} : {email}
+  try {
+    const result = await dbDriver.userGet(question)
+    console.log(result)
+    if (result == undefined) {
+      res.json({
+        status: 'OK',
+        email,
+        username,
+        payload: 'available',
+      })
+      return
+    }
+    res.json({
+      status: 'OK',
+      email,
+      username,
+      payload: 'unavailable',
+    })
+  } catch (err) {
+    console.log(err)
+  }
+});
 export default router
