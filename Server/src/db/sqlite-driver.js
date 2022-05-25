@@ -688,7 +688,9 @@ function driver(config) {
     },
 
     usersGet: async () => {
-      const users = await queryAll('SELECT id, username, password, "displayName", email, registered, role FROM users')
+      const users = await queryAll(
+        'SELECT id, username, password, "displayName", email, registered, role FROM users'
+      )
       return users
     },
   }

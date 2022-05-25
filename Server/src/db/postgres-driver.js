@@ -629,7 +629,9 @@ function driver(config) {
     },
 
     usersGet: async () => {
-      const users = await query('SELECT id, username, password, "displayName", email, registered, role FROM public.users')
+      const users = await query(
+        'SELECT id, username, password, "displayName", email, registered, role FROM public.users'
+      )
       // convert registered from string to number
       // bigint (64 bits) returned as string by pg module
       users.rows.forEach(row => row.registered = parseInt(row.registered))
