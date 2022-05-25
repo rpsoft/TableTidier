@@ -342,10 +342,13 @@ const rebuildSearchIndex = async () => {
   tablesInFolderOverride = tablesInFolderOverride.map(
     (dir) => path.join(tables_folder_override, dir)
   )
-  global.searchIndex = await easysearch.indexFolder([
-    ...tablesInFolder,
-    ...tablesInFolderOverride
-  ])
+  global.searchIndex = await easysearch.indexFolder(
+    [
+      ...tablesInFolder,
+      ...tablesInFolderOverride
+    ],
+    true
+  )
 }
 
 const tabularFromAnnotation = async ( annotation ) => {
