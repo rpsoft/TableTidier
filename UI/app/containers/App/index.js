@@ -98,7 +98,6 @@ export function App({
           <Route path="dashboard" element={<Dashboard />} />
         </Routes>
       </div>
-      { loginState.username }
       <PopAlert alertData={alertData} setAlertData={setAlertData} />
 
       <div style={{position:"fixed", left:0, bottom:0, width:"100%" }}><Footer /></div>
