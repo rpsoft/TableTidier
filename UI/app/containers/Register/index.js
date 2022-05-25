@@ -2,9 +2,10 @@
  *
  * Register
  *
+ * Register a user
  */
 
-import React, { useEffect, memo, useState } from 'react';
+import React, { useEffect, memo, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Helmet } from 'react-helmet';
@@ -24,6 +25,8 @@ import {
   useNavigate,
 } from "react-router-dom";
 
+import { makeStyles } from '@material-ui/core/styles';
+
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card'
@@ -36,20 +39,49 @@ import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
 import VisibilityOffOutlinedIcon from '@material-ui/icons/VisibilityOffOutlined';
 
 import { registerAccountAction, registerAccountActionSuccess, registerAccountActionFailed } from './actions';
+import { filter, fromEvent, map, pipe, merge, scan } from 'callbag-basics';
+import { debounce } from 'callbag-debounce';
+import subscribe from 'callbag-subscribe';
 
+const USERNAME_MINIMUM_LENGTH = 4
+
+const useStyles = makeStyles((theme) => ({
+  textFieldHelper: {
+    marginTop: 10,
+    marginBottom: 10,
+    '& > .MuiFormHelperText-root': {
+      position: 'absolute',
+      bottom: '-1.2em',
+      right: '0px',
+    }
+  },
+  columnTakeTwo: {
+    gridColumn: '1 / 3',
+  },
+}));
 
 export function Register({
   doRegister,
   register
 }) {
+  const classes = useStyles();
   let navigate = useNavigate();
 
   useInjectReducer({ key: 'register', reducer });
   useInjectSaga({ key: 'register', saga });
 
   const [fullname, setFullname] = useState("");
-  const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState('');
+  const [emailHelpText, setEmailHelpText] = useState({
+    text: '',
+    error: false,
+  });
+
+  const [username, setUsername] = useState('');
+  const [usernameHelpText, setUsernameHelpText] = useState({
+    text: '',
+    error: false,
+  });
 
   const [password, setPassword] = useState("");
   const [password_rep, setPasswordRep] = useState("");
@@ -70,15 +102,128 @@ export function Register({
       setWarning(register.status)
     }
     return () => {
-      // Clean register status from redux store
+      // ! :-) Clean register status from redux store
       
     }
   }, [register.status])
 
+  // Empty email input when needed
+  useEffect( () => {
+    if (email.includes('@') == false) {
+      setEmailHelpText({
+        text: '',
+        error: false,
+        color: undefined,
+      })
+    }
+  }, [email])
+
+  useEffect( () => {
+    if (username.length < USERNAME_MINIMUM_LENGTH) {
+      setUsernameHelpText({
+        text: '',
+        error: false,
+        color: undefined,
+      })
+    }
+  }, [username])
+
+  const emailInput = useRef(null);
+  const usernameInput = useRef(null);
+  const passwordInput = useRef(null);
+  const passwordConfirmInput = useRef(null);
+  const registerButton = useRef(null);
+
+  const checkField = (value) => fetch('api/register/check', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(value)
+  })
+
+  // Logic to control email status
+  const emailRegex = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
+  useEffect( () => {
+    // subscribe to email
+    const disposeEmailInputObserver = pipe(
+      // take key input events of email field
+      fromEvent(emailInput.current, 'input'),
+      // only pass email. Checked by regular expression
+      filter(x => emailRegex.test(x.target.value)),
+      // Wait inactivity after last key
+      // To check validity of email
+      // Time in miliseconds
+      debounce(700),
+      subscribe(async x => {
+        const result = await checkField({
+          email: x.target.value,
+        })
+        if (result.statusText!='OK') return setEmailHelpText({
+          text: 'fails checking email',
+          error: true,
+        })
+        const body = await result.json()
+        if (body.payload=='unavailable') return setEmailHelpText({
+          text: 'email unavailable ✕',
+          error: true,
+          color: 'red'
+        })
+        if (body.payload=='available') return setEmailHelpText({
+          text: 'email available ✔',
+          error: false,
+          color: 'green'
+        })
+      })
+    );
+    // subscribe to username
+    const disposeUsernameInputObserver = pipe(
+      // take key input events of username field
+      fromEvent(usernameInput.current, 'input'),
+      // check username length
+      filter(x => x.target.value.length >= USERNAME_MINIMUM_LENGTH),
+      // Wait inactivity after last key
+      // To check validity of email
+      // Time in miliseconds
+      debounce(700),
+      subscribe(async x => {
+        console.log(x)
+        console.log(x.target.value)
+        console.log(x.target.validationMessage)
+
+        const result = await checkField({
+          username: x.target.value,
+        })
+        if (result.statusText!='OK') return setUsernameHelpText({
+          text: 'fails checking username',
+          error: true,
+        })
+        const body = await result.json()
+        if (body.payload=='unavailable') return setUsernameHelpText({
+          text: 'username unavailable ✕',
+          error: true,
+          color: 'red'
+        })
+        if (body.payload=='available') return setUsernameHelpText({
+          text: 'username available ✔',
+          error: false,
+          color: 'green'
+        })
+      })
+    );
+
+    console.log('subscribe')
+
+    // On unmount clean observables
+    return () => {
+      console.log('dispose')
+      disposeEmailInputObserver()
+      disposeUsernameInputObserver()
+    }
+  }, [])
 
   const checkDetails = (userDetails) => {
-
-    let status = ""
+    let status = ''
 
     if ( userDetails.password !== userDetails.password_rep ) {
       status = "Passwords do not match"
@@ -88,7 +233,7 @@ export function Register({
       status = "Type a password"
     } else if ( userDetails.username.trim().length == 0 ) {
       status = "Type a username"
-    } else if ( userDetails.username.trim().length < 4 ) {
+    } else if ( userDetails.username.trim().length < USERNAME_MINIMUM_LENGTH ) {
       status = "Username should be at least 4 characters long"
     } else if ( userDetails.email.trim().split("@").length != 2 ) {
       status = "Email missing or in the wrong format"
@@ -142,79 +287,163 @@ export function Register({
           //
           // <br />
         }
-        { !registered ? <div>
-            <h2> Register your Account </h2>
-            <form autocomplete='on'>
-            <TextField
-              id="register_email"
-              value={email}
-              label='email'
-              placeholder="Your@Email.Here *"
-              inputProps={{
-                autoComplete: 'register email',
-                type: 'email',
-                required: true,
-                autoFocus: true,
-              }}
-              // htmlAutoComplete='register email'
-              onChange={ (evt) => { setEmail(evt.currentTarget.value)} }
-              onKeyDown ={() => {}}
-              />
+        { !registered ? <>
 
-            <br /><br />
+        <h2> Register your Account </h2>
+        <div
 
-            <TextField
-              id="register_username"
-              value={username}
-              label='username'
-              placeholder="Username *"
-              inputProps={{autoComplete: 'username', type: 'text'}}
-              // autoComplete='login username'
-              onChange={ (evt) => { setUsername(evt.currentTarget.value)}  }
-              onKeyDown ={() => {}}
-              />
-            <br /><br />
-
-            <TextField
-              id="register_password"
-              value={password}
-              placeholder="Password *"
-              type={showPassword? 'text': 'password'}
-              autoComplete='login password new-password'
-              onChange={ (evt) => { setPassword(evt.currentTarget.value)}  }
-              onKeyDown ={ () => {} }
-              />
-            <Button onClick={() => toggleShowPassword()}>
-              {
-                showPassword?
-                  <VisibilityOffOutlinedIcon style={{ color: 'grey' }} />
-                : <VisibilityOutlinedIcon style={{ color: 'grey' }} />
+        >
+        <form 
+          autoComplete='on'
+          style={{
+            display: 'grid',
+            gap: 10,
+            gridTemplateColumns: 'repeat(3,1fr)',
+            gridTemplateRows: '4.5em 4.5em',
+          }}
+        >
+          <TextField
+            id="register_email"
+            value={email}
+            label='email'
+            placeholder="Your@Email.Here *"
+            className={[
+              classes.textFieldHelper,
+              classes.columnTakeTwo,
+            ]}
+            inputProps={{
+              ref: emailInput,
+              autoComplete: 'register email',
+              type: 'email',
+              required: true,
+              autoFocus: true,
+            }}
+            // htmlAutoComplete='register email'
+            onChange={ (evt) => { setEmail(evt.currentTarget.value)} }
+            // go next field username
+            onKeyDown ={ (event) => {
+              console.log(event)
+              if (event.key != "Enter") return
+              usernameInput.current && usernameInput.current.focus()
+            }}
+            error={emailHelpText.error}
+            // Under text comment 
+            FormHelperTextProps={{
+              style: {
+                backgroundColor: 'transparent',
+                color: emailHelpText.color,
+                textAlign: 'right',
               }
-              
-            </Button>
-            <TextField
-              id="register_password_conf"
-              value={password_rep}
-              placeholder="Confirm Password *"
-              type={showPassword? 'text': 'password'}
-              autoComplete='off'
-              onChange={ (evt) => { setPasswordRep(evt.currentTarget.value)} }
-              onKeyDown ={ () => {} }
-              />
-            </form>
+            }}
+            helperText={emailHelpText.text}
+          />
 
-            <br /><br />
+          <TextField
+            id="register_username"
+            value={username}
+            label='username'
+            placeholder="Username *"
+            className={[
+              classes.textFieldHelper,
+              classes.columnTakeTwo,
+            ]}
+            inputProps={{
+              ref: usernameInput,
+              autoComplete: 'username',
+              type: 'text',
+            }}
+            // autoComplete='login username'
+            onChange={ (evt) => { setUsername(evt.currentTarget.value)}  }
+            onKeyDown ={ (event) => {
+              console.log(event)
+              if (event.key != "Enter") return
+              passwordInput.current && passwordInput.current.focus()
+            }}
+            error={usernameHelpText.error}
+            // Under text comment 
+            FormHelperTextProps={{
+              style: {
+                backgroundColor: 'transparent',
+                color: usernameHelpText.color,
+                textAlign: 'right',
+              }
+            }}
+            helperText={usernameHelpText.text}
+          />
+          <br /><br />
+          <br /><br />
 
-            <div style={{marginTop:10,textAlign:"right"}}>
-              <Button variant="contained" onClick={ doRegisterButton } style={{backgroundColor:"#93de85"}} > Register </Button>
+          <Button
+            onClick={() => toggleShowPassword()}
+            style={{marginTop: 22}}
+            className={[
+              classes.columnTakeTwo,
+            ]}
+          >
+            {
+              showPassword?
+                <VisibilityOffOutlinedIcon style={{ color: 'grey' }} />
+              : <VisibilityOutlinedIcon style={{ color: 'grey' }} />
+            }
+          </Button>
+          <TextField
+            id="register_password"
+            value={password}
+            placeholder="Password *"
+            type={showPassword? 'text': 'password'}
+            autoComplete='login password new-password'
+            className={[
+              classes.columnTakeTwo,
+            ]}
+            onChange={ (evt) => { setPassword(evt.currentTarget.value)}  }
+            onKeyDown ={ (event) => {
+              console.log(event)
+              if (event.key != "Enter") return
+              passwordConfirmInput.current && passwordConfirmInput.current.focus()
+            }}
+            inputProps={{
+              ref: passwordInput,
+            }}
+          />
 
-              <Button disabled={false} variant="contained" onClick={ () => { navigate("/") } } style={{marginLeft:5, backgroundColor:"#f98989"}}>Cancel</Button>
-            </div>
+          <TextField
+            id="register_password_conf"
+            value={password_rep}
+            placeholder="Confirm Password *"
+            type={showPassword? 'text': 'password'}
+            autoComplete='off'
+            className={[
+              classes.columnTakeTwo,
+            ]}
+            onChange={ (evt) => { setPasswordRep(evt.currentTarget.value)} }
+            onKeyDown ={ (event) => {
+              if (event.key != "Enter") return
+              registerButton.current && registerButton.current.focus()
+            }}
+            inputProps={{
+              ref: passwordConfirmInput,
+            }}
+          />
 
-            <br />
-            { warning ? <div style={{color:"red",marginTop:5,marginBottom:5}}> {warning} </div> : <br /> }
+          </form>
+
+          <br /><br />
+
+          <div style={{marginTop:10,textAlign:"right"}}>
+            <Button
+              ref={registerButton}
+              variant="contained"
+              onClick={ doRegisterButton }
+              style={{backgroundColor:"#93de85"}}
+            > Register </Button>
+
+            <Button disabled={false} variant="contained" onClick={ () => { navigate("/") } } style={{marginLeft:5, backgroundColor:"#f98989"}}>Cancel</Button>
           </div>
-          : <div> Successfully Registered <Link onClick={ () => { navigate("/") } }> Back to dashboard </Link></div>
+
+          <br />
+          { warning ? <div style={{color:"red",marginTop:5,marginBottom:5}}> {warning} </div> : <br /> }
+        </div></>
+        : <div> Successfully Registered <Link onClick={ () => { navigate("/") } }> Back to dashboard </Link></div>
         }
 
       </Card>
