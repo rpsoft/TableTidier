@@ -15,8 +15,17 @@ module.exports = {
       {
         url: `http://localhost:${CONFIG.api_port}`,
       }
-    ]
+    ],
+    "components": {
+      "securitySchemes": {
+        "bearerAuth": {
+          "type": "http",
+          "scheme": "bearer",
+          "bearerFormat": "JWT"
+        }
+      }
+    }
   },
   // Change path as needed
-  apis: ["app.js", './routes/*.js'],
+  apis: ['./app.js', './src/routes/*.js'],
 }
