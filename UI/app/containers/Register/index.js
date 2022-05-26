@@ -62,6 +62,12 @@ const useStyles = makeStyles((theme) => ({
   columnTakeTwo: {
     gridColumn: '1 / 3',
   },
+  capitalizeFirstLetter: {
+    display: 'inline-block',
+    '&:first-letter': {
+      textTransform: 'capitalize',
+    }
+  },
 }));
 
 export function Register({
@@ -229,17 +235,17 @@ export function Register({
     let status = ''
 
     if ( userDetails.password !== userDetails.password_rep ) {
-      status = "Passwords do not match"
+      status = 'Passwords do not match'
     } else if ( userDetails.password.trim().length < 5 ) {
-      status = "Password should be longer than 5 characters"
+      status = 'Password should be longer than 5 characters'
     } else if ( userDetails.password.trim().length == 0 ) {
-      status = "Type a password"
+      status = 'Type a password'
     } else if ( userDetails.username.trim().length == 0 ) {
-      status = "Type a username"
+      status = 'Type a username'
     } else if ( userDetails.username.trim().length < USERNAME_MINIMUM_LENGTH ) {
-      status = "Username should be at least 4 characters long"
-    } else if ( userDetails.email.trim().split("@").length != 2 ) {
-      status = "Email missing or in the wrong format"
+      status = 'Username should be at least 4 characters long'
+    } else if ( userDetails.email.trim().split('@').length != 2 ) {
+      status = 'Email missing or in the wrong format'
     }
 
     return { accept: status.length == 0, status }
@@ -254,11 +260,16 @@ export function Register({
       'password_rep': password_rep,
     }
 
-
     const status = checkDetails(logInDetails)
 
-    if( status.accept == false ) {
+    if ( status.accept == false ) {
       return setWarning( status.status )
+    }
+    if ( emailHelpText.error ) {
+      return setWarning( emailHelpText.text )
+    }
+    if ( usernameHelpText.error ) {
+      return setWarning( usernameHelpText.text )
     }
 
     // hash password
@@ -461,7 +472,17 @@ export function Register({
           </div>
 
           <br />
-          { warning ? <div style={{color:"red",marginTop:5,marginBottom:5}}> {warning} </div> : <br /> }
+          { warning ? <>
+            <div
+              className={classes.capitalizeFirstLetter}
+              style={{
+                color: 'red',
+                marginTop: 5,
+                marginBottom: 5,
+              }}
+            > {warning} </div> </>
+            : <br />
+          }
         </div></>
         : <div> Successfully Registered <Link onClick={ () => { navigate("/") } }> Back to dashboard </Link></div>
         }
