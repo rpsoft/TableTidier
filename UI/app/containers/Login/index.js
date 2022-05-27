@@ -106,6 +106,7 @@ export function Login({
     toggleLogin(true);
   }
 
+  const passwordRef = useRef(null);
   const anchorElRef = useRef(null);
 
   const logIn = async () => {
@@ -256,7 +257,10 @@ export function Login({
               autoComplete='login username'
               autoFocus={true}
               onChange={ (evt) => {setUsername(evt.currentTarget.value)} }
-              onKeyDown ={onKeyDown}
+              onKeyDown ={ (event) => {
+                if (event.key != "Enter") return
+                passwordRef.current && passwordRef.current.focus()
+              }}
             />
             <br />
             <TextField
@@ -267,6 +271,9 @@ export function Login({
               autoComplete='login password'
               onChange={ (evt) => {setPassword(evt.currentTarget.value)} }
               onKeyDown ={onKeyDown}
+              inputProps={{
+                ref: passwordRef,
+              }}
             />
             <br />
             </form>
