@@ -143,18 +143,18 @@ const storage = multer.diskStorage({
 })
 
 app.get(CONFIG.api_base_url+'/',function(req,res){
-  res.send("TTidier Server running.")
+  res.send('TTidier Server running.')
 });
 
-app.get("/api/test", function(req,res){
-  res.send("here we are")
+app.get('/api/test', function(req,res){
+  res.send('here we are')
 })
 
 const tableSplitter = async ( tablePath ) => {
   try {
-    const data = await fs.readFile(tablePath, {encoding: "utf8"})
+    const data = await fs.readFile(tablePath, {encoding: 'utf8'})
     const tablePage = cheerio.load(data);
-    const tables  = tablePage("table")
+    const tables  = tablePage('table')
 
     const tablesHTML = []
 
@@ -164,7 +164,7 @@ const tableSplitter = async ( tablePath ) => {
     } else {
       // we attempt automatic splitting here.
       for ( let t = 0; t < tables.length; t++){
-        tablesHTML.push("<table>"+tablePage(tables[t]).html()+"</table>")
+        tablesHTML.push('<table>'+tablePage(tables[t]).html()+'</table>')
       }
     }
     return tablesHTML
@@ -177,7 +177,12 @@ app.post(CONFIG.api_base_url+'/tableUploader', async function(req, res) {
 
   let upload = multer({ storage: storage }).array('fileNames');
 
-  upload(req, res, async function(err) {
+  upload(req, res, async (err) => {
+    if (err) {
+      console.log(err)
+      res.json({status: 'FAIL', payload: 'Server error'});
+      return
+    }
     // Path to tables
     const {
       tables_folder,
@@ -192,10 +197,10 @@ app.post(CONFIG.api_base_url+'/tableUploader', async function(req, res) {
     for (index = 0, len = files.length; index < len; ++index) {
       try {
         const tables_html = await tableSplitter(files[index].path)
-        const cleanFilename = files[index].originalname.replaceAll("_", "-")
-        const file_elements = cleanFilename.split(".")
+        const cleanFilename = files[index].originalname.replaceAll('_', '-')
+        const file_elements = cleanFilename.split('.')
         const extension = file_elements.pop()
-        const baseFilename = file_elements.join(".")
+        const baseFilename = file_elements.join('.')
 
         await fs.mkdir(path.join(tables_folder, req.body.collection_id), { recursive: true })
 
