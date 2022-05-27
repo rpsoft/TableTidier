@@ -4,7 +4,7 @@
  *
  */
 
-import React, { useEffect, memo, useState } from 'react';
+import React, { useEffect, memo, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Helmet } from 'react-helmet';
@@ -98,17 +98,15 @@ export function Login({
   // const loginWarning = useSelector(state => state.loginWarning);
 
   const [isLoginShown, toggleLogin] = useState(false);
-  const [anchorEl, setAnchorEl] = React.useState(null);
 
   const handleLoginToggle = (event) => {
-    if( isLoginShown ){
-      toggleLogin(false)
-      setAnchorEl(null);
-    } else {
-      toggleLogin(true);
-      setAnchorEl(event ? event.currentTarget : null);
+    if( isLoginShown ) {
+      return toggleLogin(false)
     }
+    toggleLogin(true);
   }
+
+  const anchorElRef = useRef(null);
 
   const logIn = async () => {
     if (
@@ -139,13 +137,13 @@ export function Login({
 
   useEffect(() => {
     // If authentication token is available and it's different from the cookie token it will be set in the cookies.
-    console.log('username ', loginState.username)
+    // console.log('username ', loginState.username)
     if ( loginState.username ) {
       handleLoginToggle(); // close on successful login.
-      setCookie('username', loginState.username)
-    } else {
-      setCookie('username', '')
+      // setCookie('username', loginState.username)
+      return
     }
+    setCookie('username', '')
   }, [loginState.username]);
   //
   // useEffect(() => {
@@ -195,6 +193,7 @@ export function Login({
 
       <div style={{marginRight:0, position:"absolute",right:16}} >
         <Button
+          ref={anchorElRef}
           variant="contained"
           onClick={ handleLoginToggle }
           style={{marginLeft:5}}
@@ -207,7 +206,7 @@ export function Login({
       <Popover
         id={"loginDropDown"}
         open={isLoginShown}
-        anchorEl={anchorEl}
+        anchorEl={anchorElRef.current}
         onClose={ handleLoginToggle }
         anchorOrigin={{
           vertical: 'bottom',
@@ -230,7 +229,7 @@ export function Login({
                 marginLeft: 10,
               }}
             >
-              {username}
+              {loginState.username}
             </span>
 
             <div style={{marginTop:10,textAlign:"right"}}>
