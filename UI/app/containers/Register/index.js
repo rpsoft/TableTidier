@@ -13,15 +13,11 @@ import { FormattedMessage } from 'react-intl';
 import { createStructuredSelector } from 'reselect';
 import { compose } from 'redux';
 
-import { useInjectSaga } from 'utils/injectSaga';
-import { useInjectReducer } from 'utils/injectReducer';
-import makeSelectRegister from './selectors';
-import reducer from './reducer';
-import saga from './saga';
-import messages from './messages';
+import makeSelectLocation from '../App/selectors'
 
 // import { push } from 'connected-react-router';
 import {
+  Link,
   useNavigate,
 } from "react-router-dom";
 
@@ -30,16 +26,24 @@ import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card'
-import Popover from '@material-ui/core/Popover';
-import Home from '@material-ui/icons/Home';
-import AccountBoxIcon from '@material-ui/icons/AccountBox';
-import Link from '@material-ui/core/Link'
+// import Popover from '@material-ui/core/Popover';
+// import Home from '@material-ui/icons/Home';
+// import AccountBoxIcon from '@material-ui/icons/AccountBox';
+// import Link from '@material-ui/core/Link'
 
 import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
 import VisibilityOffOutlinedIcon from '@material-ui/icons/VisibilityOffOutlined';
+import ArrowRightIcon from '@material-ui/icons/ArrowRight';
+import LaunchIcon from '@material-ui/icons/Launch';
 
-import { registerAccountAction, registerAccountActionSuccess, registerAccountActionFailed } from './actions';
-import { filter, fromEvent, map, pipe, merge, scan } from 'callbag-basics';
+import {
+  filter,
+  fromEvent,
+  pipe,
+  // map,
+  // merge,
+  // scan
+} from 'callbag-basics';
 import { debounce } from 'callbag-debounce';
 import subscribe from 'callbag-subscribe';
 
@@ -49,7 +53,7 @@ import {
 
 const USERNAME_MINIMUM_LENGTH = 4
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles({
   textFieldHelper: {
     marginTop: 10,
     marginBottom: 10,
@@ -68,17 +72,13 @@ const useStyles = makeStyles((theme) => ({
       textTransform: 'capitalize',
     }
   },
-}));
+});
 
 export function Register({
-  doRegister,
-  register
+  appData,
 }) {
-  const classes = useStyles();
   let navigate = useNavigate();
-
-  useInjectReducer({ key: 'register', reducer });
-  useInjectSaga({ key: 'register', saga });
+  const classes = useStyles()
 
   const [fullname, setFullname] = useState('');
   const [email, setEmail] = useState('');
@@ -98,25 +98,16 @@ export function Register({
 
   const [registered, setRegistered] = useState(false);
 
-  const [warning, setWarning] = useState('');
-
-  const preventDefault = (event) => event.preventDefault();
-
+  const [warning, setWarning] = useState({
+    text: '',
+    new: false,
+    counter: 0,
+  });
+  
   const [showPassword, setShowPassword] = useState(false);
   const toggleShowPassword = () => setShowPassword(!showPassword)
 
-
-  useEffect( () => {
-    if ( !warning ){
-      setWarning(register.status)
-    }
-    return () => {
-      // ! :-) Clean register status from redux store
-      
-    }
-  }, [register.status])
-
-  // Empty email input when needed
+  // clear email helper text when '@' is not present
   useEffect( () => {
     if (email.includes('@') == false) {
       setEmailHelpText({
@@ -127,6 +118,7 @@ export function Register({
     }
   }, [email])
 
+  // If username is under minimum length clear username helper text
   useEffect( () => {
     if (username.length < USERNAME_MINIMUM_LENGTH) {
       setUsernameHelpText({
@@ -137,13 +129,14 @@ export function Register({
     }
   }, [username])
 
+  // references to html elements
   const emailInput = useRef(null);
   const usernameInput = useRef(null);
   const passwordInput = useRef(null);
   const passwordConfirmInput = useRef(null);
   const registerButton = useRef(null);
 
-  const checkField = (value) => fetch('api/register/check', {
+  const checkField = (value) => fetch(appData.api_url+'/register/check', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -154,6 +147,9 @@ export function Register({
   // Logic to control email status
   const emailRegex = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
   useEffect( () => {
+    if (emailInput.current == null) {
+      return
+    }
     // subscribe to email
     const disposeEmailInputObserver = pipe(
       // take key input events of email field
@@ -196,10 +192,6 @@ export function Register({
       // Time in miliseconds
       debounce(700),
       subscribe(async x => {
-        console.log(x)
-        console.log(x.target.value)
-        console.log(x.target.validationMessage)
-
         const result = await checkField({
           username: x.target.value,
         })
@@ -221,11 +213,8 @@ export function Register({
       })
     );
 
-    console.log('subscribe')
-
-    // On unmount clean observables
+    // On unmount clean/dispose observables
     return () => {
-      console.log('dispose')
       disposeEmailInputObserver()
       disposeUsernameInputObserver()
     }
@@ -234,18 +223,18 @@ export function Register({
   const checkDetails = (userDetails) => {
     let status = ''
 
-    if ( userDetails.password !== userDetails.password_rep ) {
-      status = 'Passwords do not match'
-    } else if ( userDetails.password.trim().length < 5 ) {
-      status = 'Password should be longer than 5 characters'
-    } else if ( userDetails.password.trim().length == 0 ) {
-      status = 'Type a password'
+    if ( userDetails.email.trim().split('@').length != 2 ) {
+      status = 'Email missing or in the wrong format'
     } else if ( userDetails.username.trim().length == 0 ) {
       status = 'Type a username'
     } else if ( userDetails.username.trim().length < USERNAME_MINIMUM_LENGTH ) {
       status = 'Username should be at least 4 characters long'
-    } else if ( userDetails.email.trim().split('@').length != 2 ) {
-      status = 'Email missing or in the wrong format'
+    } else if ( userDetails.password.trim().length == 0 ) {
+      status = 'Type a password'
+    } else if ( userDetails.password.trim().length < 5 ) {
+      status = 'Password should be longer than 5 characters'
+    } else if ( userDetails.password !== userDetails.password_rep ) {
+      status = 'Passwords do not match'
     }
 
     return { accept: status.length == 0, status }
@@ -262,26 +251,75 @@ export function Register({
 
     const status = checkDetails(logInDetails)
 
+    let newWarningText = ''
     if ( status.accept == false ) {
-      return setWarning( status.status )
+      newWarningText = status.status
+      return setWarning({
+        text: newWarningText,
+        new: true,
+        counter: newWarningText == warning.text? ++warning.counter : 1,
+      })
     }
     if ( emailHelpText.error ) {
-      return setWarning( emailHelpText.text )
+      newWarningText = emailHelpText.text
+      return setWarning({
+        text: newWarningText,
+        new: true,
+        counter: newWarningText == warning.text? warning.counter++ : 1,
+      })
     }
     if ( usernameHelpText.error ) {
-      return setWarning( usernameHelpText.text )
+      newWarningText = usernameHelpText.text
+      return setWarning({
+        text: newWarningText,
+        new: true,
+        counter: newWarningText == warning.text? warning.counter++ : 1,
+      })
     }
 
     // hash password
     const key = await hashPassword(username, password)
 
-    doRegister({
+    // Do register
+    const params = new URLSearchParams({
       email,
       username,
       password: key,
       displayName: fullname,
+    });
+    const result = await fetch(appData.api_url+'/createUser', {
+      method: 'POST',
+      body: params
     })
 
+    if (result.statusText!='OK') {
+      newWarningText = 'Fails register'
+      return setWarning({
+        text: newWarningText,
+        new: true,
+        counter: newWarningText == warning.text? warning.counter++ : 1,
+      })
+    }
+    const body = await result.json()
+
+    if (body.status=='failed') {
+      newWarningText = body.payload
+      return setWarning({
+        text: newWarningText,
+        new: true,
+        counter: newWarningText == warning.text? warning.counter++ : 1,
+      })
+    }
+    if (body.status=='unavailable') {
+      newWarningText = body.payload
+      return setWarning({
+        text: newWarningText,
+        new: true,
+        counter: newWarningText == warning.text? warning.counter++ : 1,
+      })
+    }
+
+    // logged and option to go to another place
     setRegistered(true);
   }
 
@@ -459,32 +497,74 @@ export function Register({
             <Button
               ref={registerButton}
               variant="contained"
-              onClick={ doRegisterButton }
+              onClick={ () => {
+                doRegisterButton()
+              }}
               style={{backgroundColor:"#93de85"}}
             > Register </Button>
 
             <Button
               disabled={false}
               variant="contained"
-              onClick={ () => { navigate("/") } }
+              onClick={ () => { navigate('/') } }
               style={{marginLeft:5, backgroundColor:"#f98989"}}
             > Cancel </Button>
           </div>
 
           <br />
-          { warning ? <>
+          <div
+            style={{
+              position: 'relative',
+              marginTop: 5,
+              marginBottom: 5,
+              width: '100%',
+            }}
+          >
             <div
-              className={classes.capitalizeFirstLetter}
+              className={[
+                classes.capitalizeFirstLetter,
+              ].join(' ')}
+
               style={{
                 color: 'red',
-                marginTop: 5,
-                marginBottom: 5,
               }}
-            > {warning} </div> </>
-            : <br />
-          }
+            > {
+              // count number tries
+              (warning.counter <= 1? ' ' : warning.counter + 'x ') +
+              // warning text
+              warning.text}
+            </div>
+          </div>
+          <br />
         </div></>
-        : <div> Successfully Registered <Link onClick={ () => { navigate("/") } }> Back to dashboard </Link></div>
+        : <>
+        <div>
+          <h2>Successfully Registered</h2>
+          <h4 style={{
+            marginLeft:15,
+          }}>
+            <ArrowRightIcon />
+
+            <Link to="/"
+              style={{
+                marginLeft:6,
+                color: 'black',
+              }}
+            >
+              Back to beginning <LaunchIcon style={{marginLeft:5}}/>
+            </Link>
+          </h4>
+          <h4 style={{marginLeft:15}}>
+            <ArrowRightIcon /> Go to :
+
+            <Link to="/dashboard">
+              <Button style={{backgroundColor:"#d8d7ff",padding:10}} >
+                Annotation Dashboard <LaunchIcon style={{marginLeft:5}}/>
+              </Button>
+            </Link>
+          </h4>
+        </div>
+        </>
         }
 
       </Card>
@@ -492,20 +572,14 @@ export function Register({
   );
 }
 
-Register.propTypes = {
-  // dispatch: PropTypes.func.isRequired,
-};
+Register.propTypes = {};
 
 const mapStateToProps = createStructuredSelector({
-  register: makeSelectRegister(),
+  appData : makeSelectLocation(),
 });
 
-const preventDefault = (event) => event.preventDefault();
-
 function mapDispatchToProps(dispatch) {
-  return {
-    doRegister : (userData) => dispatch( registerAccountAction(userData) ),
-  };
+  return {};
 }
 
 const withConnect = connect(
