@@ -14,8 +14,10 @@ import { createStructuredSelector } from 'reselect';
 import { compose } from 'redux';
 
 import makeSelectLocation from '../App/selectors'
+import { 
+  doLoginAction,
+} from '../Login/actions'
 
-// import { push } from 'connected-react-router';
 import {
   Link,
   useNavigate,
@@ -76,6 +78,7 @@ const useStyles = makeStyles({
 
 export function Register({
   appData,
+  doLogin,
 }) {
   let navigate = useNavigate();
   const classes = useStyles()
@@ -136,7 +139,7 @@ export function Register({
   const passwordConfirmInput = useRef(null);
   const registerButton = useRef(null);
 
-  const checkField = (value) => fetch(appData.api_url+'/register/check', {
+  const checkField = (value) => fetch(appData.api_url+'register/check', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -321,6 +324,9 @@ export function Register({
 
     // logged and option to go to another place
     setRegistered(true);
+
+    //login
+    doLogin(username, key)
   }
 
   return (
@@ -579,7 +585,9 @@ const mapStateToProps = createStructuredSelector({
 });
 
 function mapDispatchToProps(dispatch) {
-  return {};
+  return {
+    doLogin: (username, password) => dispatch( doLoginAction(username, password) ),
+  };
 }
 
 const withConnect = connect(
