@@ -112,6 +112,16 @@ cd Server
 npm ci install
 ```
 
+> Create folders for uploads and tables
+
+```bash
+# Standard folders location:
+#   /PROJECT/Server/
+#     
+cd Server
+mkdir uploads HTML_STYLES HTML_TABLES HTML_TABLES_DELETED HTML_TABLES_OVERRIDE
+```
+
 Add config.json file. You can use the example file at ./Server/config_example.json.<br>
 Edit config.json as necessary.
 
