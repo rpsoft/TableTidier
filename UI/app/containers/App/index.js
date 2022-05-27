@@ -30,7 +30,6 @@ import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { createStructuredSelector } from 'reselect';
 import makeSelectLocation from './selectors'
-import { makeSelectLogin } from '../Login/selectors';
 
 import {setLoginCredentialsAction} from './actions'
 
@@ -59,8 +58,6 @@ import PopAlert from 'components/PopAlert'
 
 export function App({
   appData,
-  loginState,
-
   setLoginCredentials,
 }) {
 
@@ -112,7 +109,6 @@ export function App({
 // });
 const mapStateToProps = createStructuredSelector({
   appData : makeSelectLocation(),
-  loginState: makeSelectLogin(),
 });
 
 function mapDispatchToProps(dispatch) {
