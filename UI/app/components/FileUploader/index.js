@@ -8,7 +8,7 @@ import React, { useEffect, memo, useState } from 'react';
 import Button from '@material-ui/core/Button';
 import { DropzoneDialog } from 'material-ui-dropzone';
 import PublishIcon from '@material-ui/icons/Publish';
-import {URL_BASE} from '../../links'
+// import {URL_BASE} from '../../links'
 
 import request from 'superagent'
 
@@ -32,65 +32,63 @@ function FileUploader({
   updaterCallBack
 }) {
 
+  const classes = useStyles();
 
-    const classes = useStyles();
+  const [open, setOpen] = useState(false);
+  const [files, setFiles] = useState([]);
 
-    const [open, setOpen] = useState(false);
-    const [files, setFiles] = useState([]);
+  const transferFiles = (acceptedFiles) => {
+    const req = request.post( baseURL )
 
-    const transferFiles = (acceptedFiles) => {
+    acceptedFiles.forEach(file => {
+      req.attach('fileNames', file)
+    })
 
-      
-      const req = request.post( baseURL )
+    req.field('collection_id', collection_id)
+    req.field('username_uploader', username_uploader)
+    const result = req.end((err, res) => {
+      updaterCallBack ? updaterCallBack() : ''
+    });
 
-      acceptedFiles.forEach(file => {
-        req.attach("fileNames", file)
-      })
+    // updaterCallBack()
+  }
 
-      req.field("collection_id", collection_id)
-      req.field("username_uploader", username_uploader)
-      var result = req.end((err, res) => {
-          updaterCallBack ? updaterCallBack() : ""
-      });
+  const handleClose = () => {
+    setOpen(false)
+  }
 
-      // updaterCallBack()
-    }
+  const handleSave = (files) => {
+    setFiles(files)
+    setOpen(false)
+    transferFiles(files)
+  }
 
-    const handleClose = () => {
-       setOpen(false)
-     }
+  const handleOpen = () => {
+      setOpen(true)
+  }
 
-    const handleSave = (files) => {
-       setFiles(files)
-       setOpen(false)
-       transferFiles(files)
-     }
-
-    const handleOpen = () => {
-       setOpen(true)
-    }
-
-    return <div>
-              <Button variant="contained"  onClick={handleOpen}>
-                Upload Tables <PublishIcon style={{marginLeft:5}} />
-              </Button>
-              <DropzoneDialog
-                  open={ open }
-                  onSave={ handleSave }
-                  acceptedFiles={ ['text/html', "application/zip"] }
-                  showPreviews={ true }
-                  maxFileSize={ 10000000 }
-                  filesLimit={ 2000 }
-                  onClose={ handleClose }
-                  showPreviews={true}
-                  showPreviewsInDropzone={false}
-                  useChipsForPreview
-                  previewGridProps={{container: { spacing: 1, direction: 'row' }}}
-                  previewChipProps={classes}
-                  previewText="Selected files"
-                  showAlerts={['error']}
-              />
-            </div>
+  return (
+    <div>
+      <Button variant="contained"  onClick={handleOpen}>
+        Upload Tables <PublishIcon style={{marginLeft:5}} />
+      </Button>
+      <DropzoneDialog
+        open={ open }
+        onSave={ handleSave }
+        acceptedFiles={ ['text/html', 'application/zip'] }
+        maxFileSize={ 10000000 }
+        filesLimit={ 2000 }
+        onClose={ handleClose }
+        showPreviews={true}
+        showPreviewsInDropzone={false}
+        useChipsForPreview
+        previewGridProps={{container: { spacing: 1, direction: 'row' }}}
+        previewChipProps={classes}
+        previewText="Selected files"
+        showAlerts={['error']}
+      />
+    </div>
+  )
 }
 
 FileUploader.propTypes = {};
