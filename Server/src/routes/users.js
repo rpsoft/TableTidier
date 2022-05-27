@@ -13,10 +13,7 @@ const experessJwt = require('express-jwt');
 const jwt = require('jsonwebtoken');
 
 import
-  passport,
-  {
-    getUserHash,
-  }
+  passport
 from "../security.js"
 
 const privatekey = fs.readFileSync('./certificates/private.pem')
@@ -81,23 +78,52 @@ const jwtSignToken = (user) => {
  *         content:
  *            application/json:
  *              schema:
- *                type: array
- *                items:
- *                  type: object
- *                  required:
- *                    - title
- *                    - id
- *                  properties:
- *                    title:
- *                      type: string
- *                    id:
- *                      type: integer
+ *                oneOf:
+ *                  - $ref: '#/components/schemas/ApiResultOk'
+ *                  - $ref: '#/components/schemas/ApiResultError'
  *       401:
  *         description: Unauthorised
- *       200:
- *         description: Failed
- *
+ * 
+ * 
+ * 
+ * components:
+ *   schemas:
+ *     ApiResultOk:
+ *       type: object
+ *       properties:
+ *         result:
+ *           type: boolean
+ *           enum: [true]
+ *         token:
+ *           type: string
+ *       required:
+ *         - result
+ *         - token
+ *     ApiResultError:
+ *       type: object
+ *       properties:
+ *         result:
+ *           type: boolean
+ *           enum: [false]
+ *         errorCode:
+ *           type: string
+ *           example: "00002"
+ *         errorMsg:
+ *           type: string
+ *           example: "duplicated account already exist"
  */
+
+//  *                type: array
+//  *                items:
+//  *                  type: object
+//  *                  required:
+//  *                    - title
+//  *                    - id
+//  *                  properties:
+//  *                    title:
+//  *                      type: string
+//  *                    id:
+//  *                      type: integer
 router.route('/login')
 .post((req, res, next) => {
   passport.authenticate('login', function(err, user, info) {
@@ -139,6 +165,7 @@ router.route('/login')
  *
  * @swagger
  * /createUser:
+ *   post:
  *     description: Create a user
  *     summary: Create a user
  *     tags:
@@ -150,39 +177,70 @@ router.route('/login')
  *           schema:
  *             type: object
  *             properties:
+ *               email:
+ *                 type: string
  *               username:
  *                 type: string
  *               password:
  *                 type: string
  *             required:
+ *               - email
  *               - username
  *               - password
  *             examples:
  *               James:
+ *                 email: james@example.co.uk
  *                 username: james
  *                 password: password
  *
  *     responses:
  *       200:
- *         description: Created
- *       200:
- *         description: Failed
+ *         description: Created or Failed
+ * 
  */
 router.route('/createUser')
 .post((req, res, next) => {
-  passport.authenticate('login', function(err, user, info) {
+  passport.authenticate('signup', function(err, user, info) {
     console.log("login_req", JSON.stringify(user))
-    if ( err ) {
-      // return next({status: 'failed', payload: err.message});
+    if ( err && err?.message ) {
       return res.status(200).json({status: 'failed', payload: err.message})
     }
+    if ( err ) {
+      return res.status(200).json({status: 'failed', payload: info})
+    }
     if ( !user ) {
-      // return next({status: 'unauthorised', payload: info});
-      return res.status(401).json({status: 'unauthorised', payload: info})
+      return res.status(200).json({status: 'unavailable', payload: info})
     }
     res.status(200).json({status:'success', payload: 'user created' })
   })(req, res, next)
 });
+
+/**
+ * Refresh user token
+ * Refresh-Token
+ * @swagger
+ * /refreshToken:
+ *   post:
+ *     description: Refresh user token using JWT
+ *     summary: Refresh user token
+ *     tags:
+ *       - Users
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: header
+ *         name: Authorization
+ *         schema:
+ *           type: string
+ *         required: true
+ *       - in: header
+ *         name: Refresh-Token
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         required: true
+ * 
+ */
 
 router.route('/refreshToken')
 .post(
@@ -206,10 +264,10 @@ router.route('/refreshToken')
 
     // Is refresh token valid?
     if (refreshTokenStatus?.type == undefined) {
-      return res.status(401).json({status:'failed', payload: refreshTokenStatus.message })
+      return res.status(200).json({status:'failed', payload: refreshTokenStatus.message })
     }
     if (refreshTokenStatus?.type !== 'refresh-token') {
-      return res.status(401).json({status:'failed', payload: 'invalid refresh token type' })
+      return res.status(200).json({status:'failed', payload: 'invalid refresh token type' })
     }
 
     const user = req.user
@@ -237,6 +295,39 @@ router.route('/refreshToken')
  * @param {object} username - username.
  * @param {object} email - email.
  *
+ * @swagger
+ * /register/check:
+ *   post:
+ *     description: Check that a user exists by email or username
+ *     summary: Check that a user exists
+ *     tags:
+ *       - Users
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/x-www-form-urlencoded:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               username:
+ *                 type: string
+ *             required:
+ *               oneOf:
+ *                 - email
+ *                 - username
+ *             examples:
+ *               EmailJames:
+ *                 {email: 'james@example.co.uk'}
+ *               UsernameJames:
+ *                 {username: 'james'}
+ * 
+ *
+ *     responses:
+ *       200:
+ *         description: Available, Unavailable or Fails
+ * 
  */
 router.route('/register/check')
 .post( async (req, res) => {
@@ -246,10 +337,20 @@ router.route('/register/check')
   } = req.body
   req.error = 'err';
 
+  if (
+    email == undefined &&
+    username == undefined
+  ) {
+    res.json({
+      status: 'FAILS',
+      payload: 'INVALID CHECK PARAMETERS',
+    })
+  }
+
   const question = username ? {username} : {email}
   try {
     const result = await dbDriver.userGet(question)
-    console.log(result)
+    // is user available? 
     if (result == undefined) {
       res.json({
         status: 'OK',
@@ -267,6 +368,10 @@ router.route('/register/check')
     })
   } catch (err) {
     console.log(err)
+    res.json({
+      status: 'FAILS',
+      payload: 'SERVER ERROR',
+    })
   }
 });
 export default router
