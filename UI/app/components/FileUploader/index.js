@@ -17,28 +17,23 @@ import { makeStyles } from '@material-ui/core/styles';
 // import PropTypes from 'prop-types';
 // import styled from 'styled-components';
 
-const useStyles = makeStyles((theme) => ({
-  previewChip: {
-    minWidth: 160,
-    maxWidth: 210
-  },
-}));
-
-
 function FileUploader({
   baseURL,
   collection_id,
   username_uploader,
+  userToken,
   updaterCallBack
 }) {
-
-  const classes = useStyles();
 
   const [open, setOpen] = useState(false);
   const [files, setFiles] = useState([]);
 
   const transferFiles = (acceptedFiles) => {
     const req = request.post( baseURL )
+
+    if (userToken) {
+      req.set('Authorization', `Bearer ${userToken}`)
+    }
 
     acceptedFiles.forEach(file => {
       req.attach('fileNames', file)
@@ -66,7 +61,6 @@ function FileUploader({
   const handleOpen = () => {
       setOpen(true)
   }
-
   return (
     <div>
       <Button variant="contained"  onClick={handleOpen}>
@@ -81,9 +75,12 @@ function FileUploader({
         onClose={ handleClose }
         showPreviews={true}
         showPreviewsInDropzone={false}
-        useChipsForPreview
+        useChipsForPreview={true}
         previewGridProps={{container: { spacing: 1, direction: 'row' }}}
-        previewChipProps={classes}
+        previewChipProps={{root: {
+          minWidth: 160,
+          maxWidth: 210
+        }}}
         previewText="Selected files"
         showAlerts={['error']}
       />
