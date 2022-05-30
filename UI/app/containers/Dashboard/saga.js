@@ -15,9 +15,6 @@ from '../../utils/request';
 import makeSelectLocation from '../App/selectors'
 import makeSelectLogin from '../Login/selectors'
 
-// import { push } from 'connected-react-router';
-const push = () => {}
-
 const queryString = require('query-string');
 
 import { URL_BASE } from '../../links'
@@ -40,7 +37,7 @@ export function* doSearch() {
   try {
     const response = yield call(request, requestURL, options);
 
-    if ( response.status && response.status == "unauthorised") {
+    if ( response.status && response.status == 'unauthorised') {
 
     } else {
       // debugger
@@ -71,7 +68,7 @@ export function* listCollections() {
   try {
     const response = yield call(request, requestURL, options);
 
-    if ( response.status && response.status == "unauthorised"){
+    if ( response.status && response.status == 'unauthorised'){
       yield put( yield updateCollectionsListAction([]) );
     } else {
       yield put( yield updateCollectionsListAction(response.data) );
@@ -100,14 +97,12 @@ export function* createCollection() {
   try {
     const response = yield call(request, requestURL, options);
 
-    if ( response.status && response.status == "unauthorised"){
+    if ( response.status && response.status == 'unauthorised' ){
       // COUld probably redirect to /
       // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
     } else {
 
       yield listCollections()
-
-      yield put(push("/collection?collId="+response.data.collection_id))
 
       // yield put( yield updateCollectionAction(response.data) );
     }
@@ -116,7 +111,6 @@ export function* createCollection() {
   }
 
   return {}
-  // return {collection: "hello"}
 }
 
 // Individual exports for testing
