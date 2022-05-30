@@ -204,11 +204,12 @@ export function CollectionView({
   const completion_states = ["in progress", "complete"]
   const [completion, setCompletion] = useState("in progress");
 
+  // Hide search area
   const [height, setHeight] = useState(0)
-  const ref = useRef(null)
+  const searchAreaRef = useRef(null)
 
   useEffect(() => {
-      setHeight(ref.current.clientHeight)
+      setHeight(searchAreaRef.current.clientHeight)
   })
 
   const toggleCheckBox = (docid) => {
@@ -365,8 +366,9 @@ export function CollectionView({
               </div>
             </Card>
 
+            {/* Search List */}
             <Card>
-              <div style={{minHeight:900, height: "70vh", backgroundColor:"white"}} ref={ref}>
+              <div style={{minHeight:900, height: "70vh", backgroundColor:"white"}} ref={searchAreaRef}>
                 <FixedSizeList
                   height={height}
                   width={"100%"}
@@ -458,15 +460,18 @@ export function CollectionView({
               <div>
 
                 { allowEdit ? <div className={classes.buttonHolder}>
-                      <FileUploader baseURL={(locationData.api_url + 'tableUploader')}
-                                    collection_id={ collection_id }
-                                    username_uploader={ owner_username}
-                                    updaterCallBack= { getCollectionData }/>
-                </div> : ""}
+                  <FileUploader
+                    baseURL={(locationData.api_url + 'tableUploader')}
+                    collection_id={ collection_id }
+                    username_uploader={ owner_username}
+                    userToken={ loginState.token }
+                    updaterCallBack= { getCollectionData }
+                  />
+                </div> : ''}
 
                 { allowEdit ? <div className={classes.buttonHolder}>
                   <Button variant="contained"   disabled = { noTables == 0 } onClick={() => { setMoveDialogOpen(true); }} > Move Tables <OpenInNewIcon style={{marginLeft:5}}/> </Button>
-                  </div> : ""}
+                  </div> : ''}
 
                 <Dialog onClose={ () => {}} aria-labelledby="customized-dialog-title" open={moveDialogOpen}>
                       <DialogTitle id="customized-dialog-title" >
