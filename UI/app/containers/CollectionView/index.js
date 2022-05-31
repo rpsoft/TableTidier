@@ -474,48 +474,61 @@ export function CollectionView({
                   </div> : ''}
 
                 <Dialog onClose={ () => {}} aria-labelledby="customized-dialog-title" open={moveDialogOpen}>
-                      <DialogTitle id="customized-dialog-title" >
-                        Move Tables to Target Collection
-                      </DialogTitle>
-                      <DialogContent dividers>
-                        <Select
-                            labelId="demo-simple-select-helper-label"
-                            id="demo-simple-select-helper"
-                            value={targetCollectionID}
-                            onChange={(event) => {setTargetCollectionID(event.target.value)}}
-                            style={{width:"100%"}}
-                          >
-                          {
-                            availableCollections ? availableCollections.map( (coll,j) =>{
-                              if ( coll.collection_id == collection_id){
-                                return ""
-                              }
-                              return <MenuItem key={j} value={coll.collection_id}><SearchResult
-                                    text={ coll.collection_id+" -- "+coll.title }
-                                    type={"collection"}
-                                    /></MenuItem>
-                            }) : ""
+                  <DialogTitle id="customized-dialog-title" >
+                    Move Tables to Target Collection
+                  </DialogTitle>
+                  <DialogContent dividers>
+                    <Select
+                        labelId="demo-simple-select-helper-label"
+                        id="demo-simple-select-helper"
+                        displayEmpty
+                        value={targetCollectionID}
+                        onChange={(event) => {setTargetCollectionID(event.target.value)}}
+                        style={{width:"100%"}}
+                    >
+                      <MenuItem value="" disabled>
+                        Select destination collection
+                      </MenuItem>
+                    {
+                      availableCollections ? availableCollections.map( (coll,j) => {
+                        if ( coll.collection_id == collection_id){
+                          return null
+                        }
+                        if (
+                          coll.owner_username != loginState.username
+                        ) {
+                          return null
+                        }
 
-                          }
+                        return <MenuItem key={j} value={coll.collection_id}>
+                                <SearchResult
+                                  text={`${coll.collection_id} -- ${coll.title}`}
+                                  type={'collection'}
+                                />
+                              </MenuItem>
+                      }) : ''
 
-                        </Select>
-                      </DialogContent>
-                      <DialogActions>
-                        <Button onClick={()=>{showMoveDialog(true);}}> Accept </Button>
-                        <Button onClick={()=>{setMoveDialogOpen(false);}}> Cancel </Button>
-                      </DialogActions>
+                    }
+                    </Select>
+                  </DialogContent>
+                  <DialogActions>
+                    <Button onClick={()=>{showMoveDialog(true);}}> Accept </Button>
+                    <Button onClick={()=>{setMoveDialogOpen(false);}}> Cancel </Button>
+                  </DialogActions>
 
-                      <ConfirmationDialog
-                            title={"Move Tables"}
-                            accept_action={
-                              () => { moveTables(checkedTables, targetCollectionID);
-                                      setMoveDialogOpen(false);
-                                      setCheckedTables({});
-                                      showMoveDialog(false);
-                                  }
-                              }
-                            cancel_action={ () => {showMoveDialog(false);} }
-                            open={moveDialog} />
+                  <ConfirmationDialog
+                    title={"Move Tables"}
+                    accept_action={
+                      () => {
+                        moveTables(checkedTables, targetCollectionID);
+                        setMoveDialogOpen(false);
+                        setCheckedTables({});
+                        showMoveDialog(false);
+                      }
+                    }
+                    cancel_action={ () => {showMoveDialog(false);} }
+                    open={moveDialog}
+                  />
                 </Dialog>
 
                 { allowEdit ? <div className={classes.buttonHolder}>
