@@ -4,7 +4,7 @@
  *
  */
 
-import React, { useEffect, memo, useState } from 'react';
+import React, { useEffect, memo, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Helmet } from 'react-helmet';
@@ -110,6 +110,8 @@ export function Dashboard({
 
   const [ checkedTables, setCheckedTables ] = useState({});
 
+  const searchAreaRef = useRef(null)
+
   const toggleCheckBox = (docid) => {
     var checkedTables_temp = checkedTables
     checkedTables_temp[docid] = checkedTables_temp[docid] ? false : true
@@ -119,16 +121,13 @@ export function Dashboard({
     setCheckedTables(checkedTables_temp)
     // setNoTables(Object.keys(checkedTables).length)
   }
-  // useEffect(() => {
-  //
-  // }, []);
-  //
 
   useEffect(() => {
     listCollections()
   }, [loginState.username, cookies.hash]);
 
-  const Row = ({ index, style }) => {
+  // Search results
+  const searResulRow = ({ index, style }) => {
     let {
       doc: table_key,
       selectedChunks,
@@ -151,38 +150,56 @@ export function Dashboard({
 
     const url = `/table?docid=${docname}&page=${page}&collId=${collId}`
 
-    return <div style={{...style, display: "flex", alignItems: "center"}}>
-      {
-      // <Checkbox checked={checkedTables[table_key]}
-      //     onChange={() => {toggleCheckBox(table_key)}}
-      //     inputProps={{ 'aria-label': 'primary checkbox' }}
-      //     />
-      //     <span> -- </span>
-      }
-      <span style={{marginLeft:10}}> {(index+1)+' - '}</span>
-      <Link to={url} className={classes.link}>
+    return (
+      <div
+        style={{
+          ...style,
+          display: "flex",
+          alignItems: "baseline",
+        }}
+      >
+        {
+        // <Checkbox checked={checkedTables[table_key]}
+        //     onChange={() => {toggleCheckBox(table_key)}}
+        //     inputProps={{ 'aria-label': 'primary checkbox' }}
+        //     />
+        //     <span> -- </span>
+        }
+        {/* search index */}
+        <span
+          style={{
+            marginLeft:10,
+            whiteSpace: 'nowrap',
+          }}
+        >
+           {`${index+1} - `}
+        </span>
+        {/* <Link to={url} className={classes.link}>
+        </Link> */}
+
         <SearchResult
           key={index}
           text={table_key}
           type={'table'}
           selectedChunks={selectedChunks[0]}
           score={score}
+          linkUrl={url}
         />
-      </Link>
-    </div>
+      </div>
+    )
   }
 
   const table_search_results = <FixedSizeList
-                                height={1050}
+                                height={searchAreaRef.current? searchAreaRef.current.offsetHeight : 1}
                                 width={"100%"}
-                                itemSize={40}
+                                itemSize={60}
                                 itemCount={
                                   dashboard.search_results ?
                                     dashboard.search_results.length
                                     : 0
                                 }
                               >
-                                {Row}
+                                {searResulRow}
                               </FixedSizeList>
 
   const collection_results = (
@@ -230,11 +247,26 @@ export function Dashboard({
           <Grid item xs={9}>
               { dashboard.search_results.length ?
                   <Card style={{marginTop:10,padding:10, fontWeight:"bold"}}>
-                    <div> { dashboard.search_results.length == 100 ? "Showing the first 100" : + dashboard.search_results.length +" results" } </div>
-                  </Card> : ""
+                    <div> {
+                      dashboard.search_results.length == 100 ?
+                        'Showing the first 100'
+                        : + dashboard.search_results.length + ' results' }
+                    </div>
+                  </Card> : ''
               }
-              <Card style={{marginTop:10, minHeight: "82vh", backgroundColor: dashboard.search_results.length > 0 ? "white" : "#e4e2e2"}}>
-                {dashboard.search_results.length > 0 ? table_search_results : collection_results}
+
+              {/* Collection or Search List */}
+              <Card
+                ref={searchAreaRef}
+                style={{
+                  marginTop:10,
+                  minHeight: "82vh",
+                  backgroundColor: dashboard.search_results.length > 0 ? "white" : "#e4e2e2"
+                }}
+              >
+                {dashboard.search_results.length > 0 ?
+                  table_search_results
+                  : collection_results}
               </Card>
           </Grid>
           <Grid item xs={3}>

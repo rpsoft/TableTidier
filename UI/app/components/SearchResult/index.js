@@ -8,6 +8,10 @@ import React from 'react';
 // import PropTypes from 'prop-types';
 // import styled from 'styled-components';
 
+import {
+  useNavigate,
+} from "react-router-dom";
+
 import { FormattedMessage } from 'react-intl';
 import messages from './messages';
 
@@ -24,19 +28,48 @@ function SearchResult({
   type,
   selectedChunks,
   score,
+  linkUrl,
   data,
   onClick
 }) {
+  let navigate = useNavigate();
   return (
-    <div>
-      <Button tooltip={"hello"} style={{width:"100%", textAlign:"left", justifyContent:"left"}} onClick={onClick} >
+    <div
+      style={{
+        width: '100%',
+        marginBottom: 5,
+      }}
+    >
+      <Button
+        tooltip={"hello"}
+        style={{
+          // width:"100%",
+          textAlign:"left",
+          justifyContent:"left"
+        }}
+        onClick={()=>
+          linkUrl? navigate(linkUrl): null
+        }
+      >
         { type == "table" ? <Table /> : <CollectionIcon /> }
-        <div style={{marginLeft:5}}>{ text }</div>
+        <div
+          style={{
+            marginLeft: 5,
+            marginRight: 5,
+            color: 'blue',
+          }}
+        >{ text }</div>
       </Button>
       {
         score ? <>
-          <span>{ /\d+.\d{0,2}/.exec(score.toString())} - </span>
-          <span>{selectedChunks.join(' ')}</span>
+          <div
+            style={{
+              // marginBottom: 5,
+              // color: 'blue',
+            }}
+          >
+            {selectedChunks.join(' ')}
+          </div>
         </>
         : null
       }
