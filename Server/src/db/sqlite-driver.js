@@ -167,7 +167,7 @@ function driver(config) {
         `INSERT INTO collection(
           collection_id, title, description, owner_username, visibility, completion)
         VALUES ((SELECT IFNULL(max(collection_id), 0) + 1 FROM collection), $1, $2, $3, $4, $5)
-        returning *;`, 
+        returning *;`,
         [title, description, owner, 'public', 'in progress']
       )
       // const result = await query(
