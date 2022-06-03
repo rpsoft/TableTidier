@@ -173,7 +173,13 @@ const tableSplitter = async ( tablePath ) => {
   }
 }
 
-app.post(CONFIG.api_base_url+'/tableUploader', async function(req, res) {
+app.post(CONFIG.api_base_url+'/tableUploader',
+  experessJwt({
+    secret: publickey,
+    algorithms: ['ES256'],
+    credentialsRequired: true,
+  }),
+  async (req, res) => {
 
   let upload = multer({ storage: storage }).array('fileNames');
 
@@ -197,6 +203,7 @@ app.post(CONFIG.api_base_url+'/tableUploader', async function(req, res) {
     for (index = 0, len = files.length; index < len; ++index) {
       try {
         const tables_html = await tableSplitter(files[index].path)
+        // Format file name. all '_' to '-'
         const cleanFilename = files[index].originalname.replaceAll('_', '-')
         const file_elements = cleanFilename.split('.')
         const extension = file_elements.pop()
@@ -894,12 +901,20 @@ app.post(CONFIG.api_base_url+'/tables',
     action,
 
     // collection_id,
-    tablesList,
-    targetCollectionID,
+    // tablesList,
+    // targetCollectionID,
   } = req.body
 
   // collection_id as number
   const collection_id = parseInt(req.body.collection_id)
+  const targetCollectionID = parseInt(req.body.targetCollectionID)
+  let tablesList
+  try {
+    tablesList = JSON.parse(req.body.tablesList)
+  } catch (err) {
+    res.json({status: 'FAIL', payload: 'invalid table list'})
+    return
+  }
 
   // req.user added by experessJwt
   const user = req?.user
@@ -909,20 +924,75 @@ app.post(CONFIG.api_base_url+'/tables',
 
   if ( !user ) {
     res.json({status:'unauthorised', payload: null})
+    return
   }
 
   let result = {};
 
   switch (action) {
-    case 'remove':
-      if ( collectionPermissions.write.includes(collection_id) ) {
-        result = await dbDriver.tablesRemove(JSON.parse(tablesList), collection_id);
+    case 'check':
+      if ( collectionPermissions.write.includes(collection_id) == false ) {
+        res.json({status: 'FAIL', payload: 'do not have permissions on collection'})
+        return
       }
+      console.log(tablesList)
+      result = await Promise.all(
+        tablesList.map((docid) => dbDriver.tableGet(
+          docid.replace(/\.[^/.]+$/, '').replaceAll('_', '-'),
+          1,
+          collection_id,
+        ))
+      );
+
+      res.json({
+        status: 'success',
+        data: result.map((elm, index) => 
+          ({
+            [tablesList[index]]: typeof elm == 'string' && elm.includes('not found') ?
+              elm
+              : 'found'
+          }))
+      })
+      return
+      // result = await dbDriver.tablesRemove(tablesList, collection_id);
+      break;
+    case 'remove':
+      if ( collectionPermissions.write.includes(collection_id) == false ) {
+        res.json({status: 'FAIL', payload: 'do not have permissions on collection'})
+        return
+      }
+      result = await dbDriver.tablesRemove(tablesList, collection_id);
       break;
     case 'move':
-      if ( collectionPermissions.write.includes(collection_id) ) {
-        result = await dbDriver.tablesMove(JSON.parse(tablesList), collection_id, targetCollectionID);
+      // ! :-) check if table exits
+
+      if ( collectionPermissions.write.includes(targetCollectionID) == false ) {
+        res.json({status: 'FAIL', payload: 'do not have permissions on destination'})
+        return
       }
+      console.log(tablesList)
+      debugger
+      // check if table exits
+      result = await Promise.all(
+        tablesList.map((docid) => dbDriver.tableGet(docid, '1', targetCollectionID))
+      );
+
+      const tablesAlredyExists = result.filter(
+        (table) => typeof table == 'string' && table != 'not found'
+      )
+
+      if (tablesAlredyExists.length > 0) {
+        res.json({
+          status: 'fail',
+          payload: {
+            msg: 'tables already exists',
+            list: tablesAlredyExists
+          }
+        })
+        return
+      }
+
+      result = await dbDriver.tablesMove(tablesList, collection_id, targetCollectionID);
       break;
     case 'list':  // This is the same as not doing anything and returning the collection and its tables.
     default:
@@ -1476,6 +1546,7 @@ app.post(CONFIG.api_base_url+'/notes',
 
   if ( !user ) {
     res.json({status: 'unauthorised', payload: null})
+    return
   }
 
   if ( req.body && ( ! req.body.action ) ) {
@@ -1522,6 +1593,7 @@ app.post(CONFIG.api_base_url+'/text',
 
   if ( !user ) {
     res.json({status: 'unauthorised', payload: null})
+    return
   }
 
   // Path to tables
@@ -1548,7 +1620,7 @@ app.post(CONFIG.api_base_url+'/text',
   if ( !folder_exists ) {
     await fs.mkdir( path.join(tables_folder_override, collId), { recursive: true })
   }
-
+  debugger
   const titleText = '<div class="headers"><div style="font-size:20px; font-weight:bold; white-space: normal;">'+
     cheerio(JSON.parse(payload).tableTitle).text()+'</div></div>'
 
