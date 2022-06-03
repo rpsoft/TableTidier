@@ -1,3 +1,5 @@
+import { createMuiTheme } from '@material-ui/core/styles';
+
 import {
   cyan700,
   grey,
@@ -7,7 +9,7 @@ import {
 import {fade} from '@material-ui/core/styles/colorManipulator';
 import spacing from '@material-ui/core/styles/colorManipulator';
 
-export default {
+const theme = createMuiTheme({
   spacing: spacing,
   fontFamily: 'Roboto, sans-serif',
   palette: {
@@ -28,7 +30,14 @@ export default {
     selectionBackground: '#f0f030',
     chip: '#efefef',
     chipSelected: '#ff5f5f',
+    dialog: {
+      accept: '#93de85',
+      cancel: '#f98989',
+      // cancel: '#ffbdbd',
+      cancel2: '#f98989',
+
+    },
   },
-};
-// event.nativeEvent.stopPropagation();
-// event.nativeEvent.stopImmediatePropagation();
+});
+
+export default theme

@@ -18,6 +18,8 @@ import {
 } from "react-router-dom";
 import 'sanitize.css/sanitize.css';
 
+import { ThemeProvider } from '@material-ui/core/styles';
+
 // Import root app
 import App from 'containers/App';
 
@@ -36,11 +38,14 @@ import configureStore from './configureStore';
 // Import i18n messages
 import { translationMessages } from './i18n';
 
+import theme from './muiLMSTheme';
+
 // Create redux store with history
 // const initialState = { global :{ host : process.env.REACT_APP_WEBSITE_NAME, server_port: process.env.REACT_APP_SERVER_PORT, ui_port: process.env.REACT_APP_WEBSITE_PORT } };
 //
 // var hfeh = argv
 import { URL_BASE } from './links'
+
 
 var proc_host_vars = {
   // "INIT_CWD" : process.env.INIT_CWD,
@@ -80,7 +85,9 @@ const render = messages => {
     <Provider store={store}>
       <LanguageProvider messages={messages}>
         <BrowserRouter>
+          <ThemeProvider theme={theme}>
             <App/>
+          </ThemeProvider>
         </BrowserRouter>
       </LanguageProvider>
     </Provider>,
