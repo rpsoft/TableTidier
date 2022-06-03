@@ -4,7 +4,6 @@
  *
  */
 
-
  import React, { useEffect, memo, useState, useRef } from 'react';
  import PropTypes from 'prop-types';
  import { connect } from 'react-redux';
@@ -90,7 +89,7 @@ import Grid from "@material-ui/core/Grid";
 
 import { useCookies } from 'react-cookie';
 
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
 
 import ReactPaginate from 'react-paginate';
 
@@ -122,29 +121,23 @@ const useStyles = makeStyles((theme) => ({
   buttonHolder:{
     marginBottom:5
   },
-  buttonColor: {
-    backgroundColor:"blue",
-    '&:hover': {
-        backgroundColor: 'blue',
-        borderColor: '#0062cc',
-        boxShadow: 'none',
-    }
-    // '&:active': {
-    //   boxShadow: 'none',
-    //   backgroundColor: 'blue',
-    //   borderColor: '#005cbf',
-    // },
-    // '&:focus': {
-    //   boxShadow: '0 0 0 0.2rem rgba(0,123,255,.5)',
-    // },
-  },
   link: {
     color: 'inherit',
     textDecoration: 'none',
-  }
-
+  },
+  acceptButton: {
+    backgroundColor: theme.palette.dialog.accept,
+    '&:hover': {
+      backgroundColor: theme.palette.dialog.accept,
+    }
+  },
+  cancelButton: {
+    backgroundColor: theme.palette.dialog.cancel,
+    '&:hover': {
+      backgroundColor: theme.palette.dialog.cancel,
+    }
+  },
 }));
-
 
 export function CollectionView({
   // mapDispatchToProps
@@ -162,6 +155,7 @@ export function CollectionView({
 }) {
 
   let navigate = useNavigate();
+  const theme = useTheme();
 
   useInjectReducer({ key: 'collectionView', reducer });
   useInjectSaga({ key: 'collectionView', saga });
@@ -213,7 +207,7 @@ export function CollectionView({
   })
 
   const toggleCheckBox = (docid) => {
-    var checkedTables_temp = checkedTables
+    const checkedTables_temp = checkedTables
     checkedTables_temp[docid] = checkedTables_temp[docid] ? false : true
     if ( checkedTables_temp[docid] == false ){
       delete checkedTables_temp[docid]
@@ -244,7 +238,7 @@ export function CollectionView({
   }, [collectionView])
 
   const prepareCollectionData = () => {
-    var collectionData = {
+    const collectionData = {
       title : title,
       collection_id : collection_id ,
       description : description ,
@@ -256,34 +250,34 @@ export function CollectionView({
     return collectionData
   }
 
-
   const saveChanges = () => {
-      updateCollectionData(prepareCollectionData());
-      editCollectionData();
+    updateCollectionData(prepareCollectionData());
+    editCollectionData();
   }
 
   // const isNull = (value) => typeof value === "object" && !value
 
   const Row = ({ index, style }) => {
-    var table_key = collectionView.tables[index].docid+"_"+collectionView.tables[index].page
+    const {
+      docid,
+      page,
+      notes='',
+      user='',
+    } = collectionView.tables[index]
+    
+    const table_key = docid+'_'+page
 
-    var notes = collectionView.tables[index].notes ? collectionView.tables[index].notes : ""
-    var user = collectionView.tables[index].user ? collectionView.tables[index].user : ""
-
-    const url = "/table?"+
-    "docid="+collectionView.tables[index].docid+
-    "&page="+collectionView.tables[index].page+
-    "&collId="+collectionView.collection_id
+    const url = `/table?docid=${docid}&page=${page}&collId=${collectionView.collection_id}`
 
     return <div style={{...style, display: "flex", alignItems: "center"}}>
       <Checkbox checked={checkedTables[table_key]}
         onChange={() => {toggleCheckBox(table_key)}}
         inputProps={{ 'aria-label': 'primary checkbox' }}
       />
-        <span> -- </span>
+      <span> -- </span>
       <Link to={url} className={classes.link}>
         <SearchResult
-          text={ table_key+" -- "+user+" -- "+notes }
+          text={ table_key+' -- '+user+' -- '+notes }
           type={"table"}
         />
       </Link>
@@ -321,48 +315,63 @@ export function CollectionView({
             <Card style={{ marginBottom:10, padding:10 }}>
               <div className={classes.titles}>
 
-              {allowEdit ? (
-                <div style={{fontSize:15}}>
-                  <div style={{ display:"inline",float:"right", marginTop:-2}}>Enable Editing<Switch
-                    checked={editMode}
-                    onChange={() => { setEditMode(!editMode) }}
-                    name="editmode"
-                    inputProps={{ 'aria-label': 'secondary checkbox' }}
-                    size="small"
-                  /></div>
-                </div>)
-                : ''
-              }
+                {allowEdit ? (
+                  <div style={{fontSize:15}}>
+                    <div style={{ display:"inline",float:"right", marginTop:-2}}>
+                      Enable Editing
+                      <Switch
+                        checked={editMode}
+                        onChange={() => { setEditMode(!editMode) }}
+                        name="editmode"
+                        inputProps={{ 'aria-label': 'secondary checkbox' }}
+                        size="small"
+                      />
+                    </div>
+                  </div>)
+                  : ''
+                }
 
-              Collection ID: <div className={classes.titles_content}>{collectionView.collection_id}</div>
-
-
-                <hr />
-                <div style={{marginTop:10}}> Title: { editMode ? <TextField
-                                      id="title"
-                                      value={title}
-                                      placeholder={collectionView.title}
-                                      onChange={ (evt) => {setTitle(evt.currentTarget.value)} }/>
-                                : <div className={classes.titles_content}>{title}</div> } </div>
-
-                <div style={{marginTop:10}} > Description: { editMode ? <TextField
-                                      id="description"
-                                      value={description}
-                                      placeholder={collectionView.description}
-                                      onChange={ (evt) => {setDescription(evt.currentTarget.value)} }
-                                      style={{minWidth:500}}
-                                      multiline/>
-                                : <div className={classes.titles_content}>{description}</div>} </div>
-
-                <div style={{marginTop:10}}> Owner: { editMode ? <TextField
-                                      id="owner_username"
-                                      value={owner_username}
-                                      placeholder={collectionView.owner_username}
-                                      onChange={ (evt) => {setOwner_username(evt.currentTarget.value)} } />
-                                : <div className={classes.titles_content}>{owner_username}</div>} </div>
+                Collection ID: <div className={classes.titles_content}>{collectionView.collection_id}</div>
 
                 <hr />
-                <div style={{marginTop:10}}>Total tables: {collectionView.tables ? collectionView.tables.length : 0} </div>
+                <div style={{marginTop:10}}>
+                  Title: { editMode ? (
+                    <TextField
+                      id="title"
+                      value={title}
+                      placeholder={collectionView.title}
+                      onChange={ (evt) => {setTitle(evt.currentTarget.value)} }
+                    />)
+                    : <div className={classes.titles_content}>{title}</div> }
+                </div>
+
+                <div style={{marginTop:10}}>
+                  Description: { editMode ? (
+                    <TextField
+                      id="description"
+                      value={description}
+                      placeholder={collectionView.description}
+                      onChange={ (evt) => {setDescription(evt.currentTarget.value)} }
+                      style={{minWidth:500}}
+                      multiline
+                    />)
+                    : <div className={classes.titles_content}>{description}</div>}
+                </div>
+
+                <div style={{marginTop:10}}>
+                  Owner: { editMode ? (
+                    <TextField
+                      id="owner_username"
+                      value={owner_username}
+                      placeholder={collectionView.owner_username}
+                      onChange={ (evt) => {setOwner_username(evt.currentTarget.value)} }
+                    />)
+                    : <div className={classes.titles_content}>{owner_username}</div>}
+                </div>
+                <hr />
+                <div style={{marginTop:10}}>
+                  Total tables: {collectionView.tables ? collectionView.tables.length : 0}
+                </div>
               </div>
             </Card>
 
@@ -390,22 +399,33 @@ export function CollectionView({
               <div style={{padding:10}}>
                 <div className={classes.buttonHolder} style={{float:"right"}}>
 
-                  { allowEdit ? <Button onClick={ () => {set_delete_enabled(!delete_enabled)}}> <DeleteIcon  style={{ color: "#ff8282" }}   /> </Button> : ""}
+                  { allowEdit && ( 
+                  <Button
+                    onClick={ () => {set_delete_enabled(!delete_enabled)}}
+                  > <DeleteIcon style={{ color: "#ff8282" }} /> </Button>) 
+                  }
 
-                  { delete_enabled ? <Button variant="contained"
-                          onClick={ () => {showCollectionDeleteDialog(true);}}
-                          style={{backgroundColor:"#ff8282"}} >
-                    <WarningIcon  style={{ color: "#ffdc37" }}   />
+                  { delete_enabled && (
+                  <Button
+                    variant="contained"
+                    onClick={ () => {showCollectionDeleteDialog(true);}}
+                    style={{backgroundColor:"#ff8282"}}
+                  >
+                    <WarningIcon  style={{ color: "#ffdc37" }} />
                       Delete Collection
-                    <WarningIcon  style={{ color: "#ffdc37" }}   />
-                    </Button> : ""
+                    <WarningIcon  style={{ color: "#ffdc37" }} />
+                  </Button>)
                   }
 
                   <ConfirmationDialog
-                        title={ <div style={{textAlign:"center"}}>This collection, associated tables, and annotations will be deleted <div style={{color:"red", fontWeight:"bolder"}}>PERMANENTLY</div></div> }
-                        accept_action={ () => {deleteCollection(); navigate('dashboard', { replace: true }); } }
-                        cancel_action={ () => {showCollectionDeleteDialog(false);} }
-                        open={collectionDeleteDialog} />
+                    title={
+                      <div style={{textAlign:"center"}}>
+                        This collection, associated tables, and annotations will be deleted
+                        <div style={{color:"red", fontWeight:"bolder"}}>PERMANENTLY</div></div> }
+                    accept_action={ () => {deleteCollection(); navigate('dashboard', { replace: true }); } }
+                    cancel_action={ () => {showCollectionDeleteDialog(false);} }
+                    open={collectionDeleteDialog}
+                  />
                 </div>
                 {
                 // <div className={classes.buttonHolder}><Button variant="contained" > Edit Collaborators <PeopleAltIcon style={{marginLeft:5}} />  </Button> </div>
@@ -413,107 +433,130 @@ export function CollectionView({
                 <FormControl variant="outlined" className={classes.formControl} style={{marginTop:20, width: 200}}>
                   <InputLabel id="outlined-visibility-label">Set Visibility</InputLabel>
                   <Select
-                      disabled={!allowEdit}
-                      labelId="outlined-visibility-label"
-                      id="visibility-select-helper"
-                      value={visibility}
-                      onChange={(event) => {setVisibility(event.target.value)}}
-                      style={{width:"100%",display:"inline-block"}}
-                      label="Set Visibility"
-                    >
-                    {
-                      visibility_states.map( (com,j) =>{
-                        return <MenuItem key={"vis"+j} value={com}>{com}</MenuItem>
-                      })
-                    }
+                    disabled={!allowEdit}
+                    labelId="outlined-visibility-label"
+                    id="visibility-select-helper"
+                    value={visibility}
+                    onChange={(event) => {setVisibility(event.target.value)}}
+                    style={{width:"100%", display:"inline-block"}}
+                    label="Set Visibility"
+                  >
+                  {
+                    visibility_states.map( (com, j) => {
+                      return <MenuItem key={"vis"+j} value={com}>{com}</MenuItem>
+                    })
+                  }
                   </Select>
-                  </FormControl>
-                  <br />
+                </FormControl>
+                <br />
 
-                <FormControl variant="outlined" className={classes.formControl} style={{marginTop:20, width: 200}}  >
+                <FormControl variant="outlined" className={classes.formControl} style={{marginTop:20, width: 200}}>
                   <InputLabel id="outlined-completion-label">Set Completion</InputLabel>
                   <Select
-                      disabled={!allowEdit}
-                      labelId="outlined-completion-label"
-                      id="completion-select-helper"
-                      value={completion}
-                      onChange={(event) => {setCompletion(event.target.value)}}
-                      style={{width:"100%",display:"inline-block"}}
-                      label="Set Completion"
-                    >
-                    {
-                      completion_states.map( (com,j) =>{
-                        return <MenuItem key={"com"+j} value={com}>{com}</MenuItem>
-                      })
-                    }
+                    disabled={!allowEdit}
+                    labelId="outlined-completion-label"
+                    id="completion-select-helper"
+                    value={completion}
+                    onChange={(event) => {setCompletion(event.target.value)}}
+                    style={{width:"100%",display:"inline-block"}}
+                    label="Set Completion"
+                  >
+                  {
+                    completion_states.map( (com, j) => {
+                      return <MenuItem key={'com'+j} value={com}>{com}</MenuItem>
+                    })
+                  }
                   </Select>
-                  </FormControl>
-                  </div>
+                </FormControl>
+              </div>
             </Card>
 
             <Card style={{padding:10, fontWeight:"bold", marginTop:5, marginBottom:5, textAlign:"center"}}>
               <div>Table Actions</div>
             </Card>
 
-
             <Card style={{padding:10}}>
-              <div>
-
-                { allowEdit ? <div className={classes.buttonHolder}>
+              <div>{
+                // File Uploader if allowed
+                allowEdit && (
+                <div className={classes.buttonHolder}>
                   <FileUploader
-                    baseURL={(locationData.api_url + 'tableUploader')}
+                    baseURL={ locationData.api_url + 'tableUploader' }
+                    urlCheck={ locationData.api_url + 'tables' }
                     collection_id={ collection_id }
                     username_uploader={ owner_username}
                     userToken={ loginState.token }
                     updaterCallBack= { getCollectionData }
                   />
-                </div> : ''}
+                </div> )}
 
-                { allowEdit ? <div className={classes.buttonHolder}>
-                  <Button variant="contained"   disabled = { noTables == 0 } onClick={() => { setMoveDialogOpen(true); }} > Move Tables <OpenInNewIcon style={{marginLeft:5}}/> </Button>
-                  </div> : ''}
+                {
+                // Move tables if allowed
+                allowEdit && (
+                <div className={classes.buttonHolder}>
+                  <Button
+                    variant="contained"
+                    disabled={ noTables == 0 }
+                    onClick={() => { setMoveDialogOpen(true); }}
+                  >
+                    Move Tables <OpenInNewIcon style={{marginLeft:5}}/>
+                  </Button>
+                </div>)}
 
-                <Dialog onClose={ () => {}} aria-labelledby="customized-dialog-title" open={moveDialogOpen}>
+                <Dialog
+                  aria-labelledby="customized-dialog-title"
+                  open={moveDialogOpen}
+                  onClose={ () => setMoveDialogOpen(false) }
+                >
                   <DialogTitle id="customized-dialog-title" >
                     Move Tables to Target Collection
                   </DialogTitle>
-                  <DialogContent dividers>
+                  <DialogContent>
                     <Select
-                        labelId="demo-simple-select-helper-label"
-                        id="demo-simple-select-helper"
-                        displayEmpty
-                        value={targetCollectionID}
-                        onChange={(event) => {setTargetCollectionID(event.target.value)}}
-                        style={{width:"100%"}}
+                      labelId="demo-simple-select-helper-label"
+                      id="demo-simple-select-helper"
+                      displayEmpty
+                      value={targetCollectionID}
+                      onChange={(event) => {setTargetCollectionID(event.target.value)}}
+                      style={{width:"100%"}}
                     >
                       <MenuItem value="" disabled>
                         Select destination collection
                       </MenuItem>
-                    {
-                      availableCollections ? availableCollections.map( (coll,j) => {
-                        if ( coll.collection_id == collection_id){
-                          return null
-                        }
-                        if (
-                          coll.owner_username != loginState.username
-                        ) {
-                          return null
-                        }
+                      {
+                      availableCollections ? (
+                        availableCollections.map( (coll, j) => {
+                          if (
+                            // Is moving to itself? or
+                            // Is not the owner of the collection?
+                            coll.collection_id == collection_id ||
+                            coll.owner_username != loginState.username
+                          ) {
+                            return null
+                          }
 
-                        return <MenuItem key={j} value={coll.collection_id}>
-                                <SearchResult
-                                  text={`${coll.collection_id} -- ${coll.title}`}
-                                  type={'collection'}
-                                />
-                              </MenuItem>
-                      }) : ''
-
-                    }
+                          return (
+                            <MenuItem key={j} value={coll.collection_id}>
+                              <SearchResult
+                                text={`${coll.collection_id} -- ${coll.title}`}
+                                type={'collection'}
+                              />
+                            </MenuItem>)
+                        }))
+                        : ''
+                      }
                     </Select>
                   </DialogContent>
                   <DialogActions>
-                    <Button onClick={()=>{showMoveDialog(true);}}> Accept </Button>
-                    <Button onClick={()=>{setMoveDialogOpen(false);}}> Cancel </Button>
+                    <Button
+                      disableFocusRipple={true}
+                      className={classes.acceptButton}
+                      onClick={()=>{showMoveDialog(true);}}
+                    > Accept </Button>
+                    <Button
+                      className={classes.cancelButton}
+                      onClick={()=>{setMoveDialogOpen(false);}}
+                    >Cancel </Button>
                   </DialogActions>
 
                   <ConfirmationDialog
@@ -531,42 +574,67 @@ export function CollectionView({
                   />
                 </Dialog>
 
-                { allowEdit ? <div className={classes.buttonHolder}>
-                  <Button variant="contained"
-                          disabled = { noTables == 0 }
-                          onClick={ () => {showDeleteDialog(true)}}
-                          style={{backgroundColor:"#ff8282"}}> Delete Tables <DeleteIcon style={{marginLeft:5}} /></Button>
+                {
+                // Delete tables if allowed
+                allowEdit ? (
+                <div className={classes.buttonHolder}>
+                  <Button
+                    variant="contained"
+                    disabled = { noTables == 0 }
+                    onClick={ () => {showDeleteDialog(true)}}
+                    style={{backgroundColor:"#ff8282"}}
+                  > Delete Tables <DeleteIcon style={{marginLeft:5}} />
+                  </Button>
 
-                    <ConfirmationDialog
-                          title={"Delete Tables"}
-                          accept_action={ () => {removeTables(checkedTables, prepareCollectionData()); showDeleteDialog(false);}}
-                          cancel_action={ () => {showDeleteDialog(false);} }
-                          open={deleteDialog} />
-                          <hr/>
-                  </div> : ""}
-
-
+                  <ConfirmationDialog
+                    style={{
+                      width: 250,
+                    }}
+                    title={"Delete Tables"}
+                    accept_action={ () => {
+                      removeTables(checkedTables, prepareCollectionData());
+                      showDeleteDialog(false);
+                    }}
+                    cancel_action={ () => showDeleteDialog(false) }
+                    open={deleteDialog}
+                  />
+                  <hr/>
+                </div>) : ''}
 
                 <div className={classes.buttonHolder}>
-                    <Button variant="contained" onClick={ () => { downloadData("results", tables.map( t => t.tid ) )}}> Data CSV <DownloadIcon/></Button>
-                  </div>
+                  <Button
+                    variant="contained"
+                    onClick={ () => { downloadData("results", tables.map( t => t.tid ) )}}
+                  > Data CSV <DownloadIcon/></Button>
+                </div>
 
                 <div className={classes.buttonHolder}>
-                    <Button variant="contained" onClick={ () => { downloadData("metadata", tables.map( t => t.tid ) )}}> Metadata CSV <DownloadIcon/></Button>
-                  </div>
+                  <Button
+                    variant="contained"
+                    onClick={ () => { downloadData("metadata", tables.map( t => t.tid ) )}}
+                  > Metadata CSV <DownloadIcon/></Button>
+                </div>
 
                 <div className={classes.buttonHolder}>
-                    <Button variant="contained" onClick={ () => { downloadData("json", tables.map( t => t.tid ) )}}> Data & Metadata JSON <DownloadIcon/></Button>
-                  </div>
-
+                  <Button
+                    variant="contained"
+                    onClick={ () => { downloadData("json", tables.map( t => t.tid ) )}}
+                  > Data & Metadata JSON <DownloadIcon/></Button>
+                </div>
 
             </div>
             </Card>
 
-            { allowEdit ?<Card style={{padding:10, fontWeight:"bold", marginTop:5, marginBottom:5, textAlign:"center"}}>
+            { allowEdit ? (
+            <Card style={{padding:10, fontWeight:"bold", marginTop:5, marginBottom:5, textAlign:"center"}}>
               <div className={classes.buttonHolder} style={{float:"right"}}>
-                  <Button variant="contained" disabled={false} onClick={() => {saveChanges()}} > Save Changes <SaveIcon style={{marginLeft:5}} /> </Button> </div>
-            </Card> : ""}
+                <Button
+                  variant="contained"
+                  disabled={false}
+                  onClick={() => {saveChanges()}}
+                > Save Changes <SaveIcon style={{marginLeft:5}} /> </Button>
+              </div>
+            </Card>) : ''}
 
           </Grid>
         </Grid>

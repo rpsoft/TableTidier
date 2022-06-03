@@ -89,6 +89,11 @@ export function Login({
   const classes = useStyles();
   const theme = useTheme();
 
+  const {
+    accept: acceptColor,
+    cancel: cancelColor,
+  } = theme.palette.dialog
+
   const [cookies, setCookie, removeCookie ] = useCookies();
 
   const [username, setUsername] = useState(loginState.username ? loginState.username :  '' );
@@ -172,7 +177,7 @@ export function Login({
     <Button
       variant="contained"
       onClick={ () => { handleLoginToggle() } }
-      style={{marginLeft:5, backgroundColor:"#f98989"}}
+      style={{marginLeft:5, backgroundColor: cancelColor}}
     >
       Cancel
     </Button>
@@ -250,46 +255,50 @@ export function Login({
             <h4 style={{whiteSpace: 'nowrap'}}> Enter Your Login Details </h4>
 
             <form>
-            <TextField
-              id="username"
-              value={username}
-              placeholder="Username"
-              autoComplete='login username'
-              autoFocus={true}
-              onChange={ (evt) => {setUsername(evt.currentTarget.value)} }
-              onKeyDown ={ (event) => {
-                if (event.key != "Enter") return
-                passwordRef.current && passwordRef.current.focus()
-              }}
-            />
-            <br />
-            <TextField
-              id="password"
-              value={password}
-              placeholder="Password"
-              type="password"
-              autoComplete='login password'
-              onChange={ (evt) => {setPassword(evt.currentTarget.value)} }
-              onKeyDown ={onKeyDown}
-              inputProps={{
-                ref: passwordRef,
-              }}
-            />
-            <br />
+              <TextField
+                id="username"
+                value={username}
+                placeholder="Username"
+                autoComplete='login username'
+                autoFocus={true}
+                onChange={ (evt) => {setUsername(evt.currentTarget.value)} }
+                onKeyDown ={ (event) => {
+                  if (event.key != "Enter") return
+                  passwordRef.current && passwordRef.current.focus()
+                }}
+              />
+              <br />
+              <TextField
+                id="password"
+                value={password}
+                placeholder="Password"
+                type="password"
+                autoComplete='login password'
+                onChange={ (evt) => {setPassword(evt.currentTarget.value)} }
+                onKeyDown ={onKeyDown}
+                inputProps={{
+                  ref: passwordRef,
+                }}
+              />
+              <br />
             </form>
             {
             loginState.loginWarning ?
               <div 
-                style={{color:"red",marginTop:5,marginBottom:5}}
+                style={{color:"red", marginTop:5, marginBottom:5}}
               >
                 {loginState.loginWarning}
               </div>
             : <br />
             }
 
-            <div style={{marginTop:10,textAlign:"right"}}>
-              <Button variant="contained" onClick={ () => { logIn() } } style={{backgroundColor:"#93de85"}} >
-                  Login
+            <div style={{marginTop:10, textAlign:"right"}}>
+              <Button
+                variant="contained"
+                onClick={ () => { logIn() } }
+                style={{backgroundColor: acceptColor}}
+              >
+                Login
               </Button>
               {cancelButton}
             </div>
