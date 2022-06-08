@@ -128,7 +128,7 @@ function FileUploader({
     }
 
     const params = new URLSearchParams({
-      action: 'check',
+      action: 'checkFiles',
       tablesList: JSON.stringify(filesListFiltered.map(file => file.name)),
       'collection_id': collection_id,
       'username_uploader': username_uploader,
