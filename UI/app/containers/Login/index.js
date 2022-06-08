@@ -205,7 +205,7 @@ export function Login({
           style={{marginLeft:5}}
         >
           <AccountBoxIcon/>
-          {loginState.username ? "Logged as: "+ loginState.username : " guest "}
+          {loginState.username ? 'Logged as: ' + loginState.username : ' guest '}
         </Button>
       </div>
 
