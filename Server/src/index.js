@@ -899,7 +899,7 @@ app.post(CONFIG.api_base_url+'/tables',
 
   const {
     action,
-
+    // docidList,
     // collection_id,
     // tablesList,
     // targetCollectionID,
@@ -909,11 +909,20 @@ app.post(CONFIG.api_base_url+'/tables',
   const collection_id = parseInt(req.body.collection_id)
   const targetCollectionID = parseInt(req.body.targetCollectionID)
   let tablesList
+  let docidList
+
   try {
-    tablesList = JSON.parse(req.body.tablesList)
-  } catch (err) {
-    res.json({status: 'FAIL', payload: 'invalid table list'})
-    return
+    docidList = JSON.parse(req.body.docidList)
+  } catch(err) { }
+  
+  // Check tablesList when docidList is not defined
+  if (!docidList) {
+    try {
+      tablesList = JSON.parse(req.body.tablesList)
+    } catch (err) {
+      res.json({status: 'FAIL', payload: 'invalid table list'})
+      return
+    }
   }
 
   // req.user added by experessJwt
@@ -930,7 +939,35 @@ app.post(CONFIG.api_base_url+'/tables',
   let result = {};
 
   switch (action) {
-    case 'check':
+    case 'checkByDocid':
+      if ( collectionPermissions.write.includes(collection_id) == false ) {
+        res.json({status: 'FAIL', payload: 'do not have permissions on collection'})
+        return
+      }
+
+      result = await Promise.all(
+        docidList.map((_docid) => {
+          const [docid, page] = _docid.split('_')
+          return dbDriver.tableGet(
+            docid,
+            page,
+            collection_id,
+          )
+        })
+      );
+
+      res.json({
+        status: 'success',
+        data: result.map((elm, index) => ({
+          [docidList[index]]: typeof elm == 'string' && elm.includes('not found') ?
+            elm
+            : 'found'
+        }))
+      })
+      return
+      // result = await dbDriver.tablesRemove(tablesList, collection_id);
+      break;
+    case 'checkFiles':
       if ( collectionPermissions.write.includes(collection_id) == false ) {
         res.json({status: 'FAIL', payload: 'do not have permissions on collection'})
         return
@@ -946,12 +983,11 @@ app.post(CONFIG.api_base_url+'/tables',
 
       res.json({
         status: 'success',
-        data: result.map((elm, index) => 
-          ({
-            [tablesList[index]]: typeof elm == 'string' && elm.includes('not found') ?
-              elm
-              : 'found'
-          }))
+        data: result.map((elm, index) => ({
+          [tablesList[index]]: typeof elm == 'string' && elm.includes('not found') ?
+            elm
+            : 'found'
+        }))
       })
       return
       // result = await dbDriver.tablesRemove(tablesList, collection_id);
