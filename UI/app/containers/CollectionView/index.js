@@ -181,44 +181,34 @@ export function CollectionView({
 
   const [ allowEdit, setAllowEdit ] = useState(false);
 
-  const [ targetCollectionID, setTargetCollectionID] = useState("");
+  const [ targetCollectionID, setTargetCollectionID] = useState('');
   const [ availableCollections, setAvailableCollections ] = useState([]);
   const [ moveDialogOpen, setMoveDialogOpen ] = useState(false);
+  const [ moveDialog, showMoveDialog ] = useState(false);
+  const [ moveDialogWarningText, setMoveDialogWarningText ] = useState('');
 
   const [ delete_enabled, set_delete_enabled ] = useState(false);
-
   const [ collectionDeleteDialog, showCollectionDeleteDialog ] = useState(false);
-
   const [ deleteDialog, showDeleteDialog ] = useState(false);
-  const [ moveDialog, showMoveDialog ] = useState(false);
 
-  const visibility_states = ["public", "registered", "private"]
-  const [visibility, setVisibility] = useState("public");
+  const visibility_states = ['public', 'registered', 'private']
+  const [visibility, setVisibility] = useState('public');
 
-  const completion_states = ["in progress", "complete"]
-  const [completion, setCompletion] = useState("in progress");
+  const completion_states = ['in progress', 'complete']
+  const [completion, setCompletion] = useState('in progress');
 
   // Hide search area
   const [height, setHeight] = useState(0)
   const searchAreaRef = useRef(null)
 
   useEffect(() => {
-      setHeight(searchAreaRef.current.clientHeight)
+    setHeight(searchAreaRef.current.clientHeight)
   })
-
-  const toggleCheckBox = (docid) => {
-    const checkedTables_temp = checkedTables
-    checkedTables_temp[docid] = checkedTables_temp[docid] ? false : true
-    if ( checkedTables_temp[docid] == false ){
-      delete checkedTables_temp[docid]
-    }
-    setCheckedTables(checkedTables_temp)
-    setNoTables(Object.keys(checkedTables).length)
-  }
 
   useEffect(() => {
     getCollectionData()
     setEditMode(false)
+    setCheckedTables({})
   }, [loginState.username]);
 
   useEffect(() => {
@@ -228,7 +218,7 @@ export function CollectionView({
     setOwner_username(collectionView.owner_username)
     setTables(collectionView.tables)
     setAvailableCollections(collectionView.collectionsList)
-    setEditMode(collectionView.collection_id == "new" ? true : false)
+    setEditMode(collectionView.collection_id == 'new' ? true : false)
     setCheckedTables({})
     setVisibility(collectionView.visibility)
     setCompletion(collectionView.completion)
@@ -250,12 +240,64 @@ export function CollectionView({
     return collectionData
   }
 
+  const toggleCheckBox = (docid) => {
+    const checkedTables_temp = structuredClone(checkedTables)
+    console.log(JSON.stringify(checkedTables))
+    if ( docid in checkedTables_temp ) {
+      delete checkedTables_temp[docid]
+    } else {
+      checkedTables_temp[docid] = {
+        checked: true,
+      }
+    }
+    setCheckedTables(checkedTables_temp)
+    // Set number of tables selected
+    setNoTables(Object.keys(checkedTables_temp).length)
+  }
+
+  const docidCheck = async (docidList, collection_id) => {
+    // If no files or invalid type return
+    if (
+      Array.isArray(docidList) == false ||
+      docidList.length == 0
+    ) {
+      return
+    }
+
+    const urlCheck = locationData.api_url + 'tables'
+    const userToken = loginState.token
+  
+    const params = new URLSearchParams({
+      action: 'checkByDocid',
+      docidList: JSON.stringify(docidList),
+      'collection_id': collection_id,
+      'username_uploader': loginState.username,
+    })
+  
+    let headers = {}
+    // JWT token
+    if (userToken) {
+      headers['Authorization'] = `Bearer ${userToken}`
+    }
+  
+    let result = await fetch(urlCheck, {
+      method: 'POST',
+      headers,
+      body: params,
+    })
+  
+    if (result.status != 200) {
+      return false
+    }
+  
+    result = await result.json()
+    return result
+  }
+
   const saveChanges = () => {
     updateCollectionData(prepareCollectionData());
     editCollectionData();
   }
-
-  // const isNull = (value) => typeof value === "object" && !value
 
   const Row = ({ index, style }) => {
     const {
@@ -270,7 +312,8 @@ export function CollectionView({
     const url = `/table?docid=${docid}&page=${page}&collId=${collectionView.collection_id}`
 
     return <div style={{...style, display: "flex", alignItems: "center"}}>
-      <Checkbox checked={checkedTables[table_key]}
+      <Checkbox
+        checked={table_key in checkedTables}
         onChange={() => {toggleCheckBox(table_key)}}
         inputProps={{ 'aria-label': 'primary checkbox' }}
       />
@@ -315,7 +358,7 @@ export function CollectionView({
             <Card style={{ marginBottom:10, padding:10 }}>
               <div className={classes.titles}>
 
-                {allowEdit ? (
+                {allowEdit && (
                   <div style={{fontSize:15}}>
                     <div style={{ display:"inline",float:"right", marginTop:-2}}>
                       Enable Editing
@@ -328,7 +371,6 @@ export function CollectionView({
                       />
                     </div>
                   </div>)
-                  : ''
                 }
 
                 Collection ID: <div className={classes.titles_content}>{collectionView.collection_id}</div>
@@ -517,14 +559,61 @@ export function CollectionView({
                       id="demo-simple-select-helper"
                       displayEmpty
                       value={targetCollectionID}
-                      onChange={(event) => {setTargetCollectionID(event.target.value)}}
+                      onChange={async (event) => {
+                        // Check if target collection already has tables
+                        const newTargetCollectionID = event.target.value
+                        setTargetCollectionID(newTargetCollectionID)
+                        // filter already checked
+                        const tablesNotCheckedAtTargetCollection = Object.entries(checkedTables).filter(
+                          table => {
+                            const [key, value] = table;
+                            return newTargetCollectionID in value == false
+                        }).map(table => table[0])
+                        // ask server about tables not checked
+                        if (tablesNotCheckedAtTargetCollection.length > 0) {
+                          const tablesCheckedResponce = await docidCheck(tablesNotCheckedAtTargetCollection, newTargetCollectionID)
+                          // Add found to checked
+                          const present = tablesCheckedResponce.data.map(
+                            table => {
+                              const [key, value] = Object.entries(table)[0]
+                              if (value == 'found') {
+                                checkedTables[key][newTargetCollectionID] = true
+                                return
+                              }
+                              checkedTables[key][newTargetCollectionID] = false
+                          })
+                        }
+                        const tablesAlreadyAtTargetCollection = Object.entries(checkedTables).filter(
+                          table => {
+                            const [key, value] = table;
+                            return newTargetCollectionID in value && value[newTargetCollectionID] == true
+                        })
+                        // Show warning of tables already present at target collection
+                        if (tablesAlreadyAtTargetCollection.length == 0) {
+                          return setMoveDialogWarningText('')
+                        }
+
+                        let warningMessage = (<>
+                          <div>
+                            {
+                              tablesAlreadyAtTargetCollection.length == 1 ? 'File ' : 'Files '
+                            } alreay present in collecion {newTargetCollectionID}:
+                          </div>
+                          {
+                            tablesAlreadyAtTargetCollection.map((table, index) => {
+                              return (index == 0 ? '': ', ') + table[0]
+                            })
+                          }
+                        </>)
+                        setMoveDialogWarningText(warningMessage)
+                      }}
                       style={{width:"100%"}}
                     >
                       <MenuItem value="" disabled>
                         Select destination collection
                       </MenuItem>
                       {
-                      availableCollections ? (
+                      availableCollections && (
                         availableCollections.map( (coll, j) => {
                           if (
                             // Is moving to itself? or
@@ -543,9 +632,16 @@ export function CollectionView({
                               />
                             </MenuItem>)
                         }))
-                        : ''
                       }
                     </Select>
+                    <div style={{
+                      color:"red",
+                      marginTop:5,
+                      marginBottom:5,
+                    }}>
+                      {/* Show move tables warning messages */}
+                      {moveDialogWarningText}
+                    </div>
                   </DialogContent>
                   <DialogActions>
                     <Button
@@ -555,7 +651,11 @@ export function CollectionView({
                     > Accept </Button>
                     <Button
                       className={classes.cancelButton}
-                      onClick={()=>{setMoveDialogOpen(false);}}
+                      onClick={()=>{
+                        setTargetCollectionID('');
+                        setMoveDialogWarningText('')
+                        setMoveDialogOpen(false);
+                      }}
                     >Cancel </Button>
                   </DialogActions>
 
@@ -566,6 +666,8 @@ export function CollectionView({
                         moveTables(checkedTables, targetCollectionID);
                         setMoveDialogOpen(false);
                         setCheckedTables({});
+                        setTargetCollectionID('');
+                        setMoveDialogWarningText('')
                         showMoveDialog(false);
                       }
                     }
@@ -576,7 +678,7 @@ export function CollectionView({
 
                 {
                 // Delete tables if allowed
-                allowEdit ? (
+                allowEdit && (
                 <div className={classes.buttonHolder}>
                   <Button
                     variant="contained"
@@ -599,8 +701,9 @@ export function CollectionView({
                     open={deleteDialog}
                   />
                   <hr/>
-                </div>) : ''}
+                </div>)}
 
+                {/* Download Tables */}
                 <div className={classes.buttonHolder}>
                   <Button
                     variant="contained"
@@ -625,7 +728,7 @@ export function CollectionView({
             </div>
             </Card>
 
-            { allowEdit ? (
+            { allowEdit && (
             <Card style={{padding:10, fontWeight:"bold", marginTop:5, marginBottom:5, textAlign:"center"}}>
               <div className={classes.buttonHolder} style={{float:"right"}}>
                 <Button
@@ -634,7 +737,7 @@ export function CollectionView({
                   onClick={() => {saveChanges()}}
                 > Save Changes <SaveIcon style={{marginLeft:5}} /> </Button>
               </div>
-            </Card>) : ''}
+            </Card>)}
 
           </Grid>
         </Grid>
