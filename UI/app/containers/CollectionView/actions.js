@@ -4,9 +4,16 @@
  *
  */
 
-import { LOAD_COLLECTION_ACTION, UPDATE_COLLECTION_ACTION, DELETE_COLLECTION_ACTION,
-         EDIT_COLLECTION_ACTION, REMOVE_TABLES_ACTION,
-         MOVE_TABLES_ACTION, DOWNLOAD_DATA_ACTION } from './constants';
+import {
+  LOAD_COLLECTION_ACTION,
+  UPDATE_COLLECTION_ACTION,
+  UPDATE_COLLECTION_TABLES_ACTION,
+  DELETE_COLLECTION_ACTION,
+  EDIT_COLLECTION_ACTION,
+  REMOVE_TABLES_ACTION,
+  MOVE_TABLES_ACTION,
+  DOWNLOAD_DATA_ACTION
+} from './constants';
 
 export function loadCollectionAction() {
   return {
@@ -18,6 +25,13 @@ export function updateCollectionAction(collectionData) {
   return {
     type: UPDATE_COLLECTION_ACTION,
     collectionData,
+  };
+}
+
+export function updateCollectionTablesAction(tables) {
+  return {
+    type: UPDATE_COLLECTION_TABLES_ACTION,
+    tables,
   };
 }
 

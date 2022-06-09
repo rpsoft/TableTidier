@@ -4,7 +4,11 @@ import { LOAD_COLLECTION_ACTION, EDIT_COLLECTION_ACTION,
   REMOVE_TABLES_ACTION, MOVE_TABLES_ACTION,
   DELETE_COLLECTION_ACTION, DOWNLOAD_DATA_ACTION} from './constants';
 
-import { loadCollectionAction, updateCollectionAction } from './actions';
+import {
+  loadCollectionAction,
+  updateCollectionAction,
+  updateCollectionTablesAction,
+} from './actions';
 
 import makeSelectCollectionView, {  makeSelectCredentials } from './selectors';
 
@@ -162,6 +166,7 @@ export function* removeCollectionTables ( payload ) {
 export function* moveCollectionTables ( payload ) {
   // const credentials = yield select(makeSelectCredentials());
   const loginData = yield select(makeSelectLogin());
+  const collectionState = yield select(makeSelectCollectionView());
 
   const parsed = queryString.parse(location.search);
 
@@ -178,21 +183,27 @@ export function* moveCollectionTables ( payload ) {
   const requestURL = locationData.api_url+`tables`;
 
   try {
-
     const response = yield call(request, requestURL, options);
 
-    if ( response.status && response.status == "unauthorised"){
-
-      yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", tables : []}) );
-
+    if ( response.status && response.status == 'unauthorised' ) {
+      yield put( yield updateCollectionAction({
+        title : '', collection_id : '', description: '', owner_username : '', tables : []
+      }) );
     } else {
-      yield put( yield updateCollectionAction(response.data) );
-      yield put( yield issueAlertAction({ open: true, message: "Collection Tables Moved", isError: false }))
+      // Remove moved tables
+      const filteredTables = collectionState.tables.filter(table => {
+        const {docid, page} = table
+        const tableText = docid+'_'+page
+        return response.data.moved.includes(tableText)
+      })
+      yield put( yield updateCollectionTablesAction(filteredTables) );
+      yield put( yield issueAlertAction({ open: true, message: 'Collection Tables Moved', isError: false }))
     }
   } catch (err) {
-
     console.log(err)
-    yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", tables : []}) );
+    yield put( yield updateCollectionAction({
+      title : '', collection_id : '', description: '', owner_username : '', tables : []
+    }) );
   }
 
   return {}

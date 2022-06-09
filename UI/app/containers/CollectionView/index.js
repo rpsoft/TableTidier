@@ -242,7 +242,6 @@ export function CollectionView({
 
   const toggleCheckBox = (docid) => {
     const checkedTables_temp = structuredClone(checkedTables)
-    console.log(JSON.stringify(checkedTables))
     if ( docid in checkedTables_temp ) {
       delete checkedTables_temp[docid]
     } else {
@@ -571,7 +570,10 @@ export function CollectionView({
                         }).map(table => table[0])
                         // ask server about tables not checked
                         if (tablesNotCheckedAtTargetCollection.length > 0) {
-                          const tablesCheckedResponce = await docidCheck(tablesNotCheckedAtTargetCollection, newTargetCollectionID)
+                          const tablesCheckedResponce = await docidCheck(
+                            tablesNotCheckedAtTargetCollection,
+                            newTargetCollectionID
+                          )
                           // Add found to checked
                           const present = tablesCheckedResponce.data.map(
                             table => {
@@ -597,7 +599,7 @@ export function CollectionView({
                           <div>
                             {
                               tablesAlreadyAtTargetCollection.length == 1 ? 'File ' : 'Files '
-                            } alreay present in collecion {newTargetCollectionID}:
+                            } already present in collecion {newTargetCollectionID}:
                           </div>
                           {
                             tablesAlreadyAtTargetCollection.map((table, index) => {
