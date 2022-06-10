@@ -1,5 +1,3 @@
-import { options } from "superagent";
-
 /**
  * Parses the JSON returned by a network request
  *

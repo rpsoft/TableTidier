@@ -12,10 +12,9 @@ import React, {
 import Button from '@material-ui/core/Button';
 import { DropzoneDialog } from 'material-ui-dropzone';
 import PublishIcon from '@material-ui/icons/Publish';
-// import {URL_BASE} from '../../links'
+import { useSnackbar } from 'notistack';
 
-// ! change for fetch at the future, better app size
-import request from 'superagent'
+// import {URL_BASE} from '../../links'
 
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -85,7 +84,8 @@ function FileUploader({
 }) {
 
   const useStyles = makeStyles(styleSeed);
-  
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+
   const [open, setOpen] = useState(false);
   const [files, setFiles] = useState([]);
   const [filesChecked, setFilesChecked] = useState([]);
@@ -94,23 +94,44 @@ function FileUploader({
     filesChecked: filesChecked,
   });
 
-  const transferFiles = (acceptedFiles) => {
-    const req = request.post( baseURL )
-
+  const transferFiles = async (acceptedFiles) => {
+    const formData = new FormData();
     // JWT token
+    let headers = {}
     if (userToken) {
-      req.set('Authorization', `Bearer ${userToken}`)
+      headers['Authorization'] = `Bearer ${userToken}`
     }
-
+    formData.append('collection_id', collection_id);
+    formData.append('username_uploader', username_uploader);
     acceptedFiles.forEach(file => {
-      req.attach('fileNames', file)
+      formData.append('fileNames', file)
     })
 
-    req.field('collection_id', collection_id)
-    req.field('username_uploader', username_uploader)
-    const result = req.end((err, res) => {
-      updaterCallBack ? updaterCallBack() : ''
-    });
+    const result = await fetch(baseURL, {
+      method: 'POST',
+      headers,
+      body: formData,
+    })
+    const body = await result.json()
+
+    updaterCallBack ? updaterCallBack() : ''
+    body.forEach(file => {
+      if (file.status == 'success') {
+        enqueueSnackbar(file.filename + ' uploaded', {
+          // variant: 'success',
+          autoHideDuration: 6000,
+        })
+        return
+      }
+      if (file.status == 'failed') {
+        enqueueSnackbar(file.filename + ' upload aborted ' + file.detail, {
+          variant: 'warning',
+          // variant: 'error',
+          autoHideDuration: 6000,
+        })
+        return
+      }
+    })
   }
 
   const filesCheck = async (filesList) => {
