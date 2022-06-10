@@ -24,15 +24,11 @@ function PopAlert({
   setAlertData
 }) {
   const handleClose = (event, reason) => {
-      if (reason === 'clickaway') {
-        return;
-      }
-
-      var prev_data = alertData
-      prev_data.open = false
-
-      setAlertData({...alertData, open: false});
-    };
+    if (reason === 'clickaway') {
+      return;
+    }
+    setAlertData({...alertData, open: false});
+  };
 
   return (
     <Snackbar open={alertData.open} autoHideDuration={6000} onClose={handleClose}>
