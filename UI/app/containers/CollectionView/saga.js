@@ -231,13 +231,11 @@ export function* deleteCollection() {
     const response = yield call(request, requestURL, options);
 
     if ( response.status && response.status == "unauthorised"){
-
       // COUld probably redirect to /
       // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
-
     } else {
       yield put( yield issueAlertAction({ open: true, message: "Collection Deleted ", isError: false }))
-      // yield put( yield updateCollectionAction(response.data) );
+      yield put( yield loadCollectionAction() );
     }
   } catch (err) {
     console.log(err)
