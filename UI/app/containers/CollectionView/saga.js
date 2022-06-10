@@ -194,7 +194,7 @@ export function* moveCollectionTables ( payload ) {
       const filteredTables = collectionState.tables.filter(table => {
         const {docid, page} = table
         const tableText = docid+'_'+page
-        return response.data.moved.includes(tableText)
+        return response.data.moved.includes(tableText) == false
       })
       yield put( yield updateCollectionTablesAction(filteredTables) );
       yield put( yield issueAlertAction({ open: true, message: 'Collection Tables Moved', isError: false }))
