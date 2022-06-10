@@ -56,11 +56,61 @@ import { useCookies } from 'react-cookie';
 
 import PopAlert from 'components/PopAlert'
 
+import { SnackbarProvider } from 'notistack';
+import Grow from '@material-ui/core/Grow';
+import WarningIcon from '@material-ui/icons/Warning';
+import { makeStyles } from '@material-ui/core/styles';
+
+const styleSeed = (theme) => ({
+  // snackbar type style
+  snackbarClasses: {
+    // normal
+    '& > [class*=SnackbarItem-contentRoot]': {
+      backgroundColor: theme.palette.dialog.normalBackground,
+      color: theme.palette.dialog.textColorDialog,
+    },
+    // success 
+    '& > [class*=SnackbarItem-variantSuccess]': {
+      backgroundColor: theme.palette.dialog.successBackground,
+      color: theme.palette.dialog.textColorDialog,
+      '& .MuiSvgIcon-root': {
+        color: 'rgb(76, 175, 80)',
+      }
+    },
+    // info
+    '& > [class*=SnackbarItem-variantInfo]': {
+      backgroundColor: theme.palette.dialog.infoBackground,
+      color: theme.palette.dialog.textColorDialog,
+      '& .MuiSvgIcon-root': {
+        color: 'rgb(6 92 213)',
+      }
+    },
+    // warning
+    '& > [class*=SnackbarItem-variantWarning]': {
+      backgroundColor: theme.palette.dialog.warningBackground,
+      color: theme.palette.dialog.textColorDialog,
+      '& .MuiSvgIcon-root': {
+        color: 'rgb(231 131 3)',
+      }
+    },
+    // error
+    '& > [class*=SnackbarItem-variantError]': {
+      backgroundColor: theme.palette.dialog.errorBackground,
+      color: theme.palette.dialog.textColorDialog,
+      '& .MuiSvgIcon-root': {
+        color: 'rgb(225 1 1)',
+      }
+    },
+
+  }
+})
+
 export function App({
   appData,
   setLoginCredentials,
 }) {
-
+  const useStyles = makeStyles(styleSeed);
+  const classes = useStyles({});
   const [ cookies, setCookie, removeCookie ] = useCookies();
   const [ alertData, setAlertData ]  = React.useState( appData.alertData ?
     appData.alertData
@@ -68,14 +118,29 @@ export function App({
   );
 
   useEffect(() => {
-
-      setAlertData(appData.alertData ? appData.alertData : { open: false, message: "", isError: false })
-
+    setAlertData(appData.alertData ? appData.alertData : { open: false, message: "", isError: false })
   }, [appData.alertData]);
 
   setLoginCredentials(cookies)
 
   return (
+    <SnackbarProvider
+      maxSnack={3}
+      autoHideDuration={10000}
+      anchorOrigin={{
+        vertical: 'bottom',
+        horizontal: 'center',
+        // horizontal: 'left',
+      }}
+      // iconVariant={{
+      //   success: '✅',
+      //   error: <WarningIcon style={{color:"#f44336"}} fontSize="small" />,
+      //   warning: '⚠️',
+      //   info: 'ℹ️',
+      // }}
+      classes={{root: classes.snackbarClasses}}
+      TransitionComponent={Grow}
+    >
     <div id={"container"} style={{marginLeft:"auto", marginRight:"auto", minWidth:800, maxWidth:1400, width:"100%", minHeight:"100vh"}}>
       <Login />
       <div style={{padding:5, paddingTop:65,  marginLeft:10, paddingBottom:70, minHeight:"90vh"}}>
@@ -100,6 +165,7 @@ export function App({
       <div style={{position:"fixed", left:0, bottom:0, width:"100%" }}><Footer /></div>
       <GlobalStyle />
     </div>
+    </SnackbarProvider>
   );
 }
 // const mapStateToProps = createStructuredSelector({
