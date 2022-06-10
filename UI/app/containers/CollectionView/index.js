@@ -463,7 +463,7 @@ export function CollectionView({
                       <div style={{textAlign:"center"}}>
                         This collection, associated tables, and annotations will be deleted
                         <div style={{color:"red", fontWeight:"bolder"}}>PERMANENTLY</div></div> }
-                    accept_action={ () => {deleteCollection(); navigate('dashboard', { replace: true }); } }
+                    accept_action={ () => {deleteCollection(); navigate('/dashboard', { replace: true }); } }
                     cancel_action={ () => {showCollectionDeleteDialog(false);} }
                     open={collectionDeleteDialog}
                   />
