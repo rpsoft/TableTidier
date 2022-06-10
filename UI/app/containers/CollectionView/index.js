@@ -597,9 +597,9 @@ export function CollectionView({
 
                         let warningMessage = (<>
                           <div>
-                            {
-                              tablesAlreadyAtTargetCollection.length == 1 ? 'File ' : 'Files '
-                            } already present in collecion {newTargetCollectionID}:
+                          {
+                            tablesAlreadyAtTargetCollection.length == 1 ? 'File ' : 'Files '
+                          } already present in collecion {newTargetCollectionID}:
                           </div>
                           {
                             tablesAlreadyAtTargetCollection.map((table, index) => {
@@ -668,6 +668,7 @@ export function CollectionView({
                         moveTables(checkedTables, targetCollectionID);
                         setMoveDialogOpen(false);
                         setCheckedTables({});
+                        setNoTables(0);
                         setTargetCollectionID('');
                         setMoveDialogWarningText('')
                         showMoveDialog(false);
@@ -698,6 +699,8 @@ export function CollectionView({
                     accept_action={ () => {
                       removeTables(checkedTables, prepareCollectionData());
                       showDeleteDialog(false);
+                      setCheckedTables({});
+                      setNoTables(0);
                     }}
                     cancel_action={ () => showDeleteDialog(false) }
                     open={deleteDialog}
