@@ -198,105 +198,126 @@ app.post(CONFIG.api_base_url+'/tableUploader',
     let index, len;
 
     const results = []
+    const {
+      collection_id,
+      username_uploader,
+    } = req.body
 
+    // check if table exist at collection
+
+    const docids = files.map((file) => {
+      // docid
+      return file.filename.replace(/\.[^/.]+$/, '').replaceAll('_', '-')+'_1'
+    })
+
+    const checkdFiles = await docidListCheckIfInTargetCollection(docids, collection_id);
+    const filteredFiles = checkdFiles.reduce(function (prev, table, index) {
+      typeof table == 'string' && table == 'not found'?
+        prev.upload.push(files[index])
+        : prev.existAtCollection.push(files[index]);
+      return prev;
+    }, {upload:[], existAtCollection:[]});
+
+    filteredFiles.existAtCollection.forEach(file => 
+      results.push({
+        filename: file.filename,
+        status: 'failed',
+        detail: 'already present in collection'
+      }))
     // Loop through all the uploaded files and return names to frontend
-    for (index = 0, len = files.length; index < len; ++index) {
+    await Promise.all(filteredFiles.upload.map( async (file) => {
       try {
-        const tables_html = await tableSplitter(files[index].path)
+        const tables_html = await tableSplitter(file.path)
         // Format file name. all '_' to '-'
-        const cleanFilename = files[index].originalname.replaceAll('_', '-')
+        const cleanFilename = file.originalname.replaceAll('_', '-')
         const file_elements = cleanFilename.split('.')
         const extension = file_elements.pop()
         const baseFilename = file_elements.join('.')
 
-        await fs.mkdir(path.join(tables_folder, req.body.collection_id), { recursive: true })
+        await fs.mkdir(path.join(tables_folder, collection_id), { recursive: true })
 
-        tables_html.map( async (table, t) => {
-
+        await Promise.all(tables_html.map( async (table, t) => {
           const page = t+1
           const docid = baseFilename
 
           const newTableFilename = `${docid}_${page}.${extension}`
 
-          await fs.writeFile(path.join(tables_folder, req.body.collection_id, newTableFilename), table)
+          await fs.writeFile(path.join(tables_folder, collection_id, newTableFilename), table)
 
-          await dbDriver.tableCreate(docid, page, req.body.username_uploader, req.body.collection_id, newTableFilename)
+          await dbDriver.tableCreate(docid, page, username_uploader, collection_id, newTableFilename)
           results.push({filename: newTableFilename, status: 'success'})
-        })
+        }))
       } catch(err) {
         console.log(err)
-        console.log(`file: ${files[index].originalname} failed to process`)
-        results.push({filename: files[index].originalname, status: 'failed'})
+        console.log(`file: ${file.originalname} failed to process`)
+        results.push({filename: file.originalname, status: 'failed'})
       }
-    }
+    }))
 
     res.send(results);
   });
 });
 
 async function UMLSData() {
+  let semtypes = new Promise( async (resolve,reject) => {
+    const fd = await fs.open(CONFIG.system_path+ 'Tools/metamap_api/cui_def.csv', 'r');
+    let inputStream = fd.createReadStream({encoding: 'utf8'});
 
-    let semtypes = new Promise( async (resolve,reject) => {
-        const fd = await fs.open(CONFIG.system_path+ 'Tools/metamap_api/cui_def.csv', 'r');
-        let inputStream = fd.createReadStream({encoding: 'utf8'});
+    const result = {};
 
-        const result = {};
-
-        inputStream
-            .pipe(new CsvReadableStream({ parseNumbers: true, parseBooleans: true, trim: true, skipHeader: true }))
-            .on('data', function (row) {
-                //console.log('A row arrived: ', row);
-                row[4].split(";").map( st => {
-                    result[st] = result[st] ? result[st]+1 : 1
-                })
-
-            })
-            .on('end', function (data) {
-                resolve(result);
-            });
-    })
-
-    let cui_def = new Promise( async (resolve,reject) => {
-
-      const fd = await fs.open(CONFIG.system_path + 'Tools/metamap_api/cui_def.csv', 'r');
-      let inputStream = fd.createReadStream({encoding: 'utf8'});
-
-      const result = {};
-
-      inputStream
-        .pipe(new CsvReadableStream({ parseNumbers: true, parseBooleans: true, trim: true, skipHeader: true }))
-        .on('data', function (row) {
-            //console.log('A row arrived: ', row);
-            result[row[0]] = {"matchedText": row[1], "preferred": row[2], "hasMSH":row[3], "semTypes":row[4]}
+    inputStream
+      .pipe(new CsvReadableStream({ parseNumbers: true, parseBooleans: true, trim: true, skipHeader: true }))
+      .on('data', (row) => {
+        //console.log('A row arrived: ', row);
+        row[4].split(';').map( st => {
+          result[st] = result[st] ? result[st]+1 : 1
         })
-        .on('end', function (data) {
-            resolve(result);
-        });
-    })
+      })
+      .on('end', (data) => resolve(result));
+  })
 
-    let cui_concept = new Promise( async (resolve,reject) =>{
+  let cui_def = new Promise( async (resolve,reject) => {
+    const fd = await fs.open(CONFIG.system_path + 'Tools/metamap_api/cui_def.csv', 'r');
+    let inputStream = fd.createReadStream({encoding: 'utf8'});
 
-        const fd = await fs.open(CONFIG.system_path+ 'Tools/metamap_api/cui_concept.csv', 'r');
-        let inputStream = fd.createReadStream({encoding: 'utf8'});
+    const result = {};
 
-        const result = {};
+    inputStream
+      .pipe(new CsvReadableStream({ parseNumbers: true, parseBooleans: true, trim: true, skipHeader: true }))
+      .on('data', (row) => {
+        //console.log('A row arrived: ', row);
+        const [
+          key,
+          matchedText,
+          preferred,
+          hasMSH,
+          semTypes,
+        ] = row
+        result[key] = {matchedText, preferred, hasMSH, semTypes}
+      })
+      .on('end', (data) => resolve(result));
+  })
 
-        inputStream
-            .pipe(new CsvReadableStream({ parseNumbers: true, parseBooleans: true, trim: true, skipHeader: true }))
-            .on('data', function (row) {
-                //console.log('A row arrived: ', row);
-                result[row[0]] = row[1]
-            })
-            .on('end', function (data) {
-                resolve(result);
-            });
-    })
+  let cui_concept = new Promise( async (resolve,reject) =>{
+    const fd = await fs.open(CONFIG.system_path+ 'Tools/metamap_api/cui_concept.csv', 'r');
+    let inputStream = fd.createReadStream({encoding: 'utf8'});
 
-    semtypes = await semtypes
-    cui_def = await cui_def
-    cui_concept = await cui_concept
+    const result = {};
 
-    return {semtypes, cui_def, cui_concept}
+    inputStream
+      .pipe(new CsvReadableStream({ parseNumbers: true, parseBooleans: true, trim: true, skipHeader: true }))
+      .on('data', (row) => {
+        //console.log('A row arrived: ', row);
+        result[row[0]] = row[1]
+      })
+      .on('end', (data) => resolve(result));
+  })
+
+  semtypes = await semtypes
+  cui_def = await cui_def
+  cui_concept = await cui_concept
+
+  return {semtypes, cui_def, cui_concept}
 }
 
 async function CUIData () {
@@ -418,10 +439,14 @@ const tabularFromAnnotation = async ( annotation ) => {
 async function main() {
 
   // search index rebuild/initialisation
+  console.time('easySearch')
   await rebuildSearchIndex()
+  console.timeEnd('easySearch')
 
   // UMLS Data buffer
+  console.time('UMLSData')
   umls_data_buffer = await UMLSData();
+  console.timeEnd('UMLSData')
 
   // await refreshDocuments()
 
@@ -885,6 +910,19 @@ app.post(CONFIG.api_base_url+'/collections',
   res.json(response)
 });
 
+const docidListCheckIfInTargetCollection = (list, collectionId) => {
+  return Promise.all(
+    list.map((_docid) => {
+      const [docid, page] = _docid.split('_')
+      return dbDriver.tableGet(
+        docid,
+        page,
+        collectionId,
+      )
+    })
+  );
+}
+
 app.post(CONFIG.api_base_url+'/tables',
   experessJwt({
     secret: publickey,
@@ -945,16 +983,7 @@ app.post(CONFIG.api_base_url+'/tables',
         return
       }
 
-      result = await Promise.all(
-        docidList.map((_docid) => {
-          const [docid, page] = _docid.split('_')
-          return dbDriver.tableGet(
-            docid,
-            page,
-            collection_id,
-          )
-        })
-      );
+      result = await docidListCheckIfInTargetCollection(docidList, collection_id);
 
       res.json({
         status: 'success',
@@ -965,14 +994,13 @@ app.post(CONFIG.api_base_url+'/tables',
         }))
       })
       return
-      // result = await dbDriver.tablesRemove(tablesList, collection_id);
       break;
     case 'checkFiles':
       if ( collectionPermissions.write.includes(collection_id) == false ) {
         res.json({status: 'FAIL', payload: 'do not have permissions on collection'})
         return
       }
-      console.log(tablesList)
+
       result = await Promise.all(
         tablesList.map((docid) => dbDriver.tableGet(
           docid.replace(/\.[^/.]+$/, '').replaceAll('_', '-'),
@@ -990,7 +1018,6 @@ app.post(CONFIG.api_base_url+'/tables',
         }))
       })
       return
-      // result = await dbDriver.tablesRemove(tablesList, collection_id);
       break;
     case 'remove':
       if ( collectionPermissions.write.includes(collection_id) == false ) {
@@ -1000,35 +1027,25 @@ app.post(CONFIG.api_base_url+'/tables',
       result = await dbDriver.tablesRemove(tablesList, collection_id);
       break;
     case 'move':
-      // ! :-) check if table exits
-
       if ( collectionPermissions.write.includes(targetCollectionID) == false ) {
         res.json({status: 'FAIL', payload: 'do not have permissions on destination'})
         return
       }
-      console.log(tablesList)
-      debugger
-      // check if table exits
-      result = await Promise.all(
-        tablesList.map((docid) => dbDriver.tableGet(docid, '1', targetCollectionID))
-      );
+      // check if table exist at collection
+      result = await docidListCheckIfInTargetCollection(tablesList, targetCollectionID);
 
-      const tablesAlredyExists = result.filter(
-        (table) => typeof table == 'string' && table != 'not found'
-      )
+      const payload = result.reduce(function (prev, table, index) {
+        typeof table == 'string' && table == 'not found'?
+          prev.moved.push(tablesList[index])
+          : prev.existAtCollection.push(tablesList[index]);
+        return prev;
+      }, {moved:[], existAtCollection:[]});
 
-      if (tablesAlredyExists.length > 0) {
-        res.json({
-          status: 'fail',
-          payload: {
-            msg: 'tables already exists',
-            list: tablesAlredyExists
-          }
-        })
-        return
-      }
-
-      result = await dbDriver.tablesMove(tablesList, collection_id, targetCollectionID);
+      result = await dbDriver.tablesMove(payload.moved, collection_id, targetCollectionID);
+      return res.json({
+        status: 'success',
+        data: payload,
+      })
       break;
     case 'list':  // This is the same as not doing anything and returning the collection and its tables.
     default:
