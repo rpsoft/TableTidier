@@ -35,7 +35,12 @@ const theme = createMuiTheme({
       cancel: '#f98989',
       // cancel: '#ffbdbd',
       cancel2: '#f98989',
-
+      normalBackground: 'rgb(245 249 232)',
+      successBackground: 'rgb(237, 247, 237)',
+      infoBackground: 'rgb(163 198 249)',
+      warningBackground: 'rgb(255 233 184)',
+      errorBackground: 'rgb(255 182 182)',
+      textColorDialog: 'black',
     },
   },
 });
