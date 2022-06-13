@@ -53,28 +53,30 @@ const drawerWidth = 0;
 
 const useStyles = makeStyles((theme) => ({
   root: {
-   display: 'flex',
- },
- appBar: {
-   width: `calc(100% - ${drawerWidth}px)`,
-   minHeight: 64,
-   marginRight: drawerWidth,
-   backgroundColor: "#3f51b5",
- },
- drawer: {
-   width: drawerWidth,
-   flexShrink: 0,
- },
- drawerPaper: {
-   width: drawerWidth,
- },
- // necessary for content to be below app bar
- toolbar: theme.mixins.toolbar,
- content: {
-   flexGrow: 1,
-   backgroundColor: theme.palette.background.default,
-   padding: theme.spacing(3),
- },
+    display: 'flex',
+  },
+  appBar: {
+    width: `calc(100% - ${drawerWidth}px)`,
+    minHeight: 64,
+    marginRight: drawerWidth,
+    '&.MuiAppBar-root': {
+      backgroundColor: "#3f51b5",
+    }
+  },
+  drawer: {
+    width: drawerWidth,
+    flexShrink: 0,
+  },
+  drawerPaper: {
+    width: drawerWidth,
+  },
+  // necessary for content to be below app bar
+  toolbar: theme.mixins.toolbar,
+  content: {
+    flexGrow: 1,
+    backgroundColor: theme.palette.background.default,
+    padding: theme.spacing(3),
+  },
 }));
 
 export function Login({
@@ -184,7 +186,10 @@ export function Login({
   </>
 
   return (
-    <AppBar position="fixed" className={classes.appBar} style={{backgroundColor:"#3f51b5"}}>
+    <AppBar
+      position="static"
+      className={classes.appBar}
+    >
     <Toolbar>
 
       <Helmet>
@@ -307,7 +312,6 @@ export function Login({
 
         </div>
       </Popover>
-
     </Toolbar>
     </AppBar>
   );
