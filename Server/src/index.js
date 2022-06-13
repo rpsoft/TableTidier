@@ -1674,10 +1674,11 @@ app.post(CONFIG.api_base_url+'/text',
     await fs.mkdir( path.join(tables_folder_override, collId), { recursive: true })
   }
   debugger
+  const payloadParsed = JSON.parse(payload)
   const titleText = '<div class="headers"><div style="font-size:20px; font-weight:bold; white-space: normal;">'+
-    cheerio(JSON.parse(payload).tableTitle).text()+'</div></div>'
+    cheerio.load(payloadParsed.tableTitle).text()+'</div></div>'
 
-  const bodyText = JSON.parse(payload).tableBody
+  const bodyText = payloadParsed.tableBody
   const start_body_index = bodyText.indexOf("<table")
   const last_body_index = bodyText.lastIndexOf("</table>");
   let body;
