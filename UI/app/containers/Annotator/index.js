@@ -3,7 +3,7 @@
  * Annotator
  *
  */
- const _ = require('lodash');
+const _ = require('lodash');
 
 import React, { memo } from 'react';
 import PropTypes from 'prop-types';
@@ -40,7 +40,11 @@ import {
 import { useCookies } from 'react-cookie';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 
-import { ArrowDropUp, ArrowDropDown }from '@material-ui/icons';
+import {
+  ArrowDropUp,
+  ArrowDropDown,
+  Close as CloseIcon,
+}from '@material-ui/icons';
 
 import {
   useNavigate,
@@ -86,6 +90,8 @@ import TableResult from 'components/TableResult'
 import TableMetadata from 'components/TableMetadata'
 import TableNotes from 'components/TableNotes'
 import PopAlert from 'components/PopAlert'
+
+import AnnotatorMenuButtons from 'components/AnnotatorMenuButtons'
 
 import prepareMetadata from './metadataUtil'
 
@@ -171,15 +177,39 @@ export function Annotator({
   const [ bottomLevel, setBottomLevel ] = React.useState(0);
   const [ bottomSize, setBottomSize ] = React.useState("50vh");
 
-  const handleBottomChange = (bottomLevel) => {
-    if ( bottomLevel >= 2 ){
+  const handleBottomChange = (increment) => {
+    const resetBottomMenu = () => {
       setBottomLevel(0);
       setBottomEnabled(false);
-      setBottomSize(65)
-    } else {
+      setBottomSize(65);
+    }
+    const growBottomMenu = () => {
       setBottomEnabled(true);
       setBottomLevel(bottomLevel+1)
       setBottomSize(((bottomLevel+1)*44)+"vh");
+    }
+    const shrinkBottomMenu = () => {
+      setBottomEnabled(true);
+      setBottomLevel(bottomLevel-1);
+      setBottomSize(((bottomLevel-1)*44)+"vh");
+    }
+
+    switch (increment) {
+      case -1:
+        if ( bottomLevel == 1 ){
+          return resetBottomMenu()
+        }
+        shrinkBottomMenu()
+        break;
+      case 1:
+        if ( bottomLevel < 2 ){
+          return growBottomMenu()
+        }
+        resetBottomMenu()
+        break;
+      default:
+        resetBottomMenu()
+        break;
     }
   }
 
@@ -397,244 +427,286 @@ export function Annotator({
 
 
   return (
+    <Card style={{marginTop:10, marginBottom: openMargin, minHeight:"85vh", marginRight:250}}>
+      <Helmet>
+        <title>TableTidier - Annotator</title>
+        <meta name="description" content="Description of Annotations" />
+      </Helmet>
+      
+      <PopAlert alertData={alertData} setAlertData={setAlertData} />
 
-      <Card style={{marginTop:10, marginBottom: openMargin, minHeight:"85vh", marginRight:250}}>
-{
-        <Helmet>
-          <title>TableTidier - Annotator</title>
-          <meta name="description" content="Description of Annotations" />
-        </Helmet>
-}
-        <PopAlert alertData={alertData} setAlertData={setAlertData} />
+      <div className={classes.root}>
+        <div className={classes.content}>
 
-        <div className={classes.root}>
-          <div className={classes.content}>
-
-            <div style={{width:"100%",textAlign:"right"}}>
-              <div style={{float:"left", marginTop:10}}>
-                    Document Name / ID:  <span style={{fontWeight:"bold", textDecoration: "underline", cursor: "pointer", color: "blue"}}> {docid} </span>
-              </div>
-
-              <div>
-                Show Cuis
-                <Switch
-                  checked={showEditCuis}
-                  onChange={() => { setShowEditCuis(!showEditCuis);}}
-                  name="checkedA"
-                  inputProps={{ 'aria-label': 'secondary checkbox' }}
-                />
-              </div>
-
-              { allowEdit ? <div>
-                {editorEnabled ? "Disable" : "Enable"} Editing
-                <Switch
-                    checked={editorEnabled}
-                    onChange={() => { setEditorEnabled(!editorEnabled);}}
-                    name="checkedA"
-                    inputProps={{ 'aria-label': 'secondary checkbox' }}
-                  />
-                  {editorEnabled ? <Button variant="outlined"
-                                           style={{backgroundColor:"#ffdbdb"}}
-                                           onClick={ () => {
-                                              saveTextChanges(tableData.tableTitle, tableData.tableBody);
-                                              setEditorEnabled(false);
-                                              loadTableContent(false);
-                                              loadTableResults(false);
-                                            } }>
-                                           Save Edit Changes <EditIcon style={{marginLeft:5}}/>
-                                   </Button> : "" }
-              </div> : ""}
+          <div style={{width:"100%",textAlign:"right"}}>
+            <div style={{float:"left", marginTop:10}}>
+                  Document Name / ID:  <span style={{fontWeight:"bold", textDecoration: "underline", cursor: "pointer", color: "blue"}}> {docid} </span>
             </div>
 
-            <hr />
+            <div>
+              Show Cuis
+              <Switch
+                checked={showEditCuis}
+                onChange={() => { setShowEditCuis(!showEditCuis);}}
+                name="checkedA"
+                inputProps={{ 'aria-label': 'secondary checkbox' }}
+              />
+            </div>
 
-            {
-            <TableEditor editorID={"table_title_editor"}
-                         textContent={tableData ? tableData.tableTitle : ""}
-                         editorEnabled={editorEnabled}
-                         saveTextChanges={ (newText) => { changeTableData("tableTitle", newText) } }
-                         height={200}
-                         metadata={metadata}
-                         cuisIndex={cuisIndex}
-                         showEditCuis={showEditCuis}
-                         />
-                       }
-            <hr />
-
-            <TableEditor editorID={"table_content_editor"}
-                         textContent={tableData ? tableData.tableBody : ""}
-                         editorEnabled={editorEnabled}
-                         saveTextChanges={ (newText) => { changeTableData("tableBody", newText) } }
-                         height={800}
-                         metadata={metadata}
-                         cuisIndex={cuisIndex}
-                         showEditCuis={showEditCuis}  />
-        </div>
-
-           <Drawer
-              className={classes.drawer}
-              variant="permanent"
-              classes={{
-                paper: classes.drawerPaper,
-              }}
-              anchor="right"
-              style={{zIndex: 0}}
-            >
-
-              <List>
-              <ListItem style={{marginLeft:0}}>
-                Table Number in Collection:
-              </ListItem>
-              <ListItem>
-                <Button variant="outlined" size="small" style={{minWidth: "auto", width:30, height:40, marginLeft:5}} onClick={ goPrev }>
-                  <NavigateBeforeIcon style={{fontSize:20}} />
-                </Button>
-                <div style={{display:"inline", border:"1px solid #e5e5e5", borderRadius:5, height:40, verticalAlign:"center", width:"100% ", textAlign:"center", padding:2, fontSize:15}}>
-                  <input style={{width:70, marginRight:5, textAlign:"right",height:35 }}
-                         type="number"
-                         value={ tablePosition && (parseInt(tablePosition) > -1) ? tablePosition : tablePosition }
-                         onKeyDown={ (event) => {
-                           if(event.key === 'Enter'){
-                             goToTable(tablePosition)()
-                              // (event.target.value > (tablePosition+1)) ? goNext() : goPrev()
-                           } else {
-                             // event.target.value ? setTablePosition( ( event.target.value > 0 ? event.target.value -1 : 0 ) ) : event.target.value
-                             setTablePosition( parseInt(event.target.value) ? (parseInt(event.target.value) ) : "" )
-                           }
-                         }}
-                         onChange={ (event) => {
-
-                           setTablePosition( parseInt(event.target.value) ? (parseInt(event.target.value) ) : "" )
-                           // event.target.value ? setTablePosition( ( event.target.value > 0 ? event.target.value -1 : 0 ) ) : event.target.value
-                         } }
-
-                         />
-                  <div style={{display:"inline-block"}}> / {N_tables} </div>
-                </div>
-                <Button variant="outlined" size="small" style={{minWidth: "auto", width:30, height:40}} onClick={ goNext }>
-                  <NavigateNextIcon style={{fontSize:20}} />
-                </Button>
-              </ListItem>
-
-              </List>
-              <Divider />
-              <List>
-              {
-                // <ListItem button>
-                //   <ListItemIcon><EditIcon/></ListItemIcon>
-                //   <ListItemText primary={"Edit Table"} />
-                //   <Switch
-                //       checked={editorEnabled}
-                //       onChange={() => { setEditorEnabled(!editorEnabled);}}
-                //       name="checkedA"
-                //       inputProps={{ 'aria-label': 'secondary checkbox' }}
-                //     />
-                // </ListItem>
-                }
-
-                <ListItem button>
-                  <ListItemIcon style={{display:"inline"}}><DownloadIcon style={{fontSize:25}} /></ListItemIcon>
-
-                  <ListItemText style={{display:"inline", marginLeft:5 }} primary={
-                    <CsvDownloader
-                      filename={fileNameRoot()+"_table_data.csv"}
-                      separator=";"
-                      wrapColumnChar="'"
-                      columns={annotationHeaders.map( item => { return {id: item, displayName: item} } )}
-                      datas={results}
-                    >
-                      Table Data (.csv)
-                    </CsvDownloader>
-                  } />
-
-                </ListItem>
-
-                <ListItem button>
-                  <ListItemIcon style={{display:"inline"}}><DownloadIcon style={{fontSize:25}}/></ListItemIcon>
-                    <ListItemText style={{display:"inline", marginLeft:5}} primary={<CsvDownloader
-                      filename={fileNameRoot()+"_table_metadata.csv"}
-                      separator=";"
-                      wrapColumnChar="'"
-                      columns={ Object.values(metadata)[0] ? Object.keys(Object.values(metadata)[0]).map( item => { return {id: item, displayName: item} } ) : []}
-                      datas={Object.values(metadata)}
-                    > Table Metadata (.csv) </CsvDownloader>} />
-                </ListItem>
-
-                <ListItem button onClick={ ()=> {downloadFile({tableResults: annotator.results, metadata: annotator.metadata}, fileNameRoot()+"_all_data" )}}>
-                    <ListItemIcon style={{display:"inline"}}><DownloadIcon style={{fontSize:25}}/></ListItemIcon>
-                    <ListItemText style={{display:"inline", marginLeft:5}} primary="Results & Metadata (.json)" />
-                </ListItem>
-
-                <ListItem button onClick={ ()=> {downloadFile({annotation: annotator.annotations}, fileNameRoot()+"_annotation" )}}>
-                    <ListItemIcon style={{display:"inline"}}><DownloadIcon style={{fontSize:25}}/></ListItemIcon>
-                    <ListItemText style={{display:"inline", marginLeft:5}} primary="Annotation (.json)" />
-                </ListItem>
-
-              </List>
-            </Drawer>
-        </div>
-
-
-        <Card style={{position:"fixed",left: 0, bottom: 60, width: "100%", height: bottomEnabled ? bottomSize : 65}}>
-          <div style={{width:"100%", backgroundColor: "#a3a3a3", height:5}}> </div>
-          <div style={{width:"100%", minWidth:800, height: bottomEnabled ? "100%" : 65, backgroundColor:"#e5e5e5"}}>
-            { !bottomEnabled ? <Button variant="outlined" style={{float:"right", backgroundColor:"#ffffff", top:5, right:5}} onClick={ () => handleBottomChange(bottomLevel) }> { bottomEnabled ? <ArrowDropDown style={{fontSize:35}} /> : <ArrowDropUp style={{fontSize:35}} /> }</Button> : ""}
-            {
-              !bottomEnabled ||
-               <div style={{height:"100%", backgroundColor:"#ffffff"}}>
-                  <table className={"bottomTable"}  style={{width:"100%", height:"100%"}}>
-                    <tbody>
-                      <tr>
-                          <td style={{ textAlign: "center", padding:5, borderRight:"5px solid #e5e5e5", verticalAlign:"top", width: 200, maxWidth:200}}>
-                            <div style={{width:"100%"}}>
-                              <Button variant="outlined" className={classes.bottomButtons} style={{backgroundColor: bottomNotes ? "#dde6ff" : "" }} onClick={ () => showBottomNotes(!bottomNotes)}>
-                                            1. Notes { bottomNotes ? <VisibilityIcon style={{marginLeft:5}}/> : <VisibilityOffIcon style={{marginLeft:5}}/> }  </Button>
-                              <Button variant="outlined" className={classes.bottomButtons} style={{backgroundColor: bottomAnnotations ? "lightgoldenrodyellow" : "" }} onClick={ () => showBottomAnnotations(!bottomAnnotations)}>
-                                            2. Annotations { bottomAnnotations ? <VisibilityIcon style={{marginLeft:5}}/> : <VisibilityOffIcon style={{marginLeft:5}}/> }  </Button>
-                              <Button variant="outlined" className={classes.bottomButtons} style={{backgroundColor: bottomResults ? "lightsteelblue" : ""  }} onClick={ () => showBottomResults(!bottomResults)}>
-                                            3. Results { bottomResults ? <VisibilityIcon style={{ marginLeft:5}}/> : <VisibilityOffIcon style={{marginLeft:5}}/> } </Button>
-                              <Button variant="outlined" className={classes.bottomButtons} style={{backgroundColor: bottomMetadata ? "lightpink" : ""  }} onClick={ () => showBottomMetadata(!bottomMetadata)}>
-                                            4. Metadata { bottomMetadata ? <VisibilityIcon style={{ marginLeft:5}}/> : <VisibilityOffIcon style={{marginLeft:5}}/> } </Button>
-                            </div>
-                          </td>
-
-                          <td style={{ padding:5, verticalAlign:"top", maxWidth:"50%" }}>
-
-                              <div style={{overflowY:"scroll",height:"100%"}}>
-                                <table style={{width:"100%", height:"100%"}}>
-                                  <tbody>
-                                    { [bottomNotes, bottomAnnotations, bottomResults, bottomMetadata].map( (elm, i) => elm ?
-                                        <tr key={"tr_"+i} style={{width:"100%", verticalAlign:"top", borderBottom:"1px #acacac solid"}}>
-                                          <td style={{paddingBottom:20}}>
-
-                                            { bottom_elements[i] }
-
-                                          </td>
-                                        </tr> : undefined )
-                                    }
-                                    </tbody>
-                                 </table>
-                               </div>
-
-                           </td>
-                           <td style={{ padding:5, verticalAlign:"top", width:70}}>
-                              <Button variant="outlined"
-                                      style={{float:"right", backgroundColor:"#ffffff", top:5, right:5}}
-                                      onClick={ () => handleBottomChange(bottomLevel) }> { bottomLevel == 2 ? <ArrowDropDown style={{fontSize:35}} /> : <ArrowDropUp style={{fontSize:35}} /> }
-                                      </Button>
-                           </td>
-                        </tr>
-                    </tbody>
-                  </table>
-                </div>
-          }
-
-
+            { allowEdit && <div>
+              {editorEnabled ? "Disable" : "Enable"} Editing
+              <Switch
+                checked={editorEnabled}
+                onChange={() => { setEditorEnabled(!editorEnabled);}}
+                name="checkedA"
+                inputProps={{ 'aria-label': 'secondary checkbox' }}
+              />
+              {editorEnabled && (
+                <Button
+                  variant="outlined"
+                  style={{backgroundColor:"#ffdbdb"}}
+                  onClick={ () => {
+                    saveTextChanges(tableData.tableTitle, tableData.tableBody);
+                    setEditorEnabled(false);
+                    loadTableContent(false);
+                    loadTableResults(false);
+                  } }
+                >
+                    Save Edit Changes <EditIcon style={{marginLeft:5}}/>
+                </Button> )
+              }
+            </div>}
           </div>
-        </Card>
 
+          <hr />
 
+          {
+          <TableEditor editorID={"table_title_editor"}
+                        textContent={tableData ? tableData.tableTitle : ""}
+                        editorEnabled={editorEnabled}
+                        saveTextChanges={ (newText) => { changeTableData("tableTitle", newText) } }
+                        height={200}
+                        metadata={metadata}
+                        cuisIndex={cuisIndex}
+                        showEditCuis={showEditCuis}
+                        />
+                      }
+          <hr />
+
+          <TableEditor editorID={"table_content_editor"}
+                        textContent={tableData ? tableData.tableBody : ""}
+                        editorEnabled={editorEnabled}
+                        saveTextChanges={ (newText) => { changeTableData("tableBody", newText) } }
+                        height={800}
+                        metadata={metadata}
+                        cuisIndex={cuisIndex}
+                        showEditCuis={showEditCuis}  />
+        </div>
+
+        <Drawer
+          className={classes.drawer}
+          variant="permanent"
+          classes={{
+            paper: classes.drawerPaper,
+          }}
+          anchor="right"
+          style={{zIndex: 0}}
+        >
+
+          <List>
+          <ListItem style={{marginLeft:0}}>
+            Table Number in Collection:
+          </ListItem>
+          <ListItem>
+            <Button variant="outlined" size="small" style={{minWidth: "auto", width:30, height:40, marginLeft:5}} onClick={ goPrev }>
+              <NavigateBeforeIcon style={{fontSize:20}} />
+            </Button>
+            <div style={{display:"inline", border:"1px solid #e5e5e5", borderRadius:5, height:40, verticalAlign:"center", width:"100% ", textAlign:"center", padding:2, fontSize:15}}>
+              <input style={{width:70, marginRight:5, textAlign:"right",height:35 }}
+                      type="number"
+                      value={ tablePosition && (parseInt(tablePosition) > -1) ? tablePosition : tablePosition }
+                      onKeyDown={ (event) => {
+                        if(event.key === 'Enter'){
+                          goToTable(tablePosition)()
+                          // (event.target.value > (tablePosition+1)) ? goNext() : goPrev()
+                        } else {
+                          // event.target.value ? setTablePosition( ( event.target.value > 0 ? event.target.value -1 : 0 ) ) : event.target.value
+                          setTablePosition( parseInt(event.target.value) ? (parseInt(event.target.value) ) : "" )
+                        }
+                      }}
+                      onChange={ (event) => {
+
+                        setTablePosition( parseInt(event.target.value) ? (parseInt(event.target.value) ) : "" )
+                        // event.target.value ? setTablePosition( ( event.target.value > 0 ? event.target.value -1 : 0 ) ) : event.target.value
+                      } }
+
+                      />
+              <div style={{display:"inline-block"}}> / {N_tables} </div>
+            </div>
+            <Button variant="outlined" size="small" style={{minWidth: "auto", width:30, height:40}} onClick={ goNext }>
+              <NavigateNextIcon style={{fontSize:20}} />
+            </Button>
+          </ListItem>
+
+          </List>
+          <Divider />
+          <List>
+          {
+            // <ListItem button>
+            //   <ListItemIcon><EditIcon/></ListItemIcon>
+            //   <ListItemText primary={"Edit Table"} />
+            //   <Switch
+            //       checked={editorEnabled}
+            //       onChange={() => { setEditorEnabled(!editorEnabled);}}
+            //       name="checkedA"
+            //       inputProps={{ 'aria-label': 'secondary checkbox' }}
+            //     />
+            // </ListItem>
+            }
+
+            <ListItem button>
+              <ListItemIcon style={{display:"inline"}}><DownloadIcon style={{fontSize:25}} /></ListItemIcon>
+
+              <ListItemText style={{display:"inline", marginLeft:5 }} primary={
+                <CsvDownloader
+                  filename={fileNameRoot()+"_table_data.csv"}
+                  separator=";"
+                  wrapColumnChar="'"
+                  columns={annotationHeaders.map( item => { return {id: item, displayName: item} } )}
+                  datas={results}
+                >
+                  Table Data (.csv)
+                </CsvDownloader>
+              } />
+
+            </ListItem>
+
+            <ListItem button>
+              <ListItemIcon style={{display:"inline"}}><DownloadIcon style={{fontSize:25}}/></ListItemIcon>
+                <ListItemText style={{display:"inline", marginLeft:5}} primary={<CsvDownloader
+                  filename={fileNameRoot()+"_table_metadata.csv"}
+                  separator=";"
+                  wrapColumnChar="'"
+                  columns={ Object.values(metadata)[0] ? Object.keys(Object.values(metadata)[0]).map( item => { return {id: item, displayName: item} } ) : []}
+                  datas={Object.values(metadata)}
+                > Table Metadata (.csv) </CsvDownloader>} />
+            </ListItem>
+
+            <ListItem button onClick={ ()=> {downloadFile({tableResults: annotator.results, metadata: annotator.metadata}, fileNameRoot()+"_all_data" )}}>
+                <ListItemIcon style={{display:"inline"}}><DownloadIcon style={{fontSize:25}}/></ListItemIcon>
+                <ListItemText style={{display:"inline", marginLeft:5}} primary="Results & Metadata (.json)" />
+            </ListItem>
+
+            <ListItem button onClick={ ()=> {downloadFile({annotation: annotator.annotations}, fileNameRoot()+"_annotation" )}}>
+                <ListItemIcon style={{display:"inline"}}><DownloadIcon style={{fontSize:25}}/></ListItemIcon>
+                <ListItemText style={{display:"inline", marginLeft:5}} primary="Annotation (.json)" />
+            </ListItem>
+
+          </List>
+        </Drawer>
+      </div>
+
+      {/* Edition menu */}
+      <Card
+        style={{
+          position:"fixed",
+          left: 0, bottom: 60, width: "100%", height: bottomEnabled ? bottomSize : 65
+        }}
+      >
+        <div style={{width:"100%", backgroundColor: "#a3a3a3", height:5}}> </div>
+        <div style={{width:"100%", minWidth:800, height: bottomEnabled ? "100%" : 65, backgroundColor:"#e5e5e5"}}>
+          {
+          // If menu to extend bottom menu
+          !bottomEnabled && (
+          <Button
+            variant="outlined"
+            style={{float:"right", backgroundColor:"#ffffff", top:5, right:5}}
+            onClick={ () => handleBottomChange(1) }
+          >
+            { bottomEnabled ? <ArrowDropDown style={{fontSize:35}} /> : <ArrowDropUp style={{fontSize:35}} /> }
+          </Button> )
+          }
+          {
+          !bottomEnabled ||
+
+          <div
+            style={{
+              height:"100%",
+              backgroundColor:"#ffffff",
+              display: 'grid',
+              gridTemplateColumns: 'auto 1fr auto',
+              gridTemplateRows: '1fr',
+              gridTemplateAreas: `
+                'menu'
+                'main'
+                'show'`,
+            }}
+          >
+            <menu
+              style={{
+                // width:"100%"
+                display: 'flex',
+                flexDirection: 'column',
+                paddingLeft: '10px',
+                paddingRight: '10px',
+              }}
+            >
+              <Button variant="outlined" className={classes.bottomButtons} style={{backgroundColor: bottomNotes ? "#dde6ff" : "" }} onClick={ () => showBottomNotes(!bottomNotes)}>
+                            1. Notes { bottomNotes ? <VisibilityIcon style={{marginLeft:5}}/> : <VisibilityOffIcon style={{marginLeft:5}}/> }  </Button>
+              <Button variant="outlined" className={classes.bottomButtons} style={{backgroundColor: bottomAnnotations ? "lightgoldenrodyellow" : "" }} onClick={ () => showBottomAnnotations(!bottomAnnotations)}>
+                            2. Annotations { bottomAnnotations ? <VisibilityIcon style={{marginLeft:5}}/> : <VisibilityOffIcon style={{marginLeft:5}}/> }  </Button>
+              <Button variant="outlined" className={classes.bottomButtons} style={{backgroundColor: bottomResults ? "lightsteelblue" : ""  }} onClick={ () => showBottomResults(!bottomResults)}>
+                            3. Results { bottomResults ? <VisibilityIcon style={{ marginLeft:5}}/> : <VisibilityOffIcon style={{marginLeft:5}}/> } </Button>
+              <Button variant="outlined" className={classes.bottomButtons} style={{backgroundColor: bottomMetadata ? "lightpink" : ""  }} onClick={ () => showBottomMetadata(!bottomMetadata)}>
+                            4. Metadata { bottomMetadata ? <VisibilityIcon style={{ marginLeft:5}}/> : <VisibilityOffIcon style={{marginLeft:5}}/> } </Button>
+            </menu>
+            <main
+              style={{
+                // overflow: 'auto',
+                overflowY: 'scroll',
+              }}
+            >
+              { [bottomNotes, bottomAnnotations, bottomResults, bottomMetadata].map( (elm, i) => elm ?
+                                  <div key={"tr_"+i} style={{width:"100%", verticalAlign:"top", borderBottom:"1px #acacac solid"}}>
+                                    <span style={{paddingBottom:20}}>
+
+                                      { bottom_elements[i] }
+
+                                    </span>
+                                  </div> : undefined )
+              }
+            </main>
+            <nav
+              style={{
+                paddingLeft: '10px',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                paddingBottom: '15px',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}
+              >
+                <AnnotatorMenuButtons handler={handleBottomChange} bottomLevel={bottomLevel} />
+              </div>
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}
+              >
+                <AnnotatorMenuButtons handler={handleBottomChange} bottomLevel={bottomLevel} invertButtons={true} />
+              </div>
+            </nav>
+          </div>
+        }
+        </div>
       </Card>
+    </Card>
   );
 }
 
