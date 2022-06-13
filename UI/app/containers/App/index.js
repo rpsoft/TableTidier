@@ -141,9 +141,10 @@ export function App({
       classes={{root: classes.snackbarClasses}}
       TransitionComponent={Grow}
     >
-    <div id={"container"} style={{marginLeft:"auto", marginRight:"auto", minWidth:800, maxWidth:1400, width:"100%", minHeight:"100vh"}}>
-      <Login />
-      <div style={{padding:5, paddingTop:65,  marginLeft:10, paddingBottom:70, minHeight:"90vh"}}>
+      <header>
+        <Login />
+      </header>
+      <main>
         <Routes>
           <Route path="/" element={<HomePage />} />
 
@@ -159,12 +160,12 @@ export function App({
           <Route path="collection" element={<CollectionView />} />
           <Route path="dashboard" element={<Dashboard />} />
         </Routes>
-      </div>
-      <PopAlert alertData={alertData} setAlertData={setAlertData} />
 
-      <div style={{position:"fixed", left:0, bottom:0, width:"100%" }}><Footer /></div>
+        <PopAlert alertData={alertData} setAlertData={setAlertData} />
+      </main>
+
+      <Footer />
       <GlobalStyle />
-    </div>
     </SnackbarProvider>
   );
 }
