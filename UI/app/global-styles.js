@@ -3,8 +3,7 @@ import { createGlobalStyle } from 'styled-components';
 const GlobalStyle = createGlobalStyle`
   html,
   body {
-    height: 100%;
-    width: 100%;
+    margin: 0;
   }
 
   body {
@@ -16,9 +15,28 @@ const GlobalStyle = createGlobalStyle`
   }
 
   #app {
+    height: 100vh;
     background-color: #656565;
-    min-height: 100%;
-    min-width: 100%;
+    
+    /* grid container settings */
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas:
+      'header'
+      'main'
+      'footer';
+  }
+  #app > header {
+    grid-area: header;
+  }
+  #app > main {
+    grid-area: main;
+    overflow: auto;
+    padding: 15px 5px 10px 5px;
+  }
+  #app > footer {
+    grid-area: footer;
   }
 
   p,
