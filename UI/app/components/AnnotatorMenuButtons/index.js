@@ -14,7 +14,8 @@ import {
 }from '@material-ui/icons';
 
 const AnnotatorMenuButtons = ({handler, bottomLevel, invertButtons}) => {
-  const buttonUp = <Button
+  const buttonUp = (key) => <Button
+  key={key}
   name="grow-menu"
   variant="outlined"
   elevation={6}
@@ -31,7 +32,8 @@ const AnnotatorMenuButtons = ({handler, bottomLevel, invertButtons}) => {
     <ArrowDropUp style={{fontSize:35}} />
   </Button>
 
-  const buttonDown = <Button
+  const buttonDown = (key) => <Button
+  key={key}
   name="shrik-menu"
   variant="outlined"
   elevation={2}
@@ -68,8 +70,8 @@ const AnnotatorMenuButtons = ({handler, bottomLevel, invertButtons}) => {
     </Button>
     {
     invertButtons?
-    buttonList.reverse().map(elm => elm)
-    : buttonList.map(elm => elm)
+    buttonList.reverse().map((elm, index) => elm(index))
+    : buttonList.map((elm, index) => elm(index))
     }
   </>)
 }
