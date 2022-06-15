@@ -5,7 +5,7 @@
  */
 const _ = require('lodash');
 
-import React, { memo } from 'react';
+import React, { memo, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Helmet } from 'react-helmet';
@@ -107,38 +107,36 @@ import './dragstyle.css';
 
 const useStyles = makeStyles((theme) => ({
  root: {
-   display: 'flex',
+  display: 'flex',
  },
  appBar: {
-
-   marginRight: drawerWidth,
+  marginRight: drawerWidth,
  },
  drawer: {
    flexShrink: 0,
  },
  drawerPaper: {
-   width: drawerWidth,
-   height: `calc(100% - 124px)`,
-   marginTop:64,
+  width: drawerWidth,
+  height: `calc(100% - 124px)`,
+  marginTop:64,
  },
  // necessary for content to be below app bar
  toolbar: theme.mixins.toolbar,
  content: {
-   flexGrow: 1,
-   // backgroundColor: theme.palette.background.default,
-   padding: theme.spacing(3),
+  flexGrow: 1,
+  // backgroundColor: theme.palette.background.default,
+  padding: theme.spacing(3),
  },
  bottomButtons: {
-   width: 185,
-   marginBottom:5,
+  width: 185,
+  marginBottom:5,
  },
  bottomTable: {
 
  }
 }));
 
-var diffY = 0;
-
+const diffY = 0;
 
 export function Annotator({
   annotator,
@@ -163,7 +161,6 @@ export function Annotator({
 
   let navigate = useNavigate();
 
-   var hey = _;
   useInjectReducer({ key: 'annotator', reducer });
   useInjectSaga({ key: 'annotator', saga });
 
@@ -172,6 +169,8 @@ export function Annotator({
   const classes = useStyles();
   const theme = useTheme();
 
+  const titleEditor = useRef();
+  const bodyEditor = useRef();
 
   const [ bottomEnabled, setBottomEnabled ] = React.useState(false);
   const [ bottomLevel, setBottomLevel ] = React.useState(0);
@@ -278,17 +277,18 @@ export function Annotator({
   const doUpdates = () => {
     if( annotator.tableData ){
       setAnnotations(annotator.annotations)
-      // debugger
-      var header_data = annotator.annotations.map( ann => { return {head: Object.keys(ann.content).reverse().join(";"), sub: ann.subAnnotation } })
+      let header_data = annotator.annotations.map( ann => {
+        return {head: Object.keys(ann.content).reverse().join(';'), sub: ann.subAnnotation }
+      })
 
-      header_data = header_data.reduce( (acc, header,i) => {
-                              acc.count[header.head] = acc.count[header.head] ? acc.count[header.head]+1 : 1;
-                              acc.headers.push(header.head+"@"+acc.count[header.head]);
-                              acc.subs.push(header.sub);
-                              return acc;
-                            }, {count:{},headers:[],subs:[]} )
+      header_data = header_data.reduce( (acc, header, i) => {
+        acc.count[header.head] = acc.count[header.head] ? acc.count[header.head]+1 : 1;
+        acc.headers.push(header.head+'@'+acc.count[header.head]);
+        acc.subs.push(header.sub);
+        return acc;
+      }, {count:{},headers:[],subs:[]} )
 
-      setAnnotationHeaders([ "docid_page", "row", "col", "value", ...header_data.headers ])
+      setAnnotationHeaders([ 'docid_page', 'row', 'col', 'value', ...header_data.headers ])
 
       setTableData(annotator.tableData)
 
@@ -306,12 +306,12 @@ export function Annotator({
 
       setAlertData(annotator.alertData)
 
-      setTid(tableData.annotationData ? tableData.annotationData.tid : "")
+      setTid(tableData.annotationData ? tableData.annotationData.tid : '')
 
       setNotesData({
-        tableType: annotator.tableData.tableType || "",
-        tableStatus: annotator.tableData.tableStatus || "" ,
-        textNotes: annotator.tableData.textNotes || "",
+        tableType: annotator.tableData.tableType || '',
+        tableStatus: annotator.tableData.tableStatus || '' ,
+        textNotes: annotator.tableData.textNotes || '',
       })
     }
   }
@@ -339,7 +339,7 @@ export function Annotator({
                                                          saveAnnotationChanges={saveAnnotationChanges}
                                                          loadTableResults={ (autoAnnotate) => { loadTableContent(autoAnnotate); loadTableResults(false);   }}
                                                          allowEdit={allowEdit}
-                                                         /> : ""
+                                                         /> : ''
 
   var cols = []  //columns.map( (v,i) => { var col = {Header: v, accessor : v}; if( v == "col" || v == "row"){ col.width = 70 }; if( v == "value" ){ col.width = 200 }; return col } )
 
@@ -362,22 +362,13 @@ export function Annotator({
 
   const bottom_elements = [table_notes, table_annotator, table_results, table_metadata]
 
-  const changeTableData = (key,data) => {
-
-    var temp_table_data = Object.assign({}, tableData);
-    temp_table_data[key] = data;
-    setTableData(temp_table_data);
-
-  }
-
   // Preparing navigation variables here.
   const prepare_nav_link  = (tables, ind) => {
-
-    if ( !tables ){uhtgfuytfuytfjhg
+    if ( !tables || tables.length == 0 ) {
       return () => {}
     }
 
-    var index = ind - 1
+    let index = ind - 1
 
     if ( index < 0) {
       index = 0
@@ -387,14 +378,15 @@ export function Annotator({
       index = (tables.length-1)
     }
 
-    return () => {
-      const address = "/table?"+
-                "docid="+tables[index].docid+
-                "&page="+tables[index].page+
-                "&collId="+tables[index].collection_id;
+    const {
+      docid,
+      page,
+      collection_id,
+    } = tables[index]
 
-      navigate(address);
-    }
+    const address = `/table?docid=${docid}&page=${page}&collId=${collection_id}`
+
+    return () => navigate(address)
   }
 
   const prevNumber = ((tablePosition-1) >= 0) ? (tablePosition-1) : 0
@@ -424,7 +416,6 @@ export function Annotator({
     link.click();
     document.body.removeChild(link);
   }
-
 
   return (
     <Card style={{marginTop:10, marginBottom: openMargin, minHeight:"85vh", marginRight:250}}>
@@ -466,7 +457,9 @@ export function Annotator({
                   variant="outlined"
                   style={{backgroundColor:"#ffdbdb"}}
                   onClick={ () => {
-                    saveTextChanges(tableData.tableTitle, tableData.tableBody);
+                    const title = titleEditor.current.getData()
+                    const body = bodyEditor.current.getData()
+                    saveTextChanges(title, body);
                     setEditorEnabled(false);
                     loadTableContent(false);
                     loadTableResults(false);
@@ -481,26 +474,29 @@ export function Annotator({
           <hr />
 
           {
-          <TableEditor editorID={"table_title_editor"}
-                        textContent={tableData ? tableData.tableTitle : ""}
-                        editorEnabled={editorEnabled}
-                        saveTextChanges={ (newText) => { changeTableData("tableTitle", newText) } }
-                        height={200}
-                        metadata={metadata}
-                        cuisIndex={cuisIndex}
-                        showEditCuis={showEditCuis}
-                        />
-                      }
+          <TableEditor
+            editorID={"table_title_editor"}
+            textContent={tableData ? tableData.tableTitle : ''}
+            editorEnabled={editorEnabled}
+            editorRef={(editor) => titleEditor.current = editor}
+            height={200}
+            metadata={metadata}
+            cuisIndex={cuisIndex}
+            showEditCuis={showEditCuis}
+          />
+          }
           <hr />
-
-          <TableEditor editorID={"table_content_editor"}
-                        textContent={tableData ? tableData.tableBody : ""}
-                        editorEnabled={editorEnabled}
-                        saveTextChanges={ (newText) => { changeTableData("tableBody", newText) } }
-                        height={800}
-                        metadata={metadata}
-                        cuisIndex={cuisIndex}
-                        showEditCuis={showEditCuis}  />
+          
+          <TableEditor
+            editorID={"table_content_editor"}
+            textContent={tableData ? tableData.tableBody : ''}
+            editorEnabled={editorEnabled}
+            editorRef={(editor) => bodyEditor.current = editor}
+            height={800}
+            metadata={metadata}
+            cuisIndex={cuisIndex}
+            showEditCuis={showEditCuis}
+          />
         </div>
 
         <Drawer
