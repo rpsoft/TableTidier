@@ -32,10 +32,10 @@ import {
 } from "react-router-dom";
 
 import './pagination.css';
-//
+
 // import { useLocation } from 'react-router-dom';
-import CsvDownloader from 'react-csv-downloader';
-import csv from 'react-csv-downloader/dist/lib/csv';
+// import CsvDownloader from 'react-csv-downloader';
+// import csv from 'react-csv-downloader/dist/esm/lib/csv';
 
 import {
   Card, Checkbox,
@@ -56,7 +56,7 @@ import {
   Popover,
 } from '@material-ui/core';
 
-import { useDispatch, useSelector } from "react-redux";editCollectionAction
+import { useDispatch, useSelector } from "react-redux";
 
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import CollectionIcon from '@material-ui/icons/Storage';

@@ -19,7 +19,7 @@ import makeSelectLogin from '../Login/selectors'
 
 const queryString = require('query-string');
 
-import csv from 'react-csv-downloader/dist/lib/csv';
+import csv from 'react-csv-downloader/dist/esm/lib/csv';
 
 import 
   request,
