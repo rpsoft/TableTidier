@@ -21,45 +21,36 @@ async function refreshDocuments() {
 }
 
 const readyTable = async (docname, page, collection_id, enablePrediction = false) => {
-  const docid = docname+"_"+page+".html"
-  let htmlFolder = path.join(
-    GENERAL_CONFIG.tables_folder,
-    collection_id.toString()
-  ) //GENERAL_CONFIG.tables_folder+"/",
+  const docid = docname+'_'+page+'.html'
   const htmlFile = docid
 
-  //If an override file exists then use it!. Overrides are those produced by the editor.
-  let override_file_exists = true
-  try {
-    const fd = await fs.open(path.join(
-      GENERAL_CONFIG.tables_folder_override,
-      collection_id.toString(),
-      docid.toString()
-    ))
-    fd.close()
-  } catch (err) {
-    override_file_exists = false
-  }
+  // If an override file exists then use it!. Overrides are those produced by the editor.
+  const override_file_exists = await fs.stat(path.join(
+    GENERAL_CONFIG.tables_folder_override,
+    collection_id.toString(),
+    docid.toString()
+  ))
+  .then(() => true, () => false)
+  .catch(err => console.log(err))
 
-  if ( override_file_exists ) {
-    //"HTML_TABLES_OVERRIDE/"
-    htmlFolder = path.join(
-      GENERAL_CONFIG.tables_folder_override,
-      collection_id.toString()
-    )
-  }
+  const htmlFolder = path.join(
+    // choose path: HTML_TABLES or HTML_TABLES_OVERRIDE/
+    override_file_exists?
+      GENERAL_CONFIG.tables_folder_override
+      : GENERAL_CONFIG.tables_folder,
+    collection_id.toString()
+  )
 
-  console.log("Loading Table: "+docid+" "+(override_file_exists ? " [Override Folder]" : ''))
+  console.log(`Loading Table: ${docid} ${override_file_exists ? ' [Override Folder]': ''}`)
 
   try {
-    //already has collection_id in html_folder
-    const data = await fs.readFile(path.join(htmlFolder,htmlFile), {encoding: 'utf8'})
+    const data = await fs.readFile(path.join(htmlFolder, htmlFile), {encoding: 'utf8'})
 
     if ( (!data) || (data.trim().length < 1)) {
       return {status: 'failed', tableTitle: '', tableBody: '', predictedAnnotation: {} }
     }
 
-    const data_ss = await fs.readFile(path.join(global.cssFolder,"stylesheet.css"), {encoding: 'utf8'})
+    const data_ss = await fs.readFile(path.join(global.cssFolder, "stylesheet.css"), {encoding: 'utf8'})
     let tablePage;
 
     try {
@@ -73,7 +64,8 @@ const readyTable = async (docname, page, collection_id, enablePrediction = false
 
       let tableEdited = false;
 
-      if ( ! (tablePage('table').text().length > 0) ){ // Prevents infinite loop caused when no tables are present.
+      // Prevents infinite loop caused when no tables are present.
+      if ( ! (tablePage('table').text().length > 0) ) { 
         return {status: 'failed no table tag found ', tableTitle: '', tableBody: '', predictedAnnotation: {} }
       }
 
@@ -117,19 +109,18 @@ const readyTable = async (docname, page, collection_id, enablePrediction = false
       }
 
       if ( tableEdited ) {
-        console.log('Table corrected on the fly: '+path.join(htmlFolder,htmlFile));
+        console.log('Table corrected on the fly: '+path.join(htmlFolder, htmlFile));
         fs.writeFile(path.join(htmlFolder, htmlFile),  tablePage.html())
         .catch((err) => {
-          console.log('Error: Table corrected on the fly: '+path.join(htmlFolder, htmlFile) + ' ' + err);
+          console.log(`Error: Table corrected on the fly: ${path.join(htmlFolder, htmlFile)} ` + err);
           if (err) throw err;
         });
       }
     } catch (err) {
       // console.log(JSON.stringify(e)+" -- " + JSON.stringify(data))
-      return { htmlHeader: '',formattedPage : '', title: '' }
+      return { htmlHeader: '', formattedPage: '', title: '' }
     }
 
-    // var spaceRow = -1;
     let htmlHeader = ''
 
     const findHeader = (tablePage, tag) => {
@@ -182,9 +173,9 @@ const readyTable = async (docname, page, collection_id, enablePrediction = false
     actual_table = actual_table.html();
 
     // var ss = "<style>"+data_ss+" td {width: auto;} tr:hover {background: aliceblue} td:hover {background: #82c1f8} col{width:100pt} </style>"
-    const styles = actual_table.indexOf('<style type="text/css">.indent0') > -1 ? "" : "<style>"+data_ss+"</style>"
+    const styles = actual_table.includes('<style type="text/css">.indent0') ? '' : `<style>${data_ss}</style>`
 
-    const formattedPage = actual_table.indexOf("tr:hover" < 0) ? "<div>"+styles+actual_table+"</div>" : actual_table
+    const formattedPage = actual_table.includes("tr:hover") == false ? `<div>${styles}${actual_table}</div>` : actual_table
 
     let predicted = {};
 
