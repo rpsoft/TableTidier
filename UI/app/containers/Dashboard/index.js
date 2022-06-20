@@ -31,31 +31,38 @@ import {
   Input as TextField,
   Button,
   Paper,
+  Grid,
 } from '@material-ui/core';
-
-import { doSearchAction, requestCollectionsListAction, createCollectionAction } from './actions'
-import { useDispatch, useSelector } from "react-redux";
-
+import { makeStyles } from '@material-ui/core/styles';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import CollectionIcon from '@material-ui/icons/Storage';
+
+import {
+  doSearchAction,
+  requestCollectionsListAction,
+  createCollectionAction
+} from './actions'
+import { useDispatch, useSelector } from "react-redux";
 
 import SearchBar from '../../components/SearchBar'
 
 import SearchResult from '../../components/SearchResult'
+import SearchTableItem from '../../components/SearchTableItem'
 
 import Collection from '../../components/Collection'
-import Grid from "@material-ui/core/Grid";
 
 import { useCookies } from 'react-cookie';
 
-import { makeStyles } from '@material-ui/core/styles';
 
-import { FixedSizeList } from 'react-window';
+import {
+  FixedSizeList,
+  VariableSizeList,
+} from 'react-window';
 // import './pagination.css';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    flexGrow: 1
+    flexGrow: 1,
   },
   paper: {
     padding: theme.spacing(2),
@@ -127,7 +134,7 @@ export function Dashboard({
   }, [loginState.username, cookies.hash]);
 
   // Search results
-  const searResulRow = ({ index, style }) => {
+  const SearchResulRow = React.memo(({ index, style }) => {
     let {
       doc: table_key,
       selectedChunks,
@@ -152,6 +159,7 @@ export function Dashboard({
 
     return (
       <div
+        key={index}
         style={{
           ...style,
           display: "flex",
@@ -166,41 +174,73 @@ export function Dashboard({
         //     <span> -- </span>
         }
         {/* search index */}
-        <span
+        <div
           style={{
             marginLeft:10,
             whiteSpace: 'nowrap',
+            fontSize: 'small',
           }}
         >
            {`${index+1} - `}
-        </span>
+        </div>
         {/* <Link to={url} className={classes.link}>
         </Link> */}
 
-        <SearchResult
+        {/* <SearchResult */}
+        <SearchTableItem
           key={index}
           text={table_key}
           type={'table'}
-          selectedChunks={selectedChunks[0]}
+          selectedChunks={selectedChunks.slice(0, 2)}
           score={score}
           linkUrl={url}
         />
       </div>
     )
-  }
+  })
 
-  const table_search_results = <FixedSizeList
-                                height={searchAreaRef.current? searchAreaRef.current.offsetHeight : 1}
-                                width={"100%"}
-                                itemSize={60}
-                                itemCount={
-                                  dashboard.search_results ?
-                                    dashboard.search_results.length
-                                    : 0
-                                }
-                              >
-                                {searResulRow}
-                              </FixedSizeList>
+  const table_search_results = (
+    // // 
+    // <FixedSizeList
+    //   height={searchAreaRef.current? searchAreaRef.current.offsetHeight : 1}
+    //   width={"100%"}
+    //   itemSize={60}
+    //   itemCount={
+    //     dashboard.search_results ?
+    //       dashboard.search_results.length
+    //       : 0
+    //   }
+    // >
+    //   {searchResulRow}
+    // </FixedSizeList>
+
+// // 
+// <VariableSizeList
+// height={searchAreaRef.current? searchAreaRef.current.offsetHeight : 1}
+// // width={"100%"}
+// itemSize={60}
+// itemCount={
+//   dashboard.search_results ?
+//     dashboard.search_results.length
+//     : 0
+// }
+// >
+// {searchResulRow}
+// </VariableSizeList>
+
+//
+  <div
+    // className={}
+    style={{
+      padding: '10px',
+    }}
+  >
+    {
+    dashboard.search_results.length &&
+    dashboard.search_results.map((data, index) => <SearchResulRow key={index} index={index} style={{}}/>)
+    }
+  </div>
+)
 
   const collection_results = (
     <div> {
@@ -214,62 +254,70 @@ export function Dashboard({
                       table_n={coll.table_n}
                       collectionUrl={'/collection?collId='+coll.collection_id}
                     />
-      )
-    }</div>
+      )}
+    </div>
   )
 
-
   return (
-    <div style={{marginLeft:"2%", marginRight:"2%", minHeight: "84vh"}}>
+    <div
+      style={{
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        minWidth: '800px',
+        maxWidth: '1390px',
+
+        minHeight: '84vh',
+      }}
+    >
       <Helmet>
         <title>TableTidier - Dashboard</title>
         <meta name="description" content="Description of Dashboard" />
       </Helmet>
 
-      <Card style={{ marginTop:10, padding:10, backgroundColor: "#e4e2e2" }}>
-        <div>
-          <SearchBar
-            searchCont = {searchContent}
-            doSearch = {
-              (searchContent, searchType) => {
-                setSearchContent(searchContent)
-                setSearchType(searchType)
-                doSearch(searchContent, searchType, cookies.hash, cookies.username)
+      <div
+        style={{
+          zIndex: 10,
+          width: '98%',
+          marginLeft: 'auto',
+          minWidth: '800px',
+          maxWidth: '1390px',
+          position: 'absolute',
+        }}
+      >
+        <Card
+          style={{
+            marginTop: 5,
+            padding: 10,
+            backgroundColor: "#e4e2e2",
+          }}
+        >
+          <div>
+            <SearchBar
+              searchCont = {searchContent}
+              doSearch = {
+                (searchContent, searchType) => {
+                  setSearchContent(searchContent)
+                  setSearchType(searchType)
+                  doSearch(searchContent, searchType, cookies.hash, cookies.username)
+                  }
                 }
-              }
-            setCharCount={ setCharCount }
-          />
+              setCharCount={ setCharCount }
+            />
           </div>
-      </Card>
+        </Card>
 
-      <div className={classes.root}>
-        <Grid container spacing={1}>
-          <Grid item xs={9}>
-              { dashboard.search_results.length ?
-                  <Card style={{marginTop:10,padding:10, fontWeight:"bold"}}>
-                    <div> {
-                      dashboard.search_results.length == 100 ?
-                        'Showing the first 100'
-                        : + dashboard.search_results.length + ' results' }
-                    </div>
-                  </Card> : ''
-              }
-
-              {/* Collection or Search List */}
-              <Card
-                ref={searchAreaRef}
-                style={{
-                  marginTop:10,
-                  minHeight: "82vh",
-                  backgroundColor: dashboard.search_results.length > 0 ? "white" : "#e4e2e2"
-                }}
-              >
-                {dashboard.search_results.length > 0 ?
-                  table_search_results
-                  : collection_results}
-              </Card>
-          </Grid>
-          <Grid item xs={3}>
+        <div
+          style={{
+            position: 'relative',
+          }}
+        >
+          <div
+            style={{
+              position: 'absolute',
+              right: 0,
+              // width: '25%',
+            }}
+          >
             <Card style={{marginTop:10,padding:10, fontWeight:"bold", textAlign:"center"}}>
               <div>Actions Panel</div>
             </Card>
@@ -296,11 +344,44 @@ export function Dashboard({
                 </div>
               </Card>
             </Card>
-          </Grid>
-        </Grid>
+          </div>
+        </div>
       </div>
 
+      <div
+        style={{
+          paddingTop: '73px',
+          width: '79%',
+        }}
+      >
+        <div className={classes.root}>
 
+          { dashboard.search_results.length ?
+              <Card style={{marginTop:10,padding:10, fontWeight:"bold"}}>
+                <div> {
+                  dashboard.search_results.length == 100 ?
+                    'Showing the first 100'
+                    : + dashboard.search_results.length + ' results' }
+                </div>
+              </Card> : ''
+          }
+
+          {/* Collection or Search List */}
+          <Card
+            ref={searchAreaRef}
+            style={{
+              overflow: 'auto',
+              marginTop: 10,
+              backgroundColor: dashboard.search_results.length > 0 ? "white" : "#e4e2e2"
+            }}
+          >
+            {dashboard.search_results.length > 0 ?
+              table_search_results
+              : collection_results}
+          </Card>
+
+        </div>
+      </div>
     </div>
   );
 }
