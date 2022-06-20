@@ -776,7 +776,11 @@ const getResultsRefreshed = async ( tids ) => {
         )
       )
 
-      table_results = [...table_results, table_res]
+      table_results = [
+        ...table_results,
+        // table_res,
+        {tid : entry.tid, table_result : table_res},
+      ]
 
     } catch( err ) {
       console.log( 'Failed: ' + path.join(entry.collection_id, entry.file_path) )
