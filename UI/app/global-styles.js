@@ -15,6 +15,8 @@ const GlobalStyle = createGlobalStyle`
   }
 
   #app {
+    position: absolute;
+    width: 100%;
     height: 100vh;
     background-color: #656565;
     
@@ -33,7 +35,7 @@ const GlobalStyle = createGlobalStyle`
   #app > main {
     grid-area: main;
     overflow: auto;
-    padding: 15px 5px 10px 5px;
+    padding: 5px 5px 5px 5px;
   }
   #app > footer {
     grid-area: footer;
