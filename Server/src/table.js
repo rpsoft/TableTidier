@@ -42,7 +42,7 @@ const readyTable = async (docname, page, collection_id, enablePrediction = false
   )
 
   console.log(`Loading Table: ${docid} ${override_file_exists ? ' [Override Folder]': ''}`)
-
+  
   try {
     const data = await fs.readFile(path.join(htmlFolder, htmlFile), {encoding: 'utf8'})
 
@@ -54,7 +54,8 @@ const readyTable = async (docname, page, collection_id, enablePrediction = false
     let tablePage;
 
     try {
-      // data = data.replace(/[^\x20-\x7E]+/g, "")  This removes any non-printable characters
+      // This removes any non-printable characters
+      // data = data.replace(/[^\x20-\x7E]+/g, "")
       tablePage = cheerio.load(data.replace(/[^\x20-\x7E]+/g, ''));
 
       if ( (!tablePage) || (data.trim().length < 1)) {
@@ -93,7 +94,7 @@ const readyTable = async (docname, page, collection_id, enablePrediction = false
 
         // fixing strong, b and i tags on the fly. using "bold" and "italic" classes is preferred
         tablePage("strong").closest("td").addClass("bold")
-        tablePage("strong").forEach( appendToParent )
+        tablePage("strong").each( appendToParent )
 
         tablePage("b").closest("td").addClass("bold")
         tablePage("b").map( appendToParent )
