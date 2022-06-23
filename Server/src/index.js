@@ -1843,7 +1843,7 @@ app.post(CONFIG.api_base_url+'/saveAnnotation',
   })
 
   try {
-    await dbDriverb.annotationInsert( tid, {annotations: annotationData.annotations} )
+    await dbDriver.annotationInsert( tid, {annotations: annotationData.annotations} )
   } catch (err) {
     console.error(err.stack)
   }
