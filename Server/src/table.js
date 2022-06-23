@@ -129,6 +129,7 @@ const readyTable = async (docname, page, collection_id, enablePrediction = false
 
       const headerNodes = [cheerio(tablePage(tag)[0]).remove()]
       let htmlHeader = ''
+      // Table Header max length text limit
       const textLimit = 400
       for ( let h in headerNodes ) {
         // cheerio(headerNodes[h]).css("font-size","20px");
