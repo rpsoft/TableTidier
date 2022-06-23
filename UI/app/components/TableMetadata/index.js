@@ -187,7 +187,7 @@ function TableMetadata({
             />
         </div></span> : ""}
 
-        <div style={{height:35, fontSize:22, paddingTop:5}}> 4. <b> Metadata </b> Linking </div>
+        <div style={{height:35, fontSize:22, paddingTop:5}}> 4. <b> Terminology </b> Linking </div>
 
       </div>
       {
@@ -199,7 +199,7 @@ function TableMetadata({
 
           {allowEdit ? <Button variant="outlined"
                 style={{height: 40, display:"inline", marginLeft:10, color:"green"}}
-                onClick={ () => { setMetadataAdder(!enableMetadataAdder);} }> + Add other metadata </Button> :""}
+                onClick={ () => { setMetadataAdder(!enableMetadataAdder);} }> + Add other terminology </Button> :""}
 
         {
           enableMetadataAdder ? <div>
