@@ -1460,9 +1460,8 @@ const getMMatch = async (phrase) => {
   let result
   let mm_match
   try {
-    result = await axios.post({
+    result = await axios.post(`${CONFIG.metamapper_url}/form`, {
       headers: {'content-type' : 'application/x-www-form-urlencoded'},
-      url:     `${CONFIG.metamapper_url}/form`,
       // body
       data:    `input=${phrase} &args=-AsI+ --JSONn -E`
     })
