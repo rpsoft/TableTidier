@@ -430,8 +430,8 @@ const tabularFromAnnotation = async ( annotation ) => {
       )
       return rowValues
     });
-  } catch (e){
-    console.log(e)
+  } catch (err) {
+    console.log(err)
   }
 }
 
@@ -580,9 +580,9 @@ const setMetadata = async ( metadata ) => {
 
   if ( Object.keys(metadata).length > 0 ){
       const tidDelete = metadata[Object.keys(metadata)[0]].tid
-      console.log("HERE DELETE: "+tidDelete)
+      console.log('HERE DELETE: '+tidDelete)
       await dbDriver.metadataClear(tidDelete)
-      console.log("deleted: "+ new Date())
+      console.log('deleted: '+ new Date())
   }
 
   const results = []
@@ -608,18 +608,18 @@ const setMetadata = async ( metadata ) => {
         concept_source,
         concept_root,
         concept,
-        cuis.join(";"),
-        cuis_selected.join(";"),
-        qualifiers.join(";"),
-        qualifiers_selected.join(";"),
+        cuis.join(';'),
+        cuis_selected.join(';'),
+        qualifiers.join(';'),
+        qualifiers_selected.join(';'),
         istitle,
         labeller,
         tid
       )
       results.push(done);
-      console.log("insert: "+key+" -- "+ new Date())
+      console.log('insert: '+key+' -- '+ new Date())
     } catch (err) {
-      console.error(concept+" -- "+"insert failed: "+key+" -- " + new Date() + ' ' + err)
+      console.log(concept+' -- '+'insert failed: '+key+' -- ' + new Date() + ' ' + err)
     }
   }
 
@@ -635,7 +635,7 @@ app.post(CONFIG.api_base_url+'/metadata',
   async (req, res) => {
 
   if ( req.body && ( ! req.body.action ) ){
-    res.json({status: "undefined", received : req.body})
+    res.json({status: 'undefined', received : req.body})
     return
   }
 
@@ -884,7 +884,12 @@ app.post(CONFIG.api_base_url+'/collections',
       break;
 
     case 'download':
-      const tids = JSON.parse(tid);
+      let tids = JSON.parse(tid);
+
+      if (tids.length > 0 && typeof tids[0] == 'string') {
+        // change tids from string to numbers
+        tids = tids.map(tid => parseInt(tid))
+      }
 
       // Download file
       if ( target.includes('results') ){
@@ -1206,6 +1211,7 @@ app.post(CONFIG.api_base_url+'/getTableContent',
 
       tableData.annotationData = predAnnotationData
     }
+    
     tableData.permissions = {
       read: collectionPermissions.read.includes(collId),
       write: collectionPermissions.write.includes(collId)
@@ -1445,6 +1451,7 @@ app.get(CONFIG.api_base_url+'/formattedResults', async function (req, res){
 // });
 
 const getMMatch = async (phrase) => {
+  // Clean phrase
   phrase = phrase.trim()
     .replace(/[^A-Za-z 0-9 \.,\?""!@#\$%\^&\*\(\)-_=\+;:<>\/\\\|\}\{\[\]`~]*/g, '') //.replace(/[\W_]+/g," ");
 
@@ -1455,16 +1462,17 @@ const getMMatch = async (phrase) => {
   try {
     result = await axios.post({
       headers: {'content-type' : 'application/x-www-form-urlencoded'},
-      url:     `http://${CONFIG.metamapper_url}/form`,
+      url:     `${CONFIG.metamapper_url}/form`,
       // body
       data:    `input=${phrase} &args=-AsI+ --JSONn -E`
     })
 
     const start = result.indexOf('{"AllDocuments"')
-    const end = result.indexOf("'EOT'.")
+    const end = result.indexOf(`'EOT'.`)
 
     mm_match = result.slice(start, end)
   } catch(err) {
+    console.log(err)
     return err
   }
 
@@ -1511,7 +1519,6 @@ const processHeaders = async (headers) => {
   // ! :-)
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat
   // flat deep 4
-  // debugger
   const all_concepts = Array.from(new Set(Object.values(headers).flat().flat().flat().flat()))
 
   let results = await Promise.all(
@@ -1522,9 +1529,9 @@ const processHeaders = async (headers) => {
   const cuis_index = await dbDriver.cuisIndexGet()
 
   try {
-    await Promise.all(results.flat().flat().map( async (cuiData,i) => {
+    await Promise.all(results.flat().flat().map( async (cuiData, i) => {
       if ( cuis_index[cuiData.CUI] ){
-          return
+        return
       }
       console.log("insert: "+ new Date())
       return dbDriver.cuiInsert(cuiData.CUI, cuiData.preferred, cuiData.hasMSH)
@@ -1561,7 +1568,8 @@ const processHeaders = async (headers) => {
 }
 
 /**
-* auto
+* Terminology Linking
+* auto label
 */
 // :-) auto?
 app.post(CONFIG.api_base_url+'/auto', async (req, res) => {
@@ -1571,9 +1579,9 @@ app.post(CONFIG.api_base_url+'/auto', async (req, res) => {
     }
     const headers = JSON.parse(req.body.headers)
 
-    res.send({autoLabels : await processHeaders(headers) })
+    return res.send({autoLabels: await processHeaders(headers) })
   } catch(err){
-    console.log(e)
+    console.log(err)
     res.send({status: 'error', query : err})
   }
 });
@@ -1631,7 +1639,7 @@ app.post(CONFIG.api_base_url+'/notes',
     )
     console.log(`Updated records for ${docid}_${page}_${collId} result: `+ new Date())
   } catch(err) {
-    console.error(err.stack)
+    console.log(err.stack)
   }
 
   res.json({status:'Successful', payload: null})
@@ -1845,7 +1853,7 @@ app.post(CONFIG.api_base_url+'/saveAnnotation',
   try {
     await dbDriver.annotationInsert( tid, {annotations: annotationData.annotations} )
   } catch (err) {
-    console.error(err.stack)
+    console.log(err.stack)
   }
   res.json({status:"success", payload: ''})
 });
