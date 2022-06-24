@@ -1460,11 +1460,16 @@ const getMMatch = async (phrase) => {
   let result
   let mm_match
   try {
-    result = await axios.post(`${CONFIG.metamapper_url}/form`, {
-      headers: {'content-type' : 'application/x-www-form-urlencoded'},
+    result = await axios.post(
+      `${CONFIG.metamapper_url}/form`,
       // body
-      data:    `input=${phrase} &args=-AsI+ --JSONn -E`
-    })
+      `input=${phrase} &args=-AsI+ --JSONn -E`,
+      {
+        headers: {'content-type': 'application/x-www-form-urlencoded'},
+      }
+    )
+
+    result = result.data
 
     const start = result.indexOf('{"AllDocuments"')
     const end = result.indexOf(`'EOT'.`)
