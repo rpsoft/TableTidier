@@ -1,16 +1,17 @@
-import { metamap } from "./metamap.js"
+import cheerio from 'cheerio'
+import { metamap } from './metamap.js'
 
 let assert = require('assert');
 let pythonBridge = require('python-bridge');
 
 let python = pythonBridge({
-    python: 'python3'
+  python: 'python3'
 });
 
 const CONFIG_PATH = process.env.CONFIG_PATH || process.cwd()
 const CONFIG = require(CONFIG_PATH + '/config.json')
 
-var classifierFile = CONFIG.system_path+"Classifier/trained/umls_full.model"
+const classifierFile = CONFIG.system_path+'Classifier/trained/umls_full.model'
 
 // For python debugging remove this.
 python.ex`
@@ -63,10 +64,9 @@ python.ex`
     return data
 `;
 
-
 async function classify(terms){
 
-  var result = new Promise(function(resolve, reject) {
+  let result = new Promise(function(resolve, reject) {
 
     if ( terms.length > 0 ){
 
@@ -86,20 +86,26 @@ async function classify(terms){
 
   result = await result
 
-  if ( result.terms )
-  result = result.terms.reduce ( (acc,item,i) => { if ( item.length > 0 ) {acc[item] = result.classes[i];} return acc }, {} )
+  if ( result.terms ) {
+    result = result.terms.reduce( (acc, item, i) => {
+      if ( item.length > 0 ) {
+        acc[item] = result.classes[i];
+      }
+      return acc
+    }, {} )
+  }
 
   return result
 }
 
 async function grouped_predictor(terms){
-  var res = []
+  const res = []
 
-  for ( var t in terms ){
-    res.push([terms[t], 0, 0, 0, 0, 0, "", ""])
+  for ( let t in terms ) {
+    res.push([terms[t], 0, 0, 0, 0, 0, '', ''])
   }
 
-  var result = new Promise(function(resolve, reject) {
+  const result = new Promise(function(resolve, reject) {
     if ( res.length > 0 ){
       python`
         groupedPredict(${res})
@@ -113,107 +119,136 @@ async function grouped_predictor(terms){
   return result
 }
 
-async function feature_extraction (lines){
+async function feature_extraction (lines) {
 
-        var predictions = new Array(lines.length)
+  const predictions = new Array(lines.length)
 
-        var allowedFormatKeys = ["bold", "italic", "indent"]
+  const allowedFormatKeys = ["bold", "italic", "indent"]
 
-        for( var l = 0; l < lines.length; l++ ){
-            var currentLine = cheerio(lines[l])
-            var terms = []
-            var cellClasses = []
-            var cellClass = ""
+  for( let l = 0; l < lines.length; l++ ) {
+    const currentLine = cheerio(lines[l])
+    const terms = []
+    const cellClasses = []
+    // var cellClass = ''
 
-            var total_cols = currentLine.children().length;
+    const total_cols = currentLine.children().length;
 
-            var terms_features = []
+    const terms_features = []
 
-            for ( var c = 0 ; c < total_cols; c++){
+    for ( let c = 0 ; c < total_cols; c++) {
 
-              var term = prepare_cell_text(cheerio(currentLine.children()[c]).text())   //.trim().replace(/\n/g, " ").toLowerCase()
+      let term = prepare_cell_text(cheerio(currentLine.children()[c]).text())   //.trim().replace(/\n/g, " ").toLowerCase()
 
-              term = term.replace(/([^A-z0-9 ])/g, " ").replace(/[0-9]+/g, ' $nmbr$ ').replace(/ +/g," ").replace(/nmbr/g,"$nmbr$").trim().toLowerCase()
+      term = term.replace(/([^A-z0-9 ])/g, ' ')
+        .replace(/[0-9]+/g, ' $nmbr$ ')
+        .replace(/ +/g, ' ')
+        .replace(/nmbr/g, '$nmbr$')
+        .trim().toLowerCase()
 
-              terms[terms.length] = term
+      terms[terms.length] = term
 
-              var currentTDclass = (currentLine.children()[c].attribs.class || "").replace(/[0-9]+/g, '').split(" ")
+      const currentTDclass = (currentLine.children()[c].attribs.class || '').replace(/[0-9]+/g, '').split(' ')
 
-              var childrenClasses = Array.from( new Set(cheerio(currentLine.children()[c]).find("*").toArray().map( (i,el) => { return i.attribs.class || ""} ).join(" ").replace(/[0-9]+/g, '').split(" ")))
+      const childrenClasses = Array.from(
+        new Set(
+          cheerio(currentLine.children()[c])
+            .find('*').toArray()
+            .map( (i, el) => i.attribs.class || '' )
+            .join(' ')
+            .replace(/[0-9]+/g, '')
+            .split(' ')
+        )
+      )
 
-              var cellClass = Array.from( new Set([...currentTDclass, ...childrenClasses])).filter( (el) => el.length > 0)
+      let cellClass = Array.from( new Set([...currentTDclass, ...childrenClasses])).filter( (el) => el.length > 0)
 
-                  cellClass = cellClass.filter( (el) => allowedFormatKeys.indexOf(el) > -1 )
+      cellClass = cellClass.filter( (el) => allowedFormatKeys.includes(el) == true )
 
-              cellClasses[cellClasses.length] = (term.length > 0 ? cellClass.join(" ") : "").trim()
-              //
-              // pos_start = c == 0 ? 1 : 0,
-              //     pos_middle = c > 0 && c < (total_cols-1) ? 1 : 0,
-              //     pos_end = c == (total_cols-1) ? 1 : 0,
-              //
-              // debugger
-              var is_bold = cellClasses[cellClasses.length-1].indexOf("bold") > -1 ? 1 : 0,
-                  is_italic = cellClasses[cellClasses.length-1].indexOf("italic") > -1 ? 1 : 0,
-                  is_indent = cellClasses[cellClasses.length-1].indexOf("indent") > -1 ? 1 : 0,
-                  cuis = umls_data_buffer.cui_concept[term] || "",
-                  semanticTypes = cuis.split(";").map( item => umls_data_buffer.cui_def[item] ? umls_data_buffer.cui_def[item].semTypes : [] ).join(";")
+      cellClasses[cellClasses.length] = (term.length > 0 ? cellClass.join(' ') : '').trim()
+      //
+      // pos_start = c == 0 ? 1 : 0,
+      //     pos_middle = c > 0 && c < (total_cols-1) ? 1 : 0,
+      //     pos_end = c == (total_cols-1) ? 1 : 0,
+      //
+      // debugger
+      const is_bold = cellClasses[cellClasses.length-1].includes("bold") == true ? 1 : 0,
+            is_italic = cellClasses[cellClasses.length-1].includes("italic") == true ? 1 : 0,
+            is_indent = cellClasses[cellClasses.length-1].includes("indent") == true ? 1 : 0
 
-                  if ( cuis.trim().length == "" && term.length > 1){
+      let cuis = umls_data_buffer.cui_concept[term] || "",
+          semanticTypes = cuis.split(';').map( item => 
+            umls_data_buffer.cui_def[item] ?
+              umls_data_buffer.cui_def[item].semTypes
+              : []
+            ).join(';')
 
-                    // Making sure we attempt something that contains more things than numbers ($nmbr$)
-                    if ( term.replace(/\$nmbr\$/g,"").trim().toLowerCase().length > 0  ){
+      if ( cuis.trim().length == '' && term.length > 1) {
 
-                      if ( umls_data_buffer.cui_concept[term] == undefined ){ // really get terms that do not exist, I.e ignore those we have tried but got nothing back from metamap (empty)
-                        console.log("looking up: "+term)
+        // Making sure we attempt something that contains more things than numbers ($nmbr$)
+        if ( term.replace(/\$nmbr\$/g, '').trim().toLowerCase().length > 0  ){
+          // really get terms that do not exist,
+          // I.e ignore those we have tried but got nothing back from metamap (empty)
+          if ( umls_data_buffer.cui_concept[term] == undefined ){ 
+            console.log("looking up: "+term)
 
-                        var mm = await metamap(term);
+            const mm = await metamap(term);
 
-                        cuis = mm.map( item => item.CUI ).join(";")
-                        semanticTypes = mm.map( item => item.semTypes ).join(";")
+            cuis = mm.map( item => item.CUI ).join(';')
+            semanticTypes = mm.map( item => item.semTypes ).join(';')
 
-                        // Now add missing CUIS to buffer to speed up computation.
-                        mm.map( item => { umls_data_buffer.cui_def[item.CUI] = {matchedText: item.matchedText, preferred: item.preferred, hasMSH: item.hasMSH, semTypes: item.semTypes} })
-                        umls_data_buffer.cui_concept[term] = cuis
-
-                      }
-                    }
-                  }
-
-              var feats = [term, is_bold, is_italic, is_indent, cuis, semanticTypes]
-
-              terms_features[terms_features.length] = [term, is_bold, is_italic, is_indent, cuis, semanticTypes]
-
-            }
-
-            var emptyRow = terms.join("") == terms[0]
-            var comb = terms[0]+terms[terms.length-1]
-            var emptyRow_pvalue = (terms.join("") == comb) && (comb.length > terms[0].length)
-
-            cellClasses[0] = (cellClasses[0].length > 0 ? cellClasses[0]+" " : "") + ((emptyRow ? " empty_row" : "") + (emptyRow_pvalue ? " empty_row_with_p_value" : "")).trim()
-
-            terms_features = terms_features.map( item => [...item.slice(0,4), emptyRow ? 1 : 0, emptyRow_pvalue ? 1 : 0 , ...item.slice(4,6)])
-
-            var pred_class = await classify(terms_features)
-
-            predictions[l] = {pred_class, terms, cellClasses, terms_features}
+            // Now add missing CUIS to buffer to speed up computation.
+            mm.forEach( item => {
+              umls_data_buffer.cui_def[item.CUI] = {
+                matchedText: item.matchedText,
+                preferred: item.preferred,
+                hasMSH: item.hasMSH,
+                semTypes: item.semTypes
+              }
+            })
+            umls_data_buffer.cui_concept[term] = cuis
+          }
         }
+      }
 
-      return (predictions)
+      // ! where to use feats?
+      var feats = [term, is_bold, is_italic, is_indent, cuis, semanticTypes]
+
+      terms_features[terms_features.length] = [term, is_bold, is_italic, is_indent, cuis, semanticTypes]
+    }
+
+    const emptyRow = terms.join('') == terms[0]
+    const comb = terms[0]+terms[terms.length-1]
+    const emptyRow_pvalue = (terms.join('') == comb) && (comb.length > terms[0].length)
+
+    cellClasses[0] = (cellClasses[0].length > 0 ? cellClasses[0]+' ' : '') + 
+      ((emptyRow ? ' empty_row' : '') + (emptyRow_pvalue ? ' empty_row_with_p_value' : '')).trim()
+
+    terms_features = terms_features.map( item => [
+      ...item.slice(0,4),
+      emptyRow ? 1 : 0,
+      emptyRow_pvalue ? 1 : 0,
+      ...item.slice(4,6)
+    ])
+
+    const pred_class = await classify(terms_features)
+
+    predictions[l] = {pred_class, terms, cellClasses, terms_features}
+  }
+
+  return predictions
 }
 
 
 async function attempt_predictions(actual_table){
-  var result = new Promise(async function(resolve, reject) {
+  const result = new Promise(async function(resolve, reject) {
     try{
-      var a = cheerio.load(actual_table)
-
-      var lines = a("tr")
-
-      var predictions = feature_extraction (lines);
+      const a = cheerio.load(actual_table)
+      const lines = a("tr")
+      const predictions = feature_extraction(lines);
 
       resolve(predictions)
-    } catch ( e){
-      reject(e)
+    } catch (err) {
+      reject(err)
     }
   });
 
