@@ -445,7 +445,6 @@ export function* downloadTids({target, tids}) {
           // Get more frequent headers
           // a = Array.from(headersSet)
           // b = a.sort((a, b) => b[1] - a[1])
-          debugger
 
           headers = [
             ...headers,
