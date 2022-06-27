@@ -309,7 +309,7 @@ function driver(config) {
       if (Number.isInteger(tids)) {
         _tids = [tids]
       }
-      const result = await query(`SELECT * FROM metadata WHERE tid = ANY ($1)`, [_tids])
+      const result = await query(`SELECT * FROM public."metadata" WHERE tid = ANY ($1)`, [_tids])
       // convert registered from string to number
       // bigint (64 bits) returned as string by pg module
       result.rows.forEach(row => row.tid = parseInt(row.tid))
@@ -412,7 +412,14 @@ function driver(config) {
       )
     },
 
-    resultsDataGet: (tids) => query(`SELECT * FROM "result" WHERE tid = ANY ($1)`, [tids]),
+    resultsDataGet: async(tids) => {
+      try {
+        const results = await query(`SELECT * FROM public."result" WHERE tid = ANY ($1)`, [tids])
+        return results.rows
+      } catch (err) {
+        return err
+      }
+    },
 
     tableCreate: async (docid, page, user, collection_id, file_path) => {
       // not valid parameters?
