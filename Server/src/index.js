@@ -754,10 +754,10 @@ const getResultsRefreshed = async ( tids ) => {
   let table_results = []
 
   for ( let ann in annotation_data ) {
-
     console.log(`Preparing Table: ${ann} / ${annotation_data.length}`)
+    let entry
     try {
-      const entry = annotation_data.rows[ann]
+      entry = annotation_data[ann]
 
       // Check file exists
       const override_exists = await fs.stat(
@@ -779,7 +779,10 @@ const getResultsRefreshed = async ( tids ) => {
       table_results = [
         ...table_results,
         // table_res,
-        {tid : entry.tid, table_result : table_res},
+        {
+          tid: entry.tid,
+          table_result: table_res
+        },
       ]
 
     } catch( err ) {
@@ -822,6 +825,8 @@ app.post(CONFIG.api_base_url+'/collections',
   // username in user subject
   const username = user?.sub
   const collectionPermissions = await dbDriver.permissionsResourceGet('collections', user ? username : '')
+
+  // Guest can see collections
   let response = {status: 'failed'}
   let result;
 
@@ -894,9 +899,14 @@ app.post(CONFIG.api_base_url+'/collections',
       // Download file
       if ( target.includes('results') ){
         // data csv
-        result = await dbDriver.resultsDataGet( tids );
+        // const annotations = await dbDriver.annotationByIDGet(docid, page, collId)
+        // result = await dbDriver.annotationDataGet(tids)
+        // result = await dbDriver.resultsDataGet( tids );
+        result = await getResultsRefreshed( tids )
+
       } else if ( target.includes('metadata') ) {
         // metadata csv
+        // result = await dbDriver.metadataGet(tids)
         result = await dbDriver.metadataGet( tids );
       } else {
         // data & metadata json
@@ -911,10 +921,6 @@ app.post(CONFIG.api_base_url+'/collections',
       response = {status: 'success', data: result}
       break;
   }
-  //
-  // } else {
-  //   response = {status:'unauthorised', payload: null}
-  // }
 
   res.json(response)
 });
