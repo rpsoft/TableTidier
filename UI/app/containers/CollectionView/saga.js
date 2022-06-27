@@ -324,51 +324,215 @@ export function* downloadTids({target, tids}) {
         isError: true
       }))
     } else {
-      // debugger
       let result
       let headers
       let data
-      switch (target) {
-        case 'result':
-          result = response.data.rows.reduce(
-            (acc, tableData, i) => {
-              tableData.tableResult.map(
-                (tres) => {
-                  acc.data.push( {tid: tableData.tid, ...tres} );
-                  acc.headers = Array.from( new Set([...acc.headers,... Object.keys(tres)]));
-                }); return acc;
-              }, {data:[],headers:[]})
+      // console.log(target)
 
-          headers = result.headers.map( heads => { return {id: heads, displayName: heads} } )
-          data = result.data
-          data = data.map( item => {
-            const headers = Object.keys(item)
-            headers.map( head => {
-              if (typeof item[head] === 'string') {
-                item[head] = item[head].trim()
-              }
-            });
-            return item
-          })
+      switch (target) {
+        case 'results':
+          // csv result
+
+          headers = [
+            'collection_id',
+            'docid',
+            'page',
+            'user',
+            // Rest of headers
+          ]
+
+          const headersBase = [
+            'row',
+            'col',
+            'value',
+
+            // fields dynamic
+            // 'characteristic_level@1',
+            // 'characteristic_name@1',
+            // 'arms@1',
+            // 'characteristic_name;characteristic_level@1',
+            // 'measures@1',
+            // 'outcomes@1',
+            // 'measures;arms@1',
+          ]
+
+          // Extract all different headers
+          let headersAlt = response.data.reduce((prev, table) => {
+            // tableHeaders 
+            table.table_result.forEach(tableLine => {
+              const headersTemp = Object.keys(tableLine)
+              headersTemp.forEach(header => prev.includes(header) == false ?
+              prev.push(header)
+              : null
+              )
+            })
+            return prev
+          }, [])
+          // Remove headersBase
+          headersAlt = headersAlt.filter(header => headersBase.includes(header) == false)
+          // Sort dynamic headers
+          headersAlt.sort()
+          
+          // Used to create csv data in order
+          const headersTables = [...headersBase, ...headersAlt]
+
+          // Object.keys(response.data[0].table_result[0]) || []
+
+          // Used to get statistics
+          const headersSet = new Map()
+          const headersLeng = new Map()
+
+          // Get data
+          data = response.data.reduce((prev, table) => {
+            // console.log(table)
+            // // {tid: '2969', table_result: Array(38)}
+
+            // Extract table general info from collectionState
+            const tableGeneralInfo = collectionState.tables.find(tableTemp => tableTemp.tid == table.tid)
+            // console.log(tableGeneralInfo)
+
+            // Add table info to the rows
+            const tableInfoAdd = (values) => [
+              tableGeneralInfo.collection_id,
+              tableGeneralInfo.docid,
+              tableGeneralInfo.page,
+              tableGeneralInfo.user,
+              ...values,
+            ]
+            // Get table info
+            const rows = table.table_result.map(dataRow => {
+              // // Extract basic data
+              // const {
+              //   row,
+              //   col,
+              //   value,
+              // } = data
+
+              // if (JSON.stringify(headersAlt) != JSON.stringify(Object.keys(data)))
+              //   return console.log(data)
+
+              // // Statistics
+              // // Size of data keys
+              // const headLeng = Object.keys(dataRow).length
+              // headersLeng.has(headLeng)?
+              // headersLeng.set(headLeng, headersLeng.get(headLeng) + 1)
+              // : headersLeng.set(headLeng, 1)
+
+              // if (headLeng > 8) debugger
+
+              // // store different headers
+              // Object.keys(dataRow).forEach(head => {
+              //   headersSet.has(head)?
+              //     headersSet.set(head, headersSet.get(head) + 1)
+              //     : headersSet.set(head, 1)
+              // })
+
+              const row = headersTables.map(headerKey => {
+                if (headerKey in dataRow == false) {
+                  return ''
+                }
+                return dataRow[headerKey]
+              })
+
+              return tableInfoAdd(row)
+            })
+
+            return rows?
+              [...prev, ...rows]
+              : prev
+          }, [])
+
+          // Get more frequent headers
+          // a = Array.from(headersSet)
+          // b = a.sort((a, b) => b[1] - a[1])
+          debugger
+
+          headers = [
+            ...headers,
+            ...headersBase,
+            ...headersAlt,
+          ]
+
+          // ! remove if Collections CSV if OK
+          // collectionState
+          // result = response.data.reduce(
+          //   (acc, tableData, i) => {
+          //     tableData.tableResult.map(
+          //       (tres) => {
+          //         acc.data.push( {tid: tableData.tid, ...tres} );
+          //         acc.headers = Array.from( new Set([...acc.headers,... Object.keys(tres)]));
+          //       }); return acc;
+          //     }, {data:[],headers:[]})
+
+          // headers = result.headers.map( heads => { return {id: heads, displayName: heads} } )
+          // data = result.data
+          // data = data.map( item => {
+          //   const headers = Object.keys(item)
+          //   headers.map( head => {
+          //     if (typeof item[head] === 'string') {
+          //       item[head] = item[head].trim()
+          //     }
+          //   });
+          //   return item
+          // })
           downloadData(`collection_${parsed.collId}_results.csv`, headers, data)
           break;
         case 'metadata':
-          result = response.data.rows.reduce(
-            (acc, tableData, i) => {
-                  acc.data.push( {tid: tableData.tid, ...tableData} );
-                  acc.headers = Array.from( new Set([...acc.headers,... Object.keys(tableData)]));
-                return acc;
-              }, {data:[],headers:[]})
-          headers = result.headers.map( heads => { return {id: heads, displayName: heads} } )
-          data = result.data.map( item => {
-            const headers = Object.keys(item);
-            headers.map( head => {
-              if (typeof item[head] === 'string') {
-                item[head] = item[head].trim()
-              }
-            });
-            return item
-          })
+          // csv metadata
+
+          headers = Object.keys(response.data[0]) || []
+
+          data = response.data.reduce((prev, metadataLine, currentIndex) => {
+            // Extract table general info from collectionState
+            const tableGeneralInfo = collectionState.tables.find(tableTemp => tableTemp.tid == metadataLine.tid)
+
+            // Add table info to the rows
+            const tableInfoAdd = (value) => [
+              tableGeneralInfo.collection_id,
+              tableGeneralInfo.docid,
+              tableGeneralInfo.page,
+              tableGeneralInfo.user,
+              ...value,
+            ]
+            // Get metadata info
+
+            if (!metadataLine) return prev
+
+            const row = tableInfoAdd(
+              headers.map(header => metadataLine[header])
+            )
+            prev.push(row)
+            return prev
+          }, [])
+
+          // headers table info + headers metadata
+          headers = [
+            'collection_id',
+            'docid',
+            'page',
+            'user',
+            ...headers,
+          ]
+
+          // result = response.data.reduce(
+          //   (acc, tableData, i) => {
+          //         acc.data.push( {tid: tableData.tid, ...tableData} );
+          //         acc.headers = Array.from( new Set([...acc.headers,... Object.keys(tableData)]));
+          //       return acc;
+          //   }, {data:[],headers:[]}
+          // )
+
+          // headers = result.headers.map( heads => { return {id: heads, displayName: heads} } )
+          // data = result.data.map( item => {
+          //   const headers = Object.keys(item);
+          //   headers.map( head => {
+          //     if (typeof item[head] === 'string') {
+          //       item[head] = item[head].trim()
+          //     }
+          //   });
+          //   return item
+          // })
+
           downloadData(`collection_${parsed.collId}_metadata.csv`, headers, data)
           break;
         case 'json':
