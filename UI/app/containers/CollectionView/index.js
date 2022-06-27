@@ -712,21 +712,21 @@ export function CollectionView({
                 <div className={classes.buttonHolder}>
                   <Button
                     variant="contained"
-                    onClick={ () => { downloadData("results", tables.map( t => t.tid ) )}}
+                    onClick={ () => downloadData('results', tables.map( t => t.tid ) ) }
                   > Data CSV <DownloadIcon/></Button>
                 </div>
 
                 <div className={classes.buttonHolder}>
                   <Button
                     variant="contained"
-                    onClick={ () => { downloadData("metadata", tables.map( t => t.tid ) )}}
+                    onClick={ () => downloadData('metadata', tables.map( t => t.tid ) ) }
                   > Metadata CSV <DownloadIcon/></Button>
                 </div>
 
                 <div className={classes.buttonHolder}>
                   <Button
                     variant="contained"
-                    onClick={ () => { downloadData("json", tables.map( t => t.tid ) )}}
+                    onClick={ () => downloadData('json', tables.map( t => t.tid ) )}
                   > Data & Metadata JSON <DownloadIcon/></Button>
                 </div>
 
