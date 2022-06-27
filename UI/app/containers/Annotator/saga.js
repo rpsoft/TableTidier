@@ -239,7 +239,13 @@ export function* getTableMetadata( payload ) {
   try {
     const response = yield call(request, requestURL, options);
 
-    if ( response.status && response.status == 'unauthorised'){
+    if (
+      response.status &&
+      (
+        response.status == 'unauthorised' ||
+        response.status == 'fail'
+      )
+    ){
 
       // COUld probably redirect to /
       // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );

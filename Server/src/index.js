@@ -635,7 +635,7 @@ app.post(CONFIG.api_base_url+'/metadata',
   async (req, res) => {
 
   if ( req.body && ( ! req.body.action ) ){
-    res.json({status: 'undefined', received : req.body})
+    res.json({status: 'undefined', received: req.body})
     return
   }
 
@@ -643,15 +643,18 @@ app.post(CONFIG.api_base_url+'/metadata',
     action,
 
     docid,
-    page,
+    // page,
     // collId,
 
     payload,
     tids,
   } = req.body
 
-  // collection_id as number
+  // vars as number
+  // collection_id
   const collId = parseInt(req.body.collId)
+  // page
+  const page = parseInt(req.body.page)
 
   // req.user added by experessJwt
   const user = req?.user
@@ -660,7 +663,7 @@ app.post(CONFIG.api_base_url+'/metadata',
   const collectionPermissions = await dbDriver.permissionsResourceGet('collections', user ? username : '')
 
   if ( collectionPermissions.read.includes(collId) == false ) {
-    return res.json({status:"unauthorised", payload: null})
+    return res.json({status: 'unauthorised', payload: null})
   }
 
   let tid = req.body.tid
@@ -674,6 +677,10 @@ app.post(CONFIG.api_base_url+'/metadata',
       page,
       collId,
     )
+  
+    if (!tid || tid == 'not found') {
+      return res.json({status: 'fail', data: 'table not found'})
+    }
   }
 
   let result = {};
@@ -682,7 +689,7 @@ app.post(CONFIG.api_base_url+'/metadata',
     case 'clear':
       if ( collectionPermissions.write.includes(collId) ){
         result = await dbDriver.metadataClear(tid)
-        console.log("deleted: "+ new Date())
+        console.log('deleted: '+ new Date())
       }
       break;
     case 'save':
@@ -703,7 +710,7 @@ app.post(CONFIG.api_base_url+'/metadata',
   }
   // Always return the updated collection details
   // result = await dbDriver.collectionGet(req.body.collection_id);
-  res.json({status: "success", data: result})
+  res.json({status: 'success', data: result})
 });
 
 app.post(CONFIG.api_base_url+'/cuis', async (req, res) => {
@@ -899,6 +906,7 @@ app.post(CONFIG.api_base_url+'/collections',
       // Download file
       if ( target.includes('results') ){
         // data csv
+        // ! :-) remove comments when ok with download csv
         // const annotations = await dbDriver.annotationByIDGet(docid, page, collId)
         // result = await dbDriver.annotationDataGet(tids)
         // result = await dbDriver.resultsDataGet( tids );
