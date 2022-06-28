@@ -4,99 +4,62 @@
  *
  */
 
-import React, { memo } from 'react';
+import React from 'react';
 // import PropTypes from 'prop-types';
-// import styled from 'styled-components';
+
 import {
-  useNavigate,
+  Link,
 } from "react-router-dom";
 
 import { FormattedMessage } from 'react-intl';
 import messages from './messages';
 
-import { makeStyles, useTheme } from '@material-ui/core/styles';
-
-import Button from '@material-ui/core/Button';
-
-const useStyles = makeStyles((theme) => ({
-  rootText: {
-    color: 'rgb(77, 81, 86)',
-    display: 'block',
-    fontFamily: 'arial, sans-serif',
-    fontSize: '14px',
-    fontWeight: 400,
-    height: '44.2188px',
-    lineHeight: '22.12px',
-    marginBottom: 0,
-    paddingTop: 0,
-    textAlign: 'left',
-  },
-}));
-
 function SearchTableItem({
   text,
   type,
+  // search content
+  //   used to mark search words
+  searchContent,
+  // info about search
   selectedChunks,
   score,
+  // link to table
   linkUrl,
   data,
-  onClick
+  onClick,
 }) {
-  let navigate = useNavigate();
-  const classes = useStyles();
   return (
     <div
-      style={{
-        width: '100%',
-        marginBottom: 5,
-      }}
+      className="search_info"
     >
-      <Button
-        tooltip={"hello"}
-        style={{
-          // width:"100%",
-          textAlign:"left",
-          justifyContent:"left"
-        }}
-        onClick={()=>
-          linkUrl? navigate(linkUrl): null
-        }
+      <Link
+        to={linkUrl}
       >
-        {/* { type == "table" ? <Table /> : <CollectionIcon /> } */}
-        <div
-          style={{
-            marginLeft: 5,
-            marginRight: 5,
-            color: 'blue',
-          }}
-        >{ text }</div>
-      </Button>
-      <span>DOI </span>
-      <span>PMID </span>
-      <span>url </span>
-      {
-        score ? <>
-          <div
-            style={{
-              // marginBottom: 5,
-              // color: 'blue',
-            }}
-            className={classes.rootText}
+      { text }
+      </Link>
 
-          >
-            {selectedChunks.map((result, index) => (
-              <p
-                key={index}
-                style={{
-                  lineHeight: '0.5em',
-                }}
-              >
-                {result.join(' ')}
-              </p>))
+      <span> DOI </span>
+      <span> PMID </span>
+      <span> url </span>
+      {
+        score && (
+        <div
+          className="search_summary"
+        >
+          {selectedChunks.map((searchSummaryLine, index) => (
+            <p
+              key={index}
+            >
+            {
+              // present summary and highlight search words
+              searchSummaryLine.map((word, idx) => searchContent.includes(word) ?
+                <b key={idx}>{word + ' '}</b>
+                : word + ' ')
             }
-          </div>
-        </>
-        : null
+            </p>))
+          }
+        </div>
+        )
       }
     </div>
   );
@@ -104,5 +67,5 @@ function SearchTableItem({
  
  SearchTableItem.propTypes = {};
  
- export default memo(SearchTableItem);
+ export default SearchTableItem;
  
