@@ -10,6 +10,9 @@ CREATE TABLE IF NOT EXISTS "table"
   "tableType" text,
   tid bigint NOT NULL,
   completion character varying,
+  doi character varying,
+  pmid character varying,
+  "url" character varying,
   CONSTRAINT table_pkey PRIMARY KEY (tid)
 );
 

@@ -21,6 +21,9 @@ CREATE TABLE IF NOT EXISTS public."table"
     "tableType" text COLLATE pg_catalog."default",
     tid bigint NOT NULL DEFAULT nextval('table_tid_seq'::regclass),
     completion character varying COLLATE pg_catalog."default",
+    doi character varying COLLATE pg_catalog."default",
+    pmid character varying COLLATE pg_catalog."default",
+    "url" character varying COLLATE pg_catalog."default",
     CONSTRAINT table_pkey PRIMARY KEY (tid)
 )
 
