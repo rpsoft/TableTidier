@@ -21,9 +21,9 @@ import reducer from './reducer';
 import saga from './saga';
 import messages from './messages';
 
-import {
-  Link,
-} from "react-router-dom";
+// import {
+//   Link,
+// } from "react-router-dom";
 
 import {
   Card, Checkbox,
@@ -89,6 +89,48 @@ const useStyles = makeStyles((theme) => ({
   link: {
     color: 'inherit',
     textDecoration: 'none',
+  },
+  searchItem: {
+    display: 'flex',
+    alignItems: 'baseline',
+    '& > div:nth-child(1)': {
+      marginLeft:10,
+      whiteSpace: 'nowrap',
+      fontSize: 'small',
+    },
+    '& > div:nth-child(2)': {
+      marginLeft: 5,
+    },
+    // link <a>
+    '& > div > a' : {
+      marginLeft: 5,
+      marginRight: 5,
+      textDecoration: 'none',
+      // color: 'red'
+    },
+    '& > div > a:hover' : {
+      textDecoration: 'underline',
+      // color: 'red'
+    },
+    '& .search_info': {
+      width: '100%',
+      marginBottom: 5,
+    },
+    '& .search_summary': {
+      color: 'rgb(77, 81, 86)',
+      display: 'block',
+      fontFamily: 'arial, sans-serif',
+      fontSize: '14px',
+      fontWeight: 400,
+      height: '44.2188px',
+      lineHeight: '22.12px',
+      marginBottom: 0,
+      paddingTop: 0,
+      textAlign: 'left',
+    },
+    '& .search_summary > p': {
+      lineHeight: '0.5em',
+    },
   }
 }));
 
@@ -106,8 +148,8 @@ export function Dashboard({
 
   const [cookies, setCookie, removeCookie ] = useCookies();
 
-  const [searchContent, setSearchContent ] = useState(dashboard.searchContent);
-  const [searchType, setSearchType ] = useState(dashboard.searchType);
+  // const [searchContent, setSearchContent ] = useState(dashboard.searchContent);
+  // const [searchType, setSearchType ] = useState(dashboard.searchType);
 
   // const [collections, setCollections ] = useState(doSearch("placebo", searchType));
 
@@ -134,12 +176,14 @@ export function Dashboard({
   }, [loginState.username, cookies.hash]);
 
   // Search results
-  const SearchResulRow = React.memo(({ index, style }) => {
+  const SearchResulRow = ({ index }) => {
     let {
       doc: table_key,
       selectedChunks,
       score,
      } = dashboard.search_results[index]
+
+    const searchContent = dashboard.searchContent.split(' ')
 
     const findFirstNumber = /\d/g.exec(table_key)
     // If text before collection number
@@ -159,12 +203,8 @@ export function Dashboard({
 
     return (
       <div
-        key={index}
-        style={{
-          ...style,
-          display: "flex",
-          alignItems: "baseline",
-        }}
+        key={collId+docname+page}
+        className={classes.searchItem}
       >
         {
         // <Checkbox checked={checkedTables[table_key]}
@@ -174,31 +214,23 @@ export function Dashboard({
         //     <span> -- </span>
         }
         {/* search index */}
-        <div
-          style={{
-            marginLeft:10,
-            whiteSpace: 'nowrap',
-            fontSize: 'small',
-          }}
-        >
+        <div>
            {`${index+1} - `}
         </div>
-        {/* <Link to={url} className={classes.link}>
-        </Link> */}
 
-        {/* <SearchResult */}
         <SearchTableItem
-          key={index}
           text={table_key}
           type={'table'}
+          searchContent={searchContent}
           selectedChunks={selectedChunks.slice(0, 2)}
           score={score}
           linkUrl={url}
         />
       </div>
     )
-  })
-
+  }
+  // React.memo(
+  console.time('table_search_results')
   const table_search_results = (
     // // 
     // <FixedSizeList
@@ -233,14 +265,18 @@ export function Dashboard({
     // className={}
     style={{
       padding: '10px',
+      paddingTop: 20,
     }}
   >
     {
     dashboard.search_results.length &&
-    dashboard.search_results.map((data, index) => <SearchResulRow key={index} index={index} style={{}}/>)
+    dashboard.search_results
+      // .slice(0, 120)
+      .map((data, index) => <SearchResulRow key={data.doc} index={index}/>)
     }
   </div>
 )
+console.timeEnd('table_search_results')
 
   const collection_results = (
     <div> {
@@ -293,15 +329,16 @@ export function Dashboard({
         >
           <div>
             <SearchBar
-              searchCont = {searchContent}
-              doSearch = {
-                (searchContent, searchType) => {
-                  setSearchContent(searchContent)
-                  setSearchType(searchType)
-                  doSearch(searchContent, searchType, cookies.hash, cookies.username)
-                  }
-                }
-              setCharCount={ setCharCount }
+              searchCont = {dashboard.searchContent}
+              doSearch = {doSearch}
+              // {
+              //   (searchContent, searchType) => {
+              //     setSearchContent(searchContent)
+              //     setSearchType(searchType)
+              //     doSearch(searchContent, searchType, cookies.hash, cookies.username)
+              //   }
+              // }
+              // setCharCount={ setCharCount }
             />
           </div>
         </Card>
@@ -375,9 +412,11 @@ export function Dashboard({
               backgroundColor: dashboard.search_results.length > 0 ? "white" : "#e4e2e2"
             }}
           >
-            {dashboard.search_results.length > 0 ?
+            {
+            dashboard.search_results.length > 0 ?
               table_search_results
-              : collection_results}
+              : collection_results
+            }
           </Card>
 
         </div>
@@ -409,4 +448,4 @@ const withConnect = connect(
   mapDispatchToProps,
 );
 
-export default compose(withConnect)(Dashboard);
+export default compose(withConnect)(memo(Dashboard));
