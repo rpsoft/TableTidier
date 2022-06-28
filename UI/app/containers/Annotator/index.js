@@ -547,7 +547,7 @@ export function Annotator({
           </List>
           <Divider />
           <List>
-          {
+            {
             // <ListItem button>
             //   <ListItemIcon><EditIcon/></ListItemIcon>
             //   <ListItemText primary={"Edit Table"} />

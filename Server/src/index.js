@@ -652,7 +652,7 @@ app.post(CONFIG.api_base_url+'/metadata',
 
   // vars as number
   // collection_id
-  const collId = parseInt(req.body.collId)
+  let collId = parseInt(req.body.collId)
   // page
   const page = parseInt(req.body.page)
 
@@ -660,13 +660,20 @@ app.post(CONFIG.api_base_url+'/metadata',
   const user = req?.user
   // username in user subject
   const username = user?.sub
+  let tid = req.body.tid
+
   const collectionPermissions = await dbDriver.permissionsResourceGet('collections', user ? username : '')
+
+  if (tid && !collId) {
+    // get collId from tid
+    const table = await dbDriver.tableGetByTid(tid)
+    collId = parseInt(table.collection_id)
+  }
 
   if ( collectionPermissions.read.includes(collId) == false ) {
     return res.json({status: 'unauthorised', payload: null})
   }
 
-  let tid = req.body.tid
 
   if (
     tid === 'undefined' ||
@@ -1127,7 +1134,7 @@ app.post(CONFIG.api_base_url+'/getTableContent',
   }),
   async (req, res) => {
   
-  const {
+  let {
     enablePrediction,
 
     docid,
@@ -1136,21 +1143,31 @@ app.post(CONFIG.api_base_url+'/getTableContent',
   } = req.body
 
   // collId as integer
-  const collId = parseInt(req.body.collId)
+  let collId = parseInt(req.body.collId)
 
   // req.user added by experessJwt
   const user = req?.user
   // username in user subject
   const username = user?.sub
+  let tid = req.body.tid
+
   const collectionPermissions = await dbDriver.permissionsResourceGet('collections', user ? username : '')
 
+  if (tid && !collId) {
+    // get collId from tid
+    const table = await dbDriver.tableGetByTid(tid)
+    collId = parseInt(table.collection_id)
+    docid = table.docid
+    page = table.page
+  }
+
   if ( collectionPermissions.read.includes(collId) == false ){
-    return res.json({status: 'unauthorised', body : req.body})
+    return res.json({status: 'unauthorised', body: req.body})
   }
 
   try {
     if ((docid && page && collId) == false) {
-      return res.json({status: 'wrong parameters', body : req.body})
+      return res.json({status: 'wrong parameters', body: req.body})
     }
 
     const collection_data = await dbDriver.collectionGet(collId)
@@ -1333,7 +1350,7 @@ app.post(CONFIG.api_base_url+'/annotationPreview',
   }),
   async (req, res) => {
 
-  const {
+  let {
     docid,
     page,
     // collId,
@@ -1342,13 +1359,23 @@ app.post(CONFIG.api_base_url+'/annotationPreview',
   } = req.body
 
   // collId as integer
-  const collId = parseInt(req.body.collId)
+  let collId = parseInt(req.body.collId)
 
   // req.user added by experessJwt
   const user = req?.user
   // username in user subject
   const username = user?.sub
+  let tid = req.body.tid
+
   const collectionPermissions = await dbDriver.permissionsResourceGet('collections', user ? username : '')
+
+  if (tid && !collId) {
+    // get collId from tid
+    const table = await dbDriver.tableGetByTid(tid)
+    collId = parseInt(table.collection_id)
+    docid = table.docid
+    page = table.page
+  }
 
   if ( collectionPermissions.read.includes(collId) == false ) {
     return res.json([])

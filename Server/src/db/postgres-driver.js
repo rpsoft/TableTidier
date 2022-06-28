@@ -450,6 +450,17 @@ function driver(config) {
       return tid.rows[0]
     },
 
+    tableGetByTid: async (tid) => {
+      const result = await query(
+        `SELECT * FROM public."table" WHERE tid = $1`,
+        [tid]
+      )
+      if ( result.rows && result.rows.length == 0 ){
+        return 'not found'
+      }
+      return result.rows[0]
+    },
+
     tablesMove: async (tables, collection_id, target_collection_id) => {
       if (Array.isArray(tables) == false) return 'tables not valid, array expected'
       if (tables.length == 0) return 'tables empty'

@@ -71,14 +71,15 @@ export function* getTableContent( payload ) {
 
   // console.log("tableDAta request for "+credentials.username)
   const params = new URLSearchParams({
-    'docid' : parsed.docid,
-    'page' : parsed.page,
-    'collId' : parsed.collId,
-    'action' : 'get',
-    'enablePrediction' : payload.enablePrediction ? true : false,
+    docid: parsed.docid,
+    page: parsed.page,
+    collId: parsed.collId,
+    tid: parsed.tid,
+    action: 'get',
+    enablePrediction: payload.enablePrediction ? true : false,
   });
 
-  if ( !parsed.docid ){
+  if ( !parsed.docid && !parsed.tid ) {
     return {}
   }
 
@@ -88,52 +89,49 @@ export function* getTableContent( payload ) {
     const response = yield call(request, requestURL, options);
 
     if ( response.status && response.status == 'unauthorised') {
-      yield put(push('/dashboard'));
-    } else {
-
-      response.docid = parsed.docid
-      response.page = parsed.page
-      response.collId = parsed.collId
-      // try{
-      response.collectionData.tables = response.collectionData.tables.sort(
-        (a,b) => (a.docid+'_'+a.page).localeCompare((b.docid+'_'+b.page))
-      )
-      // } catch(e){
-      //   debugger
-      // }
-
-      response.tablePosition = response.collectionData.tables.reduce(
-        (i, table, index) => {
-          if ( (table.docid+'_'+table.page).localeCompare(parsed.docid+'_'+parsed.page) == 0){
-              return index
-          } else{
-              return i
-          };
-        },
-        -1 ) + 1
-
-      response.tableStatus = response.annotationData.completion
-      response.tableType = response.annotationData.tableType
-      response.textNotes = response.annotationData.notes
-
-
-      // response.tablePosition_prev = response.tablePosition > -1 ? response.collectionData.tables[response.tablePosition-1] : false
-      // response.current = response.tablePosition > -1 ? response.collectionData.tables[response.tablePosition] : false
-      // response.tablePosition_next = response.tablePosition < (response.collectionData.tables.length-1) ? response.collectionData.tables[response.tablePosition+1] : false
-
-      yield put( yield updateTableContentAction(response) );
-
-
-      const annotations = (!_.isEmpty(response.annotationData)) && response.annotationData.annotation ?
-        response.annotationData.annotation.annotations.map(
-          (item,id) => {
-            item.subAnnotation = item.subAnnotation ? item.subAnnotation : false; // this is to preserve compatibility with previous annotations that don't have subAnnotation
-            return item
-          }
-        ) : []
-
-      yield put( yield updateTableAnnotationsAction(annotations) );
+      return
     }
+
+    response.docid = parsed.docid
+    response.page = parsed.page
+    response.collId = parsed.collId
+    // try{
+    response.collectionData.tables = response.collectionData.tables.sort(
+      (a,b) => (a.docid+'_'+a.page).localeCompare((b.docid+'_'+b.page))
+    )
+    // } catch(e){
+    //   debugger
+    // }
+
+    response.tablePosition = response.collectionData.tables.reduce(
+      (i, table, index) => {
+        if ( (table.docid+'_'+table.page).localeCompare(parsed.docid+'_'+parsed.page) == 0){
+          return index
+        }
+        return i
+      },
+      -1 ) + 1
+
+    response.tableStatus = response.annotationData.completion
+    response.tableType = response.annotationData.tableType
+    response.textNotes = response.annotationData.notes
+
+    // response.tablePosition_prev = response.tablePosition > -1 ? response.collectionData.tables[response.tablePosition-1] : false
+    // response.current = response.tablePosition > -1 ? response.collectionData.tables[response.tablePosition] : false
+    // response.tablePosition_next = response.tablePosition < (response.collectionData.tables.length-1) ? response.collectionData.tables[response.tablePosition+1] : false
+
+    yield put( yield updateTableContentAction(response) );
+
+    const annotations = (!_.isEmpty(response.annotationData)) && response.annotationData.annotation ?
+      response.annotationData.annotation.annotations.map(
+        (item,id) => {
+          // this is to preserve compatibility with previous annotations that don't have subAnnotation
+          item.subAnnotation = item.subAnnotation ? item.subAnnotation : false;
+          return item
+        }
+      ) : []
+
+    yield put( yield updateTableAnnotationsAction(annotations) );
   } catch (err) {
     console.log(err)
   }
@@ -154,6 +152,7 @@ export function* getTableResult( payload ) {
     'docid' : parsed.docid,
     'page' : parsed.page,
     'collId' : parsed.collId,
+    tid: parsed.tid,
     'cachedOnly' : payload.cachedOnly,
     'action' : 'get',
 
@@ -169,11 +168,9 @@ export function* getTableResult( payload ) {
       // COUld probably redirect to /
       // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
       //yield put(push('/dashboard'));
-    } else {
-
-      yield put( yield updateTableResultsAction(response.result) );
-
+      return {}
     }
+    yield put( yield updateTableResultsAction(response.result) );
   } catch (err) {
     console.log(err)
   }
@@ -202,13 +199,12 @@ export function* getCUISIndex( payload ) {
 
     if ( response.status && response.status == 'unauthorised'){
       yield put( yield updateCuisIndexAction({}) );
-
+      return {}
       // COUld probably redirect to /
       // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
-    } else {
-
-      yield put( yield updateCuisIndexAction(response.data) );
     }
+
+    yield put( yield updateCuisIndexAction(response.data) );
   } catch (err) {
     console.log(err)
   }
@@ -230,7 +226,7 @@ export function* getTableMetadata( payload ) {
     'docid' : parsed.docid,
     'page' : parsed.page,
     'collId' : parsed.collId,
-    'tid' : payload.tid,
+    tid: payload.tid || parsed.tid,
     'action' : 'get' // get  delete  edit
   });
 
@@ -245,36 +241,35 @@ export function* getTableMetadata( payload ) {
         response.status == 'unauthorised' ||
         response.status == 'fail'
       )
-    ){
-
+    ) {
+      return {}
       // COUld probably redirect to /
       // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
-    } else {
-
-      const metadata = response.data.reduce(
-        (acc, meta_item, i) => {
-          const mItem = {...meta_item}
-
-          mItem.cuis = mItem.cuis && mItem.cuis.length > 0 ? Array.from(new Set(mItem.cuis.split(';'))) : []
-          mItem.cuis_selected = mItem.cuis_selected && mItem.cuis_selected.length > 0 ?
-            Array.from(new Set(mItem.cuis_selected.split(';')))
-            : []
-
-          mItem.cuis.sort( (a,b) => mItem.cuis_selected.indexOf(b) - mItem.cuis_selected.indexOf(a) )
-
-          mItem.qualifiers = Array.from(new Set(mItem.qualifiers.split(';')))
-          mItem.qualifiers_selected = Array.from(new Set(mItem.qualifiers_selected.split(';')))
-
-          const metaKey = meta_item.concept.toLowerCase() != meta_item.concept_root.toLowerCase() ?
-            meta_item.concept_root.toLowerCase()+meta_item.concept.toLowerCase()
-            : meta_item.concept.toLowerCase()
-
-          acc[metaKey] = mItem;
-          return acc
-        }, {} )
-
-      yield put( yield updateTableMetadataAction(metadata) );
     }
+
+    const metadata = response.data.reduce(
+      (acc, meta_item, i) => {
+        const mItem = {...meta_item}
+
+        mItem.cuis = mItem.cuis && mItem.cuis.length > 0 ? Array.from(new Set(mItem.cuis.split(';'))) : []
+        mItem.cuis_selected = mItem.cuis_selected && mItem.cuis_selected.length > 0 ?
+          Array.from(new Set(mItem.cuis_selected.split(';')))
+          : []
+
+        mItem.cuis.sort( (a,b) => mItem.cuis_selected.indexOf(b) - mItem.cuis_selected.indexOf(a) )
+
+        mItem.qualifiers = Array.from(new Set(mItem.qualifiers.split(';')))
+        mItem.qualifiers_selected = Array.from(new Set(mItem.qualifiers_selected.split(';')))
+
+        const metaKey = meta_item.concept.toLowerCase() != meta_item.concept_root.toLowerCase() ?
+          meta_item.concept_root.toLowerCase()+meta_item.concept.toLowerCase()
+          : meta_item.concept.toLowerCase()
+
+        acc[metaKey] = mItem;
+        return acc
+      }, {} )
+
+    yield put( yield updateTableMetadataAction(metadata) );
   } catch (err) {
     console.log(err)
   }
@@ -296,6 +291,7 @@ export function* saveChanges ( payload ) {
     'docid' : parsed.docid,
     'page' : parsed.page,
     'collId' : parsed.collId,
+    tid: payload.tid || parsed.tid,
   }
 
   switch( payload.type ) {
@@ -367,22 +363,22 @@ export function* saveChanges ( payload ) {
       // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
       // alert("unauthorised action")
       yield put( yield issueAlertAction({ open: true, message: 'unauthorised action', isError: true }))
-    } else {
-      // yield put( yield updateTableResultsAction(response.result) );
-      switch( payload.type ) {
-        case SAVE_TABLE_TEXT_ACTION:
-          yield put( yield issueAlertAction({ open: true, message: 'Table Successfully Saved', isError: false }))
-          break;
-        case SAVE_TABLE_NOTES_ACTION:
-          yield put( yield issueAlertAction({ open: true, message: 'Notes Successfully Saved', isError: false }))
-          break;
-        case SAVE_TABLE_ANNOTATIONS_ACTION:
-          yield put( yield issueAlertAction({ open: true, message: 'Annotations Successfully Saved', isError: false }))
-          break;
-        case SAVE_TABLE_METADATA_ACTION:
-          yield put( yield issueAlertAction({ open: true, message: 'Metadata Successfully Saved', isError: false }))
-          break;
-      }
+      return
+    }
+    // yield put( yield updateTableResultsAction(response.result) );
+    switch( payload.type ) {
+      case SAVE_TABLE_TEXT_ACTION:
+        yield put( yield issueAlertAction({ open: true, message: 'Table Successfully Saved', isError: false }))
+        break;
+      case SAVE_TABLE_NOTES_ACTION:
+        yield put( yield issueAlertAction({ open: true, message: 'Notes Successfully Saved', isError: false }))
+        break;
+      case SAVE_TABLE_ANNOTATIONS_ACTION:
+        yield put( yield issueAlertAction({ open: true, message: 'Annotations Successfully Saved', isError: false }))
+        break;
+      case SAVE_TABLE_METADATA_ACTION:
+        yield put( yield issueAlertAction({ open: true, message: 'Metadata Successfully Saved', isError: false }))
+        break;
     }
   } catch (err) {
     console.log(err)
@@ -406,7 +402,7 @@ export function* getAutoLabels( payload ) {
     'docid' : parsed.docid,
     'page' : parsed.page,
     'collId' : parsed.collId,
-    'tid' : payload.tid,
+    tid: payload.tid || parsed.tid,
     'headers' : JSON.stringify(payload.headers),
     'action' : 'label' // get  delete  edit
   });
@@ -422,52 +418,50 @@ export function* getAutoLabels( payload ) {
 
       // COUld probably redirect to /
       // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
-    } else {
-
-      const metadata = Object.keys(response.autoLabels).reduce(
-        (acc, key, i) => {
-
-          const mItem = {}
-
-          mItem.concept_source = ''
-          mItem.concept = response.autoLabels[key].concept
-          mItem.concept_root = response.autoLabels[key].root
-
-          mItem.cuis = response.autoLabels[key].labels.map( item => item.CUI )
-
-
-          mItem.cuis_selected = mItem.cuis && mItem.cuis.length > 0 ? [mItem.cuis[0]] : []
-
-          mItem.cuis.sort( (a,b) => mItem.cuis_selected.indexOf(b) - mItem.cuis_selected.indexOf(a) )
-
-          mItem.qualifiers = [] //Array.from(new Set(mItem.qualifiers.split(";")))
-          mItem.qualifiers_selected = [] //Array.from(new Set(mItem.qualifiers_selected.split(";")))
-
-          mItem.istitle = false
-          mItem.labeller = credentials.username
-          mItem.tid = payload.tid
-
-          const metaKey = mItem.concept.toLowerCase() != mItem.concept_root.toLowerCase() ?
-            mItem.concept_root.toLowerCase()+mItem.concept.toLowerCase()
-            : mItem.concept.toLowerCase()
-
-          // debugger
-
-          acc[metaKey] = mItem;
-          return acc
-
-        }, {} )
-
-      // debugger
-
-      yield put( yield updateTableMetadataAction(metadata) );
-
-      yield put( yield loadCuisIndexAction());
-
-      yield put( yield issueAlertAction({ open: true, message: 'Labels assigned', isError: false }))
-
-      // yield put( yield updateTableMetadataAction(metadata) );
+      return {}
     }
+
+    const metadata = Object.keys(response.autoLabels).reduce(
+      (acc, key, i) => {
+
+        const mItem = {}
+
+        mItem.concept_source = ''
+        mItem.concept = response.autoLabels[key].concept
+        mItem.concept_root = response.autoLabels[key].root
+
+        mItem.cuis = response.autoLabels[key].labels.map( item => item.CUI )
+
+
+        mItem.cuis_selected = mItem.cuis && mItem.cuis.length > 0 ? [mItem.cuis[0]] : []
+
+        mItem.cuis.sort( (a,b) => mItem.cuis_selected.indexOf(b) - mItem.cuis_selected.indexOf(a) )
+
+        mItem.qualifiers = [] //Array.from(new Set(mItem.qualifiers.split(";")))
+        mItem.qualifiers_selected = [] //Array.from(new Set(mItem.qualifiers_selected.split(";")))
+
+        mItem.istitle = false
+        mItem.labeller = credentials.username
+        mItem.tid = payload.tid
+
+        const metaKey = mItem.concept.toLowerCase() != mItem.concept_root.toLowerCase() ?
+          mItem.concept_root.toLowerCase()+mItem.concept.toLowerCase()
+          : mItem.concept.toLowerCase()
+
+        acc[metaKey] = mItem;
+        return acc
+
+      }, {} )
+
+    // debugger
+
+    yield put( yield updateTableMetadataAction(metadata) );
+
+    yield put( yield loadCuisIndexAction());
+
+    yield put( yield issueAlertAction({ open: true, message: 'Labels assigned', isError: false }))
+
+    // yield put( yield updateTableMetadataAction(metadata) );
   } catch (err) {
     console.log(err)
   }
