@@ -113,12 +113,17 @@ const useStyles = makeStyles((theme) => ({
   marginRight: drawerWidth,
  },
  drawer: {
-   flexShrink: 0,
+  position: 'fixed',
+  flexShrink: 0,
+  right: 10,
  },
  drawerPaper: {
+  position: 'fixed',
   width: drawerWidth,
   height: `calc(100% - 124px)`,
-  marginTop:64,
+  marginTop: 64,
+  left: 'auto',
+  right: 15,
  },
  // necessary for content to be below app bar
  toolbar: theme.mixins.toolbar,
@@ -418,6 +423,7 @@ export function Annotator({
   }
 
   return (
+    <>
     <Card style={{marginTop:10, marginBottom: openMargin, minHeight:"85vh", marginRight:250}}>
       <Helmet>
         <title>TableTidier - Annotator</title>
@@ -499,235 +505,239 @@ export function Annotator({
           />
         </div>
 
-        <Drawer
-          className={classes.drawer}
-          variant="permanent"
-          classes={{
-            paper: classes.drawerPaper,
-          }}
-          anchor="right"
-          style={{zIndex: 0}}
-        >
-
-          <List>
-          <ListItem style={{marginLeft:0}}>
-            Table Number in Collection:
-          </ListItem>
-          <ListItem>
-            <Button variant="outlined" size="small" style={{minWidth: "auto", width:30, height:40, marginLeft:5}} onClick={ goPrev }>
-              <NavigateBeforeIcon style={{fontSize:20}} />
-            </Button>
-            <div style={{display:"inline", border:"1px solid #e5e5e5", borderRadius:5, height:40, verticalAlign:"center", width:"100% ", textAlign:"center", padding:2, fontSize:15}}>
-              <input style={{width:70, marginRight:5, textAlign:"right",height:35 }}
-                      type="number"
-                      value={ tablePosition && (parseInt(tablePosition) > -1) ? tablePosition : tablePosition }
-                      onKeyDown={ (event) => {
-                        if(event.key === 'Enter'){
-                          goToTable(tablePosition)()
-                          // (event.target.value > (tablePosition+1)) ? goNext() : goPrev()
-                        } else {
-                          // event.target.value ? setTablePosition( ( event.target.value > 0 ? event.target.value -1 : 0 ) ) : event.target.value
-                          setTablePosition( parseInt(event.target.value) ? (parseInt(event.target.value) ) : "" )
-                        }
-                      }}
-                      onChange={ (event) => {
-
-                        setTablePosition( parseInt(event.target.value) ? (parseInt(event.target.value) ) : "" )
-                        // event.target.value ? setTablePosition( ( event.target.value > 0 ? event.target.value -1 : 0 ) ) : event.target.value
-                      } }
-
-                      />
-              <div style={{display:"inline-block"}}> / {N_tables} </div>
-            </div>
-            <Button variant="outlined" size="small" style={{minWidth: "auto", width:30, height:40}} onClick={ goNext }>
-              <NavigateNextIcon style={{fontSize:20}} />
-            </Button>
-          </ListItem>
-
-          </List>
-          <Divider />
-          <List>
-            {
-            // <ListItem button>
-            //   <ListItemIcon><EditIcon/></ListItemIcon>
-            //   <ListItemText primary={"Edit Table"} />
-            //   <Switch
-            //       checked={editorEnabled}
-            //       onChange={() => { setEditorEnabled(!editorEnabled);}}
-            //       name="checkedA"
-            //       inputProps={{ 'aria-label': 'secondary checkbox' }}
-            //     />
-            // </ListItem>
-            }
-
-            <ListItem button>
-              <ListItemIcon style={{display:"inline"}}><DownloadIcon style={{fontSize:25}} /></ListItemIcon>
-
-              <ListItemText style={{display:"inline", marginLeft:5 }} primary={
-                <CsvDownloader
-                  filename={fileNameRoot()+"_table_data.csv"}
-                  separator=";"
-                  wrapColumnChar="'"
-                  columns={annotationHeaders.map( item => { return {id: item, displayName: item} } )}
-                  datas={results}
-                >
-                  Table Data (.csv)
-                </CsvDownloader>
-              } />
-
-            </ListItem>
-
-            <ListItem button>
-              <ListItemIcon style={{display:"inline"}}><DownloadIcon style={{fontSize:25}}/></ListItemIcon>
-              <ListItemText
-                style={{display:"inline", marginLeft:5}}
-                primary={
-                  <CsvDownloader
-                    filename={fileNameRoot()+"_table_metadata.csv"}
-                    separator=";"
-                    wrapColumnChar="'"
-                    columns={
-                      Object.values(metadata)[0] ?
-                        Object.keys(Object.values(metadata)[0]).map( item => { return {id: item, displayName: item} } )
-                        : []
-                    }
-                    datas={Object.values(metadata)}
-                  > Table Metadata (.csv) </CsvDownloader>
-                }
-              />
-            </ListItem>
-
-            <ListItem
-              button
-              onClick={ ()=> {
-                downloadFile(
-                  {tableResults: annotator.results, metadata: annotator.metadata},
-                  fileNameRoot()+"_all_data"
-                )
-              }}
-            >
-              <ListItemIcon style={{display:"inline"}}><DownloadIcon style={{fontSize:25}}/></ListItemIcon>
-              <ListItemText style={{display:"inline", marginLeft:5}} primary="Results & Metadata (.json)" />
-            </ListItem>
-
-            <ListItem
-              button
-              onClick={ ()=> {
-                downloadFile(
-                  {annotation: annotator.annotations},
-                  fileNameRoot()+"_annotation"
-                )
-              }}
-            >
-              <ListItemIcon style={{display:"inline"}}><DownloadIcon style={{fontSize:25}}/></ListItemIcon>
-              <ListItemText style={{display:"inline", marginLeft:5}} primary="Annotation (.json)" />
-            </ListItem>
-
-          </List>
-        </Drawer>
       </div>
+    </Card>
+  
+    {/* side menu */}
+    <Drawer
+      className={classes.drawer}
+      variant="permanent"
+      classes={{
+        paper: classes.drawerPaper,
+      }}
+      // style={{zIndex: 0}}
+    >
+      <List>
+      <ListItem style={{marginLeft:0}}>
+        Table Number in Collection:
+      </ListItem>
+      <ListItem>
+        <Button variant="outlined" size="small" style={{minWidth: "auto", width:30, height:40, marginLeft:5}} onClick={ goPrev }>
+          <NavigateBeforeIcon style={{fontSize:20}} />
+        </Button>
+        <div style={{display:"inline", border:"1px solid #e5e5e5", borderRadius:5, height:40, verticalAlign:"center", width:"100% ", textAlign:"center", padding:2, fontSize:15}}>
+          <input style={{width:70, marginRight:5, textAlign:"right",height:35 }}
+                  type="number"
+                  value={ tablePosition && (parseInt(tablePosition) > -1) ? tablePosition : tablePosition }
+                  onKeyDown={ (event) => {
+                    if(event.key === 'Enter'){
+                      goToTable(tablePosition)()
+                      // (event.target.value > (tablePosition+1)) ? goNext() : goPrev()
+                    } else {
+                      // event.target.value ? setTablePosition( ( event.target.value > 0 ? event.target.value -1 : 0 ) ) : event.target.value
+                      setTablePosition( parseInt(event.target.value) ? (parseInt(event.target.value) ) : "" )
+                    }
+                  }}
+                  onChange={ (event) => {
 
-      {/* Edition menu */}
-      <Card
-        style={{
-          position:"fixed",
-          left: 0, bottom: 60, width: "100%", height: bottomEnabled ? bottomSize : 65
-        }}
-      >
-        <div style={{width:"100%", backgroundColor: "#a3a3a3", height:5}}> </div>
-        <div style={{width:"100%", minWidth:800, height: bottomEnabled ? "100%" : 65, backgroundColor:"#e5e5e5"}}>
-          {
-          // If menu to extend bottom menu
-          !bottomEnabled && (
-          <Button
-            variant="outlined"
-            style={{float:"right", backgroundColor:"#ffffff", top:5, right:5}}
-            onClick={ () => handleBottomChange(1) }
-          >
-            { bottomEnabled ? <ArrowDropDown style={{fontSize:35}} /> : <ArrowDropUp style={{fontSize:35}} /> }
-          </Button> )
-          }
-          {
-          !bottomEnabled ||
+                    setTablePosition( parseInt(event.target.value) ? (parseInt(event.target.value) ) : "" )
+                    // event.target.value ? setTablePosition( ( event.target.value > 0 ? event.target.value -1 : 0 ) ) : event.target.value
+                  } }
 
-          <div
+                  />
+          <div style={{display:"inline-block"}}> / {N_tables} </div>
+        </div>
+        <Button variant="outlined" size="small" style={{minWidth: "auto", width:30, height:40}} onClick={ goNext }>
+          <NavigateNextIcon style={{fontSize:20}} />
+        </Button>
+      </ListItem>
+
+      </List>
+      <Divider />
+      <List>
+        {
+        // <ListItem button>
+        //   <ListItemIcon><EditIcon/></ListItemIcon>
+        //   <ListItemText primary={"Edit Table"} />
+        //   <Switch
+        //       checked={editorEnabled}
+        //       onChange={() => { setEditorEnabled(!editorEnabled);}}
+        //       name="checkedA"
+        //       inputProps={{ 'aria-label': 'secondary checkbox' }}
+        //     />
+        // </ListItem>
+        }
+
+        <ListItem button>
+          <ListItemIcon style={{display:"inline"}}><DownloadIcon style={{fontSize:25}} /></ListItemIcon>
+
+          <ListItemText style={{display:"inline", marginLeft:5 }} primary={
+            <CsvDownloader
+              filename={fileNameRoot()+"_table_data.csv"}
+              separator=";"
+              wrapColumnChar="'"
+              columns={annotationHeaders.map( item => { return {id: item, displayName: item} } )}
+              datas={results}
+            >
+              Table Data (.csv)
+            </CsvDownloader>
+          } />
+
+        </ListItem>
+
+        <ListItem button>
+          <ListItemIcon style={{display:"inline"}}><DownloadIcon style={{fontSize:25}}/></ListItemIcon>
+          <ListItemText
+            style={{display:"inline", marginLeft:5}}
+            primary={
+              <CsvDownloader
+                filename={fileNameRoot()+"_table_metadata.csv"}
+                separator=";"
+                wrapColumnChar="'"
+                columns={
+                  Object.values(metadata)[0] ?
+                    Object.keys(Object.values(metadata)[0]).map( item => { return {id: item, displayName: item} } )
+                    : []
+                }
+                datas={Object.values(metadata)}
+              > Table Metadata (.csv) </CsvDownloader>
+            }
+          />
+        </ListItem>
+
+        <ListItem
+          button
+          onClick={ ()=> {
+            downloadFile(
+              {tableResults: annotator.results, metadata: annotator.metadata},
+              fileNameRoot()+"_all_data"
+            )
+          }}
+        >
+          <ListItemIcon style={{display:"inline"}}><DownloadIcon style={{fontSize:25}}/></ListItemIcon>
+          <ListItemText style={{display:"inline", marginLeft:5}} primary="Results & Metadata (.json)" />
+        </ListItem>
+
+        <ListItem
+          button
+          onClick={ ()=> {
+            downloadFile(
+              {annotation: annotator.annotations},
+              fileNameRoot()+"_annotation"
+            )
+          }}
+        >
+          <ListItemIcon style={{display:"inline"}}><DownloadIcon style={{fontSize:25}}/></ListItemIcon>
+          <ListItemText style={{display:"inline", marginLeft:5}} primary="Annotation (.json)" />
+        </ListItem>
+
+      </List>
+    </Drawer>
+
+    {/* Edition menu */}
+    <Card
+      style={{
+        position: 'fixed',
+        // left: 0,
+        bottom: 60,
+        width: '100%',
+        height: bottomEnabled ? bottomSize : 65
+      }}
+    >
+      <div style={{width:"100%", backgroundColor: "#a3a3a3", height:5}}> </div>
+      <div style={{width:"100%", minWidth:800, height: bottomEnabled ? "100%" : 65, backgroundColor:"#e5e5e5"}}>
+        {
+        // If menu to extend bottom menu
+        !bottomEnabled && (
+        <Button
+          variant="outlined"
+          style={{float:"right", backgroundColor:"#ffffff", top:5, right:5}}
+          onClick={ () => handleBottomChange(1) }
+        >
+          { bottomEnabled ? <ArrowDropDown style={{fontSize:35}} /> : <ArrowDropUp style={{fontSize:35}} /> }
+        </Button> )
+        }
+        {
+        !bottomEnabled ||
+
+        <div
+          style={{
+            height:"100%",
+            backgroundColor:"#ffffff",
+            display: 'grid',
+            gridTemplateColumns: 'auto 1fr auto',
+            gridTemplateRows: '1fr',
+            gridTemplateAreas: `
+              'menu'
+              'main'
+              'show'`,
+          }}
+        >
+          <menu
             style={{
-              height:"100%",
-              backgroundColor:"#ffffff",
-              display: 'grid',
-              gridTemplateColumns: 'auto 1fr auto',
-              gridTemplateRows: '1fr',
-              gridTemplateAreas: `
-                'menu'
-                'main'
-                'show'`,
+              // width:"100%"
+              display: 'flex',
+              flexDirection: 'column',
+              paddingLeft: '10px',
+              paddingRight: '10px',
             }}
           >
-            <menu
+            <Button variant="outlined" className={classes.bottomButtons} style={{backgroundColor: bottomNotes ? "#dde6ff" : "" }} onClick={ () => showBottomNotes(!bottomNotes)}>
+                          1. Notes { bottomNotes ? <VisibilityIcon style={{marginLeft:5}}/> : <VisibilityOffIcon style={{marginLeft:5}}/> }  </Button>
+            <Button variant="outlined" className={classes.bottomButtons} style={{backgroundColor: bottomAnnotations ? "lightgoldenrodyellow" : "" }} onClick={ () => showBottomAnnotations(!bottomAnnotations)}>
+                          2. Table Structure { bottomAnnotations ? <VisibilityIcon style={{marginLeft:5}}/> : <VisibilityOffIcon style={{marginLeft:5}}/> }  </Button>
+            <Button variant="outlined" className={classes.bottomButtons} style={{backgroundColor: bottomResults ? "lightsteelblue" : ""  }} onClick={ () => showBottomResults(!bottomResults)}>
+                          3. Results { bottomResults ? <VisibilityIcon style={{ marginLeft:5}}/> : <VisibilityOffIcon style={{marginLeft:5}}/> } </Button>
+            <Button variant="outlined" className={classes.bottomButtons} style={{backgroundColor: bottomMetadata ? "lightpink" : ""  }} onClick={ () => showBottomMetadata(!bottomMetadata)}>
+                          4. Terminology { bottomMetadata ? <VisibilityIcon style={{ marginLeft:5}}/> : <VisibilityOffIcon style={{marginLeft:5}}/> } </Button>
+          </menu>
+          <main
+            style={{
+              // overflow: 'auto',
+              overflowY: 'scroll',
+            }}
+          >
+            { [bottomNotes, bottomAnnotations, bottomResults, bottomMetadata].map( (elm, i) => elm ?
+                                <div key={"tr_"+i} style={{width:"100%", verticalAlign:"top", borderBottom:"1px #acacac solid"}}>
+                                  <span style={{paddingBottom:20}}>
+
+                                    { bottom_elements[i] }
+
+                                  </span>
+                                </div> : undefined )
+            }
+          </main>
+          <nav
+            style={{
+              paddingLeft: '10px',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              paddingBottom: '15px',
+            }}
+          >
+            <div
               style={{
-                // width:"100%"
                 display: 'flex',
                 flexDirection: 'column',
-                paddingLeft: '10px',
-                paddingRight: '10px',
               }}
             >
-              <Button variant="outlined" className={classes.bottomButtons} style={{backgroundColor: bottomNotes ? "#dde6ff" : "" }} onClick={ () => showBottomNotes(!bottomNotes)}>
-                            1. Notes { bottomNotes ? <VisibilityIcon style={{marginLeft:5}}/> : <VisibilityOffIcon style={{marginLeft:5}}/> }  </Button>
-              <Button variant="outlined" className={classes.bottomButtons} style={{backgroundColor: bottomAnnotations ? "lightgoldenrodyellow" : "" }} onClick={ () => showBottomAnnotations(!bottomAnnotations)}>
-                            2. Table Structure { bottomAnnotations ? <VisibilityIcon style={{marginLeft:5}}/> : <VisibilityOffIcon style={{marginLeft:5}}/> }  </Button>
-              <Button variant="outlined" className={classes.bottomButtons} style={{backgroundColor: bottomResults ? "lightsteelblue" : ""  }} onClick={ () => showBottomResults(!bottomResults)}>
-                            3. Results { bottomResults ? <VisibilityIcon style={{ marginLeft:5}}/> : <VisibilityOffIcon style={{marginLeft:5}}/> } </Button>
-              <Button variant="outlined" className={classes.bottomButtons} style={{backgroundColor: bottomMetadata ? "lightpink" : ""  }} onClick={ () => showBottomMetadata(!bottomMetadata)}>
-                            4. Terminology { bottomMetadata ? <VisibilityIcon style={{ marginLeft:5}}/> : <VisibilityOffIcon style={{marginLeft:5}}/> } </Button>
-            </menu>
-            <main
+              <AnnotatorMenuButtons handler={handleBottomChange} bottomLevel={bottomLevel} />
+            </div>
+            <div
               style={{
-                // overflow: 'auto',
-                overflowY: 'scroll',
-              }}
-            >
-              { [bottomNotes, bottomAnnotations, bottomResults, bottomMetadata].map( (elm, i) => elm ?
-                                  <div key={"tr_"+i} style={{width:"100%", verticalAlign:"top", borderBottom:"1px #acacac solid"}}>
-                                    <span style={{paddingBottom:20}}>
-
-                                      { bottom_elements[i] }
-
-                                    </span>
-                                  </div> : undefined )
-              }
-            </main>
-            <nav
-              style={{
-                paddingLeft: '10px',
                 display: 'flex',
                 flexDirection: 'column',
-                justifyContent: 'space-between',
-                paddingBottom: '15px',
               }}
             >
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                }}
-              >
-                <AnnotatorMenuButtons handler={handleBottomChange} bottomLevel={bottomLevel} />
-              </div>
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                }}
-              >
-                <AnnotatorMenuButtons handler={handleBottomChange} bottomLevel={bottomLevel} invertButtons={true} />
-              </div>
-            </nav>
-          </div>
-        }
+              <AnnotatorMenuButtons handler={handleBottomChange} bottomLevel={bottomLevel} invertButtons={true} />
+            </div>
+          </nav>
         </div>
-      </Card>
+      }
+      </div>
     </Card>
+  </>
   );
 }
 
