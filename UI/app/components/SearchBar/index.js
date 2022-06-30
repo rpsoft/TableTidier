@@ -106,7 +106,7 @@ event.stopPropagation();
           inputRef={searchInput}
           inputProps={{
             autoCorrect: 'off',
-            spellcheck: 'false',
+            spellCheck: 'false',
             autoComplete: 'off',
             type: 'text',
           }}
