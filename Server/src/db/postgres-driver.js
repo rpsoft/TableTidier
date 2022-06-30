@@ -36,13 +36,14 @@ function driver(config) {
     // Returns the annotation for a single document/table
     //  ! :-) Delete table also deletes annotations?
     annotationByIDGet: async (docid, page, collId) => {
-      if ( docid == "undefined" || page == "undefined" || collId == "undefined" ) {
+      if ( docid == 'undefined' || page == 'undefined' || collId == 'undefined' ) {
         return `parameters not valid`
       }
 
       const annotations = await query(
       `SELECT 
         docid,
+        "page",
         "user",
         notes,
         collection_id,

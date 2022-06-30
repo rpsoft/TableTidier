@@ -62,13 +62,14 @@ function driver(config) {
 
     // Returns the annotation for a single document/table
     annotationByIDGet: async (docid, page, collId) => {
-      if ( docid == "undefined" || page == "undefined" || collId == "undefined" ) {
+      if ( docid == 'undefined' || page == 'undefined' || collId == 'undefined' ) {
         return `parameters not valid`
       }
 
       const annotations = await queryGet(
       `SELECT 
         docid,
+        "page",
         "user",
         notes,
         collection_id,
