@@ -394,8 +394,8 @@ export function Annotator({
     return () => navigate(address)
   }
 
-  const prevNumber = ((tablePosition-1) >= 0) ? (tablePosition-1) : 0
-  const nextNumber = ((tablePosition+1) > (N_tables)) ? (N_tables) : (tablePosition+1)
+  const prevNumber = (tablePosition-1) >= 0 ? (tablePosition-1) : 0
+  const nextNumber = (tablePosition+1) > N_tables ? N_tables : tablePosition+1
 
   // annotator.tableData.collectionData.tables
   const goPrev = annotator.tableData ? prepare_nav_link(annotator.tableData.collectionData.tables, prevNumber) : () => {}
@@ -518,40 +518,60 @@ export function Annotator({
       // style={{zIndex: 0}}
     >
       <List>
-      <ListItem style={{marginLeft:0}}>
-        Table Number in Collection:
-      </ListItem>
-      <ListItem>
-        <Button variant="outlined" size="small" style={{minWidth: "auto", width:30, height:40, marginLeft:5}} onClick={ goPrev }>
-          <NavigateBeforeIcon style={{fontSize:20}} />
-        </Button>
-        <div style={{display:"inline", border:"1px solid #e5e5e5", borderRadius:5, height:40, verticalAlign:"center", width:"100% ", textAlign:"center", padding:2, fontSize:15}}>
-          <input style={{width:70, marginRight:5, textAlign:"right",height:35 }}
-                  type="number"
-                  value={ tablePosition && (parseInt(tablePosition) > -1) ? tablePosition : tablePosition }
-                  onKeyDown={ (event) => {
-                    if(event.key === 'Enter'){
-                      goToTable(tablePosition)()
-                      // (event.target.value > (tablePosition+1)) ? goNext() : goPrev()
-                    } else {
-                      // event.target.value ? setTablePosition( ( event.target.value > 0 ? event.target.value -1 : 0 ) ) : event.target.value
-                      setTablePosition( parseInt(event.target.value) ? (parseInt(event.target.value) ) : "" )
-                    }
-                  }}
-                  onChange={ (event) => {
-
-                    setTablePosition( parseInt(event.target.value) ? (parseInt(event.target.value) ) : "" )
-                    // event.target.value ? setTablePosition( ( event.target.value > 0 ? event.target.value -1 : 0 ) ) : event.target.value
-                  } }
-
-                  />
-          <div style={{display:"inline-block"}}> / {N_tables} </div>
-        </div>
-        <Button variant="outlined" size="small" style={{minWidth: "auto", width:30, height:40}} onClick={ goNext }>
-          <NavigateNextIcon style={{fontSize:20}} />
-        </Button>
-      </ListItem>
-
+        <ListItem style={{marginLeft:0}}>
+          Table Number in Collection:
+        </ListItem>
+        <ListItem>
+          <Button
+            variant="outlined"
+            size="small"
+            style={{minWidth: "auto", width:30, height:40, marginLeft:5}}
+            onClick={ goPrev }
+          >
+            <NavigateBeforeIcon style={{fontSize:20}} />
+          </Button>
+          <div
+            style={{
+              display:"inline",
+              border:"1px solid #e5e5e5",
+              borderRadius:5,
+              height:40,
+              verticalAlign:"center",
+              width:"100% ",
+              textAlign:"center",
+              padding:2,
+              fontSize:15
+            }}
+          >
+            <input
+              style={{width:70, marginRight:5, textAlign:"right",height:35 }}
+              type="number"
+              value={ tablePosition && (parseInt(tablePosition) > -1) ? tablePosition : tablePosition }
+              onKeyDown={ (event) => {
+                if(event.key === 'Enter'){
+                  goToTable(tablePosition)()
+                  // (event.target.value > (tablePosition+1)) ? goNext() : goPrev()
+                } else {
+                  // event.target.value ? setTablePosition( ( event.target.value > 0 ? event.target.value -1 : 0 ) ) : event.target.value
+                  setTablePosition( parseInt(event.target.value) ? (parseInt(event.target.value) ) : "" )
+                }
+              }}
+              onChange={ (event) => {
+                setTablePosition( parseInt(event.target.value) ? (parseInt(event.target.value) ) : "" )
+                // event.target.value ? setTablePosition( ( event.target.value > 0 ? event.target.value -1 : 0 ) ) : event.target.value
+              } }
+            />
+            <div style={{display:"inline-block"}}> / {N_tables} </div>
+          </div>
+          <Button
+            variant="outlined"
+            size="small"
+            style={{minWidth: "auto", width:30, height:40}}
+            onClick={ goNext }
+          >
+            <NavigateNextIcon style={{fontSize:20}} />
+          </Button>
+        </ListItem>
       </List>
       <Divider />
       <List>
@@ -682,14 +702,54 @@ export function Annotator({
               paddingRight: '10px',
             }}
           >
-            <Button variant="outlined" className={classes.bottomButtons} style={{backgroundColor: bottomNotes ? "#dde6ff" : "" }} onClick={ () => showBottomNotes(!bottomNotes)}>
-                          1. Notes { bottomNotes ? <VisibilityIcon style={{marginLeft:5}}/> : <VisibilityOffIcon style={{marginLeft:5}}/> }  </Button>
-            <Button variant="outlined" className={classes.bottomButtons} style={{backgroundColor: bottomAnnotations ? "lightgoldenrodyellow" : "" }} onClick={ () => showBottomAnnotations(!bottomAnnotations)}>
-                          2. Table Structure { bottomAnnotations ? <VisibilityIcon style={{marginLeft:5}}/> : <VisibilityOffIcon style={{marginLeft:5}}/> }  </Button>
-            <Button variant="outlined" className={classes.bottomButtons} style={{backgroundColor: bottomResults ? "lightsteelblue" : ""  }} onClick={ () => showBottomResults(!bottomResults)}>
-                          3. Results { bottomResults ? <VisibilityIcon style={{ marginLeft:5}}/> : <VisibilityOffIcon style={{marginLeft:5}}/> } </Button>
-            <Button variant="outlined" className={classes.bottomButtons} style={{backgroundColor: bottomMetadata ? "lightpink" : ""  }} onClick={ () => showBottomMetadata(!bottomMetadata)}>
-                          4. Terminology { bottomMetadata ? <VisibilityIcon style={{ marginLeft:5}}/> : <VisibilityOffIcon style={{marginLeft:5}}/> } </Button>
+            <Button
+              variant="outlined"
+              className={classes.bottomButtons}
+              style={bottomNotes ? {backgroundColor: '#dde6ff'} : {} }
+              onClick={ () => showBottomNotes(!bottomNotes)}
+            >
+              1. Notes {
+                bottomNotes ?
+                  <VisibilityIcon style={{marginLeft:5}}/>
+                  : <VisibilityOffIcon style={{marginLeft:5}}/>
+              }
+            </Button>
+            <Button
+              variant="outlined"
+              className={classes.bottomButtons}
+              style={bottomAnnotations ? {backgroundColor: "lightgoldenrodyellow"} : {} }
+              onClick={ () => showBottomAnnotations(!bottomAnnotations)}
+            >
+              2. Table Structure {
+                bottomAnnotations ?
+                  <VisibilityIcon style={{marginLeft:5}}/>
+                  : <VisibilityOffIcon style={{marginLeft:5}}/>
+              }
+            </Button>
+            <Button
+              variant="outlined"
+              className={classes.bottomButtons}
+              style={bottomResults ? {backgroundColor: "lightsteelblue"} : {} }
+              onClick={ () => showBottomResults(!bottomResults)}
+            >
+              3. Results {
+                bottomResults ?
+                  <VisibilityIcon style={{marginLeft:5}}/>
+                  : <VisibilityOffIcon style={{marginLeft:5}}/>
+              }
+            </Button>
+            <Button
+              variant="outlined"
+              className={classes.bottomButtons}
+              style={bottomMetadata ? {backgroundColor: "lightpink"} : {} }
+              onClick={ () => showBottomMetadata(!bottomMetadata)}
+            >
+              4. Terminology {
+                bottomMetadata ?
+                  <VisibilityIcon style={{marginLeft:5}}/>
+                  : <VisibilityOffIcon style={{marginLeft:5}}/>
+              }
+            </Button>
           </menu>
           <main
             style={{
@@ -697,14 +757,22 @@ export function Annotator({
               overflowY: 'scroll',
             }}
           >
-            { [bottomNotes, bottomAnnotations, bottomResults, bottomMetadata].map( (elm, i) => elm ?
-                                <div key={"tr_"+i} style={{width:"100%", verticalAlign:"top", borderBottom:"1px #acacac solid"}}>
-                                  <span style={{paddingBottom:20}}>
+            {
+            [
+              bottomNotes,
+              bottomAnnotations,
+              bottomResults,
+              bottomMetadata
+            ].map( (elm, i) => elm ?
+                <div key={"tr_"+i} style={{width:"100%", verticalAlign:"top", borderBottom:"1px #acacac solid"}}>
+                  <span style={{paddingBottom:20}}>
 
-                                    { bottom_elements[i] }
+                    { bottom_elements[i] }
 
-                                  </span>
-                                </div> : undefined )
+                  </span>
+                </div> 
+              : undefined
+            )
             }
           </main>
           <nav
