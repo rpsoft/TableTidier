@@ -92,25 +92,26 @@ export function* getTableContent( payload ) {
       return
     }
 
-    response.docid = parsed.docid
-    response.page = parsed.page
-    response.collId = parsed.collId
-    // try{
+    response.docid = parsed.docid || response.annotationData.docid
+    response.page = parsed.page || response.annotationData.page
+    response.collId = parsed.collId || response.annotationData.collection_id
+
     response.collectionData.tables = response.collectionData.tables.sort(
       (a,b) => (a.docid+'_'+a.page).localeCompare((b.docid+'_'+b.page))
     )
-    // } catch(e){
-    //   debugger
-    // }
 
-    response.tablePosition = response.collectionData.tables.reduce(
-      (i, table, index) => {
-        if ( (table.docid+'_'+table.page).localeCompare(parsed.docid+'_'+parsed.page) == 0){
-          return index
+    response.tablePosition = response.collectionData.tables.findIndex(
+      (table) => {
+        // get index by tid
+        if ( table.tid == response.annotationData.tid ) {
+          return true
         }
-        return i
-      },
-      -1 ) + 1
+        // get index by docid and page
+        if ( (table.docid+'_'+table.page).localeCompare(parsed.docid+'_'+parsed.page) == 0) {
+          return true
+        }
+        return false
+      }) + 1
 
     response.tableStatus = response.annotationData.completion
     response.tableType = response.annotationData.tableType
