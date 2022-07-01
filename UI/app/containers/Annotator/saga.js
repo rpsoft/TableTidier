@@ -454,8 +454,6 @@ export function* getAutoLabels( payload ) {
 
       }, {} )
 
-    // debugger
-
     yield put( yield updateTableMetadataAction(metadata) );
 
     yield put( yield loadCuisIndexAction());
