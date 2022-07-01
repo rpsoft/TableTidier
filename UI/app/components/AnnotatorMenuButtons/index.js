@@ -14,18 +14,20 @@ import {
 }from '@material-ui/icons';
 
 const AnnotatorMenuButtons = ({handler, bottomLevel, invertButtons}) => {
+  const buttonStyles = {
+    float: 'right',
+    backgroundColor: '#ffffff',
+    top: 5,
+    right: 5,
+    marginTop: 5,
+  }
+
   const buttonUp = (key) => <Button
   key={key}
   name="grow-menu"
   variant="outlined"
   elevation={6}
-  style={{
-    float:"right",
-    backgroundColor:"#ffffff",
-    top:5,
-    right:5,
-    marginTop: 5,
-  }}
+  style={buttonStyles}
   disabled={bottomLevel >= 2}
   onClick={ () => handler(1) }
   >
@@ -37,13 +39,7 @@ const AnnotatorMenuButtons = ({handler, bottomLevel, invertButtons}) => {
   name="shrik-menu"
   variant="outlined"
   elevation={2}
-  style={{
-    float:"right",
-    backgroundColor:"#ffffff",
-    top:5,
-    right:5,
-    marginTop: 5,
-  }}
+  style={buttonStyles}
   onClick={ () => handler(-1) }
   >
   <ArrowDropDown style={{fontSize:35}} />
