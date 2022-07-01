@@ -236,7 +236,7 @@ export function Annotator({
 
   const [ allowEdit, setAllowEdit ] = React.useState(false);
 
-  const [ results, setResults ] = React.useState(  annotator.results );
+  const [ results, setResults ] = React.useState(  annotator.results || [] );
   const [ metadata, setMetadata ] = React.useState( {} );
   const [ headerData, setHeaderData ] = React.useState( {} );
 
@@ -244,7 +244,7 @@ export function Annotator({
 
   const [ alertData, setAlertData]  = React.useState( { open: false, message: "", isError: false } );
 
-  const [ tid, setTid ] = React.useState("")
+  const [ tid, setTid ] = React.useState('')
 
   const [ notesData, setNotesData ] = React.useState({ tableType:"", tableStatus:"", textNotes: "" });
 
@@ -596,13 +596,13 @@ export function Annotator({
               filename={fileNameRoot()+"_table_data.csv"}
               separator=";"
               wrapColumnChar="'"
-              columns={annotationHeaders.map( item => { return {id: item, displayName: item} } )}
-              datas={results}
+              columns={['tid', ...annotationHeaders].map( item => { return {id: item, displayName: item} } )}
+              datas={results.map(line => ({tid, ...line}) )}
             >
               Table Data (.csv)
             </CsvDownloader>
-          } />
-
+            }
+          />
         </ListItem>
 
         <ListItem button>
@@ -611,12 +611,14 @@ export function Annotator({
             style={{display:"inline", marginLeft:5}}
             primary={
               <CsvDownloader
-                filename={fileNameRoot()+"_table_metadata.csv"}
+                filename={fileNameRoot()+'_table_metadata.csv'}
                 separator=";"
                 wrapColumnChar="'"
                 columns={
                   Object.values(metadata)[0] ?
-                    Object.keys(Object.values(metadata)[0]).map( item => { return {id: item, displayName: item} } )
+                    Object.keys(
+                      Object.values(metadata)[0]
+                    ).map( item => { return {id: item, displayName: item} } )
                     : []
                 }
                 datas={Object.values(metadata)}
@@ -629,26 +631,53 @@ export function Annotator({
           button
           onClick={ ()=> {
             downloadFile(
-              {tableResults: annotator.results, metadata: annotator.metadata},
-              fileNameRoot()+"_all_data"
+              {
+                // General info
+                tid: annotator.tableData.annotationData.tid,
+                docid: annotator.tableData.annotationData.docid,
+                page: annotator.tableData.annotationData.page,
+                collection_id: annotator.tableData.annotationData.collection_id,
+                // Data
+                tableResults: annotator.results,
+                metadata: annotator.metadata
+              },
+              fileNameRoot()+'_all_data'
             )
           }}
         >
-          <ListItemIcon style={{display:"inline"}}><DownloadIcon style={{fontSize:25}}/></ListItemIcon>
-          <ListItemText style={{display:"inline", marginLeft:5}} primary="Results & Metadata (.json)" />
+          <ListItemIcon style={{display:"inline"}}>
+            <DownloadIcon style={{fontSize:25}}/>
+          </ListItemIcon>
+          <ListItemText
+            style={{display:"inline", marginLeft:5}}
+            primary="Results & Metadata (.json)"
+          />
         </ListItem>
 
         <ListItem
           button
           onClick={ ()=> {
             downloadFile(
-              {annotation: annotator.annotations},
+              {
+                // General info
+                tid: annotator.tableData.annotationData.tid,
+                docid: annotator.tableData.annotationData.docid,
+                page: annotator.tableData.annotationData.page,
+                collection_id: annotator.tableData.annotationData.collection_id,
+                // Data
+                annotation: annotator.annotations,
+              },
               fileNameRoot()+"_annotation"
             )
           }}
         >
-          <ListItemIcon style={{display:"inline"}}><DownloadIcon style={{fontSize:25}}/></ListItemIcon>
-          <ListItemText style={{display:"inline", marginLeft:5}} primary="Annotation (.json)" />
+          <ListItemIcon style={{display:"inline"}}>
+            <DownloadIcon style={{fontSize:25}}/>
+          </ListItemIcon>
+          <ListItemText
+            style={{display:"inline", marginLeft:5}}
+            primary="Annotation (.json)"
+          />
         </ListItem>
 
       </List>
