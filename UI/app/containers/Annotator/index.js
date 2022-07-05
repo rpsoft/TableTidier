@@ -6,7 +6,7 @@
 
 import React, { memo, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
+import { connect, useSelector } from 'react-redux';
 import { Helmet } from 'react-helmet';
 import { FormattedMessage } from 'react-intl';
 import { createStructuredSelector } from 'reselect';
@@ -198,6 +198,9 @@ export function Annotator({
 }) {
 
   let navigate = useNavigate();
+  // Get api_url from redux store
+  const apiUrl = useSelector(state => state.app.api_url)
+  const userToken = loginState.token
 
   useInjectReducer({ key: 'annotator', reducer });
   useInjectSaga({ key: 'annotator', saga });
@@ -323,6 +326,30 @@ export function Annotator({
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  const updateReferences = async () => {
+    const url = apiUrl + 'table/updateReferences'
+    let headers = {'Content-Type': 'application/json'}
+    // JWT token
+    if (userToken) {
+      headers['Authorization'] = `Bearer ${userToken}`
+    }
+    let result = await fetch(url, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify({
+        // tid get from state
+        tid,
+        pmid: pmidRef.current.value,
+        doi: doiRef.current.value,
+        url: urlRef.current.value,
+      }),
+    })
+
+    if (result.status != 200) {
+      return false
+    }
+  }
+
   const doUpdates = () => {
     if( annotator.tableData ){
       setAnnotations(annotator.annotations)
@@ -345,6 +372,7 @@ export function Annotator({
 
       setN_tables(parseInt(annotator.tableData.collectionData.tables.length))
       setTablePosition(parseInt(annotator.tableData.tablePosition))
+
       setResults(annotator.results)
 
       setMetadata(annotator.metadata)
@@ -505,8 +533,16 @@ export function Annotator({
                   onClick={ () => {
                     const title = titleEditor.current.getData()
                     const body = bodyEditor.current.getData()
-                    // Check if change to update
-                    // save references pmid, doi, url...
+                    // if references changed then update
+                    if (
+                      pmid != pmidRef.current.value ||
+                      doi != doiRef.current.value ||
+                      url != urlRef.current.value
+                    ) {
+                      // save references pmid, doi, url...
+                      updateReferences()
+                    }
+
                     saveTextChanges(title, body);
                     setEditorEnabled(false);
                     loadTableContent(false);
