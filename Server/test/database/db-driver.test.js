@@ -105,6 +105,17 @@ describe('dbDriver', () => {
       expect(table).toEqual('1');
     });
 
+    // tableGetByTid
+    test('Get table by tid', async () => {
+      const docid = '28905478'
+      const page = 1
+      const collId = 1
+      const table = await dbDriver.tableGetByTid(1);
+      expect(table.docid).toEqual(docid);
+      expect(table.page).toEqual(page);
+      expect(table.collection_id).toEqual(collId);
+    });
+
     // tableCreate
     test('Create table fails', async () => {
       const docid = '28905478'
@@ -213,7 +224,28 @@ describe('dbDriver', () => {
       table = await dbDriver.tableGet(docid, page, collId);
       expect(table.notes).toEqual('');
     });
+    
+    // tableReferencesUpdate
+    test('tableReferencesUpdate', async () => {
+      const docid = '28905478'
+      const page = 2
+      const collId = 1
 
+      let table = await dbDriver.tableGet(docid, page, collId);
+      const tid = table.tid
+      const pmid = '111111'
+      const doi = '10.1161/JAHA.118.010748'
+      const url = 'https://test.test'
+
+      // Return table references to null from last test
+      await dbDriver.tableReferencesUpdate(tid, null, null, null);
+      table = await dbDriver.tableGet(docid, page, collId);
+      expect(table.pmid).toEqual(null)
+      
+      const result = await dbDriver.tableReferencesUpdate(tid, pmid, doi, url);
+      table = await dbDriver.tableGet(docid, page, collId);
+      expect(table.pmid).toEqual(pmid);
+    });
   });
   describe('Collections', () => {
     // permissionsResourceGet from collection
