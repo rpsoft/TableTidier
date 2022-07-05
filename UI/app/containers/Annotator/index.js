@@ -3,7 +3,6 @@
  * Annotator
  *
  */
-const _ = require('lodash');
 
 import React, { memo, useRef } from 'react';
 import PropTypes from 'prop-types';
@@ -70,6 +69,8 @@ import {
   Toolbar,
   Typography,
   Switch,
+  OutlinedInput,
+  InputAdornment,
 } from '@material-ui/core';
 
 import InboxIcon from '@material-ui/icons/MoveToInbox';
@@ -106,39 +107,71 @@ import {
 import './dragstyle.css';
 
 const useStyles = makeStyles((theme) => ({
- root: {
-  display: 'flex',
- },
- appBar: {
-  marginRight: drawerWidth,
- },
- drawer: {
-  position: 'fixed',
-  flexShrink: 0,
-  right: 10,
- },
- drawerPaper: {
-  position: 'fixed',
-  width: drawerWidth,
-  height: `calc(100% - 124px)`,
-  marginTop: 64,
-  left: 'auto',
-  right: 15,
- },
- // necessary for content to be below app bar
- toolbar: theme.mixins.toolbar,
- content: {
-  flexGrow: 1,
-  // backgroundColor: theme.palette.background.default,
-  padding: theme.spacing(3),
- },
- bottomButtons: {
-  width: 185,
-  marginBottom:5,
- },
- bottomTable: {
+  root: {
+    display: 'flex',
+  },
+  drawer: {
+    position: 'fixed',
+    flexShrink: 0,
+    right: 10,
+  },
+  drawerPaper: {
+    position: 'fixed',
+    width: drawerWidth,
+    height: `calc(100% - 124px)`,
+    marginTop: 64,
+    left: 'auto',
+    right: 15,
+  },
+  // necessary for content to be below app bar
+  toolbar: theme.mixins.toolbar,
+  content: {
+    flexGrow: 1,
+    // backgroundColor: theme.palette.background.default,
+    padding: theme.spacing(3),
+  },
+  bottomButtons: {
+    width: 185,
+    marginBottom:5,
+  },
+  bottomTable: {
 
- }
+  },
+  // Menu PMID, DOI, url
+  referenceInputsListItem: {
+    display: 'flex',
+    whiteSpace: 'nowrap',
+    alignItems: 'center',
+    marginTop: 3,
+    marginBottom: 3,
+    '& > div': {
+      whiteSpace: 'normal',
+      textAlign: 'center',
+      marginLeft: 10,
+      color: 'dimgray',
+    },
+  },
+  referenceInputsListItemEditing: {
+    display: 'flex',
+    whiteSpace: 'nowrap',
+    alignItems: 'center',
+    marginTop: 3,
+    marginBottom: 3,
+  },
+  referenceInputsBase: {
+    marginLeft: 10,
+    fontSize: '14px',
+      // TextField style
+    '& > .MuiInputBase-root': {
+      padding: '8px 14px',
+      color: 'dimgray',
+      fontSize: '14px',
+    }
+  },
+  referenceInputs: {
+    padding: '8px 14px',
+    color: 'dimgray',
+  },
 }));
 
 const diffY = 0;
@@ -256,6 +289,17 @@ export function Annotator({
     width: undefined,
     height: undefined,
   });
+
+  // table external references
+  const {
+    pmid = '',
+    doi = '',
+    url = '',
+  } = 'tableData' in annotator? annotator.tableData.annotationData: {}
+
+  const pmidRef = useRef();
+  const doiRef =  useRef();
+  const urlRef =  useRef();
 
   //On component will mount
   React.useEffect(() => {
@@ -451,20 +495,18 @@ export function Annotator({
             </div>
 
             { allowEdit && <div>
-              {editorEnabled ? "Disable" : "Enable"} Editing
-              <Switch
-                checked={editorEnabled}
-                onChange={() => { setEditorEnabled(!editorEnabled);}}
-                name="checkedA"
-                inputProps={{ 'aria-label': 'secondary checkbox' }}
-              />
               {editorEnabled && (
                 <Button
                   variant="outlined"
-                  style={{backgroundColor:"#ffdbdb"}}
+                  style={{
+                    backgroundColor:"#ffdbdb",
+                    marginRight: 15,
+                  }}
                   onClick={ () => {
                     const title = titleEditor.current.getData()
                     const body = bodyEditor.current.getData()
+                    // Check if change to update
+                    // save references pmid, doi, url...
                     saveTextChanges(title, body);
                     setEditorEnabled(false);
                     loadTableContent(false);
@@ -474,6 +516,13 @@ export function Annotator({
                     Save Edit Changes <EditIcon style={{marginLeft:5}}/>
                 </Button> )
               }
+              {editorEnabled ? "Disable" : "Enable"} Editing
+              <Switch
+                checked={editorEnabled}
+                onChange={() => { setEditorEnabled(!editorEnabled);}}
+                name="checkedA"
+                inputProps={{ 'aria-label': 'secondary checkbox' }}
+              />
             </div>}
           </div>
 
@@ -573,7 +622,120 @@ export function Annotator({
           </Button>
         </ListItem>
       </List>
+
       <Divider />
+
+      {/* References pmid, doi, url, etc */}
+      <div
+        style={{
+          margin: '0 5px',
+        }}
+      >
+        <ul
+          style={{
+            listStyleType: 'none',
+            paddingInlineStart: '10px',
+
+            fontWeight: 'normal',
+            fontFamily: 'arial,sans-serif',
+            fontSize: '14px',
+            lineHeight: '1.45',
+          }}
+        >
+        {
+        editorEnabled == false ? <>
+          <li
+            className={classes.referenceInputsListItem}
+          >
+            PMID <div> {pmid} </div>
+          </li>
+          <li
+            className={classes.referenceInputsListItem}
+          >
+            DOI <div> {doi} </div>
+          </li>
+          <li
+            className={classes.referenceInputsListItem}
+          >
+            url <div className={classes.referenceInputsBase}><a href={url} target="_blank">{url}</a> </div>
+          </li>
+        </>
+        : <>
+          <li
+            className={classes.referenceInputsListItemEditing}
+          >
+            PMID
+            <OutlinedInput
+              id="table-pmid"
+              defaultValue={pmid}
+              inputRef={pmidRef}
+              placeholder={'PMID Code'}
+              // onChange={handleChange('weight')}
+              classes={{
+                root: classes.referenceInputsBase,
+                input: classes.referenceInputs,
+              }}
+              aria-describedby="outlined-weight-helper-text"
+              inputProps={{
+                'aria-label': 'weight',
+              }}
+              labelWidth={0}
+            />
+          </li>
+          <li
+            className={classes.referenceInputsListItemEditing}
+          >
+            DOI
+            <TextField
+              id="table-doi"
+              defaultValue={doi}
+              inputRef={doiRef}
+              // onChange={handleChange('weight')}
+              classes={{
+                root: classes.referenceInputsBase,
+                // input: classes.referenceInputs,
+              }}
+              aria-describedby="outlined-weight-helper-text"
+              inputProps={{
+                'aria-label': 'weight',
+              }}
+              multiline
+              rows={3}
+              variant="outlined"
+            />
+          </li>
+          <li
+            className={classes.referenceInputsListItemEditing}
+          >
+            url
+            <TextField
+              id="table-url"
+              defaultValue={url}
+              inputRef={urlRef}
+              // onChange={handleChange('weight')}
+              classes={{
+                root: classes.referenceInputsBase,
+                // input: classes.referenceInputs,
+              }}
+              aria-describedby="outlined-weight-helper-text"
+              inputProps={{
+                'aria-label': 'weight',
+              }}
+              multiline
+              rows={4}
+              variant="outlined"
+              // labelWidth={0}
+            />
+          </li>
+        </>
+        }
+        </ul>
+
+      
+      </div>
+
+      <Divider />
+
       <List>
         {
         // <ListItem button>
