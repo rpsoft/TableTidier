@@ -200,7 +200,7 @@ function FileUploader({
         open={ open }
         // When add or remove files
         onChange={ async (filesList) => {
-          console.log(filesList)
+          // console.log(filesList)
           filesCheck(filesList)
         }}
         onSave={ handleSave }
