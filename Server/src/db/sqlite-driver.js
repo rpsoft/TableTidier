@@ -5,7 +5,7 @@ const sqlite3 = (
   ) ?
     require('sqlite3').verbose()
     : require('sqlite3');
-console.log(process.env.NODE_ENV)
+console.log('environment: '+process.env.NODE_ENV)
 const path = require('path');
 
 const {
@@ -77,7 +77,10 @@ function driver(config) {
         "tableType",
         "table".tid,
         completion,
-        annotation
+        annotation,
+        "table".doi,
+        "table".pmid,
+        "table".url
       FROM 
         "table"
       LEFT JOIN
@@ -493,14 +496,32 @@ function driver(config) {
     },
 
     tableGetByTid: async (tid) => {
-      const result = await query(
-        `SELECT * FROM public."table" WHERE tid = $1`,
+      const result = await queryGet(
+        `SELECT * FROM "table" WHERE tid = $1`,
         [tid]
       )
       if ( result && result.length == 0 ){
         return 'not found'
       }
-      return result.rows[0]
+      return result
+    },
+
+    tableReferencesUpdate: async (tid, pmid, doi, url) => {
+      await queryRun(
+      `UPDATE "table"
+      SET
+        pmid=$2,
+        doi=$3,
+        url=$4
+      WHERE
+        tid=$1`,
+      {
+        $1: tid,
+        $2: pmid,
+        $3: doi,
+        $4: url
+      })
+      return 'done'
     },
 
     tablesMove: async (tables, collection_id, target_collection_id) => {

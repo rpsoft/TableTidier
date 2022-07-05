@@ -51,7 +51,10 @@ function driver(config) {
         "tableType",
         "table".tid,
         completion,
-        annotation
+        annotation,
+        "table".doi,
+        "table".pmid,
+        "table".url
       FROM 
         "table"
       LEFT JOIN
@@ -451,15 +454,33 @@ function driver(config) {
       return tid.rows[0]
     },
 
+    // Obtain a table by its tid
     tableGetByTid: async (tid) => {
       const result = await query(
         `SELECT * FROM public."table" WHERE tid = $1`,
         [tid]
       )
-      if ( result.rows && result.rows.length == 0 ){
+      if ( result.rows && result.rows.length == 0 ) {
         return 'not found'
       }
+      // bigint (64 bits) returned as string by pg module
+      // convert to integer
+      result.rows[0].collection_id = parseInt(result.rows[0].collection_id)
       return result.rows[0]
+    },
+
+    tableReferencesUpdate: async (tid, pmid, doi, url) => {
+      await query(
+      `UPDATE public."table"
+      SET
+        pmid=$2,
+        doi=$3,
+        url=$4
+      WHERE
+        tid=$1`,
+      [tid, pmid, doi, url]
+      )
+      return 'done'
     },
 
     tablesMove: async (tables, collection_id, target_collection_id) => {
