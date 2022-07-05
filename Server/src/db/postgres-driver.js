@@ -68,6 +68,10 @@ function driver(config) {
       if (annotations.rows[0] == undefined) {
         return null
       }
+            // bigint (64 bits) returned as string by pg module
+      // convert to integer
+      annotations.rows[0].collection_id = parseInt(annotations.rows[0].collection_id)
+      annotations.rows[0].tid = parseInt(annotations.rows[0].tid)
       return annotations.rows[0]
     },
 
@@ -466,6 +470,7 @@ function driver(config) {
       // bigint (64 bits) returned as string by pg module
       // convert to integer
       result.rows[0].collection_id = parseInt(result.rows[0].collection_id)
+      result.rows[0].tid = parseInt(result.rows[0].tid)
       return result.rows[0]
     },
 
