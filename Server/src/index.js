@@ -1316,7 +1316,7 @@ const prepareAnnotationPreview = async (docid, page, collId, cachedOnly) => {
 
   const annotations = await dbDriver.annotationByIDGet(docid, page, collId)
   if ( !annotations ) {
-    return {"state" : "fail", result : []}
+    return {state: 'fail', result : []}
   }
   const entry = annotations
 
@@ -1332,7 +1332,7 @@ const prepareAnnotationPreview = async (docid, page, collId, cachedOnly) => {
     entry.annotation,
     path.join(
       override_exists ? tables_folder_override : tables_folder,
-      entry.collection_id,
+      entry.collection_id.toString(),
       entry.file_path
     )
   )
@@ -1730,7 +1730,7 @@ app.post(CONFIG.api_base_url+'/text',
   if ( !folder_exists ) {
     await fs.mkdir( path.join(tables_folder_override, collId), { recursive: true })
   }
-  debugger
+
   const payloadParsed = JSON.parse(payload)
   const titleText = '<div class="headers"><div style="font-size:20px; font-weight:bold; white-space: normal;">'+
     cheerio.load(payloadParsed.tableTitle).text()+'</div></div>'
@@ -1901,6 +1901,49 @@ app.post(CONFIG.api_base_url+'/saveAnnotation',
     console.log(err.stack)
   }
   res.json({status:"success", payload: ''})
+});
+
+app.put(CONFIG.api_base_url+'/table/updateReferences',
+  experessJwt({
+    secret: publickey,
+    algorithms: ['ES256'],
+    credentialsRequired: false,
+  }),
+  async (req, res) => {
+
+  // req.user added by experessJwt
+  const user = req?.user
+  const userNameRequesting = user.sub
+  debugger
+  if ( !user ) {
+    return res.json({status:'unauthorised', payload: null})
+  }
+
+  if ( !req.body ) {
+    res.json({status: 'undefined', payload: 'check request data'})
+    return
+  }
+
+  const {
+    tid,
+    pmid,
+    doi,
+    url,
+  } = req?.body
+
+  // Check user have permissions to update table
+  const table = await dbDriver.tableGetByTid(tid);
+  if ( userNameRequesting != table.user ) {
+    res.json({status: 'unauthorised', payload: userNameRequesting + ' user is not allowed to update references'})
+    return
+  }
+
+  try {
+    const result = await dbDriver.tableReferencesUpdate(tid, pmid, doi, url);
+  } catch (err) {
+    console.log(err)
+  }
+  res.json({status: 'success', payload: 'update done'})
 });
 
 const prepareMetadata = (headerData, tableResults) => {
