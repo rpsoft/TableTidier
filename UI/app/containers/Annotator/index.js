@@ -134,32 +134,58 @@ const useStyles = makeStyles((theme) => ({
     width: 185,
     marginBottom:5,
   },
-  bottomTable: {
 
+  // Side Menu Styles
+  // Header
+  sideMenuHeader: {
+    textAlign: 'center',
+    margin: '10px auto',
+    font: 'caption',
+    backgroundColor: 'lavender',
+    margin: 0,
+    padding: 10,
   },
-  // Menu PMID, DOI, url
-  referenceInputsListItem: {
-    display: 'flex',
-    whiteSpace: 'nowrap',
-    alignItems: 'center',
-    marginTop: 3,
-    marginBottom: 3,
-    '& > div': {
-      whiteSpace: 'normal',
-      textAlign: 'center',
-      marginLeft: 10,
+  sideMenuHeaderSecond: {
+    textAlign: 'center',
+    margin: '10px auto',
+    font: 'caption',
+  },
+  // Info about table
+  tableIdentifiers: {
+    display: 'grid',
+    gridTemplateColumns: 'auto 1fr',
+    maxWidth: '300px',
+    margin: '1em',
+    lineHeight: '1.45',
+    fontSize: '14px',
+    '& dt': {
+      gridColumn: 1,
+      fontWeight: 'normal',
+      alignSelf: 'baseline',
+    },
+    '& dd': {
+      gridColumn: 2,
+      justifySelf: 'end',
       color: 'dimgray',
+      marginLeft: 0,
+      '& a': {
+        color: 'cadetblue', // steelblue, cadetblue
+        textDecoration: 'none',
+      },
+      '& a:hover': {
+        textDecoration: 'underline',
+      }
     },
   },
+
+  // Menu PMID, DOI, url
   referenceInputsListItemEditing: {
-    display: 'flex',
-    whiteSpace: 'nowrap',
     alignItems: 'center',
     marginTop: 3,
-    marginBottom: 3,
   },
   referenceInputsBase: {
     marginLeft: 10,
+    marginBottom: 3,
     fontSize: '14px',
       // TextField style
     '& > .MuiInputBase-root': {
@@ -295,6 +321,9 @@ export function Annotator({
 
   // table external references
   const {
+    docid = '',
+    page = '',
+    collection_id: collId = '',
     pmid = '',
     doi = '',
     url = '',
@@ -475,16 +504,12 @@ export function Annotator({
 
   const goToTable = (number) => { return annotator.tableData ? prepare_nav_link(annotator.tableData.collectionData.tables, number) : () => {} }
 
-  const docid = annotator.tableData ? annotator.tableData.docid : ""
-  const page = annotator.tableData ? annotator.tableData.page : ""
-  const collId = annotator.tableData ? annotator.tableData.collId : ""
-
-  const fileNameRoot = () => [docid,page,collId].join("_")
+  const fileNameRoot = () => [docid,page,collId].join('_')
 
   const downloadFile = async (data, filename = "mydata") => {
     const fileName = filename;
     const json = JSON.stringify(data);
-    const blob = new Blob([json],{type:'application/json'});
+    const blob = new Blob([json], {type: 'application/json'});
     const href = await URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = href;
@@ -602,6 +627,24 @@ export function Annotator({
       }}
       // style={{zIndex: 0}}
     >
+
+      {/* Table ID */}
+      <h3 className={classes.sideMenuHeader} >
+        Table Info
+      </h3>
+      <dl className={classes.tableIdentifiers}>
+        <dt> Doc Id </dt>
+        <dd> {docid} </dd>
+        <dt> Page </dt>
+        <dd> {page} </dd>
+        <dt> Collection Id </dt>
+        <dd> {collId} </dd>
+        <dt> Table Id </dt>
+        <dd> {tid} </dd>
+      </dl>
+      <Divider />
+
+      {/* Table number in collection */}
       <List>
         <ListItem style={{marginLeft:0}}>
           Table Number in Collection:
@@ -660,118 +703,105 @@ export function Annotator({
       </List>
 
       <Divider />
+      
 
       {/* References pmid, doi, url, etc */}
-      <div
-        style={{
-          margin: '0 5px',
-        }}
-      >
-        <ul
-          style={{
-            listStyleType: 'none',
-            paddingInlineStart: '10px',
-
-            fontWeight: 'normal',
-            fontFamily: 'arial,sans-serif',
-            fontSize: '14px',
-            lineHeight: '1.45',
-          }}
-        >
-        {
-        editorEnabled == false ? <>
-          <li
-            className={classes.referenceInputsListItem}
-          >
-            PMID <div> {pmid} </div>
-          </li>
-          <li
-            className={classes.referenceInputsListItem}
-          >
-            DOI <div> {doi} </div>
-          </li>
-          <li
-            className={classes.referenceInputsListItem}
-          >
-            url <div className={classes.referenceInputsBase}><a href={url} target="_blank">{url}</a> </div>
-          </li>
-        </>
-        : <>
-          <li
-            className={classes.referenceInputsListItemEditing}
-          >
-            PMID
-            <OutlinedInput
-              id="table-pmid"
-              defaultValue={pmid}
-              inputRef={pmidRef}
-              placeholder={'PMID Code'}
-              // onChange={handleChange('weight')}
-              classes={{
-                root: classes.referenceInputsBase,
-                input: classes.referenceInputs,
-              }}
-              aria-describedby="outlined-weight-helper-text"
-              inputProps={{
-                'aria-label': 'weight',
-              }}
-              labelWidth={0}
-            />
-          </li>
-          <li
-            className={classes.referenceInputsListItemEditing}
-          >
-            DOI
-            <TextField
-              id="table-doi"
-              defaultValue={doi}
-              inputRef={doiRef}
-              // onChange={handleChange('weight')}
-              classes={{
-                root: classes.referenceInputsBase,
-                // input: classes.referenceInputs,
-              }}
-              aria-describedby="outlined-weight-helper-text"
-              inputProps={{
-                'aria-label': 'weight',
-              }}
-              multiline
-              rows={3}
-              variant="outlined"
-            />
-          </li>
-          <li
-            className={classes.referenceInputsListItemEditing}
-          >
-            url
-            <TextField
-              id="table-url"
-              defaultValue={url}
-              inputRef={urlRef}
-              // onChange={handleChange('weight')}
-              classes={{
-                root: classes.referenceInputsBase,
-                // input: classes.referenceInputs,
-              }}
-              aria-describedby="outlined-weight-helper-text"
-              inputProps={{
-                'aria-label': 'weight',
-              }}
-              multiline
-              rows={4}
-              variant="outlined"
-              // labelWidth={0}
-            />
-          </li>
-        </>
-        }
-        </ul>
-
-      
-      </div>
-
+      <h3 className={classes.sideMenuHeaderSecond} >
+        References
+      </h3>
       <Divider />
 
+      <dl className={classes.tableIdentifiers} >
+      {
+      editorEnabled == false ? <>
+        <dt> PMID </dt>
+        <dd> {pmid} </dd>
+        <dt> DOI </dt>
+        <dd> {doi} </dd>
+        <dt> Url </dt>
+        <dd> <a href={url} target="_blank">{url}</a> </dd>
+      </>
+      : <>
+        <dt
+          // className={classes.referenceInputsListItemEditing}
+        >
+          PMID
+        </dt>
+        <dd>
+          <OutlinedInput
+            id="table-pmid"
+            defaultValue={pmid}
+            inputRef={pmidRef}
+            placeholder={'PMID Code'}
+            // onChange={handleChange('weight')}
+            classes={{
+              root: classes.referenceInputsBase,
+              input: classes.referenceInputs,
+            }}
+            aria-describedby="outlined-weight-helper-text"
+            inputProps={{
+              'aria-label': 'weight',
+            }}
+            labelWidth={0}
+          />
+        </dd>
+        <dt
+          className={classes.referenceInputsListItemEditing}
+        >
+          DOI
+        </dt>
+        <dd>
+          <TextField
+            id="table-doi"
+            defaultValue={doi}
+            inputRef={doiRef}
+            // onChange={handleChange('weight')}
+            classes={{
+              root: classes.referenceInputsBase,
+            }}
+            aria-describedby="outlined-weight-helper-text"
+            inputProps={{
+              'aria-label': 'weight',
+            }}
+            multiline
+            rows={3}
+            variant="outlined"
+          />
+        </dd>
+        <dt
+          className={classes.referenceInputsListItemEditing}
+        >
+          Url
+        </dt>
+        <dd>
+          <TextField
+            id="table-url"
+            defaultValue={url}
+            inputRef={urlRef}
+            // onChange={handleChange('weight')}
+            classes={{
+              root: classes.referenceInputsBase,
+            }}
+            aria-describedby="outlined-weight-helper-text"
+            inputProps={{
+              'aria-label': 'weight',
+            }}
+            multiline
+            rows={4}
+            variant="outlined"
+            // labelWidth={0}
+          />
+        </dd>
+      </>
+      }
+      </dl>
+      
+      {/* Downloads */}
+      <Divider />
+      <h3 className={classes.sideMenuHeaderSecond} >
+        Downloads
+      </h3>
+      <Divider />
       <List>
         {
         // <ListItem button>
