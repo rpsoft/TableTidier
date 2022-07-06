@@ -111,15 +111,12 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
   },
   drawer: {
-    position: 'fixed',
     flexShrink: 0,
     right: 10,
   },
   drawerPaper: {
-    position: 'fixed',
     width: drawerWidth,
     height: `calc(100% - 124px)`,
-    marginTop: 64,
     left: 'auto',
     right: 15,
   },
@@ -521,395 +518,415 @@ export function Annotator({
 
   return (
     <>
-    <Card style={{marginTop:10, marginBottom: openMargin, minHeight:"85vh", marginRight:250}}>
-      <Helmet>
-        <title>TableTidier - Annotator</title>
-        <meta name="description" content="Description of Annotations" />
-      </Helmet>
+    <Helmet>
+      <title>TableTidier - Annotator</title>
+      <meta name="description" content="Description of Annotations" />
+    </Helmet>
       
-      <PopAlert alertData={alertData} setAlertData={setAlertData} />
+    <PopAlert alertData={alertData} setAlertData={setAlertData} />
 
-      <div className={classes.root}>
-        <div className={classes.content}>
-
-          <div style={{width:"100%",textAlign:"right"}}>
-            <div style={{float:"left", marginTop:10}}>
-                  Document Name / ID:  <span style={{fontWeight:"bold", textDecoration: "underline", cursor: "pointer", color: "blue"}}> {docid} </span>
-            </div>
-
-            <div>
-              Show Cuis
-              <Switch
-                checked={showEditCuis}
-                onChange={() => { setShowEditCuis(!showEditCuis);}}
-                name="checkedA"
-                inputProps={{ 'aria-label': 'secondary checkbox' }}
-              />
-            </div>
-
-            { allowEdit && <div>
-              {editorEnabled && (
-                <Button
-                  variant="outlined"
-                  style={{
-                    backgroundColor:"#ffdbdb",
-                    marginRight: 15,
-                  }}
-                  onClick={ () => {
-                    const title = titleEditor.current.getData()
-                    const body = bodyEditor.current.getData()
-                    // if references changed then update
-                    if (
-                      pmid != pmidRef.current.value ||
-                      doi != doiRef.current.value ||
-                      url != urlRef.current.value
-                    ) {
-                      // save references pmid, doi, url...
-                      updateReferences()
-                    }
-
-                    saveTextChanges(title, body);
-                    setEditorEnabled(false);
-                    loadTableContent(false);
-                    loadTableResults(false);
-                  } }
-                >
-                    Save Edit Changes <EditIcon style={{marginLeft:5}}/>
-                </Button> )
-              }
-              {editorEnabled ? "Disable" : "Enable"} Editing
-              <Switch
-                checked={editorEnabled}
-                onChange={() => { setEditorEnabled(!editorEnabled);}}
-                name="checkedA"
-                inputProps={{ 'aria-label': 'secondary checkbox' }}
-              />
-            </div>}
-          </div>
-
-          <hr />
-
-          {
-          <TableEditor
-            editorID={"table_title_editor"}
-            textContent={tableData ? tableData.tableTitle : ''}
-            editorEnabled={editorEnabled}
-            editorRef={(editor) => titleEditor.current = editor}
-            height={200}
-            metadata={metadata}
-            cuisIndex={cuisIndex}
-            showEditCuis={showEditCuis}
-          />
-          }
-          <hr />
-          
-          <TableEditor
-            editorID={"table_content_editor"}
-            textContent={tableData ? tableData.tableBody : ''}
-            editorEnabled={editorEnabled}
-            editorRef={(editor) => bodyEditor.current = editor}
-            height={800}
-            metadata={metadata}
-            cuisIndex={cuisIndex}
-            showEditCuis={showEditCuis}
-          />
-        </div>
-
-      </div>
-    </Card>
-  
-    {/* side menu */}
-    <Drawer
-      className={classes.drawer}
-      variant="permanent"
-      classes={{
-        paper: classes.drawerPaper,
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr auto',
+        gridTemplateRows: 'auto',
       }}
-      // style={{zIndex: 0}}
     >
+      <Card 
+        style={{
+          // marginTop: 5,
+          // marginBottom: openMargin,
+          minHeight: '85vh',
+          height: '85vh',
+          marginRight: 5,
+          overflow: 'scroll',
+        }}
+      >
+        <div className={classes.root}>
+          <div className={classes.content}>
 
-      {/* Table ID */}
-      <h3 className={classes.sideMenuHeader} >
-        Table Info
-      </h3>
-      <dl className={classes.tableIdentifiers}>
-        <dt> Doc Id </dt>
-        <dd> {docid} </dd>
-        <dt> Page </dt>
-        <dd> {page} </dd>
-        <dt> Collection Id </dt>
-        <dd> {collId} </dd>
-        <dt> Table Id </dt>
-        <dd> {tid} </dd>
-      </dl>
-      <Divider />
+            <div style={{width:"100%",textAlign:"right"}}>
+              <div style={{float:"left", marginTop:10}}>
+                    Document Name / ID:  <span style={{fontWeight:"bold", textDecoration: "underline", cursor: "pointer", color: "blue"}}> {docid} </span>
+              </div>
 
-      {/* Table number in collection */}
-      <List>
-        <ListItem style={{marginLeft:0}}>
-          Table Number in Collection:
-        </ListItem>
-        <ListItem>
-          <Button
-            variant="outlined"
-            size="small"
-            style={{minWidth: "auto", width:30, height:40, marginLeft:5}}
-            onClick={ goPrev }
-          >
-            <NavigateBeforeIcon style={{fontSize:20}} />
-          </Button>
-          <div
-            style={{
-              display:"inline",
-              border:"1px solid #e5e5e5",
-              borderRadius:5,
-              height:40,
-              verticalAlign:"center",
-              width:"100% ",
-              textAlign:"center",
-              padding:2,
-              fontSize:15
-            }}
-          >
-            <input
-              style={{width:70, marginRight:5, textAlign:"right",height:35 }}
-              type="number"
-              value={ tablePosition && (parseInt(tablePosition) > -1) ? tablePosition : tablePosition }
-              onKeyDown={ (event) => {
-                if(event.key === 'Enter'){
-                  goToTable(tablePosition)()
-                  // (event.target.value > (tablePosition+1)) ? goNext() : goPrev()
-                } else {
-                  // event.target.value ? setTablePosition( ( event.target.value > 0 ? event.target.value -1 : 0 ) ) : event.target.value
-                  setTablePosition( parseInt(event.target.value) ? (parseInt(event.target.value) ) : "" )
+              <div>
+                Show Cuis
+                <Switch
+                  checked={showEditCuis}
+                  onChange={() => { setShowEditCuis(!showEditCuis);}}
+                  name="checkedA"
+                  inputProps={{ 'aria-label': 'secondary checkbox' }}
+                />
+              </div>
+
+              { allowEdit && <div>
+                {editorEnabled && (
+                  <Button
+                    variant="outlined"
+                    style={{
+                      backgroundColor:"#ffdbdb",
+                      marginRight: 15,
+                    }}
+                    onClick={ () => {
+                      const title = titleEditor.current.getData()
+                      const body = bodyEditor.current.getData()
+                      // if references changed then update
+                      if (
+                        pmid != pmidRef.current.value ||
+                        doi != doiRef.current.value ||
+                        url != urlRef.current.value
+                      ) {
+                        // save references pmid, doi, url...
+                        updateReferences()
+                      }
+
+                      saveTextChanges(title, body);
+                      setEditorEnabled(false);
+                      loadTableContent(false);
+                      loadTableResults(false);
+                    } }
+                  >
+                      Save Edit Changes <EditIcon style={{marginLeft:5}}/>
+                  </Button> )
                 }
-              }}
-              onChange={ (event) => {
-                setTablePosition( parseInt(event.target.value) ? (parseInt(event.target.value) ) : "" )
-                // event.target.value ? setTablePosition( ( event.target.value > 0 ? event.target.value -1 : 0 ) ) : event.target.value
-              } }
+                {editorEnabled ? "Disable" : "Enable"} Editing
+                <Switch
+                  checked={editorEnabled}
+                  onChange={() => { setEditorEnabled(!editorEnabled);}}
+                  name="checkedA"
+                  inputProps={{ 'aria-label': 'secondary checkbox' }}
+                />
+              </div>}
+            </div>
+
+            <hr />
+
+            {
+            <TableEditor
+              editorID={"table_title_editor"}
+              textContent={tableData ? tableData.tableTitle : ''}
+              editorEnabled={editorEnabled}
+              editorRef={(editor) => titleEditor.current = editor}
+              height={200}
+              metadata={metadata}
+              cuisIndex={cuisIndex}
+              showEditCuis={showEditCuis}
             />
-            <div style={{display:"inline-block"}}> / {N_tables} </div>
-          </div>
-          <Button
-            variant="outlined"
-            size="small"
-            style={{minWidth: "auto", width:30, height:40}}
-            onClick={ goNext }
-          >
-            <NavigateNextIcon style={{fontSize:20}} />
-          </Button>
-        </ListItem>
-      </List>
-
-      <Divider />
-      
-
-      {/* References pmid, doi, url, etc */}
-      <h3 className={classes.sideMenuHeaderSecond} >
-        References
-      </h3>
-      <Divider />
-
-      <dl className={classes.tableIdentifiers} >
-      {
-      editorEnabled == false ? <>
-        <dt> PMID </dt>
-        <dd> {pmid} </dd>
-        <dt> DOI </dt>
-        <dd> {doi} </dd>
-        <dt> Url </dt>
-        <dd> <a href={url} target="_blank">{url}</a> </dd>
-      </>
-      : <>
-        <dt
-          // className={classes.referenceInputsListItemEditing}
-        >
-          PMID
-        </dt>
-        <dd>
-          <OutlinedInput
-            id="table-pmid"
-            defaultValue={pmid}
-            inputRef={pmidRef}
-            placeholder={'PMID Code'}
-            // onChange={handleChange('weight')}
-            classes={{
-              root: classes.referenceInputsBase,
-              input: classes.referenceInputs,
-            }}
-            aria-describedby="outlined-weight-helper-text"
-            inputProps={{
-              'aria-label': 'weight',
-            }}
-            labelWidth={0}
-          />
-        </dd>
-        <dt
-          className={classes.referenceInputsListItemEditing}
-        >
-          DOI
-        </dt>
-        <dd>
-          <TextField
-            id="table-doi"
-            defaultValue={doi}
-            inputRef={doiRef}
-            // onChange={handleChange('weight')}
-            classes={{
-              root: classes.referenceInputsBase,
-            }}
-            aria-describedby="outlined-weight-helper-text"
-            inputProps={{
-              'aria-label': 'weight',
-            }}
-            multiline
-            rows={3}
-            variant="outlined"
-          />
-        </dd>
-        <dt
-          className={classes.referenceInputsListItemEditing}
-        >
-          Url
-        </dt>
-        <dd>
-          <TextField
-            id="table-url"
-            defaultValue={url}
-            inputRef={urlRef}
-            // onChange={handleChange('weight')}
-            classes={{
-              root: classes.referenceInputsBase,
-            }}
-            aria-describedby="outlined-weight-helper-text"
-            inputProps={{
-              'aria-label': 'weight',
-            }}
-            multiline
-            rows={4}
-            variant="outlined"
-            // labelWidth={0}
-          />
-        </dd>
-      </>
-      }
-      </dl>
-      
-      {/* Downloads */}
-      <Divider />
-      <h3 className={classes.sideMenuHeaderSecond} >
-        Downloads
-      </h3>
-      <Divider />
-      <List>
-        {
-        // <ListItem button>
-        //   <ListItemIcon><EditIcon/></ListItemIcon>
-        //   <ListItemText primary={"Edit Table"} />
-        //   <Switch
-        //       checked={editorEnabled}
-        //       onChange={() => { setEditorEnabled(!editorEnabled);}}
-        //       name="checkedA"
-        //       inputProps={{ 'aria-label': 'secondary checkbox' }}
-        //     />
-        // </ListItem>
-        }
-
-        <ListItem button>
-          <ListItemIcon style={{display:"inline"}}><DownloadIcon style={{fontSize:25}} /></ListItemIcon>
-
-          <ListItemText style={{display:"inline", marginLeft:5 }} primary={
-            <CsvDownloader
-              filename={fileNameRoot()+"_table_data.csv"}
-              separator=";"
-              wrapColumnChar="'"
-              columns={['tid', ...annotationHeaders].map( item => { return {id: item, displayName: item} } )}
-              datas={results.map(line => ({tid, ...line}) )}
-            >
-              Table Data (.csv)
-            </CsvDownloader>
             }
-          />
-        </ListItem>
+            <hr />
+            
+            <TableEditor
+              editorID={"table_content_editor"}
+              textContent={tableData ? tableData.tableBody : ''}
+              editorEnabled={editorEnabled}
+              editorRef={(editor) => bodyEditor.current = editor}
+              height={800}
+              metadata={metadata}
+              cuisIndex={cuisIndex}
+              showEditCuis={showEditCuis}
+            />
+          </div>
 
-        <ListItem button>
-          <ListItemIcon style={{display:"inline"}}><DownloadIcon style={{fontSize:25}}/></ListItemIcon>
-          <ListItemText
-            style={{display:"inline", marginLeft:5}}
-            primary={
+        </div>
+      </Card>
+
+          {/* side menu */}
+      <Card
+        className={classes.drawer}
+        // variant="permanent"
+        classes={{
+          // paper: classes.drawerPaper,
+          root: classes.drawerPaper,
+        }}
+        // style={{zIndex: 0}}
+      >
+
+        {/* Table ID */}
+        <h3 className={classes.sideMenuHeader} >
+          Table Info
+        </h3>
+        <dl className={classes.tableIdentifiers}>
+          <dt> Doc Id </dt>
+          <dd> {docid} </dd>
+          <dt> Page </dt>
+          <dd> {page} </dd>
+          <dt> Collection Id </dt>
+          <dd> {collId} </dd>
+          <dt> Table Id </dt>
+          <dd> {tid} </dd>
+        </dl>
+        <Divider />
+
+        {/* Table number in collection */}
+        <List>
+          <ListItem style={{marginLeft:0}}>
+            Table Number in Collection:
+          </ListItem>
+          <ListItem>
+            <Button
+              variant="outlined"
+              size="small"
+              style={{minWidth: "auto", width:30, height:40, marginLeft:5}}
+              onClick={ goPrev }
+            >
+              <NavigateBeforeIcon style={{fontSize:20}} />
+            </Button>
+            <div
+              style={{
+                display:"inline",
+                border:"1px solid #e5e5e5",
+                borderRadius:5,
+                height:40,
+                verticalAlign:"center",
+                width:"100% ",
+                textAlign:"center",
+                padding:2,
+                fontSize:15
+              }}
+            >
+              <input
+                style={{width:70, marginRight:5, textAlign:"right",height:35 }}
+                type="number"
+                value={ tablePosition && (parseInt(tablePosition) > -1) ? tablePosition : tablePosition }
+                onKeyDown={ (event) => {
+                  if(event.key === 'Enter'){
+                    goToTable(tablePosition)()
+                    // (event.target.value > (tablePosition+1)) ? goNext() : goPrev()
+                  } else {
+                    // event.target.value ? setTablePosition( ( event.target.value > 0 ? event.target.value -1 : 0 ) ) : event.target.value
+                    setTablePosition( parseInt(event.target.value) ? (parseInt(event.target.value) ) : "" )
+                  }
+                }}
+                onChange={ (event) => {
+                  setTablePosition( parseInt(event.target.value) ? (parseInt(event.target.value) ) : "" )
+                  // event.target.value ? setTablePosition( ( event.target.value > 0 ? event.target.value -1 : 0 ) ) : event.target.value
+                } }
+              />
+              <div style={{display:"inline-block"}}> / {N_tables} </div>
+            </div>
+            <Button
+              variant="outlined"
+              size="small"
+              style={{minWidth: "auto", width:30, height:40}}
+              onClick={ goNext }
+            >
+              <NavigateNextIcon style={{fontSize:20}} />
+            </Button>
+          </ListItem>
+        </List>
+
+        <Divider />
+        
+
+        {/* References pmid, doi, url, etc */}
+        <h3 className={classes.sideMenuHeaderSecond} >
+          References
+        </h3>
+        <Divider />
+
+        <dl className={classes.tableIdentifiers} >
+        {
+        editorEnabled == false ? <>
+          <dt> PMID </dt>
+          <dd> {pmid} </dd>
+          <dt> DOI </dt>
+          <dd> {doi} </dd>
+          <dt> Url </dt>
+          <dd> <a href={url} target="_blank">{url}</a> </dd>
+        </>
+        : <>
+          <dt
+            // className={classes.referenceInputsListItemEditing}
+          >
+            PMID
+          </dt>
+          <dd>
+            <OutlinedInput
+              id="table-pmid"
+              defaultValue={pmid}
+              inputRef={pmidRef}
+              placeholder={'PMID Code'}
+              // onChange={handleChange('weight')}
+              classes={{
+                root: classes.referenceInputsBase,
+                input: classes.referenceInputs,
+              }}
+              aria-describedby="outlined-weight-helper-text"
+              inputProps={{
+                'aria-label': 'weight',
+              }}
+              labelWidth={0}
+            />
+          </dd>
+          <dt
+            className={classes.referenceInputsListItemEditing}
+          >
+            DOI
+          </dt>
+          <dd>
+            <TextField
+              id="table-doi"
+              defaultValue={doi}
+              inputRef={doiRef}
+              // onChange={handleChange('weight')}
+              classes={{
+                root: classes.referenceInputsBase,
+              }}
+              aria-describedby="outlined-weight-helper-text"
+              inputProps={{
+                'aria-label': 'weight',
+              }}
+              multiline
+              rows={3}
+              variant="outlined"
+            />
+          </dd>
+          <dt
+            className={classes.referenceInputsListItemEditing}
+          >
+            Url
+          </dt>
+          <dd>
+            <TextField
+              id="table-url"
+              defaultValue={url}
+              inputRef={urlRef}
+              // onChange={handleChange('weight')}
+              classes={{
+                root: classes.referenceInputsBase,
+              }}
+              aria-describedby="outlined-weight-helper-text"
+              inputProps={{
+                'aria-label': 'weight',
+              }}
+              multiline
+              rows={4}
+              variant="outlined"
+              // labelWidth={0}
+            />
+          </dd>
+        </>
+        }
+        </dl>
+        
+        {/* Downloads */}
+        <Divider />
+        <h3 className={classes.sideMenuHeaderSecond} >
+          Downloads
+        </h3>
+        <Divider />
+        <List>
+          {
+          // <ListItem button>
+          //   <ListItemIcon><EditIcon/></ListItemIcon>
+          //   <ListItemText primary={"Edit Table"} />
+          //   <Switch
+          //       checked={editorEnabled}
+          //       onChange={() => { setEditorEnabled(!editorEnabled);}}
+          //       name="checkedA"
+          //       inputProps={{ 'aria-label': 'secondary checkbox' }}
+          //     />
+          // </ListItem>
+          }
+
+          <ListItem button>
+            <ListItemIcon style={{display:"inline"}}><DownloadIcon style={{fontSize:25}} /></ListItemIcon>
+
+            <ListItemText style={{display:"inline", marginLeft:5 }} primary={
               <CsvDownloader
-                filename={fileNameRoot()+'_table_metadata.csv'}
+                filename={fileNameRoot()+"_table_data.csv"}
                 separator=";"
                 wrapColumnChar="'"
-                columns={
-                  Object.values(metadata)[0] ?
-                    Object.keys(
-                      Object.values(metadata)[0]
-                    ).map( item => { return {id: item, displayName: item} } )
-                    : []
-                }
-                datas={Object.values(metadata)}
-              > Table Metadata (.csv) </CsvDownloader>
-            }
-          />
-        </ListItem>
+                columns={['tid', ...annotationHeaders].map( item => { return {id: item, displayName: item} } )}
+                datas={results.map(line => ({tid, ...line}) )}
+              >
+                Table Data (.csv)
+              </CsvDownloader>
+              }
+            />
+          </ListItem>
 
-        <ListItem
-          button
-          onClick={ ()=> {
-            downloadFile(
-              {
-                // General info
-                tid: annotator.tableData.annotationData.tid,
-                docid: annotator.tableData.annotationData.docid,
-                page: annotator.tableData.annotationData.page,
-                collection_id: annotator.tableData.annotationData.collection_id,
-                // Data
-                tableResults: annotator.results,
-                metadata: annotator.metadata
-              },
-              fileNameRoot()+'_all_data'
-            )
-          }}
-        >
-          <ListItemIcon style={{display:"inline"}}>
-            <DownloadIcon style={{fontSize:25}}/>
-          </ListItemIcon>
-          <ListItemText
-            style={{display:"inline", marginLeft:5}}
-            primary="Results & Metadata (.json)"
-          />
-        </ListItem>
+          <ListItem button>
+            <ListItemIcon style={{display:"inline"}}><DownloadIcon style={{fontSize:25}}/></ListItemIcon>
+            <ListItemText
+              style={{display:"inline", marginLeft:5}}
+              primary={
+                <CsvDownloader
+                  filename={fileNameRoot()+'_table_metadata.csv'}
+                  separator=";"
+                  wrapColumnChar="'"
+                  columns={
+                    Object.values(metadata)[0] ?
+                      Object.keys(
+                        Object.values(metadata)[0]
+                      ).map( item => { return {id: item, displayName: item} } )
+                      : []
+                  }
+                  datas={Object.values(metadata)}
+                > Table Metadata (.csv) </CsvDownloader>
+              }
+            />
+          </ListItem>
 
-        <ListItem
-          button
-          onClick={ ()=> {
-            downloadFile(
-              {
-                // General info
-                tid: annotator.tableData.annotationData.tid,
-                docid: annotator.tableData.annotationData.docid,
-                page: annotator.tableData.annotationData.page,
-                collection_id: annotator.tableData.annotationData.collection_id,
-                // Data
-                annotation: annotator.annotations,
-              },
-              fileNameRoot()+"_annotation"
-            )
-          }}
-        >
-          <ListItemIcon style={{display:"inline"}}>
-            <DownloadIcon style={{fontSize:25}}/>
-          </ListItemIcon>
-          <ListItemText
-            style={{display:"inline", marginLeft:5}}
-            primary="Annotation (.json)"
-          />
-        </ListItem>
+          <ListItem
+            button
+            onClick={ ()=> {
+              downloadFile(
+                {
+                  // General info
+                  tid: annotator.tableData.annotationData.tid,
+                  docid: annotator.tableData.annotationData.docid,
+                  page: annotator.tableData.annotationData.page,
+                  collection_id: annotator.tableData.annotationData.collection_id,
+                  // Data
+                  tableResults: annotator.results,
+                  metadata: annotator.metadata
+                },
+                fileNameRoot()+'_all_data'
+              )
+            }}
+          >
+            <ListItemIcon style={{display:"inline"}}>
+              <DownloadIcon style={{fontSize:25}}/>
+            </ListItemIcon>
+            <ListItemText
+              style={{display:"inline", marginLeft:5}}
+              primary="Results & Metadata (.json)"
+            />
+          </ListItem>
 
-      </List>
-    </Drawer>
+          <ListItem
+            button
+            onClick={ ()=> {
+              downloadFile(
+                {
+                  // General info
+                  tid: annotator.tableData.annotationData.tid,
+                  docid: annotator.tableData.annotationData.docid,
+                  page: annotator.tableData.annotationData.page,
+                  collection_id: annotator.tableData.annotationData.collection_id,
+                  // Data
+                  annotation: annotator.annotations,
+                },
+                fileNameRoot()+"_annotation"
+              )
+            }}
+          >
+            <ListItemIcon style={{display:"inline"}}>
+              <DownloadIcon style={{fontSize:25}}/>
+            </ListItemIcon>
+            <ListItemText
+              style={{display:"inline", marginLeft:5}}
+              primary="Annotation (.json)"
+            />
+          </ListItem>
+
+        </List>
+      </Card>
+    </div>
+  
+
 
     {/* Edition menu */}
     <Card
