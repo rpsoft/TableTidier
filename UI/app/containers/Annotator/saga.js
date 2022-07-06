@@ -123,7 +123,7 @@ export function* getTableContent( payload ) {
 
     yield put( yield updateTableContentAction(response) );
 
-    const annotations = (!_.isEmpty(response.annotationData)) && response.annotationData.annotation ?
+    const annotations = ('annotationData' in response) && response.annotationData.annotation ?
       response.annotationData.annotation.annotations.map(
         (item,id) => {
           // this is to preserve compatibility with previous annotations that don't have subAnnotation
