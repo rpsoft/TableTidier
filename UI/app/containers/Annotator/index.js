@@ -642,22 +642,6 @@ export function Annotator({
         // style={{zIndex: 0}}
       >
 
-        {/* Table ID */}
-        <h3 className={classes.sideMenuHeader} >
-          Table Info
-        </h3>
-        <dl className={classes.tableIdentifiers}>
-          <dt> Doc Id </dt>
-          <dd> {docid} </dd>
-          <dt> Page </dt>
-          <dd> {page} </dd>
-          <dt> Collection Id </dt>
-          <dd> {collId} </dd>
-          <dt> Table Id </dt>
-          <dd> {tid} </dd>
-        </dl>
-        <Divider />
-
         {/* Table number in collection */}
         <List>
           <ListItem style={{marginLeft:0}}>
@@ -717,7 +701,23 @@ export function Annotator({
         </List>
 
         <Divider />
-        
+
+
+        {/* Table ID */}
+        <h3 className={classes.sideMenuHeader} >
+          Table Info
+        </h3>
+        <dl className={classes.tableIdentifiers}>
+          <dt> Doc Id </dt>
+          <dd> {docid} </dd>
+          <dt> Page </dt>
+          <dd> {page} </dd>
+          <dt> Collection Id </dt>
+          <dd> {collId} </dd>
+          <dt> Table Id </dt>
+          <dd> {tid} </dd>
+        </dl>
+        <Divider />
 
         {/* References pmid, doi, url, etc */}
         <h3 className={classes.sideMenuHeaderSecond} >
