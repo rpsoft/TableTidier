@@ -60,7 +60,7 @@
     "gulp": "^4.0.2",
     "jest": "^27.5.1",
     "jest-openapi": "^0.14.2",
-    "nodemon": "^2.0.15",
+    "nodemon": "^2.0.19",
     "swagger-jsdoc": "github:Surnet/swagger-jsdoc",
     "swagger-ui-express": "^4.3.0",
     "webpack": "^5.72.0",
