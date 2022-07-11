@@ -4,6 +4,8 @@
   "description": "IHW Table Annotator",
   "main": "index.js",
   "scripts": {
+    "watch": "babel src --watch --out-dir build --presets=@babel/env --plugins=@babel/transform-runtime ",
+    "build": "babel src --out-dir build --presets=@babel/env --plugins=@babel/transform-runtime ",
     "gulpWatch": "./node_modules/gulp/bin/gulp.js watch",
     "openapi": "./node_modules/nodemon/bin/nodemon.js ./test/swagger.server.js",
     "db:create:pg": "db-migrate db:create ihw_annotator_test -e postgres",
@@ -33,7 +35,8 @@
   "license": "ISC",
   "homepage": "https://github.com/rpsoft/tableAnnotator",
   "devDependencies": {
-    "@babel/core": "^7.13.14",
+    "@babel/cli": "^7.18.6",
+    "@babel/core": "^7.18.6",
     "@babel/plugin-transform-runtime": "^7.13.10",
     "@babel/preset-env": "^7.13.12",
     "@babel/runtime": "^7.13.10",
