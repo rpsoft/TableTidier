@@ -1,4 +1,4 @@
-import { createMuiTheme } from '@material-ui/core/styles';
+import { createTheme } from '@material-ui/core/styles';
 
 import {
   cyan700,
@@ -9,7 +9,7 @@ import {
 import {fade} from '@material-ui/core/styles/colorManipulator';
 import spacing from '@material-ui/core/styles/colorManipulator';
 
-const theme = createMuiTheme({
+const theme = createTheme({
   spacing: spacing,
   fontFamily: 'Roboto, sans-serif',
   palette: {
@@ -43,6 +43,10 @@ const theme = createMuiTheme({
       textColorDialog: 'black',
     },
   },
+  sizes: {
+    minWidth: '800px',
+    maxWidth: '1390px',
+  }
 });
 
 export default theme

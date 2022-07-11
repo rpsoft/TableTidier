@@ -10,46 +10,46 @@ import { FormattedMessage } from 'react-intl';
 import messages from './messages';
 import { Helmet } from 'react-helmet';
 import PropTypes from 'prop-types';
+
 import { connect } from 'react-redux';
-
-import {
-  Link as LinkReactRouter,
-} from "react-router-dom";
-
-import {
-  Card, Checkbox,
-  Select as SelectField,
-  Input as TextField,
-  Button,
-  Paper,
-  Link,
-  Switch,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogActions,
-  Select,
-  MenuItem,
-  FormHelperText,
-  FormControl,
-  InputLabel,
-  Popover,
-} from '@material-ui/core';
-
 import { createStructuredSelector } from 'reselect';
 import { compose } from 'redux';
 
 import { useInjectSaga } from 'utils/injectSaga';
 import { useInjectReducer } from 'utils/injectReducer';
 
+import {
+  Link as LinkReactRouter,
+} from "react-router-dom";
+
+import {
+  Card,
+  Button,
+  Link,
+} from '@material-ui/core';
+
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import LaunchIcon from '@material-ui/icons/Launch';
 import ArrowRightIcon from '@material-ui/icons/ArrowRight';
 
+import {
+  useTheme,
+} from '@material-ui/core/styles';
 
 export function HomePage({
 }) {
-  return (<div style={{marginLeft:"2%", marginRight:"2%", minHeight: "84vh"}}>
+  const theme = useTheme();
+
+  return (
+  <div
+    style={{
+      marginLeft:"auto",
+      marginRight:"auto",
+      minHeight: "84vh",
+      minWidth: theme.sizes.minWidth,
+      maxWidth: theme.sizes.maxWidth,
+    }}
+  >
     <Helmet>
       <title>TableTidier</title>
       <meta name="description" content="TableTidier" />
@@ -121,9 +121,8 @@ export function HomePage({
      </tbody>
     </table>
 
-
     </Card>
-    </div>
+  </div>
   );
 }
 

@@ -33,7 +33,12 @@ import {
   Paper,
   Grid,
 } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+
+import {
+  makeStyles,
+  useTheme,
+} from '@material-ui/core/styles';
+
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import CollectionIcon from '@material-ui/icons/Storage';
 
@@ -145,6 +150,8 @@ export function Dashboard({
 }) {
   useInjectReducer({ key: 'dashboard', reducer });
   useInjectSaga({ key: 'dashboard', saga });
+
+  const theme = useTheme();
 
   const [cookies, setCookie, removeCookie ] = useCookies();
 
@@ -299,8 +306,8 @@ console.timeEnd('table_search_results')
       style={{
         marginLeft: 'auto',
         marginRight: 'auto',
-        minWidth: '800px',
-        maxWidth: '1390px',
+        minWidth: theme.sizes.minWidth,
+        maxWidth: theme.sizes.maxWidth,
 
         minHeight: '84vh',
       }}
@@ -315,8 +322,8 @@ console.timeEnd('table_search_results')
           zIndex: 10,
           width: '98%',
           marginLeft: 'auto',
-          minWidth: '800px',
-          maxWidth: '1390px',
+          minWidth: theme.sizes.minWidth,
+          maxWidth: theme.sizes.maxWidth,
           position: 'absolute',
         }}
       >
