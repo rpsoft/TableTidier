@@ -1378,7 +1378,7 @@ app.post(CONFIG.api_base_url+'/annotationPreview',
   }
 
   if ( collectionPermissions.read.includes(collId) == false ) {
-    return res.json([])
+    return res.json({status: 'unauthorised',})
   }
 
   try{
