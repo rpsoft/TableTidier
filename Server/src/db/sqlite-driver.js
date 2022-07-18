@@ -242,6 +242,10 @@ function driver(config) {
         `SELECT *
         FROM collection WHERE collection_id = $1`, [collection_id])
   
+      if (result.length == 0) {
+        return 'collection not found'
+      }
+
       const tables = await queryAll(
         `SELECT docid, page, "user", notes, tid, collection_id, file_path, "tableType"
         FROM "table" WHERE collection_id = $1 ORDER BY docid,page`, [collection_id])

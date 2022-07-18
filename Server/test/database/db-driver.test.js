@@ -258,6 +258,11 @@ describe('dbDriver', () => {
     });
 
     // collectionGet
+    test('collectionGet not found', async () => {
+      const result = await dbDriver.collectionGet(100);
+      expect(result).toEqual('collection not found');
+    });
+
     test('collectionGet', async () => {
       const result = await dbDriver.collectionGet(1);
       expect(Object.keys(result).length).toEqual(8);

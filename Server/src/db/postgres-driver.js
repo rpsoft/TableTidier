@@ -216,6 +216,10 @@ function driver(config) {
       const result = await query(
         `SELECT *
         FROM public.collection WHERE collection_id = $1`, [collection_id])
+      
+      if (result.rows.length == 0) {
+        return 'collection not found'
+      }
   
       const tables = await query(
         `SELECT docid, page, "user", notes, tid, collection_id, file_path, "tableType"
