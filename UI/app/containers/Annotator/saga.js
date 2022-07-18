@@ -34,10 +34,14 @@ import {
   updateTableAnnotationsAction,
   updateTableResultsAction,
   updateTableMetadataAction,
-  issueAlertAction,
+  // issueAlertAction,
   updateCuisIndexAction,
   loadCuisIndexAction,
 } from './actions';
+
+import appActions from '../App/actions';
+
+import {issueAlertAction} from '../App/actions'
 
 import {
   URL_BASE,
@@ -164,12 +168,22 @@ export function* getTableResult( payload ) {
 
   try {
     const response = yield call(request, requestURL, options);
-
-    if ( response.status && response.status == 'unauthorised'){
+    if ( response.status && response.status == 'unauthorised') {
+      // Send message unauthorised
+      yield put( yield issueAlertAction({
+        open: true,
+        message: 'Unauthorised, you are trying to access a private content',
+        isError: true
+      }))
+      yield put( yield appActions.statusSet.action('Unauthorised'))
+      
+      // Remove previous content from redux store
+      
       // COUld probably redirect to /
+    
       // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
       //yield put(push('/dashboard'));
-      return {}
+      return
     }
     yield put( yield updateTableResultsAction(response.result) );
   } catch (err) {
@@ -419,7 +433,7 @@ export function* getAutoLabels( payload ) {
 
       // COUld probably redirect to /
       // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
-      return {}
+      return
     }
 
     const metadata = Object.keys(response.autoLabels).reduce(
