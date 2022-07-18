@@ -4,14 +4,22 @@
  *
  */
 import produce from 'immer';
-import { APP_SET_GLOBALS, APP_SET_CREDENTIALS, APP_ISSUE_ALERT_ACTION } from './constants';
+import {
+  APP_SET_GLOBALS,
+  APP_SET_CREDENTIALS,
+  APP_ISSUE_ALERT_ACTION
+} from './constants';
+
+import actions from './actions'
 
 export const initialState = {
-  server_host: "",
-  server_port: "",
-  ui_host: "",
-  ui_port: "",
-  alertData: { open: false, message: "", isError: false },
+  server_host: '',
+  server_port: '',
+  ui_host: '',
+  ui_port: '',
+  alertData: { open: false, message: '', isError: false },
+  // app status
+  status: '',
 };
 
 /* eslint-disable default-case, no-param-reassign */
@@ -33,6 +41,13 @@ const appReducer = (state = initialState, action) =>
       case APP_SET_CREDENTIALS:
         // debugger
         draft.credentials = action.credentials;
+        break;
+      case actions.statusSet.type:
+        draft.status = action.statusDescription;
+        break;
+      case actions.statusClear.type:
+        draft.status = '';
+        break;
     }
   });
 

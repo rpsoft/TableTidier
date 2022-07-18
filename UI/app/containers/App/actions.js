@@ -29,3 +29,25 @@ export function issueAlertAction(alertData) {
     alertData
   };
 }
+
+export default {
+  statusSet: {
+    // name format: 'yourproject/YourContainer/YOUR_ACTION_CONSTANT'
+    type: 'app/App/APP_STATUS_SET',
+    action: function(statusDescription) {
+      return {
+        type: this.type,
+        statusDescription,
+      }
+    }
+  },
+  statusClear: {
+    type: 'app/App/APP_STATUS_CLEAR',
+    action: function(statusDescription) {
+      return {
+        type: this.type,
+        statusDescription,
+      }
+    }
+  },
+}
