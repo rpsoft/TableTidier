@@ -29,29 +29,29 @@ import {
 
 export const initialState = {
   tableData: {
-    collId:"",
-    docid:"",
-    page:"",
+    collId: '',
+    docid: '',
+    page: '',
 
     annotationData: {},
     collectionData: {tables:[]},
     predictedAnnotation : {},
 
-    tableBody: "<div>Empty content</div>",
-    tablePosition:-1,
-    tableTitle: "<div>Empty title</div>",
+    tableBody: '<div>Empty content</div>',
+    tablePosition: -1,
+    tableTitle: '<div>Empty title</div>',
 
-    tableStatus:"",
-    tableType:"",
-    textNotes:"",
+    tableStatus: '',
+    tableType: '',
+    textNotes: '',
 
-    status:"",
+    status: '',
     permissions: {read:false, write: false}
   },
   annotations: [],
   results : [],
   metadata : {},
-  alertData: { open: false, message: "", isError: false },
+  alertData: { open: false, message: '', isError: false },
   cuis_index: {},
   allowEdit: false,
 };
@@ -68,7 +68,6 @@ const annotatorReducer = (state = initialState, action) =>
         draft.tableData = action.tableData;
         draft.allowEdit = action.tableData.permissions.write;
         break;
-
       case UPDATE_TABLE_ANNOTATIONS_ACTION:
         draft.annotations = action.annotations;
         break;
@@ -96,7 +95,6 @@ const annotatorReducer = (state = initialState, action) =>
 
       case SAVE_TABLE_ANNOTATIONS_ACTION:
       case SAVE_TABLE_METADATA_ACTION:
-
     }
 
     return;
