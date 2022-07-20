@@ -6,7 +6,11 @@
 
  import React, { useEffect, memo, useState, useRef } from 'react';
  import PropTypes from 'prop-types';
- import { connect } from 'react-redux';
+ import {
+  connect,
+  useSelector,
+  useDispatch,
+} from 'react-redux';
  import { Helmet } from 'react-helmet';
  import { FormattedMessage } from 'react-intl';
  import { createStructuredSelector } from 'reselect';
@@ -25,6 +29,8 @@ import { loadCollectionAction, updateCollectionAction,
          editCollectionAction, removeTablesAction,
          moveTablesAction, deleteCollectionAction,
          downloadDataAction } from './actions'
+
+import appActions from '../App/actions';
 
 import {
   Link,
@@ -54,9 +60,8 @@ import {
   FormControl,
   InputLabel,
   Popover,
+  CircularProgress,
 } from '@material-ui/core';
-
-import { useDispatch, useSelector } from "react-redux";
 
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import CollectionIcon from '@material-ui/icons/Storage';
@@ -65,7 +70,8 @@ import PeopleAltIcon from '@material-ui/icons/PeopleAlt';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import DeleteIcon from '@material-ui/icons/Delete';
 import SaveIcon from '@material-ui/icons/Save';
-
+import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
+import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 
 import {
   GetApp as DownloadIcon,
@@ -83,7 +89,7 @@ import SearchResult from '../../components/SearchResult'
 import FileUploader from '../../components/FileUploader'
 
 import ConfirmationDialog from '../../components/ConfirmationDialog'
-
+import InfoPage from '../InfoPage'
 
 import Grid from "@material-ui/core/Grid";
 
@@ -92,7 +98,6 @@ import { useCookies } from 'react-cookie';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 
 import ReactPaginate from 'react-paginate';
-
 
 import makeSelectLocation from '../App/selectors'
 import { makeSelectLogin } from '../Login/selectors';
@@ -153,12 +158,22 @@ export function CollectionView({
   locationData,
   loginState,
 }) {
+  // Var used to name loading with a var
+  const LOADING = 'loading'
 
   let navigate = useNavigate();
   const theme = useTheme();
+  const dispatch = useDispatch()
 
   useInjectReducer({ key: 'collectionView', reducer });
   useInjectSaga({ key: 'collectionView', saga });
+
+  // Used to show if the page loaging or if trying to access Unauthorised content
+  const tablePageStatus = useSelector(
+    state => 'app' in state?
+      state.app.status
+      : null
+  )
 
  // console.log(collectionView)
   const parsed = queryString.parse(location.search);
@@ -202,10 +217,16 @@ export function CollectionView({
   const searchAreaRef = useRef(null)
 
   useEffect(() => {
-    setHeight(searchAreaRef.current.clientHeight)
+    // check if searchAreaRef is mounted
+    if (searchAreaRef.current != null && 'clientHeight' in searchAreaRef.current) {
+      setHeight(searchAreaRef.current.clientHeight)
+    }
   })
 
+  // when user change
   useEffect(() => {
+    // If not status to loading...
+    dispatch( appActions.statusSet.action(LOADING) )
     getCollectionData()
     setEditMode(false)
     setCheckedTables({})
@@ -344,6 +365,59 @@ export function CollectionView({
         //   {id: "1", data: 10},{id: "2", displayName: 20}
         // ])
 
+
+  // is private == Unauthorised?
+  if (tablePageStatus == 'Unauthorised') {
+    return <InfoPage
+      title='Annotator'
+      titleDescription='Description of Annotations'
+      headerIcon={
+        <ErrorOutlineIcon
+          style={{
+            color: 'red',
+          }}
+          fontSize="large"
+        />
+      }
+      headerText='Unauthorised'
+      text={
+        <p
+          style={{
+            fontFamily: 'arial',
+          }}
+        >
+          You are trying to access a private content
+        </p>
+      }
+    />
+  }
+
+  // is not found?
+  if (tablePageStatus == 'not found' || tablePageStatus == 'collection not found') {
+    return <InfoPage
+      title='Annotator'
+      titleDescription='Description of Annotations'
+      headerIcon={
+        <InfoOutlinedIcon
+          style={{
+            color: 'red',
+          }}
+          fontSize="large"
+        />
+      }
+      headerText='Not Found'
+      text={
+        <p
+          style={{
+            fontFamily: 'arial',
+          }}
+        >
+          {tablePageStatus == 'not found'? 'Table not found': 'Collection not found'}
+        </p>
+      }
+    />
+  }
+
   return (
     <div style={{margin:10, minHeight: "84vh"}}>
       <Helmet>
@@ -356,6 +430,10 @@ export function CollectionView({
           <Grid item xs={9}>
             <Card style={{ marginBottom:10, padding:10 }}>
               <div className={classes.titles}>
+                {
+                  tablePageStatus == LOADING &&
+                  <CircularProgress />
+                }
 
                 {allowEdit && (
                   <div style={{fontSize:15}}>
@@ -418,7 +496,10 @@ export function CollectionView({
 
             {/* Search List */}
             <Card>
-              <div style={{minHeight:900, height: "70vh", backgroundColor:"white"}} ref={searchAreaRef}>
+              <div
+                style={{minHeight:900, height: "70vh", backgroundColor:"white"}}
+                ref={searchAreaRef}
+              >
                 <FixedSizeList
                   height={height}
                   width={"100%"}
@@ -754,8 +835,6 @@ export function CollectionView({
 CollectionView.propTypes = {
   dispatch: PropTypes.func.isRequired,
 };
-
-
 
 const mapStateToProps = createStructuredSelector({
   collectionView : makeSelectCollectionView(),

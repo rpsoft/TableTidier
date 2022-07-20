@@ -6,7 +6,11 @@
 
 import React, { memo, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { connect, useSelector } from 'react-redux';
+import {
+  connect,
+  useSelector,
+  useDispatch,
+} from 'react-redux';
 import { Helmet } from 'react-helmet';
 import { FormattedMessage } from 'react-intl';
 import { createStructuredSelector } from 'reselect';
@@ -36,22 +40,21 @@ import {
   autoLabelHeadersAction,
 } from './actions'
 
-import { useCookies } from 'react-cookie';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
+import appActions from '../App/actions';
 
-import {
-  ArrowDropUp,
-  ArrowDropDown,
-  Close as CloseIcon,
-}from '@material-ui/icons';
+import { useCookies } from 'react-cookie';
 
 import {
   useNavigate,
+  useLocation,
+  useSearchParams
 } from "react-router-dom";
 
 // import {browserHistory} from 'react-router';
 
 import CsvDownloader from 'react-csv-downloader';
+
+import { makeStyles, useTheme } from '@material-ui/core/styles';
 
 import {
   Card, Checkbox,
@@ -71,14 +74,22 @@ import {
   Switch,
   OutlinedInput,
   InputAdornment,
+  CircularProgress,
 } from '@material-ui/core';
+
+import {
+  ArrowDropUp,
+  ArrowDropDown,
+  Close as CloseIcon,
+}from '@material-ui/icons';
 
 import InboxIcon from '@material-ui/icons/MoveToInbox';
 import MailIcon from '@material-ui/icons/Mail';
 
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
-
+import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
+import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 // import Draggable from 'react-draggable';
 
 // import { Resizable, ResizableBox } from 'react-resizable';
@@ -91,6 +102,10 @@ import TableResult from 'components/TableResult'
 import TableMetadata from 'components/TableMetadata'
 import TableNotes from 'components/TableNotes'
 import PopAlert from 'components/PopAlert'
+
+import InfoPage from '../InfoPage'
+
+import NavigationBar from 'components/NavigationBar'
 
 import AnnotatorMenuButtons from 'components/AnnotatorMenuButtons'
 
@@ -207,7 +222,6 @@ export function Annotator({
   loadTableContent,
   loadTableResults,
   loadTableMetadata,
-
   loadCuisIndex,
 
   saveTextChanges,
@@ -219,11 +233,25 @@ export function Annotator({
 
   autoLabel,
 }) {
+  // Var used to name loading with a var
+  const LOADING = 'loading'
 
+  const dispatch = useDispatch()
   let navigate = useNavigate();
+  let location = useLocation();
+  let [searchParamsURL, setSearchParams] = useSearchParams();
+  // transform URLSearchParams to object {}
+  const searchParams = Object.fromEntries([...searchParamsURL])
+
   // Get api_url from redux store
   const apiUrl = useSelector(state => state.app.api_url)
   const userToken = loginState.token
+  // Used to show if the page loaging or if trying to access Unauthorised content
+  const tablePageStatus = useSelector(
+    state => 'app' in state?
+      state.app.status
+      : null
+  )
 
   useInjectReducer({ key: 'annotator', reducer });
   useInjectSaga({ key: 'annotator', saga });
@@ -404,7 +432,7 @@ export function Annotator({
       setMetadata(annotator.metadata)
 
       setCuisIndex(annotator.cuis_index)
-      // debugger
+
       setHeaderData( prepareMetadata(header_data, annotator.results) );
 
       setAlertData(annotator.alertData)
@@ -418,18 +446,39 @@ export function Annotator({
       })
     }
   }
+  
+  React.useEffect(() => {
+    // Table data already loaded?
+    // compare table info with table url
+    if (
+      tid != searchParams.tid ||
+      (
+        docid == searchParams.docid &&
+        page == searchParams.page &&
+        collId == searchParams.collId
+      ) == false
+    ) {
+      // If not status to loading...
+      dispatch( appActions.statusSet.action(LOADING) )
+    }
+
+    // When unmount clear status
+    return () => dispatch( appActions.statusClear.action() )
+  }, [])
 
   React.useEffect(() => {
     doUpdates()
   }, [annotator])
 
   React.useEffect(() => {
-    if ( Object.keys(cuisIndex).length < 1 ){
-      loadCuisIndex()
-    }
     loadTableContent(false)
     loadTableResults(true)
     loadTableMetadata()
+
+    // heavy process leave for last
+    if ( Object.keys(cuisIndex).length < 1 ) {
+      loadCuisIndex()
+    }
   }, [location.search, loginState.username]);
 
   const openMargin = bottomEnabled ? bottomSize : 65;
@@ -516,6 +565,58 @@ export function Annotator({
     document.body.removeChild(link);
   }
 
+  // is private == Unauthorised?
+  if (tablePageStatus == 'Unauthorised') {
+    return <InfoPage
+      title='Annotator'
+      titleDescription='Description of Annotations'
+      headerIcon={
+        <ErrorOutlineIcon
+          style={{
+            color: 'red',
+          }}
+          fontSize="large"
+        />
+      }
+      headerText='Unauthorised'
+      text={
+        <p
+          style={{
+            fontFamily: 'arial',
+          }}
+        >
+          You are trying to access a private content
+        </p>
+      }
+    />
+  }
+
+  // is not found?
+  if (tablePageStatus == 'not found' || tablePageStatus == 'collection not found') {
+    return <InfoPage
+      title='Annotator'
+      titleDescription='Description of Annotations'
+      headerIcon={
+        <InfoOutlinedIcon
+          style={{
+            color: 'red',
+          }}
+          fontSize="large"
+        />
+      }
+      headerText='Not Found'
+      text={
+        <p
+          style={{
+            fontFamily: 'arial',
+          }}
+        >
+          {tablePageStatus == 'not found'? 'Table not found': 'Collection not found'}
+        </p>
+      }
+    />
+  }
+
   return (
     <>
     <Helmet>
@@ -546,8 +647,13 @@ export function Annotator({
           <div className={classes.content}>
 
             <div style={{width:"100%",textAlign:"right"}}>
+              {
+                tablePageStatus == LOADING &&
+                <CircularProgress />
+              }
+
               <div style={{float:"left", marginTop:10}}>
-                    Document Name / ID:  <span style={{fontWeight:"bold", textDecoration: "underline", cursor: "pointer", color: "blue"}}> {docid} </span>
+                Document Name / ID:  <span style={{fontWeight:"bold", textDecoration: "underline", cursor: "pointer", color: "blue"}}> {docid} </span>
               </div>
 
               <div>
@@ -925,8 +1031,6 @@ export function Annotator({
         </List>
       </Card>
     </div>
-  
-
 
     {/* Edition menu */}
     <Card
