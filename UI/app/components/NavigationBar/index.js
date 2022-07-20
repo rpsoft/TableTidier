@@ -31,7 +31,7 @@ import {
  import ChevronRightIcon from '@material-ui/icons/ChevronRight';
  import TocIcon from '@material-ui/icons/Toc';
 
- function NavigationBar() {
+ function NavigationBar({stylesCustom={}}) {
   let navigate = useNavigate();
   const collectionId = useSelector(state => {
     if ('collectionView' in state) {
@@ -47,6 +47,7 @@ import {
         padding: 15,
         width: 250,
         height: 'max-content',
+        ...stylesCustom.root,
       }}
     >
       <Tooltip title="Back" placement="bottom-end">
