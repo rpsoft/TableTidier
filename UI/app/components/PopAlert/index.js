@@ -32,12 +32,23 @@ function PopAlert({
 
   return (
     <Snackbar open={alertData.open} autoHideDuration={6000} onClose={handleClose}>
-      <span style={{fontSize: 17, textAlign:"center",
-                    verticalAlign: "middle", paddingLeft:10,
-                    backgroundColor: alertData.isError ? "rgb(253, 236, 234)": "rgb(237, 247, 237)"}} >
-          { alertData.isError ? <WarningIcon style={{color:"#f44336"}} fontSize="small" /> : <CheckCircleOutlineIcon style={{color:"#4caf50"}} fontSize="small"  /> }
-          <span style={{marginLeft:10}}>{alertData.message || "message"} </span>
-          <IconButton style={{marginLeft:50}} onClick={handleClose}> <HighlightOffIcon fontSize="small" /> </IconButton>
+      <span
+        style={{
+          fontSize: 17,
+          textAlign:"center",
+          verticalAlign: "middle", paddingLeft:10,
+          backgroundColor: alertData.isError ? "rgb(253, 236, 234)": "rgb(237, 247, 237)"
+        }}
+      >
+        {
+        alertData.isError ?
+          <WarningIcon style={{color:"#f44336"}} fontSize="small" />
+          : <CheckCircleOutlineIcon style={{color:"#4caf50"}} fontSize="small"  />
+        }
+        <span style={{marginLeft:10}}>
+          {alertData.message || "message"}
+        </span>
+        <IconButton style={{marginLeft:50}} onClick={handleClose}> <HighlightOffIcon fontSize="small" /> </IconButton>
       </span>
     </Snackbar>
   );
