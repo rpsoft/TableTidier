@@ -747,7 +747,13 @@ export function Annotator({
         }}
         // style={{zIndex: 0}}
       >
-
+        <NavigationBar
+          stylesCustom={{
+            root: {
+              margin: 0,
+            }
+          }} 
+        />
         {/* Table number in collection */}
         <List>
           <ListItem style={{marginLeft:0}}>
@@ -884,7 +890,7 @@ export function Annotator({
                 'aria-label': 'weight',
               }}
               multiline
-              rows={3}
+              minRows={3}
               variant="outlined"
             />
           </dd>
@@ -907,7 +913,7 @@ export function Annotator({
                 'aria-label': 'weight',
               }}
               multiline
-              rows={4}
+              minRows={4}
               variant="outlined"
               // labelWidth={0}
             />
