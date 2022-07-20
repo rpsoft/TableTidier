@@ -10,6 +10,8 @@ import {
   updateCollectionTablesAction,
 } from './actions';
 
+import appActions from '../App/actions';
+
 import makeSelectCollectionView, {  makeSelectCredentials } from './selectors';
 
 import makeSelectLocation from '../App/selectors'
@@ -27,6 +29,8 @@ import
     generateOptionsPost
   }
 from '../../utils/request';
+
+import {fetchResultStatusCheck} from '../../utils/saga-utils'
 
 export function* getCollectionData() {
 
@@ -57,18 +61,31 @@ export function* getCollectionData() {
   try {
     const response = yield call(request, requestURL, options);
 
-    if ( response.status && response.status == 'unauthorised' ) {
-      // COUld probably redirect to /
-      yield put( yield updateCollectionAction({
-        title : '',
-        collection_id : '',
-        description: '',
-        owner_username : '',
-        collectionsList : []
-      }) );
-    } else {
-      yield put( yield updateCollectionAction(response.data) );
+    if ( response.status ) {
+      // check response status
+      const responseCheck = fetchResultStatusCheck(response.status)
+
+      if ( response.status && response.status == 'unauthorised' ) {
+        // Clean collecion
+        yield put( yield updateCollectionAction({
+          title: '',
+          collection_id: '',
+          description: '',
+          owner_username: '',
+          collectionsList: []
+        }) );
+      }
+
+      if ( responseCheck.error == true ) {
+        yield put( yield appActions.statusSet.action(responseCheck.code))
+        return
+      }
     }
+
+    // clean app status
+    yield put( yield appActions.statusSet.action(''))
+    yield put( yield updateCollectionAction(response.data) );
+
   } catch (err) {
     console.log(err)
   }

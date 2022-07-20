@@ -59,6 +59,8 @@ from '../../utils/request';
 
 import {makeSelectLocation, makeSelectCredentials} from '../App/selectors'
 
+import {fetchResultStatusCheck} from '../../utils/saga-utils'
+
 // import { push } from 'connected-react-router';
 const push = () => {}
 
@@ -92,8 +94,13 @@ export function* getTableContent( payload ) {
   try {
     const response = yield call(request, requestURL, options);
 
-    if ( response.status && response.status == 'unauthorised') {
-      return
+    if ( response.status ) {
+      // check response status
+      const responseCheck = fetchResultStatusCheck(response.status)
+      if ( responseCheck.error == true ) {
+        yield put( yield appActions.statusSet.action(responseCheck.code))
+        return
+      }
     }
 
     response.docid = parsed.docid || response.annotationData.docid
@@ -125,6 +132,8 @@ export function* getTableContent( payload ) {
     // response.current = response.tablePosition > -1 ? response.collectionData.tables[response.tablePosition] : false
     // response.tablePosition_next = response.tablePosition < (response.collectionData.tables.length-1) ? response.collectionData.tables[response.tablePosition+1] : false
 
+    // clean loading status, because all went well
+    yield put( yield appActions.statusSet.action(''))
     yield put( yield updateTableContentAction(response) );
 
     const annotations = ('annotationData' in response) && response.annotationData.annotation ?
@@ -168,29 +177,24 @@ export function* getTableResult( payload ) {
 
   try {
     const response = yield call(request, requestURL, options);
-    if ( response.status && response.status == 'unauthorised') {
-      // Send message unauthorised
-      yield put( yield issueAlertAction({
-        open: true,
-        message: 'Unauthorised, you are trying to access a private content',
-        isError: true
-      }))
-      yield put( yield appActions.statusSet.action('Unauthorised'))
-      
-      // Remove previous content from redux store
-      
-      // COUld probably redirect to /
     
-      // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
-      //yield put(push('/dashboard'));
-      return
+    if ( response.status ) {
+      if ( response.status ) {
+        // check response status
+        const responseCheck = fetchResultStatusCheck(response.status)
+        if ( responseCheck.error == true ) {
+          yield put( yield appActions.statusSet.action(responseCheck.code))
+          return
+        }
+      }
     }
+
     yield put( yield updateTableResultsAction(response.result) );
   } catch (err) {
     console.log(err)
   }
 
-  return {}
+  return
   // return {collection: "hello"}
 }
 
@@ -204,7 +208,7 @@ export function* getCUISIndex( payload ) {
   const requestURL = locationData.api_url+`cuis`;
 
   const params = new URLSearchParams({
-    'action' : 'get' // get  delete  edit
+    'action': 'get' // get  delete  edit
   });
 
   const options = generateOptionsPost(params, loginData.token)
@@ -250,16 +254,15 @@ export function* getTableMetadata( payload ) {
   try {
     const response = yield call(request, requestURL, options);
 
-    if (
-      response.status &&
-      (
-        response.status == 'unauthorised' ||
-        response.status == 'fail'
-      )
-    ) {
-      return {}
-      // COUld probably redirect to /
-      // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
+    if ( response.status ) {
+      if ( response.status ) {
+        // check response status
+        const responseCheck = fetchResultStatusCheck(response.status)
+        if ( responseCheck.error == true ) {
+          yield put( yield appActions.statusSet.action(responseCheck.code))
+          return
+        }
+      }
     }
 
     const metadata = response.data.reduce(
