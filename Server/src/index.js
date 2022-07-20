@@ -375,6 +375,7 @@ const rebuildSearchIndex = async () => {
   tablesInFolderOverride = tablesInFolderOverride.map(
     (dir) => path.join(tables_folder_override, dir)
   )
+  // search index
   global.searchIndex = await easysearch.indexFolder(
     [
       ...tablesInFolder,
@@ -667,13 +668,22 @@ app.post(CONFIG.api_base_url+'/metadata',
   if (tid && !collId) {
     // get collId from tid
     const table = await dbDriver.tableGetByTid(tid)
+    // If table not found?
+    if (table == 'not found') {
+      return res.json({status: 'not found', tid: tid})
+    }
     collId = parseInt(table.collection_id)
+  }
+
+  const collection_data = await dbDriver.collectionGet(collId)
+  // collection not found?
+  if (collection_data == 'collection not found') {
+    return res.json({status: 'collection not found', collId: collId})
   }
 
   if ( collectionPermissions.read.includes(collId) == false ) {
     return res.json({status: 'unauthorised', payload: null})
   }
-
 
   if (
     tid === 'undefined' ||
@@ -686,7 +696,7 @@ app.post(CONFIG.api_base_url+'/metadata',
     )
   
     if (!tid || tid == 'not found') {
-      return res.json({status: 'fail', data: 'table not found'})
+      return res.json({status: 'not found', data: 'table not found'})
     }
   }
 
@@ -843,6 +853,11 @@ app.post(CONFIG.api_base_url+'/collections',
   // Guest can see collections
   let response = {status: 'failed'}
   let result;
+  const responseUnauthorised = () => ({
+    status: 'unauthorised',
+    description: 'collection is private',
+    payload: req.body
+  })
 
   switch (action) {
     case 'list':
@@ -856,11 +871,20 @@ app.post(CONFIG.api_base_url+'/collections',
       break;
 
     case 'get':
-      if (collectionPermissions.read.includes(collection_id) == false ){
-        response = {status:'unauthorised operation', payload: req.body}
+      result = await dbDriver.collectionGet(collection_id);
+
+      if (result == 'collection not found') {
+        response = {
+          status: result,
+          collId: collection_id,
+        }
         break;
       }
-      result = await dbDriver.collectionGet(collection_id);
+
+      if (collectionPermissions.read.includes(collection_id) == false ) {
+        response = responseUnauthorised()
+        break;
+      }
 
       result.permissions = {
         read: collectionPermissions.read.includes(collection_id),
@@ -872,7 +896,7 @@ app.post(CONFIG.api_base_url+'/collections',
 
     case 'delete':
       if (collectionPermissions.read.includes(collection_id) == false ){
-        response = {status:'unauthorised operation', payload: req.body}
+        response = responseUnauthorised()
         break;
       }
       await dbDriver.collectionDelete(collection_id);
@@ -892,7 +916,7 @@ app.post(CONFIG.api_base_url+'/collections',
     // Well use edit to create Collection on the fly
     case 'edit':
       if (collectionPermissions.read.includes(collection_id) == false ) {
-        response = {status:'unauthorised operation', payload: req.body}
+        response = responseUnauthorised()
         break;
       }
       const allCollectionData = JSON.parse( collectionData )
@@ -1156,9 +1180,18 @@ app.post(CONFIG.api_base_url+'/getTableContent',
   if (tid && !collId) {
     // get collId from tid
     const table = await dbDriver.tableGetByTid(tid)
+    // If table not found?
+    if (table == 'not found') {
+      return res.json({status: 'not found', tid: tid})
+    }
     collId = parseInt(table.collection_id)
     docid = table.docid
     page = table.page
+  }
+  const collection_data = await dbDriver.collectionGet(collId)
+  // collection not found?
+  if (collection_data == 'collection not found') {
+    return res.json({status: 'collection not found', collId: collId})
   }
 
   if ( collectionPermissions.read.includes(collId) == false ){
@@ -1169,8 +1202,6 @@ app.post(CONFIG.api_base_url+'/getTableContent',
     if ((docid && page && collId) == false) {
       return res.json({status: 'wrong parameters', body: req.body})
     }
-
-    const collection_data = await dbDriver.collectionGet(collId)
 
     const predictionEnabled = JSON.parse(enablePrediction)
 
@@ -1372,9 +1403,19 @@ app.post(CONFIG.api_base_url+'/annotationPreview',
   if (tid && !collId) {
     // get collId from tid
     const table = await dbDriver.tableGetByTid(tid)
+    // If table not found?
+    if (table == 'not found') {
+      return res.json({status: 'not found', tid: tid})
+    }
     collId = parseInt(table.collection_id)
     docid = table.docid
     page = table.page
+  }
+
+  const collection_data = await dbDriver.collectionGet(collId)
+  // collection not found?
+  if (collection_data == 'collection not found') {
+    return res.json({status: 'collection not found', collId: collId})
   }
 
   if ( collectionPermissions.read.includes(collId) == false ) {
@@ -1396,7 +1437,7 @@ app.post(CONFIG.api_base_url+'/annotationPreview',
   } catch (err) {
     console.log(err)
     res.json({
-      status: 'annotationPreview : probably page out of bounds, or document does not exist',
+      status: 'annotationPreview: probably page out of bounds, or document does not exist',
       body: req.body
     })
   }
