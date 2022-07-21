@@ -25,7 +25,7 @@ async function getFileResults (annotation, filePath){
   const $ = cheerio.load(await tableData)
 
   const maxColumn = $("tr").toArray().reduce(
-    (acc,item, i) => {
+    (acc, item, i) => {
       return $(item).children().length > acc ?
         $(item).children().length
         : acc 
@@ -56,12 +56,12 @@ async function getFileResults (annotation, filePath){
 
           let emptyOffset = 0;
 
-          while ( matrix[r][c].text.trim().length > 0 ){
+          while ( matrix[r][c].text.trim().length > 0 ) {
             emptyOffset = emptyOffset+1
             c = c+1
 
             if ( c >= maxColumn ){
-                return
+              return
             }
           }
             //<em>
@@ -106,7 +106,7 @@ async function getFileResults (annotation, filePath){
           const rowspan = $(col).attr("rowspan")-1
 
           if( rowspan > 0 ){
-            for (const rspan = 1; rspan <= rowspan; rspan++){
+            for (let rspan = 1; rspan <= rowspan; rspan++){
               if ( (r+rspan) < matrix.length ){
                   matrix[r+rspan][c] = matrix[r][c]
               }
@@ -196,7 +196,7 @@ async function getFileResults (annotation, filePath){
 
         const currentSpace = matrix[r][c].text.match(/(^\s*)/g) && matrix[r][c].text.match(/(^\s*)/g)[0]
 
-        if ( currentSpace.length > 0){
+        if ( currentSpace.length > 0 ){
           const format = matrix[r][c].format
           format.push("indented")
           matrix[r][c] = {
@@ -209,9 +209,8 @@ async function getFileResults (annotation, filePath){
   }
 
   let headerRows = []
-  const headerCols = []
+  let headerCols = []
   const existingHeadersCount = {}
-
   const existingHeaders = {}
 
   annotation.annotations.map( el => {
@@ -237,7 +236,7 @@ async function getFileResults (annotation, filePath){
   // Spread row header values
   annotation.annotations.filter( el => el.location == "Row")
     .map( el => {
-      matrix[el.number-1].map( (mc,c) => {
+      matrix[el.number-1].map( (mc, c) => {
         if ( c > 0 && mc.text.trim().length < 1 ){
           matrix[el.number-1][c].text = matrix[el.number-1][c-1].text //clone(matrix[el.number-1][c-1])
         }
@@ -277,8 +276,8 @@ async function getFileResults (annotation, filePath){
           if ( Object.keys(matrix[r][el.number-1].colcontent).length == 0 )
             matrix[r][el.number-1].colcontent[el.annotationKey] = matrix[r][el.number-1].text.replace(/\s+/g, ' ').trim()
         }
-
-        headerCols = Array.from(new Set([...headerCols,el.number-1]))
+        // ! :-)
+        headerCols = Array.from(new Set([...headerCols, el.number-1]))
       }
     });
   })
@@ -293,14 +292,17 @@ async function getFileResults (annotation, filePath){
   const colPositions = annotation.annotations
     .filter( el => el.location == "Col")
     .reduce( (acc, ann, a) => {
-      acc[ann.annotationKey] = {pos: ann.pos, subAnnotation: ann.subAnnotation};
+      acc[ann.annotationKey] = {
+        pos: ann.pos,
+        subAnnotation: ann.subAnnotation
+      };
       return acc
     }, {})
 
   let dataResults = matrix.reduce ( (acc, row, r) => {
     let cpos = colPositions
 
-    if ( headerRows.indexOf(r) < 0) {
+    if ( headerRows.includes(r) == false ) {
       for ( const h in headerCols ) {
         const hcol = headerCols[h]
 
@@ -308,7 +310,7 @@ async function getFileResults (annotation, filePath){
           const pos = colPositions[chead].pos
           const colHeadersToEmpty = Object.keys(colPositions)
             .filter( chead => colPositions[chead].subAnnotation && ( colPositions[chead].pos > pos ))
-          colHeadersToEmpty.map( chead => { colHeadersBuffer[chead] = "" })
+          colHeadersToEmpty.map( chead => { colHeadersBuffer[chead] = '' })
         })
 
         colHeadersBuffer = {
@@ -321,8 +323,11 @@ async function getFileResults (annotation, filePath){
     }
 
     row.map( (currentCell, c) => {
-      if ( r >= Math.min(...headerRows) && c > Math.max(...headerCols)) {
-        let newHeaders = {...newHeaders, ...colHeadersBuffer }
+      if ( r >= Math.min(...headerRows) && c > Math.max(...headerCols) ) {
+        let newHeaders = {
+          // ...newHeaders,
+          ...colHeadersBuffer
+        }
 
         let headerGroups = headerRows.filter( hr => hr < r ).reduce( (acc,hrow) => {
           if (acc.buffer.length == 0 ){
@@ -337,21 +342,24 @@ async function getFileResults (annotation, filePath){
           }
 
           return acc
-        }, {groups: [], buffer: [] })
+        }, {groups: [], buffer: []})
 
         headerGroups = [...headerGroups.groups, headerGroups.buffer]
 
         for ( const h in headerGroups[headerGroups.length-1] ) {
           const hrow = headerGroups[headerGroups.length-1][h]
-          newHeaders = {...newHeaders, ...matrix[hrow][c].rowcontent }
+          newHeaders = {
+            ...newHeaders,
+            ...matrix[hrow][c].rowcontent
+          }
         }
 
         acc.push ({
-            ...existingHeaders,
-            ...newHeaders,
-            col: c,
-            row: r,
-            value: currentCell.text.replace(/\s+/g, ' ').trim(),
+          ...existingHeaders,
+          ...newHeaders,
+          col: c,
+          row: r,
+          value: currentCell.text.replace(/\s+/g, ' ').trim(),
         })
       }
     })
@@ -390,5 +398,5 @@ async function getFileResults (annotation, filePath){
 
 
 module.exports = {
-    getFileResults
+  getFileResults
 }
