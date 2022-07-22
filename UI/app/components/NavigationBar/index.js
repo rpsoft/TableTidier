@@ -32,13 +32,17 @@ import {
  import TocIcon from '@material-ui/icons/Toc';
 
  function NavigationBar({stylesCustom={}}) {
+  let location = useLocation();
   let navigate = useNavigate();
+
   const collectionId = useSelector(state => {
     if ('collectionView' in state) {
       return state.collectionView.collection_id
     }
     return undefined
   })
+
+  const locationIsAtCollection = location.pathname.includes('/collection')
 
   return (
     <Card
@@ -107,8 +111,8 @@ import {
       </Tooltip>
       
       {
-        // Show when collectionId is defined
-      collectionId && <>
+        // Show when collectionId is defined and location is not in collection
+      collectionId && !locationIsAtCollection && <>
       {/* <ArrowForwardIosIcon /> */}
       <ChevronRightIcon 
         style={{
