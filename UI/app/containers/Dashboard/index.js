@@ -55,6 +55,7 @@ import SearchResult from '../../components/SearchResult'
 import SearchTableItem from '../../components/SearchTableItem'
 
 import Collection from '../../components/Collection'
+import NavigationBar from 'components/NavigationBar'
 
 import { useCookies } from 'react-cookie';
 
@@ -350,6 +351,7 @@ console.timeEnd('table_search_results')
           </div>
         </Card>
 
+        {/* side panels */}
         <div
           style={{
             position: 'relative',
@@ -362,6 +364,17 @@ console.timeEnd('table_search_results')
               // width: '25%',
             }}
           >
+            <NavigationBar
+              stylesCustom={{
+                root: {
+                  margin: 0,
+                  marginTop: 6,
+                  marginBottom: 5,
+                  width: 'auto',
+                }
+              }} 
+            />
+
             <Card style={{marginTop:10,padding:10, fontWeight:"bold", textAlign:"center"}}>
               <div>Actions Panel</div>
             </Card>
