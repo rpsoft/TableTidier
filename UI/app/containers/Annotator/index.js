@@ -1045,7 +1045,7 @@ export function Annotator({
         // left: 0,
         bottom: 60,
         width: '100%',
-        height: bottomEnabled ? bottomSize : 65
+        height: bottomEnabled ? bottomSize : 62
       }}
     >
       <div style={{width:"100%", backgroundColor: "#a3a3a3", height:5}}> </div>
@@ -1055,7 +1055,7 @@ export function Annotator({
         !bottomEnabled && (
         <Button
           variant="outlined"
-          style={{float:"right", backgroundColor:"#ffffff", top:5, right:5}}
+          style={{float: "right", backgroundColor: "#ffffff", top: 5, right: 9}}
           onClick={ () => handleBottomChange(1) }
         >
           { bottomEnabled ? <ArrowDropDown style={{fontSize:35}} /> : <ArrowDropUp style={{fontSize:35}} /> }
@@ -1063,7 +1063,6 @@ export function Annotator({
         }
         {
         !bottomEnabled ||
-
         <div
           style={{
             height:"100%",
@@ -1172,6 +1171,7 @@ export function Annotator({
               style={{
                 display: 'flex',
                 flexDirection: 'column',
+                marginRight: 4,
               }}
             >
               <AnnotatorMenuButtons handler={handleBottomChange} bottomLevel={bottomLevel} />
@@ -1180,6 +1180,7 @@ export function Annotator({
               style={{
                 display: 'flex',
                 flexDirection: 'column',
+                marginRight: 4,
               }}
             >
               <AnnotatorMenuButtons handler={handleBottomChange} bottomLevel={bottomLevel} invertButtons={true} />
