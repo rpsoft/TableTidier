@@ -24,11 +24,20 @@ async function getFileResults (annotation, filePath){
 
   const $ = cheerio.load(await tableData)
 
+  // Count number of Columns and Rows
   const maxColumn = $("tr").toArray().reduce(
     (acc, item, i) => {
-      return $(item).children().length > acc ?
-        $(item).children().length
-        : acc 
+      // count columns: if column has colspan add colspan if not add 1
+      const columnWidth = $(item).children()
+        .toArray()
+        .reduce(
+          (size, tag) => size + ('colspan' in tag.attribs? parseInt(tag.attribs.colspan) : 1)
+          , 0
+        )
+      // compare with all the rows and take the max number of columns
+      return columnWidth > acc ?
+        columnWidth
+        : acc
     }, 0
   )
   const maxRows = $("tr").toArray().length
@@ -90,14 +99,14 @@ async function getFileResults (annotation, filePath){
 
           matrix[r][c] = {
             ...matrix[r][c],
-            text: $(col).text().replaceAll((/  |\t|\r\n|\n|\r/gm),"").trim(),
+            text: $(col).text().replaceAll((/  |\t|\r\n|\n|\r/gm), '').trim(),
             format: format
           }
 
           const colspan = $(col).attr("colspan")-1
 
           if( colspan > 0) {
-            for (let cspan = 1; cspan <= colspan; cspan++){
+            for (let cspan = 1; cspan <= colspan; cspan++) {
               matrix[r][c+cspan] = matrix[r][c]
             }
             coffset = coffset+colspan
@@ -106,9 +115,9 @@ async function getFileResults (annotation, filePath){
           const rowspan = $(col).attr("rowspan")-1
 
           if( rowspan > 0 ){
-            for (let rspan = 1; rspan <= rowspan; rspan++){
+            for (let rspan = 1; rspan <= rowspan; rspan++) {
               if ( (r+rspan) < matrix.length ){
-                  matrix[r+rspan][c] = matrix[r][c]
+                matrix[r+rspan][c] = matrix[r][c]
               }
             }
           }
