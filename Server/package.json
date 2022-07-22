@@ -16,11 +16,11 @@
     "db:up:sqlite": "db-migrate up:sqlite users -e sqlite",
     "db:down:sqlite": "db-migrate down:sqlite -e sqlite",
     "db:reset:sqlite": "db-migrate reset:sqlite -e sqlite",
-    "test": "mocha testing/tabuliser_testing.js",
+    "test": "jest test --verbose --testPathIgnorePatterns node_modules database ",
     "test_brk": "mocha --inspect-brk testing/tabuliser_testing.js",
-    "test:pg": "DB_DRIVER_TYPE=postgres jest",
-    "test:sqlite": "DB_DRIVER_TYPE=sqlite jest",
-    "test:watch": "jest --watch",
+    "test:pg": "DB_DRIVER_TYPE=postgres CONFIG_PATH=${PWD}/test/database jest test/database",
+    "test:sqlite": "DB_DRIVER_TYPE=sqlite CONFIG_PATH=${PWD}/test/database jest test/database",
+    "test:watch": "jest test --verbose --testPathIgnorePatterns node_modules database --watch",
     "test:watch:pg": "DB_DRIVER_TYPE=postgres CONFIG_PATH=${PWD}/test/database jest --watch",
     "test:watch:sqlite": "DB_DRIVER_TYPE=sqlite CONFIG_PATH=${PWD}/test/database jest --watch"
   },
@@ -111,5 +111,8 @@
     "sqlite3": "^5.0.3",
     "util": "^0.12.3",
     "workerpool": "^6.2.0"
+  },
+  "jest": {
+    "verbose": true
   }
 }
