@@ -85,6 +85,7 @@ import {
 import SearchBar from 'Checkbox../../components/SearchBar'
 
 import SearchResult from '../../components/SearchResult'
+import NavigationBar from 'components/NavigationBar'
 
 import FileUploader from '../../components/FileUploader'
 
@@ -512,7 +513,20 @@ export function CollectionView({
             </Card>
 
           </Grid>
+
+          {/* side panels */}
           <Grid item xs={3}>
+
+            <NavigationBar
+              stylesCustom={{
+                root: {
+                  margin: 0,
+                  marginBottom: 5,
+                  width: 'auto',
+                }
+              }} 
+            />
+
             <Card style={{padding:10, fontWeight:"bold",marginBottom:5, textAlign:"center"}}>
               <div>Collection Options</div>
             </Card>
