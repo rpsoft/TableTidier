@@ -94,8 +94,6 @@ import InfoPage from '../InfoPage'
 
 import Grid from "@material-ui/core/Grid";
 
-import { useCookies } from 'react-cookie';
-
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 
 import ReactPaginate from 'react-paginate';
@@ -184,8 +182,6 @@ export function CollectionView({
   const classes = useStyles();
 
   const [ currentCollection ] = useState(window.location.search)
-
-  const [ cookies, setCookie, removeCookie ] = useCookies();
 
   const [ title, setTitle] = useState();
   const [ collection_id, setCollection_id ] = useState();
