@@ -10,4 +10,4 @@ export API_DOMAIN=$(cat config.json | jq '.api_host')
 export UI_PORT=$(cat config.json | jq '.ui_port')
 export UI_DOMAIN=$(cat config.json | jq '.ui_host')
 
-node index.js
+node build/index.js
