@@ -42,8 +42,6 @@ import {
 
 import appActions from '../App/actions';
 
-import { useCookies } from 'react-cookie';
-
 import {
   useNavigate,
   useLocation,
@@ -255,8 +253,6 @@ export function Annotator({
 
   useInjectReducer({ key: 'annotator', reducer });
   useInjectSaga({ key: 'annotator', saga });
-
-  const [cookies] = useCookies();
 
   const classes = useStyles();
   const theme = useTheme();

@@ -57,9 +57,6 @@ import SearchTableItem from '../../components/SearchTableItem'
 import Collection from '../../components/Collection'
 import NavigationBar from 'components/NavigationBar'
 
-import { useCookies } from 'react-cookie';
-
-
 import {
   FixedSizeList,
   VariableSizeList,
@@ -154,8 +151,6 @@ export function Dashboard({
 
   const theme = useTheme();
 
-  const [cookies, setCookie, removeCookie ] = useCookies();
-
   // const [searchContent, setSearchContent ] = useState(dashboard.searchContent);
   // const [searchType, setSearchType ] = useState(dashboard.searchType);
 
@@ -181,7 +176,7 @@ export function Dashboard({
 
   useEffect(() => {
     listCollections()
-  }, [loginState.username, cookies.hash]);
+  }, [loginState.username]);
 
   // Search results
   const SearchResulRow = ({ index }) => {
@@ -343,7 +338,6 @@ console.timeEnd('table_search_results')
               //   (searchContent, searchType) => {
               //     setSearchContent(searchContent)
               //     setSearchType(searchType)
-              //     doSearch(searchContent, searchType, cookies.hash, cookies.username)
               //   }
               // }
               // setCharCount={ setCharCount }

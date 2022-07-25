@@ -6,7 +6,7 @@
 
 import React, { useEffect, memo, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
+import { connect, useSelector, useDispatch } from 'react-redux';
 import { Helmet } from 'react-helmet';
 import { FormattedMessage } from 'react-intl';
 import { createStructuredSelector } from 'reselect';
@@ -36,18 +36,23 @@ import {
   doLogOutAction
 } from './actions'
 
+import actions from './actions'
+
 import {
   Link,
   useLocation,
 } from 'react-router-dom';
-import { useCookies } from 'react-cookie';
-import { useDispatch, useSelector } from "react-redux";
+// import { useCookies } from 'react-cookie';
 
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 
 import {
   hashPassword
 } from '../../utils/hash'
+
+// Store the refresh token in browser localStorage
+import {useLocalStorage} from "react-use-storage";
+
 
 const drawerWidth = 0;
 
@@ -82,39 +87,41 @@ const useStyles = makeStyles((theme) => ({
 export function Login({
   token,
   loginState,
-
-  doLogin,
-  doLogOut,
 }) {
+  useInjectReducer({ key: 'login', reducer });
+  useInjectSaga({ key: 'login', saga });
 
   // let location = useLocation()
   const classes = useStyles();
   const theme = useTheme();
+  const dispatch = useDispatch()
 
   const {
     accept: acceptColor,
     cancel: cancelColor,
   } = theme.palette.dialog
 
-  const [cookies, setCookie, removeCookie ] = useCookies();
-
   const [username, setUsername] = useState(loginState.username ? loginState.username :  '' );
   const [password, setPassword] = useState('');
+  const [refreshToken, setRefreshToken, removeRefreshToken] = useLocalStorage('refreshToken');
 
   // const [loginWarning, setLoginWarning] = useState('');
   // const loginWarning = useSelector(state => state.loginWarning);
 
-  const [isLoginShown, toggleLogin] = useState(false);
+  const [loginShowMenu, setLoginShowMenu] = useState(false);
 
-  const handleLoginToggle = (event) => {
-    if( isLoginShown ) {
-      return toggleLogin(false)
+  const handleLoginShowMenuToggle = (event) => {
+    if( loginShowMenu ) {
+      return setLoginShowMenu(false)
     }
-    toggleLogin(true);
+    setLoginShowMenu(true);
   }
 
   const passwordRef = useRef(null);
   const anchorElRef = useRef(null);
+
+  // redux store user 
+  const doLogin = (username, password) => dispatch( doLoginAction(username, password) )
 
   const logIn = async () => {
     if (
@@ -127,11 +134,11 @@ export function Login({
   }
 
   const logOut = () => {
-    removeCookie('hash');
-    removeCookie('username');
     setUsername('');
     setPassword('');
-    doLogOut();
+    dispatch(doLogOutAction())
+    // removing refreshToken signals another windows to logout
+    removeRefreshToken()
   }
 
   const onKeyDown = async (event) => {
@@ -144,41 +151,100 @@ export function Login({
   }
 
   useEffect(() => {
-    // If authentication token is available and it's different from the cookie token it will be set in the cookies.
-    // console.log('username ', loginState.username)
-    if ( loginState.username ) {
-      handleLoginToggle(); // close on successful login.
-      // setCookie('username', loginState.username)
+    if ( loginState.username && window.document.hasFocus()) {
+      setLoginShowMenu(false); // close on successful login.
       return
     }
-    setCookie('username', '')
   }, [loginState.username]);
-  //
-  // useEffect(() => {
-  //   document.title = Date.now();
-  // });
+  
+  useEffect(() => {
+    // Client JWT authentication/authorization token is stored as a HttpOnly cookie.
+    // Mozilla Doc:
+    //  A cookie with the HttpOnly attribute is inaccessible to the JavaScript Document.cookie API;
+    //  it's only sent to the server
 
-  // useEffect(() => {
-  //   // If authentication token is available and it's different from the cookie token it will be set in the cookies.
-  //   console.log('token', token)
-  //   if ( token ) {
-  //     setCookie('hash', token) // 86400 seconds in a day. Login will expire after a day.
-  //     setCookie('username', loginState.username)
-  //   } else {
-  //     setCookie('hash', '') // 86400 seconds in a day. Login will expire after a day.
-  //     setCookie('username', '')
-  //   }
-  // }, [token]);
+    // Refresh JWT token is stored in LocalStorage
 
-  useInjectReducer({ key: 'login', reducer });
-  useInjectSaga({ key: 'login', saga });
+    // console.log('username ', loginState.username)
+    // debugger
+
+    // Add event listeners for respond to remote login and logout
+    // This events listerners are only trigered by remote actions
+
+    const loginFromToken = (token) => {
+      const userInfo = JSON.parse(
+        window.atob(token.split('.')[1])
+      )
+      // Check token expire date
+      if ((Date.now() - userInfo.exp*1e3) > 0) {
+        // if expired set localStore refresToken
+        removeRefreshToken()
+      }
+      dispatch(loginSuccessAction({username: userInfo.sub}))
+      // console.log('refreshToken: ' + JSON.stringify(userInfo))
+      // Close login menu
+      setLoginShowMenu(false)
+    }
+
+    const localStorageListener = (event) => {
+      // newValue == null and typeof oldValue == string logout
+      if (event.newValue == null && typeof event.oldValue == 'string') {
+        // Logout
+        // console.log('Logout')
+        // Stop refresToken backgrond process
+        dispatch(actions.refreshTokenStop.action())
+        // Reset redux store username
+        dispatch(loginSuccessAction({username: ''}))
+        
+        // Close login menu
+        setUsername('');
+        setPassword('');
+        setLoginShowMenu(false)
+        return
+      }
+
+      // oldValue == null and typeof oldValue == string logout
+      if (event.oldValue == null && typeof event.newValue == 'string') {
+        // Login
+        const token = JSON.parse(event.newValue).token
+        loginFromToken(token)
+        dispatch(actions.refreshTokenStart.action(token))
+        // console.log('Login')
+        return
+      }
+
+      // If refreshToken is new update the refresToken timer of this window
+      // oldValue == null and typeof oldValue == string logout
+      if (
+        event.oldValue != null &&
+        event.newValue != null &&
+        event.newValue != event.oldValue) {
+        const token = JSON.parse(event.newValue).token
+        // restart refreshToken interval
+        dispatch(actions.refreshTokenRestart.action(token))
+        return
+      }
+    }
+
+    window.addEventListener('storage', localStorageListener)
+
+    // We can use refreshToken to obtain user's info
+    if (refreshToken && !loginState.username) {
+      console.log('first load!! check refreshToken expired? clean: restore info from refreshToken, initiate refresh saga')
+      dispatch(actions.refreshTokenStart.action(refreshToken.token))
+      loginFromToken(refreshToken.token)
+    }
+
+    
+    () => window.removeEventListener('storage', localStorageListener);
+  }, []);
 
   const isLoggedIn = loginState.username ? true : false;
 
   const cancelButton = <>
     <Button
       variant="contained"
-      onClick={ () => { handleLoginToggle() } }
+      onClick={ () => { setLoginShowMenu(false) } }
       style={{marginLeft:5, backgroundColor: cancelColor}}
     >
       Cancel
@@ -206,7 +272,7 @@ export function Login({
         <Button
           ref={anchorElRef}
           variant="contained"
-          onClick={ handleLoginToggle }
+          onClick={ () => setLoginShowMenu(true) }
           style={{marginLeft:5}}
         >
           <AccountBoxIcon/>
@@ -216,9 +282,9 @@ export function Login({
 
       <Popover
         id={"loginDropDown"}
-        open={isLoginShown}
+        open={loginShowMenu}
         anchorEl={anchorElRef.current}
-        onClose={ handleLoginToggle }
+        onClose={ () => setLoginShowMenu(false) }
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'center',
@@ -330,10 +396,7 @@ const mapStateToProps = createStructuredSelector({
 });
 
 const mapDispatchToProps = (dispatch) => {
-  return {
-    doLogin : (username,password) => dispatch( doLoginAction(username,password) ),
-    doLogOut : () => dispatch(doLogOutAction()),
-  };
+  return {};
 }
 
 const withConnect = connect(

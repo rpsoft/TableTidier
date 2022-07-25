@@ -11,6 +11,7 @@ const router = express.Router()
 // JSON Web Token (JWT) https://datatracker.ietf.org/doc/html/rfc7519
 const experessJwt = require('express-jwt');
 const jwt = require('jsonwebtoken');
+const {getJwtFromCookie} = require('../utils/jwt-utils');
 
 import
   passport
@@ -40,6 +41,61 @@ const jwtSignToken = (user) => {
   );
 }
 
+/**
+ * Create a user.
+ * @param {object} user - user info.
+ *
+ * @swagger
+ * /createUser:
+ *   post:
+ *     description: Create a user
+ *     summary: Create a user
+ *     tags:
+ *       - Users
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/x-www-form-urlencoded:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               username:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *             required:
+ *               - email
+ *               - username
+ *               - password
+ *             examples:
+ *               James:
+ *                 email: james@example.co.uk
+ *                 username: james
+ *                 password: password
+ *
+ *     responses:
+ *       200:
+ *         description: Created or Failed
+ * 
+ */
+ router.route('/createUser')
+ .post((req, res, next) => {
+   passport.authenticate('signup', function(err, user, info) {
+     console.log("login_req", JSON.stringify(user))
+     if ( err && err?.message ) {
+       return res.status(200).json({status: 'failed', payload: err.message})
+     }
+     if ( err ) {
+       return res.status(200).json({status: 'failed', payload: info})
+     }
+     if ( !user ) {
+       return res.status(200).json({status: 'unavailable', payload: info})
+     }
+     res.status(200).json({status:'success', payload: 'user created' })
+   })(req, res, next)
+ });
 
 // CONFIG.api_base_url+'/login'
 
@@ -143,15 +199,25 @@ router.route('/login')
 
     const token = jwtSignToken(user.jwt)
 
-    delete user.jwt.permissions
+    // delete user.jwt.permissions
     user.jwt.type = 'refresh-token'
     const refreshToken = jwtSignToken(user.jwt)
+
+    // set client cookie jwt
+    req.cookies.set(
+      'session',
+      'Bearer ' + token,
+      {
+        overwrite: true,
+        maxAge: 15 * 60 * 1e3,
+      }
+    )
 
     res.json({
       status: 'authorised',
       payload: {
         ..._user,
-        token,
+        // token,
         refreshToken,
         refreshAt: SESSION_TOKEN_REFRESH_TIME,
       }
@@ -160,60 +226,41 @@ router.route('/login')
 });
 
 /**
- * Create a user.
- * @param {object} user - user info.
- *
+ * Logout
+ * Remove client cookie
  * @swagger
- * /createUser:
+ * /refreshToken:
  *   post:
- *     description: Create a user
- *     summary: Create a user
+ *     description: Logout will remove client cookie JWT token 
+ *     summary: Logout
  *     tags:
  *       - Users
- *     requestBody:
- *       required: true
- *       content:
- *         application/x-www-form-urlencoded:
- *           schema:
- *             type: object
- *             properties:
- *               email:
- *                 type: string
- *               username:
- *                 type: string
- *               password:
- *                 type: string
- *             required:
- *               - email
- *               - username
- *               - password
- *             examples:
- *               James:
- *                 email: james@example.co.uk
- *                 username: james
- *                 password: password
- *
- *     responses:
- *       200:
- *         description: Created or Failed
  * 
  */
-router.route('/createUser')
-.post((req, res, next) => {
-  passport.authenticate('signup', function(err, user, info) {
-    console.log("login_req", JSON.stringify(user))
-    if ( err && err?.message ) {
-      return res.status(200).json({status: 'failed', payload: err.message})
-    }
-    if ( err ) {
-      return res.status(200).json({status: 'failed', payload: info})
-    }
-    if ( !user ) {
-      return res.status(200).json({status: 'unavailable', payload: info})
-    }
-    res.status(200).json({status:'success', payload: 'user created' })
-  })(req, res, next)
-});
+
+router.route('/logout')
+.post(
+  experessJwt({
+    secret: publickey,
+    algorithms: ['ES256'],
+    getToken: getJwtFromCookie,
+  }),
+  function(req, res) {
+    // set client cookie jwt
+    req.cookies.set(
+      'session',
+      'logout',
+      {
+        overwrite: true,
+        maxAge: 1,
+      }
+    )
+    res.json({
+      status: 'success',
+      description: 'Logged out'
+    });
+  }
+);
 
 /**
  * Refresh user token
@@ -247,6 +294,7 @@ router.route('/refreshToken')
   experessJwt({
     secret: publickey,
     algorithms: ['ES256'],
+    getToken: getJwtFromCookie,
   }),
   function(req, res) {
     // has user email?
@@ -281,9 +329,12 @@ router.route('/refreshToken')
     const token = jwtSignToken(user)
     const refreshToken = jwtSignToken(refreshTokenStatus)
 
+    // set refresh client cookie jwt
+    req.cookies.set('session', 'Bearer ' + token, {overwrite: true})
+    
     return res.json({
       ...user,
-      token,
+      // token,
       refreshToken,
       refreshAt: SESSION_TOKEN_REFRESH_TIME,
     });
@@ -291,7 +342,7 @@ router.route('/refreshToken')
 );
 
 /**
- * Check that a user exists. by:
+ * Check if a given username or email already exists. by:
  * @param {object} username - username.
  * @param {object} email - email.
  *
