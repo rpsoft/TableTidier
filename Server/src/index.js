@@ -17,12 +17,14 @@ const multer = require('multer');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const html = require("html");
+const Cookies = require('cookies')
 // JWT Authentication
 // https://github.com/MichielDeMey/express-jwt-permissions
 // https://github.com/auth0/express-jwt
 const experessJwt = require('express-jwt');
 const jwt = require('jsonwebtoken');
 const guard = require('express-jwt-permissions')()
+const {getJwtFromCookie} = require('./utils/jwt-utils');
 
 // DB driver
 const pgDriver = require('./db/postgres-driver')({...GENERAL_CONFIG.db})
@@ -108,7 +110,10 @@ console.log("Loading Search Module")
 const easysearch = require('@sephir/easy-search')
 
 console.log("Configuring Server")
-var app = express();
+const app = express();
+
+app.use(Cookies.express())
+
 app.use(logger('tiny'))
 
 app.use(cors("*"));
@@ -178,6 +183,7 @@ app.post(CONFIG.api_base_url+'/tableUploader',
     secret: publickey,
     algorithms: ['ES256'],
     credentialsRequired: true,
+    getToken: getJwtFromCookie,
   }),
   async (req, res) => {
 
@@ -632,6 +638,7 @@ app.post(CONFIG.api_base_url+'/metadata',
     secret: publickey,
     algorithms: ['ES256'],
     credentialsRequired: false,
+    getToken: getJwtFromCookie,
   }),
   async (req, res) => {
 
@@ -823,6 +830,7 @@ app.post(CONFIG.api_base_url+'/collections',
     secret: publickey,
     algorithms: ['ES256'],
     credentialsRequired: false,
+    getToken: getJwtFromCookie,
   }),
   async (req, res) => {
 
@@ -982,6 +990,7 @@ app.post(CONFIG.api_base_url+'/tables',
     secret: publickey,
     algorithms: ['ES256'],
     credentialsRequired: false,
+    getToken: getJwtFromCookie,
   }),
   async (req, res) => {
 
@@ -1114,6 +1123,7 @@ app.post(CONFIG.api_base_url+'/search',
     secret: publickey,
     algorithms: ['ES256'],
     credentialsRequired: false,
+    getToken: getJwtFromCookie,
   }),
   async (req, res) => {
 
@@ -1155,6 +1165,7 @@ app.post(CONFIG.api_base_url+'/getTableContent',
     secret: publickey,
     algorithms: ['ES256'],
     credentialsRequired: false,
+    getToken: getJwtFromCookie,
   }),
   async (req, res) => {
   
@@ -1347,7 +1358,7 @@ const prepareAnnotationPreview = async (docid, page, collId, cachedOnly) => {
 
   const annotations = await dbDriver.annotationByIDGet(docid, page, collId)
   if ( !annotations ) {
-    return {state: 'fail', result : []}
+    return {state: 'fail', result: []}
   }
   const entry = annotations
 
@@ -1689,6 +1700,7 @@ app.post(CONFIG.api_base_url+'/notes',
     secret: publickey,
     algorithms: ['ES256'],
     credentialsRequired: false,
+    getToken: getJwtFromCookie,
   }),
   async (req, res) => {
   
@@ -1736,6 +1748,7 @@ app.post(CONFIG.api_base_url+'/text',
     secret: publickey,
     algorithms: ['ES256'],
     credentialsRequired: false,
+    getToken: getJwtFromCookie,
   }),
   async (req, res) => {
 
@@ -1896,6 +1909,7 @@ app.post(CONFIG.api_base_url+'/saveAnnotation',
     secret: publickey,
     algorithms: ['ES256'],
     credentialsRequired: false,
+    getToken: getJwtFromCookie,
   }),
   async (req, res) => {
 
@@ -1949,6 +1963,7 @@ app.put(CONFIG.api_base_url+'/table/updateReferences',
     secret: publickey,
     algorithms: ['ES256'],
     credentialsRequired: false,
+    getToken: getJwtFromCookie,
   }),
   async (req, res) => {
 
