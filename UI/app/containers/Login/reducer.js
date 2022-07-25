@@ -12,14 +12,18 @@ import {
   LOGOUT_ACTION
 } from './constants';
 
+import actions from './actions'
+
 export const initialState = {
   // Store pre login user in tempUser
-  tempUser: null,
-  username : '',
-  password : '',
-  token : '',
-  error : null,
-  loginWarning : '',
+  tempUser: {
+    username: '',
+    password: '',
+  },
+  username: '',
+  password: '',
+  error: null,
+  loginWarning: '',
 };
 
 /* eslint-disable default-case, no-param-reassign */
@@ -36,25 +40,19 @@ const loginReducer = (state = initialState, action) =>
         break;
       case LOGIN_ACTION_SUCCESS:
         // Get the user from temporal user
-        draft.username = draft.tempUser.username;
+        draft.username = action.payload.username || state.tempUser.username;
         // clean temporal user
-        draft.tempUser = null;
-        draft.token = action.payload;
+        draft.tempUser = initialState.tempUser;
         draft.error = null;
         draft.loginWarning = '';
         break;
       case LOGIN_ACTION_FAILED:
         draft.error = action.payload;
-        draft.token = '';
         draft.loginWarning = 'invalid details, have you registered?';
-        break;
-      case LOGIN_UPDATE_TOKEN:
-        draft.token = action.payload;
         break;
       case LOGOUT_ACTION:
         draft.username = '';
         draft.error = '';
-        draft.token = '';
         draft.loginWarning = '';
         break;
     }
