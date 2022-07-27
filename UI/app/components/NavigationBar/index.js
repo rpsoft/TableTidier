@@ -64,7 +64,7 @@ import {
             }}
             variant="outlined"
             size="small"
-            disabled={navigation.canGoBack == false}
+            disabled={'navigation' in window  && window.navigation.canGoBack == false}
             onClick={() => {
               navigate(-1);
             }}
@@ -83,7 +83,7 @@ import {
             }}
             variant="outlined"
             size="small"
-            disabled={navigation.canGoForward == false}
+            disabled={'navigation' in window  && window.navigation.canGoForward == false}
             onClick={() => {
               navigate(1);
             }}
