@@ -119,6 +119,14 @@ const useStyles = makeStyles((theme) => ({
     fontWeight:"bold",
     display:"inline",
   },
+  titlesSidePanel: {
+    backgroundColor: 'azure',
+    padding: 10,
+    fontWeight: 'bold',
+    marginTop: 5,
+    marginBottom: 5,
+    textAlign: 'center',
+  },
   paper: {
     padding: theme.spacing(2),
   },
@@ -523,7 +531,7 @@ export function CollectionView({
               }} 
             />
 
-            <Card style={{padding:10, fontWeight:"bold",marginBottom:5, textAlign:"center"}}>
+            <Card className={classes.titlesSidePanel} >
               <div>Collection Options</div>
             </Card>
 
@@ -603,8 +611,13 @@ export function CollectionView({
               </div>
             </Card>
 
-            <Card style={{padding:10, fontWeight:"bold", marginTop:5, marginBottom:5, textAlign:"center"}}>
+            <Card className={classes.titlesSidePanel} >
               <div>Table Actions</div>
+            </Card>
+
+
+            <Card className={classes.titlesSidePanel} >
+              <div>Downloads</div>
             </Card>
 
             <Card style={{padding:10}}>
