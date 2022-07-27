@@ -48,6 +48,7 @@ import {
   Select as SelectField,
   Input as TextField,
   Button,
+  ButtonGroup,
   Paper,
   Switch,
   Dialog,
@@ -197,7 +198,7 @@ export function CollectionView({
   const [ owner_username, setOwner_username ] = useState();
   const [ tables, setTables ] = useState(collectionView.tables || []);
   const [ checkedTables, setCheckedTables ] = useState({});
-  const [ noTables, setNoTables ] = useState(0);
+  const [ tablesSelectedNumber, setTablesSelectedNumber ] = useState(0);
 
   const [ allowEdit, setAllowEdit ] = useState(false);
 
@@ -266,6 +267,7 @@ export function CollectionView({
     return collectionData
   }
 
+  // tables select, cherry pick
   const toggleCheckBox = (docid) => {
     const checkedTables_temp = structuredClone(checkedTables)
     if ( docid in checkedTables_temp ) {
@@ -277,7 +279,34 @@ export function CollectionView({
     }
     setCheckedTables(checkedTables_temp)
     // Set number of tables selected
-    setNoTables(Object.keys(checkedTables_temp).length)
+    setTablesSelectedNumber(Object.keys(checkedTables_temp).length)
+  }
+
+  const tablesUnselectAll = () => {
+    setCheckedTables({})
+    // Set number of tables selected
+    setTablesSelectedNumber(0)
+  }
+
+  // tables select all
+  const tablesSelectAll = () => {
+    const checkedTables_temp = collectionView.tables.reduce((prev, table) => {
+      const {
+        docid,
+        page,
+        tid,
+      } = table
+      
+      prev[docid+'_'+page] = {
+        checked: true,
+        tid,
+      }
+      return prev
+    }, {})
+
+    setCheckedTables(checkedTables_temp)
+    // Set number of tables selected
+    setTablesSelectedNumber(collectionView.tables.length)
   }
 
   const docidCheck = async (docidList, collection_id) => {
@@ -615,13 +644,39 @@ export function CollectionView({
               <div>Table Actions</div>
             </Card>
 
-
-            <Card className={classes.titlesSidePanel} >
-              <div>Downloads</div>
-            </Card>
-
             <Card style={{padding:10}}>
-              <div>{
+
+              {
+              allowEdit && (
+              <Card style={{padding:10, fontWeight:"bold", marginTop:5, marginBottom:5, textAlign:"center"}}>
+                <div className={classes.buttonHolder} style={{float:"right"}}>
+                  <Button
+                    variant="contained"
+                    disabled={false}
+                    onClick={() => {saveChanges()}}
+                  > Save Changes <SaveIcon style={{marginLeft:5}} /> </Button>
+                </div>
+              </Card>)
+              }
+              <hr/>
+
+              {/* Table selection */}
+              <ButtonGroup size="small" color="primary" aria-label="outlined primary button group">
+                <Button
+                  disabled={ tablesSelectedNumber == 0 }
+                  onClick={tablesUnselectAll}
+                >
+                  Unselect Tables</Button>
+                <Button
+                  disabled={ tablesSelectedNumber == collectionView.tables.length }
+                  onClick={tablesSelectAll}
+                >
+                  Select All Tables</Button>
+              </ButtonGroup>
+
+              <hr/>
+
+              {
                 // File Uploader if allowed
                 allowEdit && (
                 <div className={classes.buttonHolder}>
@@ -633,15 +688,16 @@ export function CollectionView({
                     userToken={ loginState.token }
                     updaterCallBack= { getCollectionData }
                   />
-                </div> )}
+                </div> )
+              }
 
-                {
+              {
                 // Move tables if allowed
                 allowEdit && (
                 <div className={classes.buttonHolder}>
                   <Button
                     variant="contained"
-                    disabled={ noTables == 0 }
+                    disabled={ tablesSelectedNumber == 0 }
                     onClick={() => { setMoveDialogOpen(true); }}
                   >
                     Move Tables <OpenInNewIcon style={{marginLeft:5}}/>
@@ -772,7 +828,7 @@ export function CollectionView({
                         moveTables(checkedTables, targetCollectionID);
                         setMoveDialogOpen(false);
                         setCheckedTables({});
-                        setNoTables(0);
+                        setTablesSelectedNumber(0);
                         setTargetCollectionID('');
                         setMoveDialogWarningText('')
                         showMoveDialog(false);
@@ -789,7 +845,7 @@ export function CollectionView({
                 <div className={classes.buttonHolder}>
                   <Button
                     variant="contained"
-                    disabled = { noTables == 0 }
+                    disabled = { tablesSelectedNumber == 0 }
                     onClick={ () => {showDeleteDialog(true)}}
                     style={{backgroundColor:"#ff8282"}}
                   > Delete Tables <DeleteIcon style={{marginLeft:5}} />
@@ -804,13 +860,21 @@ export function CollectionView({
                       removeTables(checkedTables, prepareCollectionData());
                       showDeleteDialog(false);
                       setCheckedTables({});
-                      setNoTables(0);
+                      setTablesSelectedNumber(0);
                     }}
                     cancel_action={ () => showDeleteDialog(false) }
                     open={deleteDialog}
                   />
-                  <hr/>
-                </div>)}
+                </div>)
+                }
+            </Card>
+
+            <Card className={classes.titlesSidePanel} >
+              <div>Downloads</div>
+            </Card>
+
+            <Card style={{padding:10}}>
+              <div>
 
                 {/* Download Tables */}
                 <div className={classes.buttonHolder}>
@@ -836,17 +900,6 @@ export function CollectionView({
 
             </div>
             </Card>
-
-            { allowEdit && (
-            <Card style={{padding:10, fontWeight:"bold", marginTop:5, marginBottom:5, textAlign:"center"}}>
-              <div className={classes.buttonHolder} style={{float:"right"}}>
-                <Button
-                  variant="contained"
-                  disabled={false}
-                  onClick={() => {saveChanges()}}
-                > Save Changes <SaveIcon style={{marginLeft:5}} /> </Button>
-              </div>
-            </Card>)}
 
           </Grid>
         </Grid>
