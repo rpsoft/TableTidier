@@ -69,8 +69,29 @@ function TableEditor({
           if ( metadataElement.replace(/[^A-z]/gi, '').length > 0 ) {
 
             const tdThatMatchMetadataConcept = tdElements.filter(index => {
-              return tdElements[index].firstChild &&
+              // Where to find td -> text
+              // element -> text
+              // element.firstChild.data
+              if (
+                tdElements[index].firstChild &&
+                tdElements[index].firstChild.data &&
                 tdElements[index].firstChild.data.trim() === metadata[metadataElement].concept
+              ) {
+                return true
+              }
+
+              // element -> p -> text
+              // element.firstChild.firstChild.data
+              if (
+                tdElements[index].firstChild &&
+                tdElements[index].firstChild.firstChild &&
+                tdElements[index].firstChild.firstChild.data &&
+                tdElements[index].firstChild.firstChild.data.trim() === metadata[metadataElement].concept
+              ) {
+                return true
+              }
+
+              return false
             })
 
             // If not pair td tag / metadata.concept then return
