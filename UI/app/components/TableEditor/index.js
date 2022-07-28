@@ -80,14 +80,14 @@ function TableEditor({
 
             const metadataElementCuisSelectedPreferred = metadata[metadataElement]
               .cuis_selected
-              .map( cui => cui + ' : ' + cuisIndex[cui].preferred )
+              .map( cui => cui + ': ' + cuisIndex[cui].preferred )
             // if ( toinject('td:contains("'+metadata[metadataElement].concept+'")').text().toLowerCase().trim() == metadata[metadataElement].concept.trim() ) {
 
             tdThatMatchMetadataConcept.css('margin-bottom', '0px')
             tdThatMatchMetadataConcept.attr(
               'title',
               metadataElementCuisSelectedPreferred
-                .join(';')
+                .join('; ')
             )
             tdThatMatchMetadataConcept.append(
               '<p style="margin: 0px; color: #429be8;">'+
