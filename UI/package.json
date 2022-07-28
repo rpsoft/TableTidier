@@ -80,7 +80,7 @@
     "callbag-debounce": "^4.0.0",
     "callbag-subscribe": "^1.5.1",
     "chalk": "^2.4.2",
-    "cheerio": "^1.0.0-rc.5",
+    "cheerio": "^1.0.0-rc.12",
     "ckeditor4-react": "^3.1.0",
     "compression": "1.7.4",
     "cors": "^2.8.5",
