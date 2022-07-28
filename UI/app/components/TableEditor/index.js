@@ -60,23 +60,41 @@ function TableEditor({
 
   if ( injected && showEditCuis ) {
     const toinject = cheerio.load(injected)
-
-    const met = metadata
-    const cindes = cuisIndex
-
-    Object.keys(met).map(
-      e => {
+    // Select td elements
+    const tdElements = toinject('td')
+    // Assign cui to each metadata
+    Object.keys(metadata).forEach(
+      metadataElement => {
         try{
-          if ( e.replace(/[^A-z]/gi, '').length > 0 ) {
+          if ( metadataElement.replace(/[^A-z]/gi, '').length > 0 ) {
 
-            const elem = toinject('td').filter(() => 
-              toinject(this).text().trim() === met[e].concept)
+            const tdThatMatchMetadataConcept = tdElements.filter(index => {
+              return tdElements[index].firstChild &&
+                tdElements[index].firstChild.data.trim() === metadata[metadataElement].concept
+            })
 
-            // if ( toinject('td:contains("'+met[e].concept+'")').text().toLowerCase().trim() == met[e].concept.trim() ) {
+            // If not pair td tag / metadata.concept then return
+            if (tdThatMatchMetadataConcept.length == 0) {
+              return
+            }
 
-            elem.children().css("margin-bottom","0px")
-            elem.attr("title", met[e].cuis_selected.map( cui => cui+" : "+cindes[cui].preferred).join(";") )
-            elem.append("<p style='margin: 0px; color: #429be8;'>"+ met[e].cuis_selected.map( cui => cui+" : "+cindes[cui].preferred).join("<br />") +"</p>")
+            const metadataElementCuisSelectedPreferred = metadata[metadataElement]
+              .cuis_selected
+              .map( cui => cui + ' : ' + cuisIndex[cui].preferred )
+            // if ( toinject('td:contains("'+metadata[metadataElement].concept+'")').text().toLowerCase().trim() == metadata[metadataElement].concept.trim() ) {
+
+            tdThatMatchMetadataConcept.css('margin-bottom', '0px')
+            tdThatMatchMetadataConcept.attr(
+              'title',
+              metadataElementCuisSelectedPreferred
+                .join(';')
+            )
+            tdThatMatchMetadataConcept.append(
+              '<p style="margin: 0px; color: #429be8;">'+
+                metadataElementCuisSelectedPreferred
+                  .join('<br />') +
+              '</p>'
+            )
             // }
           }
         } catch ( err ){
@@ -88,8 +106,9 @@ function TableEditor({
     injected = toinject.html()
   }
 
-  if (editorEnabled == false)
-    return <div dangerouslySetInnerHTML={{__html : injected}}></div>
+  if (editorEnabled == false) {
+    return <div dangerouslySetInnerHTML={{__html: injected}}></div>
+  }
 
   return (
     <div>
