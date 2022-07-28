@@ -94,12 +94,12 @@ import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 
 const drawerWidth = 250;
 
-import TableAnnotator from 'components/TableAnnotator'
-import TableEditor from 'components/TableEditor'
-import TableResult from 'components/TableResult'
-import TableMetadata from 'components/TableMetadata'
-import TableNotes from 'components/TableNotes'
-import PopAlert from 'components/PopAlert'
+import TableAnnotator from '../../components/TableAnnotator'
+import TableEditor from '../../components/TableEditor'
+import TableResult from '../../components/TableResult'
+import TableMetadata from '../../components/TableMetadata'
+import TableNotes from '../../components/TableNotes'
+import PopAlert from '../../components/PopAlert'
 
 import InfoPage from '../InfoPage'
 
@@ -220,7 +220,6 @@ export function Annotator({
   loadTableContent,
   loadTableResults,
   loadTableMetadata,
-  loadCuisIndex,
 
   saveTextChanges,
   saveNoteChanges,
@@ -231,6 +230,9 @@ export function Annotator({
 
   autoLabel,
 }) {
+  useInjectReducer({ key: 'annotator', reducer });
+  useInjectSaga({ key: 'annotator', saga });
+
   // Var used to name loading with a var
   const LOADING = 'loading'
 
@@ -245,14 +247,12 @@ export function Annotator({
   const apiUrl = useSelector(state => state.app.api_url)
   const userToken = loginState.token
   // Used to show if the page loaging or if trying to access Unauthorised content
-  const tablePageStatus = useSelector(
-    state => 'app' in state?
+  const tablePageStatus = useSelector(state => 'app' in state?
       state.app.status
       : null
   )
-
-  useInjectReducer({ key: 'annotator', reducer });
-  useInjectSaga({ key: 'annotator', saga });
+  // get CuisIndex from redux store
+  const cuisIndex = useSelector(state => state.annotator && state.annotator.cuis_index || {})
 
   const classes = useStyles();
   const theme = useTheme();
@@ -323,7 +323,8 @@ export function Annotator({
   const [ metadata, setMetadata ] = React.useState( {} );
   const [ headerData, setHeaderData ] = React.useState( {} );
 
-  const [ cuisIndex, setCuisIndex ] = React.useState( {} );
+  // ! :-) cuisIndex moved to get from redux store
+  // const [ cuisIndex, setCuisIndex ] = React.useState( {} );
 
   const [ alertData, setAlertData]  = React.useState( { open: false, message: "", isError: false } );
 
@@ -427,7 +428,8 @@ export function Annotator({
 
       setMetadata(annotator.metadata)
 
-      setCuisIndex(annotator.cuis_index)
+      // ! :-) cuisIndex moved to get from redux store
+      // setCuisIndex(annotator.cuis_index)
 
       setHeaderData( prepareMetadata(header_data, annotator.results) );
 
@@ -471,9 +473,11 @@ export function Annotator({
     loadTableResults(true)
     loadTableMetadata()
 
+    // ! :-) Can we call load Cuis Index only one time?
+    //  ex: once cuisIndex is loaded at redux store don't call again?
     // heavy process leave for last
     if ( Object.keys(cuisIndex).length < 1 ) {
-      loadCuisIndex()
+      dispatch(loadCuisIndexAction())
     }
   }, [location.search, loginState.username]);
 
@@ -1209,7 +1213,6 @@ function mapDispatchToProps(dispatch) {
     loadTableContent : (enablePrediction) => dispatch( loadTableContentAction(enablePrediction) ),
     loadTableResults : (cachedOnly) => dispatch ( loadTableResultsAction(cachedOnly) ),
     loadTableMetadata : (tid) => dispatch ( loadTableMetadataAction(tid) ),
-    loadCuisIndex : () => dispatch( loadCuisIndexAction() ),
     saveTextChanges : (tableTitle, tableBody) => dispatch( saveTableTextAction(tableTitle, tableBody) ),
     saveNoteChanges : (notes) => dispatch( saveTableNoteAction(notes)  ),
     saveAnnotationChanges : (tid, annotations) => dispatch( saveTableAnnotationAction(tid, annotations)  ),
