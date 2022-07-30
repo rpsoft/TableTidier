@@ -209,8 +209,7 @@ app.post(CONFIG.api_base_url+'/tableUploader',
       username_uploader,
     } = req.body
 
-    // check if table exist at collection
-
+    // check if table exists at collection
     const docids = files.map((file) => {
       // docid
       return file.filename.replace(/\.[^/.]+$/, '').replaceAll('_', '-')+'_1'
@@ -1970,7 +1969,7 @@ app.put(CONFIG.api_base_url+'/table/updateReferences',
   // req.user added by experessJwt
   const user = req?.user
   const userNameRequesting = user.sub
-  debugger
+
   if ( !user ) {
     return res.json({status:'unauthorised', payload: null})
   }
