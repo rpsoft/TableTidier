@@ -1,5 +1,5 @@
 const fs = require('fs/promises');
-import cheerio from 'cheerio';
+const cheerio = require('cheerio');
 const path = require('path');
 // Import path from config.json
 const CONFIG_PATH = process.env.CONFIG_PATH || process.cwd()
@@ -44,19 +44,31 @@ const readyTable = async (docname, page, collection_id, enablePrediction = false
   console.log(`Loading Table: ${docid} ${override_file_exists ? ' [Override Folder]': ''}`)
   
   try {
+    // Load file
     const data = await fs.readFile(path.join(htmlFolder, htmlFile), {encoding: 'utf8'})
 
+    // Return if not found
     if ( (!data) || (data.trim().length < 1)) {
       return {status: 'failed', tableTitle: '', tableBody: '', predictedAnnotation: {} }
     }
 
+    // Load CSS styles file
     const data_ss = await fs.readFile(path.join(global.cssFolder, "stylesheet.css"), {encoding: 'utf8'})
     let tablePage;
 
     try {
       // This removes any non-printable characters
       // data = data.replace(/[^\x20-\x7E]+/g, "")
-      tablePage = cheerio.load(data.replace(/[^\x20-\x7E]+/g, ''));
+      // tablePage = cheerio.load(data.replace(/[^\x20-\x7E]+/g, ''));
+
+      // Remove space related characters
+      // let str = '\t\n\r this  \n \t   \r  is \r a   \n test \t  \r \n';
+      // str = str.replace(/\s+/g, ' ').trim();
+      // console.log(str); // logs: "this is a test"
+      tablePage = cheerio.load(
+        data.replace(/\s+/g, ' ').trim(),
+        {}
+      );
 
       if ( (!tablePage) || (data.trim().length < 1)) {
         // return ({htmlHeader: "",formattedPage : "", title: "" }) //Failed or empty
@@ -126,47 +138,72 @@ const readyTable = async (docname, page, collection_id, enablePrediction = false
 
     const findHeader = (tablePage, tag) => {
       let totalTextChars = 0
-
-      const headerNodes = [cheerio(tablePage(tag)[0]).remove()]
       let htmlHeader = ''
+      const searchElementsByCssClass = tablePage(tag)
+
+      if (searchElementsByCssClass.length == 0) {
+        return {htmlHeader, totalTextChars}
+      }
+      // Unplug searchElementsByCssClass from dom (tablePage)
+      const headerNodes = searchElementsByCssClass.remove()
+
       // Table Header max length text limit
       const textLimit = 400
-      for ( let h in headerNodes ) {
+
+      // For each element found with tag
+      //  Add text to a new tr
+      // https://cheerio.js.org/classes/Cheerio.html#each
+      // Need to use a function to have access to 'this' var
+      headerNodes.each(function (i, el) {
+        // console.log(cheerio.load(this).text())
         // cheerio(headerNodes[h]).css("font-size","20px");
-        const headText = cheerio(headerNodes[h]).text().trim()
-        const actualText = (headText.length > textLimit ? headText.slice(0,textLimit-1) +" [...] " : headText)
+
+        // Extract text from tag
+        const headText = cheerio.load(this).text().trim()
+        const actualText = headText.length > textLimit ?
+          headText.slice(0, textLimit-1) + ' [...] '
+          : headText
+        
+        // Count number characters added
         totalTextChars += actualText.length
 
-        htmlHeader = htmlHeader + '<tr ><td style="font-size:20px; font-weight:bold; white-space: normal;">' + actualText + "</td></tr>"
-      }
+        // Add text to new tr element 
+        htmlHeader = htmlHeader + 
+          '<tr ><td style="font-size:20px; font-weight:bold; white-space: normal;">' +
+            actualText +
+          '</td></tr>'
+      })
+
       return {htmlHeader, totalTextChars}
     }
 
-    const possible_tags_for_title = [".headers",".caption",".captions",".article-table-caption"]
+    const possible_tags_for_title = ['.headers','.caption','.captions','.article-table-caption']
 
     for (let t in possible_tags_for_title){
       htmlHeader = findHeader(tablePage, possible_tags_for_title[t])
-      if ( htmlHeader.totalTextChars > 0){
+      if ( htmlHeader.totalTextChars > 0 ) {
         break;
       }
     }
 
-    htmlHeader = "<table>"+htmlHeader.htmlHeader+"</table>"
+    htmlHeader = '<table>'+htmlHeader.htmlHeader+'</table>'
 
-    // var htmlHeaderText = cheerio(htmlHeader).find("td").text()
+    // var htmlHeaderText = cheerio(htmlHeader).find('td').text()
 
-    let actual_table = tablePage("table").parent().html();
+    let actual_table = tablePage('table').parent().html();
     actual_table = cheerio.load(actual_table);
 
     // The following lines remove, line numbers present in some tables, as well as positions in headings derived from the excel sheets  if present.
-    let colum_with_numbers = actual_table("tr > td:nth-child(1), tr > td:nth-child(2), tr > th:nth-child(1), tr > th:nth-child(2)")
+    let colum_with_numbers = actual_table(
+      'tr > td:nth-child(1), tr > td:nth-child(2), tr > th:nth-child(1), tr > th:nth-child(2)'
+    )
 
-    if ( colum_with_numbers.text().replace( /[0-9]/gi, "").replace(/\s+/g,"").toLowerCase() === "row/col" ){
+    if ( colum_with_numbers.text().replace( /[0-9]/gi, '').replace(/\s+/g, '').toLowerCase() === 'row/col' ){
       colum_with_numbers.remove()
     }
 
-    if ( actual_table("thead").text().trim().indexOf("1(A)") > -1 ) {
-      actual_table("thead").remove();
+    if ( actual_table('thead').text().trim().indexOf('1(A)') > -1 ) {
+      actual_table('thead').remove();
     }
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
