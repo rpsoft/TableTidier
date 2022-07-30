@@ -16,7 +16,7 @@ import {CKEditor} from 'ckeditor4-react';
 // import EditIcon from '@material-ui/icons/Edit';
 // import Switch from '@material-ui/core/Switch';
 
-import cheerio from 'cheerio'
+import * as cheerio from 'cheerio';
 
 const ReactDOMServer = require('react-dom/server');
 const HtmlToReact = require('html-to-react')
