@@ -199,7 +199,6 @@ export function* getTableResult( payload ) {
 }
 
 export function* getCUISIndex( payload ) {
-
   // const credentials = yield select(makeSelectCredentials());
   const locationData = yield select(makeSelectLocation());
   const loginData = yield select(makeSelectLogin());
@@ -216,13 +215,12 @@ export function* getCUISIndex( payload ) {
   try {
     const response = yield call(request, requestURL, options);
 
-    if ( response.status && response.status == 'unauthorised'){
+    if ( response.status && response.status == 'unauthorised') {
       yield put( yield updateCuisIndexAction({}) );
       return {}
       // COUld probably redirect to /
       // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
     }
-
     yield put( yield updateCuisIndexAction(response.data) );
   } catch (err) {
     console.log(err)
