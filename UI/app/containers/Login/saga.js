@@ -15,6 +15,7 @@ import {
 } from './constants';
 import {
   loginAction,
+  doLogOutAction,
   loginSuccessAction,
   loginFailedAction,
 } from './actions';
@@ -82,7 +83,6 @@ export function* doLogin(action) {
       // Store refreshToken at localStorage
       yield call([localStorage, 'setItem'], 'refreshToken', JSON.stringify({
         token: response.payload.refreshToken,
-        refreshAt: response.payload.refreshAt,
       }))
     }
   } catch (err) {
@@ -129,35 +129,49 @@ export function* doLogout(action) {
 }
 
 export function* refresTokenInterval(refreshToken) {
-  const userInfo = JSON.parse(
+  let userInfo = JSON.parse(
     window.atob(refreshToken.split('.')[1])
   )
+  userInfo.refreshToken = refreshToken
   const locationData = yield select(makeSelectLocation());
   const requestURL = locationData.api_url+'refreshToken';
 
   const params = new URLSearchParams({})
-
+  
   while (true) {
+    // if refreshToken expired call logout and finish
+    if (userInfo.exp*1e3 < Date.now()) {
+      // logout
+      yield put( yield doLogOutAction());
+      return
+    }
+ 
     // Each 5sec for testing
     // yield delay(5000 - Math.round(Math.random()*1e3))
 
     // Get interval period from refreshToken expiration
-    yield delay(userInfo.exp*1e3 - 10e3 - Math.round(Math.random()*1e3))
+    // expiration - Date.now() in milliseconds minus 10 seconds minus 0-1 second randomly
+    yield delay( (userInfo.exp*1e3 - Date.now()) - 10e3 - Math.round(Math.random()*1e3))
     // console.log('refresToken!!! ', Date())
 
-    const login_details = yield select(makeSelectLogin());
-    const options = generateOptionsPost(params, login_details.token)
-    options.headers['Refresh-Token'] = refreshToken
+    // const login_details = yield select(makeSelectLogin());
+    const options = generateOptionsPost(params)
+    options.headers['Refresh-Token'] = userInfo.refreshToken
     // console.log(refreshToken)
 
     const response = yield call(request, requestURL, options)
     if (response.message == 'No authorization token was found') {
       continue
     }
+    // Update userInfo for next refreshToken call 
+    userInfo = {
+      ...JSON.parse(window.atob(response.refreshToken.split('.')[1])),
+      refreshToken: response.refreshToken,
+    }
+
     // Update token at local store
     yield call([localStorage, 'setItem'], 'refreshToken', JSON.stringify({
       token: response.refreshToken,
-      refreshAt: response.refreshAt,
     }))
   }
 }
