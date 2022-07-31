@@ -23,7 +23,6 @@ const publickey = fs.readFileSync('./certificates/public.pem')
 // Load token config from config.json
 const {
   SESSION_TOKEN_EXPIRATION_TIME,
-  SESSION_TOKEN_REFRESH_TIME,
 } = GENERAL_CONFIG.jwt
 
 let dbDriver
@@ -203,13 +202,16 @@ router.route('/login')
     user.jwt.type = 'refresh-token'
     const refreshToken = jwtSignToken(user.jwt)
 
+    const expireTimeFromToken = JSON.parse(atob(token.split('.')[1])).exp * 1e3
+
     // set client cookie jwt
     req.cookies.set(
       'session',
       'Bearer ' + token,
       {
         overwrite: true,
-        maxAge: 15 * 60 * 1e3,
+        // Expires at token expiration time
+        expires: new Date(expireTimeFromToken)
       }
     )
 
@@ -219,7 +221,6 @@ router.route('/login')
         ..._user,
         // token,
         refreshToken,
-        refreshAt: SESSION_TOKEN_REFRESH_TIME,
       }
     });
   })(req, res, next)
@@ -252,6 +253,7 @@ router.route('/logout')
       'logout',
       {
         overwrite: true,
+        // Expires at time from Date.now()
         maxAge: 1,
       }
     )
@@ -329,14 +331,22 @@ router.route('/refreshToken')
     const token = jwtSignToken(user)
     const refreshToken = jwtSignToken(refreshTokenStatus)
 
+    const expireTimeFromToken = JSON.parse(atob(token.split('.')[1])).exp * 1e3
+
     // set refresh client cookie jwt
-    req.cookies.set('session', 'Bearer ' + token, {overwrite: true})
+    req.cookies.set(
+      'session', 'Bearer ' + token,
+      {
+        overwrite: true,
+        // Expires at token expiration time
+        expires: new Date(expireTimeFromToken)
+      }
+    )
     
     return res.json({
       ...user,
       // token,
       refreshToken,
-      refreshAt: SESSION_TOKEN_REFRESH_TIME,
     });
   }
 );
