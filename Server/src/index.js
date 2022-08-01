@@ -1388,6 +1388,7 @@ app.post(CONFIG.api_base_url+'/annotationPreview',
     secret: publickey,
     algorithms: ['ES256'],
     credentialsRequired: false,
+    getToken: getJwtFromCookie,
   }),
   async (req, res) => {
 
