@@ -118,11 +118,19 @@ export function* doLogout(action) {
       )
     ) {
       yield put( yield loginFailedAction(response.status));
-    } else {
-      // Clear refreshToken at localStorage
-      yield call([localStorage, 'removeItem'], 'refreshToken')
-      yield put( yield actions.refreshTokenStop.action())
     }
+
+    if (
+      response.message &&
+      response.message == 'No authorization token was found'
+    ) {
+      yield put( yield loginFailedAction(response.status));
+    }
+
+    // Clear refreshToken at localStorage
+    yield call([localStorage, 'removeItem'], 'refreshToken')
+    yield put( yield actions.refreshTokenStop.action())
+
   } catch (err) {
     yield put(loginFailedAction(err));
   }
@@ -152,12 +160,10 @@ export function* refresTokenInterval(refreshToken) {
     // Get interval period from refreshToken expiration
     // expiration - Date.now() in milliseconds minus 10 seconds minus 0-1 second randomly
     yield delay( (userInfo.exp*1e3 - Date.now()) - 10e3 - Math.round(Math.random()*1e3))
-    // console.log('refresToken!!! ', Date())
 
-    // const login_details = yield select(makeSelectLogin());
     const options = generateOptionsPost(params)
+    // Add refreshToken to headers for server's security check
     options.headers['Refresh-Token'] = userInfo.refreshToken
-    // console.log(refreshToken)
 
     const response = yield call(request, requestURL, options)
     if (response.message == 'No authorization token was found') {
