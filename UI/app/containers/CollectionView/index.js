@@ -668,7 +668,11 @@ export function CollectionView({
                 >
                   Unselect Tables</Button>
                 <Button
-                  disabled={ tablesSelectedNumber == collectionView.tables.length }
+                  disabled={ 
+                    'tables' in collectionView &&
+                    Array.isArray(collectionView.tables) &&
+                    tablesSelectedNumber == collectionView.tables.length
+                  }
                   onClick={tablesSelectAll}
                 >
                   Select All Tables</Button>
