@@ -69,7 +69,6 @@ const readyTable = async (docname, page, collection_id, enablePrediction = false
         data.replace(/\s+/g, ' ').trim(),
         {}
       );
-
       if ( (!tablePage) || (data.trim().length < 1)) {
         // return ({htmlHeader: "",formattedPage : "", title: "" }) //Failed or empty
         return {status: 'failed', tableTitle: '', tableBody: '', predictedAnnotation: {} }
@@ -96,29 +95,43 @@ const readyTable = async (docname, page, collection_id, enablePrediction = false
           tableEdited = true;
       }
 
-      if ( tablePage("strong").length > 0 || tablePage("b").length > 0 || tablePage("i").length > 0){
-        const appendToParent = (i, el) => {
-          const content = cheerio(el).html();
-          const parent = cheerio(el).parent();
-          cheerio(el).remove();
-          parent.append( content )
+      // If exists one of this tags at table page
+      // add css class to parent and remove tag
+      const tagType = ['strong', 'b', 'i']
+
+      const appendToParent = function (i, el) {
+        const content = tablePage(el).html();
+        const parent = tablePage(el).parent();
+        tablePage(el).remove();
+        tablePage(parent).text(content)
+      }
+
+      for (const tag of tagType) {
+        const tagsFound = tablePage(tag)
+        if (tagsFound.length == 0) {
+          // Try next tag
+          continue
         }
+        const className = tag == 'i' ? 'italic': 'bold'
+        // fixing strong, b and i tags on the fly. using 'bold' and 'italic' classes is preferred
+        // check for th parent
+        for (const parentTag of ['th', 'td']) {
+          let tagsClosest = tagsFound.closest(parentTag)
 
-        // fixing strong, b and i tags on the fly. using "bold" and "italic" classes is preferred
-        tablePage("strong").closest("td").addClass("bold")
-        tablePage("strong").each( appendToParent )
+          if (tagsClosest.length == 0) {
+            continue
+          }
 
-        tablePage("b").closest("td").addClass("bold")
-        tablePage("b").map( appendToParent )
+          // Set css class to th or td
+          tagsClosest.addClass(className)
 
-        tablePage("i").closest("td").addClass("italic")
-        tablePage("i").map( appendToParent )
+          tagsClosest.each(function (i, el) {
+            console.log(tablePage(el).html())
+          })
 
-        tableEdited = true
-        // fs.writeFile(htmlFolder+htmlFile,  tablePage.html(), function (err) {
-        //   if (err) throw err;
-        //   console.log('Substituted strong tags by "bold" class for: '+htmlFolder+htmlFile);
-        // });
+          tagsFound.each(appendToParent)
+          tableEdited = true
+        }
       }
 
       if ( tableEdited ) {
