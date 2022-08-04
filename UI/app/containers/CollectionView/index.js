@@ -113,6 +113,9 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
     marginTop:10,
   },
+  checkBoxIntermediateSelected: {
+    color: theme.palette.secondary.light,
+  },
   titles:{
     fontSize:20,
   },
@@ -199,6 +202,11 @@ export function CollectionView({
   const [ tables, setTables ] = useState(collectionView.tables || []);
   const [ checkedTables, setCheckedTables ] = useState({});
   const [ tablesSelectedNumber, setTablesSelectedNumber ] = useState(0);
+  const tablesTotalLength = 'tables' in collectionView &&
+    Array.isArray(collectionView.tables)?
+      collectionView.tables.length
+      : 0;
+
 
   const [ allowEdit, setAllowEdit ] = useState(false);
 
@@ -462,7 +470,7 @@ export function CollectionView({
       <div className={classes.root}>
         <Grid container spacing={1}>
           <Grid item xs={9}>
-            <Card style={{ marginBottom:10, padding:10 }}>
+            <Card style={{ marginBottom: 5, padding: 10 }}>
               <div className={classes.titles}>
                 {
                   tablePageStatus == LOADING &&
@@ -526,6 +534,39 @@ export function CollectionView({
                   Total tables: {collectionView.tables ? collectionView.tables.length : 0}
                 </div>
               </div>
+            </Card>
+
+            {/* collection list headers */}
+            <Card
+              style={{
+                marginBottom: 3,
+                padding: '3px auto',
+              }}
+            >
+              {/* select/unselect all tables in a collection */}
+              <Checkbox
+                // checked when all tables are selected
+                checked={
+                  tablesSelectedNumber == tablesTotalLength
+                }
+                // indeterminate checked some tables are selected
+                indeterminate={
+                  tablesSelectedNumber > 0 &&
+                  tablesSelectedNumber < tablesTotalLength
+                }
+                classes={{
+                  indeterminate: classes.checkBoxIntermediateSelected,
+                }}
+                inputProps={{ 'aria-label': 'primary checkbox' }}
+                onClick={
+                  () => {
+                    tablesSelectedNumber < tablesTotalLength?
+                    tablesSelectAll()
+                    : tablesUnselectAll()
+                  }
+                }
+              />
+
             </Card>
 
             {/* Search List */}
@@ -640,13 +681,7 @@ export function CollectionView({
               </div>
             </Card>
 
-            <Card className={classes.titlesSidePanel} >
-              <div>Table Actions</div>
-            </Card>
-
-            <Card style={{padding:10}}>
-
-              {
+            {
               allowEdit && (
               <Card style={{padding:10, fontWeight:"bold", marginTop:5, marginBottom:5, textAlign:"center"}}>
                 <div className={classes.buttonHolder} style={{float:"right"}}>
@@ -657,11 +692,16 @@ export function CollectionView({
                   > Save Changes <SaveIcon style={{marginLeft:5}} /> </Button>
                 </div>
               </Card>)
-              }
-              <hr/>
+            }
+
+            <Card className={classes.titlesSidePanel} >
+              <div>Table Actions</div>
+            </Card>
+
+            <Card style={{padding:10}}>
 
               {/* Table selection */}
-              <ButtonGroup size="small" color="primary" aria-label="outlined primary button group">
+              {/* <ButtonGroup size="small" color="primary" aria-label="outlined primary button group">
                 <Button
                   disabled={ tablesSelectedNumber == 0 }
                   onClick={tablesUnselectAll}
@@ -678,7 +718,7 @@ export function CollectionView({
                   Select All Tables</Button>
               </ButtonGroup>
 
-              <hr/>
+              <hr/> */}
 
               {
                 // File Uploader if allowed
@@ -696,181 +736,182 @@ export function CollectionView({
               }
 
               {
-                // Move tables if allowed
-                allowEdit && (
-                <div className={classes.buttonHolder}>
-                  <Button
-                    variant="contained"
-                    disabled={ tablesSelectedNumber == 0 }
-                    onClick={() => { setMoveDialogOpen(true); }}
-                  >
-                    Move Tables <OpenInNewIcon style={{marginLeft:5}}/>
-                  </Button>
-                </div>)}
-
-                <Dialog
-                  aria-labelledby="customized-dialog-title"
-                  open={moveDialogOpen}
-                  onClose={ () => setMoveDialogOpen(false) }
+              // Move tables if allowed
+              allowEdit && (
+              <div className={classes.buttonHolder}>
+                <Button
+                  variant="contained"
+                  disabled={ tablesSelectedNumber == 0 }
+                  onClick={() => { setMoveDialogOpen(true); }}
                 >
-                  <DialogTitle id="customized-dialog-title" >
-                    Move Tables to Target Collection
-                  </DialogTitle>
-                  <DialogContent>
-                    <Select
-                      labelId="demo-simple-select-helper-label"
-                      id="demo-simple-select-helper"
-                      displayEmpty
-                      value={targetCollectionID}
-                      onChange={async (event) => {
-                        // Check if target collection already has tables
-                        const newTargetCollectionID = event.target.value
-                        setTargetCollectionID(newTargetCollectionID)
-                        // filter already checked
-                        const tablesNotCheckedAtTargetCollection = Object.entries(checkedTables).filter(
+                  Move Tables <OpenInNewIcon style={{marginLeft:5}}/>
+                </Button>
+              </div>)}
+
+              <Dialog
+                aria-labelledby="customized-dialog-title"
+                open={moveDialogOpen}
+                onClose={ () => setMoveDialogOpen(false) }
+              >
+                <DialogTitle id="customized-dialog-title" >
+                  Move Tables to Target Collection
+                </DialogTitle>
+                <DialogContent>
+                  <Select
+                    labelId="demo-simple-select-helper-label"
+                    id="demo-simple-select-helper"
+                    displayEmpty
+                    value={targetCollectionID}
+                    onChange={async (event) => {
+                      // Check if target collection already has tables
+                      const newTargetCollectionID = event.target.value
+                      setTargetCollectionID(newTargetCollectionID)
+                      // filter already checked
+                      const tablesNotCheckedAtTargetCollection = Object.entries(checkedTables).filter(
+                        table => {
+                          const [key, value] = table;
+                          return newTargetCollectionID in value == false
+                      }).map(table => table[0])
+                      // ask server about tables not checked
+                      if (tablesNotCheckedAtTargetCollection.length > 0) {
+                        const tablesCheckedResponce = await docidCheck(
+                          tablesNotCheckedAtTargetCollection,
+                          newTargetCollectionID
+                        )
+                        // Add found to checked
+                        const present = tablesCheckedResponce.data.map(
                           table => {
-                            const [key, value] = table;
-                            return newTargetCollectionID in value == false
-                        }).map(table => table[0])
-                        // ask server about tables not checked
-                        if (tablesNotCheckedAtTargetCollection.length > 0) {
-                          const tablesCheckedResponce = await docidCheck(
-                            tablesNotCheckedAtTargetCollection,
-                            newTargetCollectionID
-                          )
-                          // Add found to checked
-                          const present = tablesCheckedResponce.data.map(
-                            table => {
-                              const [key, value] = Object.entries(table)[0]
-                              if (value == 'found') {
-                                checkedTables[key][newTargetCollectionID] = true
-                                return
-                              }
-                              checkedTables[key][newTargetCollectionID] = false
+                            const [key, value] = Object.entries(table)[0]
+                            if (value == 'found') {
+                              checkedTables[key][newTargetCollectionID] = true
+                              return
+                            }
+                            checkedTables[key][newTargetCollectionID] = false
+                        })
+                      }
+                      const tablesAlreadyAtTargetCollection = Object.entries(checkedTables).filter(
+                        table => {
+                          const [key, value] = table;
+                          return newTargetCollectionID in value && value[newTargetCollectionID] == true
+                      })
+                      // Show warning of tables already present at target collection
+                      if (tablesAlreadyAtTargetCollection.length == 0) {
+                        return setMoveDialogWarningText('')
+                      }
+
+                      let warningMessage = (<>
+                        <div>
+                        {
+                          tablesAlreadyAtTargetCollection.length == 1 ? 'File ' : 'Files '
+                        } already present in collecion {newTargetCollectionID}:
+                        </div>
+                        {
+                          tablesAlreadyAtTargetCollection.map((table, index) => {
+                            return (index == 0 ? '': ', ') + table[0]
                           })
                         }
-                        const tablesAlreadyAtTargetCollection = Object.entries(checkedTables).filter(
-                          table => {
-                            const [key, value] = table;
-                            return newTargetCollectionID in value && value[newTargetCollectionID] == true
-                        })
-                        // Show warning of tables already present at target collection
-                        if (tablesAlreadyAtTargetCollection.length == 0) {
-                          return setMoveDialogWarningText('')
+                      </>)
+                      setMoveDialogWarningText(warningMessage)
+                    }}
+                    style={{width:"100%"}}
+                  >
+                    <MenuItem value="" disabled>
+                      Select destination collection
+                    </MenuItem>
+                    {
+                    availableCollections && (
+                      availableCollections.map( (coll, j) => {
+                        if (
+                          // Is moving to itself? or
+                          // Is not the owner of the collection?
+                          coll.collection_id == collection_id ||
+                          coll.owner_username != loginState.username
+                        ) {
+                          return null
                         }
 
-                        let warningMessage = (<>
-                          <div>
-                          {
-                            tablesAlreadyAtTargetCollection.length == 1 ? 'File ' : 'Files '
-                          } already present in collecion {newTargetCollectionID}:
-                          </div>
-                          {
-                            tablesAlreadyAtTargetCollection.map((table, index) => {
-                              return (index == 0 ? '': ', ') + table[0]
-                            })
-                          }
-                        </>)
-                        setMoveDialogWarningText(warningMessage)
-                      }}
-                      style={{width:"100%"}}
-                    >
-                      <MenuItem value="" disabled>
-                        Select destination collection
-                      </MenuItem>
-                      {
-                      availableCollections && (
-                        availableCollections.map( (coll, j) => {
-                          if (
-                            // Is moving to itself? or
-                            // Is not the owner of the collection?
-                            coll.collection_id == collection_id ||
-                            coll.owner_username != loginState.username
-                          ) {
-                            return null
-                          }
-
-                          return (
-                            <MenuItem key={j} value={coll.collection_id}>
-                              <SearchResult
-                                text={`${coll.collection_id} -- ${coll.title}`}
-                                type={'collection'}
-                              />
-                            </MenuItem>)
-                        }))
-                      }
-                    </Select>
-                    <div style={{
-                      color:"red",
-                      marginTop:5,
-                      marginBottom:5,
-                    }}>
-                      {/* Show move tables warning messages */}
-                      {moveDialogWarningText}
-                    </div>
-                  </DialogContent>
-                  <DialogActions>
-                    <Button
-                      disableFocusRipple={true}
-                      className={classes.acceptButton}
-                      onClick={()=>{showMoveDialog(true);}}
-                    > Accept </Button>
-                    <Button
-                      className={classes.cancelButton}
-                      onClick={()=>{
-                        setTargetCollectionID('');
-                        setMoveDialogWarningText('')
-                        setMoveDialogOpen(false);
-                      }}
-                    >Cancel </Button>
-                  </DialogActions>
-
-                  <ConfirmationDialog
-                    title={"Move Tables"}
-                    accept_action={
-                      () => {
-                        moveTables(checkedTables, targetCollectionID);
-                        setMoveDialogOpen(false);
-                        setCheckedTables({});
-                        setTablesSelectedNumber(0);
-                        setTargetCollectionID('');
-                        setMoveDialogWarningText('')
-                        showMoveDialog(false);
-                      }
+                        return (
+                          <MenuItem key={j} value={coll.collection_id}>
+                            <SearchResult
+                              text={`${coll.collection_id} -- ${coll.title}`}
+                              type={'collection'}
+                            />
+                          </MenuItem>)
+                      }))
                     }
-                    cancel_action={ () => {showMoveDialog(false);} }
-                    open={moveDialog}
-                  />
-                </Dialog>
-
-                {
-                // Delete tables if allowed
-                allowEdit && (
-                <div className={classes.buttonHolder}>
+                  </Select>
+                  <div style={{
+                    color:"red",
+                    marginTop:5,
+                    marginBottom:5,
+                  }}>
+                    {/* Show move tables warning messages */}
+                    {moveDialogWarningText}
+                  </div>
+                </DialogContent>
+                <DialogActions>
                   <Button
-                    variant="contained"
-                    disabled = { tablesSelectedNumber == 0 }
-                    onClick={ () => {showDeleteDialog(true)}}
-                    style={{backgroundColor:"#ff8282"}}
-                  > Delete Tables <DeleteIcon style={{marginLeft:5}} />
-                  </Button>
-
-                  <ConfirmationDialog
-                    style={{
-                      width: 250,
+                    disableFocusRipple={true}
+                    className={classes.acceptButton}
+                    onClick={()=>{showMoveDialog(true);}}
+                  > Accept </Button>
+                  <Button
+                    className={classes.cancelButton}
+                    onClick={()=>{
+                      setTargetCollectionID('');
+                      setMoveDialogWarningText('')
+                      setMoveDialogOpen(false);
                     }}
-                    title={"Delete Tables"}
-                    accept_action={ () => {
-                      removeTables(checkedTables, prepareCollectionData());
-                      showDeleteDialog(false);
+                  >Cancel </Button>
+                </DialogActions>
+
+                <ConfirmationDialog
+                  title={"Move Tables"}
+                  accept_action={
+                    () => {
+                      moveTables(checkedTables, targetCollectionID);
+                      setMoveDialogOpen(false);
                       setCheckedTables({});
                       setTablesSelectedNumber(0);
-                    }}
-                    cancel_action={ () => showDeleteDialog(false) }
-                    open={deleteDialog}
-                  />
-                </div>)
-                }
+                      setTargetCollectionID('');
+                      setMoveDialogWarningText('')
+                      showMoveDialog(false);
+                    }
+                  }
+                  cancel_action={ () => {showMoveDialog(false);} }
+                  open={moveDialog}
+                />
+              </Dialog>
+
+              {
+              // Delete tables if allowed
+              allowEdit && (
+              <div className={classes.buttonHolder}>
+                <Button
+                  variant="contained"
+                  disabled = { tablesSelectedNumber == 0 }
+                  onClick={ () => {showDeleteDialog(true)}}
+                  style={{backgroundColor:"#ff8282"}}
+                > Delete Tables <DeleteIcon style={{marginLeft:5}} />
+                </Button>
+
+                <ConfirmationDialog
+                  style={{
+                    width: 250,
+                  }}
+                  title={"Delete Tables"}
+                  accept_action={ () => {
+                    removeTables(checkedTables, prepareCollectionData());
+                    showDeleteDialog(false);
+                    setCheckedTables({});
+                    setTablesSelectedNumber(0);
+                  }}
+                  cancel_action={ () => showDeleteDialog(false) }
+                  open={deleteDialog}
+                />
+              </div>)
+              }
+
             </Card>
 
             <Card className={classes.titlesSidePanel} >
