@@ -206,16 +206,38 @@ export function* moveCollectionTables ( payload ) {
       yield put( yield updateCollectionAction({
         title : '', collection_id : '', description: '', owner_username : '', tables : []
       }) );
+      return {}
+    }
+    if ( response.status == 'FAIL' ) {
+      yield put( yield issueAlertAction({ open: true, message: response.payload, isError: true }))
+      return {}
+    }
+
+    if (response.data.moved && response.data.moved.length == 0) {
+      yield put( yield issueAlertAction({ open: true, message: 'Tables were not Moved', isError: true }))
+      return {}
+    }
+    const movedTables = response.data.moved
+
+    // Remove moved tables from redux store collection
+    let filteredTables
+
+    // Check if it is a table id
+    // Is it a number?
+    if (/^\d+$/.test(movedTables[0]) == true) {
+      filteredTables = collectionState.tables.filter(table => {
+        return movedTables.includes(table.tid) == false
+      })
     } else {
-      // Remove moved tables
-      const filteredTables = collectionState.tables.filter(table => {
+      filteredTables = collectionState.tables.filter(table => {
         const {docid, page} = table
         const tableText = docid+'_'+page
-        return response.data.moved.includes(tableText) == false
+        return movedTables.includes(tableText) == false
       })
-      yield put( yield updateCollectionTablesAction(filteredTables) );
-      yield put( yield issueAlertAction({ open: true, message: 'Collection Tables Moved', isError: false }))
     }
+
+    yield put( yield updateCollectionTablesAction(filteredTables) );
+    yield put( yield issueAlertAction({ open: true, message: 'Collection Tables Moved', isError: false }))
   } catch (err) {
     console.log(err)
     yield put( yield updateCollectionAction({
