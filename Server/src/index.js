@@ -984,6 +984,15 @@ const docidListCheckIfInTargetCollection = (list, collectionId) => {
   );
 }
 
+const tableTidListCheckIfInTargetCollection = async (list, collectionId) => {
+  let tables = await Promise.all(list.map( tableTid => dbDriver.tableGet(tableTid) ))
+  return Promise.all(tables.map(table => dbDriver.tableGet(
+    table.docid,
+    table.page,
+    collectionId,
+  )))
+}
+
 app.post(CONFIG.api_base_url+'/tables',
   experessJwt({
     secret: publickey,
@@ -1086,6 +1095,14 @@ app.post(CONFIG.api_base_url+'/tables',
         res.json({status: 'FAIL', payload: 'do not have permissions on collection'})
         return
       }
+
+      // Check if it is a table id
+      // Is it a number?
+      if (/^\d+$/.test(tablesList[0]) == true) {
+        result = await dbDriver.tablesRemoveByTid(tablesList);
+        break;
+      }
+
       result = await dbDriver.tablesRemove(tablesList, collection_id);
       break;
     case 'move':
@@ -1093,17 +1110,28 @@ app.post(CONFIG.api_base_url+'/tables',
         res.json({status: 'FAIL', payload: 'do not have permissions on destination'})
         return
       }
-      // check if table exist at collection
-      result = await docidListCheckIfInTargetCollection(tablesList, targetCollectionID);
 
-      const payload = result.reduce(function (prev, table, index) {
+      const tablesFoundAtCollectionReducer = (prev, table, index) => {
         typeof table == 'string' && table == 'not found'?
           prev.moved.push(tablesList[index])
           : prev.existAtCollection.push(tablesList[index]);
         return prev;
-      }, {moved:[], existAtCollection:[]});
+      }
+      let payload
 
-      result = await dbDriver.tablesMove(payload.moved, collection_id, targetCollectionID);
+      // Check if it is a table id
+      // Is it a number?
+      if (/^\d+$/.test(tablesList[0]) == true) {
+        result = await tableTidListCheckIfInTargetCollection(tablesList, targetCollectionID);
+        payload = result.reduce(tablesFoundAtCollectionReducer, {moved:[], existAtCollection:[]});
+        result = await dbDriver.tablesMoveByTid(payload.moved, collection_id, targetCollectionID);
+      } else {
+        // check if table exist at collection
+        result = await docidListCheckIfInTargetCollection(tablesList, targetCollectionID);
+        payload = result.reduce(tablesFoundAtCollectionReducer, {moved:[], existAtCollection:[]});
+        result = await dbDriver.tablesMove(payload.moved, collection_id, targetCollectionID);
+      }
+
       return res.json({
         status: 'success',
         data: payload,
