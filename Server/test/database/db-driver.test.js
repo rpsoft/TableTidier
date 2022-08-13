@@ -129,7 +129,7 @@ describe('dbDriver', () => {
       const page = 1
       const user = james.email
       const collection_id = 1
-      const file_path = 'filePath'
+      const file_path = `${docid}_${page}.html`
       const result = await dbDriver.tableCreate(docid, page, user, collection_id, file_path);
       expect(result).toEqual('done');
     });
@@ -179,18 +179,28 @@ describe('dbDriver', () => {
       const tables = [docidPageValid]
       let result = await dbDriver.tablesRemove(tables, collection_id);
       expect(result).toEqual('done');
+
       try {
-        // remove file from deleted documentes
-        result = await fs.rm(
+        // remove files from deleted documents
+        const files = await fs.readdir(
           path.join(
             CONFIG_PATH.tables_folder_deleted,
-            'deleted',
-            docidPageValid + '.html'
-          ))
+            'deleted'
+        ))
+
+        result = await Promise.all(
+          // delete documents only with valid docid
+          files.filter(el => el.includes(`&${docidPageValid}.html`))
+            .map(filename => fs.rm(
+              path.join(
+                CONFIG_PATH.tables_folder_deleted,
+                'deleted',
+                filename
+              ))
+        ))
       } catch (err) {
         throw err
       }
-      expect(result).toEqual(undefined);
     });
 
     // notesUpdate
