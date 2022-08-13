@@ -88,6 +88,30 @@ describe('dbDriver', () => {
     });
   });
   describe('Table', () => {
+    afterAll(async () => {
+      try {
+        // remove all files from deleted documents
+        const files = await fs.readdir(
+          path.join(
+            CONFIG_PATH.tables_folder_deleted,
+            'deleted'
+        ))
+
+        result = await Promise.all(
+          // delete documents only with valid docid
+          files.filter(el => /&\d+_1.html$/.test(el) == true)
+            .map(filename => fs.rm(
+              path.join(
+                CONFIG_PATH.tables_folder_deleted,
+                'deleted',
+                filename
+              ))
+        ))
+      } catch (err) {
+        throw err
+      }
+    });
+
     const docidValid = '555555555'
     // Get tid - tidGet
     test('Get table tid tidGet invalid docid', async () => {
@@ -179,28 +203,6 @@ describe('dbDriver', () => {
       const tables = [docidPageValid]
       let result = await dbDriver.tablesRemove(tables, collection_id);
       expect(result).toEqual('done');
-
-      try {
-        // remove files from deleted documents
-        const files = await fs.readdir(
-          path.join(
-            CONFIG_PATH.tables_folder_deleted,
-            'deleted'
-        ))
-
-        result = await Promise.all(
-          // delete documents only with valid docid
-          files.filter(el => el.includes(`&${docidPageValid}.html`))
-            .map(filename => fs.rm(
-              path.join(
-                CONFIG_PATH.tables_folder_deleted,
-                'deleted',
-                filename
-              ))
-        ))
-      } catch (err) {
-        throw err
-      }
     });
 
     // notesUpdate
