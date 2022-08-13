@@ -112,7 +112,25 @@ describe('dbDriver', () => {
       }
     });
 
+    const tableCreateFile = async (filename, collectionId) => {
+      // Create a test file using equal docid of create table test
+      try {
+        const result = await fs.writeFile(
+          path.join(
+            CONFIG_PATH.tables_folder,
+            collectionId.toString(),
+            filename
+          ),
+          'TEST FILE. PLEASE DELETE ME IF YOU READ THIS. CAN BE REMOVED!',
+        )
+        return result
+      } catch (err) {
+        throw err
+      }
+    }
+
     const docidValid = '555555555'
+    const docidValid2 = '222222222'
     // Get tid - tidGet
     test('Get table tid tidGet invalid docid', async () => {
       const docid = '7777777'
@@ -154,7 +172,10 @@ describe('dbDriver', () => {
       const user = james.email
       const collection_id = 1
       const file_path = `${docid}_${page}.html`
-      const result = await dbDriver.tableCreate(docid, page, user, collection_id, file_path);
+      let result = await dbDriver.tableCreate(docid, page, user, collection_id, file_path);
+      expect(result).toEqual('done');
+      // Create another file to use with tablesMoveByTid
+      result = await dbDriver.tableCreate(docidValid2, page, user, collection_id, `${docidValid2}_${page}.html`);
       expect(result).toEqual('done');
     });
 
@@ -165,26 +186,32 @@ describe('dbDriver', () => {
       const result = await dbDriver.tablesMove(tables, collection_id);
       expect(result).toEqual('Param docid= or page=undefined not valid at index 0');
     });
-    test('Move tables from collection 1 to collection 2', async () => {
+    test('Move tables from collection 1 to collection 2, using docid and page', async () => {
       const page = 1
       const docidPageValid = docidValid + '_' + page
       const collection_id = 1
       // Create a test file using equal docid of create table test
-      try {
-        await fs.writeFile(
-          path.join(
-            CONFIG_PATH.tables_folder,
-            collection_id.toString(),
-            docidPageValid + '.html'
-          ),
-          'TEST FILE. PLEASE DELETE ME IF YOU READ THIS. CAN BE REMOVED!',
-        )
-      } catch (err) {
-        throw err
-      }
+      await tableCreateFile(docidPageValid + '.html', collection_id)
+
       const tables = [docidPageValid]
       // Move tables(files) from collection 1 to collection 2
       const result = await dbDriver.tablesMove(tables, collection_id, 2);
+      expect(result).toEqual('done');
+    });
+
+    test('Move tables from collection 1 to collection 2, using table id (tid)', async () => {
+      const page = 1
+      const docidPageValid = docidValid2 + '_' + page
+      const collection_id = 1
+      // Create a test file using equal docid of create table test
+      await tableCreateFile(docidPageValid + '.html', collection_id)
+
+      // get table tid
+      const table = await dbDriver.tableGet(docidValid2, page, collection_id);
+
+      const tables = [table.tid]
+      // Move tables(files) from collection 1 to collection 2
+      const result = await dbDriver.tablesMoveByTid(tables, collection_id, 2);
       expect(result).toEqual('done');
     });
 
@@ -195,13 +222,24 @@ describe('dbDriver', () => {
       const result = await dbDriver.tablesRemove(tables, collection_id);
       expect(result).toEqual('Param docid= or page=undefined not valid at index 0');
     });
-    test('Remove tables', async () => {
+    test('Remove tables, using docid and page', async () => {
       const page = 1
       const docidPageValid = docidValid + '_' + page
       const collection_id = 2
 
       const tables = [docidPageValid]
       let result = await dbDriver.tablesRemove(tables, collection_id);
+      expect(result).toEqual('done');
+    });
+    test('Remove tables, using table id (tid)', async () => {
+      const page = 1
+      const docidPageValid = docidValid2 + '_' + page
+      const collection_id = 2
+      // get table tid
+      const table = await dbDriver.tableGet(docidValid2, page, collection_id);
+
+      const tables = [table.tid]
+      let result = await dbDriver.tablesRemoveByTid(tables, collection_id);
       expect(result).toEqual('done');
     });
 
