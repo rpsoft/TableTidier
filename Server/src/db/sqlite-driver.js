@@ -591,13 +591,11 @@ function driver(config) {
       for (const tid of tables) {
         const movedTable = await queryGet(
           `UPDATE "table"
-          SET collection_id=$4
-          WHERE docid = $1 AND page = $2 AND collection_id = $3 returning *;`,
+          SET collection_id=$2
+          WHERE tid = $1 returning *;`,
           {
-            $1: docid,
-            $2: page,
-            $3: collection_id,
-            $4: target_collection_id
+            $1: tid,
+            $2: target_collection_id,
           })
   
         const {
