@@ -5,8 +5,13 @@ const {
 } = require('pg')
 const path = require('path');
 const {
-  moveFileToCollection,
+  fileToCollectionMove,
+  fileFromCollectionDelete,
 } = require('../utils/files')
+
+const {
+  tablesDocidPageGet,
+} = require('./utils-db')
 
 function driver(config) {
   // :-) Check config has valid fields
@@ -134,7 +139,6 @@ function driver(config) {
       //
       // result.rows = filtered_rows
 
-        // debugger
       return result.rows
     },
 
@@ -498,15 +502,8 @@ function driver(config) {
 
       let tablesDocidPage
       try {
-        tablesDocidPage = tables.map( (tab, index) => {
-          const [docid, page] = tab.split("_");
-          // if invalid docid or page throw err
-          if (!docid || !page) {
-            throw `Param docid=${docid} or page=${page} not valid at index ${index}`
-          }
-          return {docid, page}
-        })
-      } catch(err) {
+        tablesDocidPage = tablesDocidPageGet(tables)
+      } catch (err) {
         return err
       }
 
@@ -523,9 +520,11 @@ function driver(config) {
   
         const filename = `${docid}_${page}.html`;
         try{
-          await moveFileToCollection(
+          await fileToCollectionMove(
             {
-              originalname: filename,
+              filename,
+              collIdCurrent: collection_id.toString(),
+              // current path
               path: path.join(
                 collection_id.toString(),
                 filename
@@ -538,7 +537,44 @@ function driver(config) {
           return errorText
         }
       }
-  
+
+      return 'done'
+    },
+
+    tablesMoveByTid: async (tables, collection_id, target_collection_id) => {
+      if (Array.isArray(tables) == false) return 'tables not valid, array expected'
+      if (tables.length == 0) return 'tables empty'
+
+      for (const tid of tables) {
+        const movedTable = await query(
+          `UPDATE public."table"
+           SET collection_id=$2
+           WHERE tid = $1 returning *;`,
+          [tid, target_collection_id])
+
+        const {
+          file_path: filename,
+        } = movedTable.rows[0]
+
+        try{
+          await fileToCollectionMove(
+            {
+              filename,
+              collIdCurrent: collection_id.toString(),
+              // current path
+              path: path.join(
+                collection_id.toString(),
+                filename
+              )
+            },
+            target_collection_id
+          )
+        } catch (err){
+          const errorText = `MOVE FAil: ` + err + JSON.stringify(err)
+          return errorText
+        }
+      }
+
       return 'done'
     },
 
@@ -548,17 +584,8 @@ function driver(config) {
 
       let tablesDocidPage
       try {
-        if (!fromSelect) {
-          tablesDocidPage = tables.map( (tab, index) => {
-            const [docid, page] = tab.split("_");
-            // if invalid docid or page throw err
-            if (!docid || !page) {
-              throw `Param docid=${docid} or page=${page} not valid at index ${index}`
-            }
-            return {docid, page}
-          })
-        }
-      } catch(err) {
+        tablesDocidPage = tablesDocidPageGet(tables)
+      } catch (err) {
         return err
       }
   
@@ -567,21 +594,66 @@ function driver(config) {
           docid,
           page,
         } = table
-        await query(
+        const tableDeleted = await query(
           `DELETE FROM public."table"
-          WHERE docid = $1 AND page = $2 AND collection_id = $3;`,
+          WHERE docid = $1 AND page = $2 AND collection_id = $3 returning *;`,
           [docid, page, collection_id]
         )
-  
-        const filename = `${docid}_${page}.html`;
+
+        const {
+          file_path: filename,
+          tid,
+        } = tableDeleted.rows[0]
+
         try{
-          await moveFileToCollection(
+          await fileFromCollectionDelete(
             {
-              originalname: filename,
+              filename,
+              collIdCurrent: collection_id.toString(),
+              // current path
               path: path.join(
                 collection_id.toString(),
                 filename
-              ) 
+              ),
+              tid,
+            },
+            'deleted' 
+          )
+        } catch (err){
+          const errorText = `REMOVE FAil: ` + err + JSON.stringify(err)
+          return errorText
+        }
+      }
+      return 'done'
+    },
+
+    tablesRemoveByTid: async (tables) => {
+      if (Array.isArray(tables) == false) return 'tables not valid, array expected'
+      if (tables.length == 0) return 'tables empty'
+
+      for ( const tid of tables ) {
+        const tableDeleted = await query(
+          `DELETE FROM public."table"
+          WHERE tid = $1 returning *;`,
+          [tid]
+        )
+
+        const {
+          file_path: filename,
+          collection_id,
+        } = tableDeleted.rows[0]
+
+        try{
+          await fileFromCollectionDelete(
+            {
+              filename,
+              collIdCurrent: collection_id.toString(),
+              // current path
+              path: path.join(
+                collection_id.toString(),
+                filename
+              ),
+              tid,
             },
             'deleted' 
           )
