@@ -65,7 +65,7 @@ const folderCreateIfNotExists = foldername => {
       filename,
     )
 
-    await fs.rename(
+    return fs.rename(
       fileCurrentPath,
       fileNewPath
     );
@@ -73,17 +73,18 @@ const folderCreateIfNotExists = foldername => {
 
   try {
     // Move
-    foldersRoot.forEach(async (pathRoot) => {
-      // Check if file exist
-      const fileExists = await fs.stat(path.join(
+    return Promise.all(foldersRoot.map(async (pathRoot) => {
+      const fileWithPath = path.join(
         pathRoot,
         filedata.path
-      )).then(() => true, () => false)
+      )
+      // Check if file exist
+      const fileExists = await fs.stat(fileWithPath).then(() => true, () => false)
       
-      if (fileExists == false) return
+      if (fileExists == false) return 'file not found ' + fileWithPath
 
-      tableMove(pathRoot)
-    })
+      return tableMove(pathRoot)
+    }))
   } catch (err) {
     throw err
   }
@@ -126,7 +127,7 @@ exports.fileFromCollectionDelete = async (filedata) => {
       tid + (pathRoot == tables_folder_override? '&overwrite&': '&') + filename,
     )
 
-    await fs.rename(
+    return fs.rename(
       fileCurrentPath,
       fileNewPath
     );
@@ -134,19 +135,19 @@ exports.fileFromCollectionDelete = async (filedata) => {
 
   try {
     // Move
-    foldersRoot.forEach(async (pathRoot) => {
-      // Check if file exist
-      const fileExists = await fs.stat(path.join(
+    return Promise.all(foldersRoot.map(async (pathRoot) => {
+      const fileWithPath = path.join(
         pathRoot,
         filedata.path
-      )).then(() => true, () => false)
+      )
+      // Check if file exist
+      const fileExists = await fs.stat(fileWithPath).then(() => true, () => false)
       
-      if (fileExists == false) return
+      if (fileExists == false) return 'file not found ' + fileWithPath
 
-      tableRemove(pathRoot)
-    })
+      return tableRemove(pathRoot)
+    }))
   } catch (err) {
-    debugger
     throw err
   }
 }
