@@ -4,7 +4,13 @@
  *
  */
 
- import React, { useEffect, memo, useState, useRef } from 'react';
+ import React, {
+  useEffect,
+  memo,
+  useState,
+  useRef,
+  useCallback,
+} from 'react';
  import PropTypes from 'prop-types';
  import {
   connect,
@@ -37,6 +43,7 @@ import {
   useNavigate,
 } from "react-router-dom";
 
+import './colection-view.css';
 import './pagination.css';
 
 // import { useLocation } from 'react-router-dom';
@@ -73,6 +80,8 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import SaveIcon from '@material-ui/icons/Save';
 import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
+import ExpandLessIcon from '@material-ui/icons/ExpandLess';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 import {
   GetApp as DownloadIcon,
@@ -165,7 +174,6 @@ export function CollectionView({
   moveTables,
   downloadData,
   // mapStateToProps
-  collectionView,
   locationData,
   loginState,
 }) {
@@ -185,8 +193,13 @@ export function CollectionView({
       state.app.status
       : null
   )
+  const collectionView = useSelector(
+    state => 'collectionView' in state?
+      state.collectionView
+      : {tables: []}
+  )
 
- // console.log(collectionView)
+  // console.log(collectionView)
   const parsed = queryString.parse(location.search);
 
   const [ editMode, setEditMode ] = useState ( false )
@@ -202,11 +215,7 @@ export function CollectionView({
   const [ tables, setTables ] = useState(collectionView.tables || []);
   const [ checkedTables, setCheckedTables ] = useState({});
   const [ tablesSelectedNumber, setTablesSelectedNumber ] = useState(0);
-  const tablesTotalLength = 'tables' in collectionView &&
-    Array.isArray(collectionView.tables)?
-      collectionView.tables.length
-      : 0;
-
+  const tablesTotalLength = tables?.length
 
   const [ allowEdit, setAllowEdit ] = useState(false);
 
@@ -229,6 +238,7 @@ export function CollectionView({
   // Hide search area
   const [height, setHeight] = useState(0)
   const searchAreaRef = useRef(null)
+  const [ collectionListSortBy, setCollectionListSortBy ] = useState('alpha');
 
   useEffect(() => {
     // check if searchAreaRef is mounted
@@ -247,6 +257,9 @@ export function CollectionView({
   }, [loginState.username]);
 
   useEffect(() => {
+    if ('title' in collectionView == false) {
+      return
+    }
     setTitle(collectionView.title)
     setCollection_id(collectionView.collection_id)
     setDescription(collectionView.description)
@@ -255,8 +268,8 @@ export function CollectionView({
     setAvailableCollections(collectionView.collectionsList)
     setEditMode(collectionView.collection_id == 'new' ? true : false)
     setCheckedTables({})
-    setVisibility(collectionView.visibility)
-    setCompletion(collectionView.completion)
+    setVisibility(collectionView.visibility || '')
+    setCompletion(collectionView.completion || '')
     if (collectionView.permissions){
       setAllowEdit(collectionView.permissions.write)
     }
@@ -264,24 +277,52 @@ export function CollectionView({
 
   const prepareCollectionData = () => {
     const collectionData = {
-      title : title,
-      collection_id : collection_id ,
-      description : description ,
-      owner_username : owner_username ,
-      tables : tables ,
-      visibility : visibility,
-      completion : completion,
+      title: title,
+      collection_id: collection_id,
+      description: description,
+      owner_username: owner_username,
+      tables: tables,
+      visibility: visibility,
+      completion: completion,
     }
     return collectionData
   }
 
+  // sort tables list from collection
+  const tablesSortByDocid = (type='alpha') => {
+    setTables([...tables].sort((a, b) => {
+      let nameA = a.docid.toUpperCase(); // ignore upper and lowercase
+      let nameB = b.docid.toUpperCase(); // ignore upper and lowercase
+      if (type.includes('tid') == true) {
+        nameA = a.tid
+        nameB = b.tid
+      }
+
+      if (type == 'alpha' || type.includes('min') == true) {
+        if (nameA < nameB) {
+          return -1;
+        } else if (nameA > nameB) {
+          return 1;
+        }
+        return 0;
+      }
+      if (nameA < nameB) {
+        return 1;
+      } else if (nameA > nameB) {
+        return -1;
+      }
+      return 0;
+    }))
+  }
+
   // tables select, cherry pick
-  const toggleCheckBox = (docid) => {
+  const toggleCheckBox = (tid, refDocidPage, ) => {
     const checkedTables_temp = structuredClone(checkedTables)
-    if ( docid in checkedTables_temp ) {
-      delete checkedTables_temp[docid]
+    if ( tid in checkedTables_temp ) {
+      delete checkedTables_temp[tid]
     } else {
-      checkedTables_temp[docid] = {
+      checkedTables_temp[tid] = {
+        ref: refDocidPage,
         checked: true,
       }
     }
@@ -298,23 +339,23 @@ export function CollectionView({
 
   // tables select all
   const tablesSelectAll = () => {
-    const checkedTables_temp = collectionView.tables.reduce((prev, table) => {
+    const checkedTables_temp = tables.reduce((prev, table) => {
       const {
         docid,
         page,
         tid,
       } = table
       
-      prev[docid+'_'+page] = {
+      prev[tid] = {
+        ref: docid+'_'+page,
         checked: true,
-        tid,
       }
       return prev
     }, {})
 
     setCheckedTables(checkedTables_temp)
     // Set number of tables selected
-    setTablesSelectedNumber(collectionView.tables.length)
+    setTablesSelectedNumber(tables.length)
   }
 
   const docidCheck = async (docidList, collection_id) => {
@@ -363,30 +404,35 @@ export function CollectionView({
 
   const Row = ({ index, style }) => {
     const {
-      docid,
-      page,
+      docid='',
+      page='',
       notes='',
       user='',
-    } = collectionView.tables[index]
-    
+      collection_id='',
+      tid=null,
+    } = tables[index]
+
     const table_key = docid+'_'+page
 
-    const url = `/table?docid=${docid}&page=${page}&collId=${collectionView.collection_id}`
-
-    return <div style={{...style, display: "flex", alignItems: "center"}}>
+    const url = `/table?docid=${docid}&page=${page}&collId=${collection_id}`
+    return (
+    <div
+      className='collectionListRow'
+      style={style}
+    >
       <Checkbox
-        checked={table_key in checkedTables}
-        onChange={() => {toggleCheckBox(table_key)}}
+        checked={tid in checkedTables}
+        onChange={() => {toggleCheckBox(tid, table_key)}}
         inputProps={{ 'aria-label': 'primary checkbox' }}
       />
       <span> -- </span>
       <Link to={url} className={classes.link}>
         <SearchResult
-          text={ table_key+' -- '+user+' -- '+notes }
+          text={ `${table_key} -- ${user} -- ${notes}` }
           type={"table"}
         />
       </Link>
-    </div>
+    </div>)
   }
         //
         // var downloadData = async (filename, columns, data) => {
@@ -566,25 +612,71 @@ export function CollectionView({
                   }
                 }
               />
-
+              <span className="collectionListHeaderTitleSelect">Sort By</span>
+              <FormControl className="collectionListHeaderSortByForm">
+                {/* <InputLabel id="sort-by-select-outlined-label">Sort By</InputLabel> */}
+                <Select
+                  // labelId="sort-by-select-outlined-label"
+                  id="sort-by-select"
+                  value={collectionListSortBy}
+                  onChange={(event)=>{
+                    const sortBy = event.target.value
+                    setCollectionListSortBy(sortBy)
+                    switch(sortBy) {
+                      case 'alpha':
+                        tablesSortByDocid('alpha')
+                        break
+                      case 'omega':
+                        tablesSortByDocid('omega')
+                        break
+                      case 'tid-min':
+                        tablesSortByDocid('tid-min')
+                        break
+                      case 'tid-max':
+                        tablesSortByDocid('tid-max')
+                        break
+                    }
+                  }}
+                  // label="Sort By"
+                  inputProps={{ 'aria-label': 'Without label' }}
+                  // variant={'filled'}
+                  variant="outlined"
+                >
+                  <MenuItem value={'alpha'}>docid <ExpandLessIcon/></MenuItem>
+                  <MenuItem value={'omega'}>docid <ExpandMoreIcon/></MenuItem>
+                  <MenuItem value={'tid-min'}>creation <ExpandLessIcon/></MenuItem>
+                  <MenuItem value={'tid-max'}>creation <ExpandMoreIcon/></MenuItem>
+                </Select>
+              </FormControl>
             </Card>
 
             {/* Search List */}
+            <React.StrictMode>
+
             <Card>
               <div
-                style={{minHeight:900, height: "70vh", backgroundColor:"white"}}
+                style={{
+                  minHeight: 900,
+                  height: '70vh',
+                  backgroundColor: 'white',
+                  overflowY: 'auto',
+                }}
                 ref={searchAreaRef}
               >
+                {
+                tables?.length > 0 &&
                 <FixedSizeList
                   height={height}
                   width={"100%"}
                   itemSize={50}
-                  itemCount={collectionView.tables ? collectionView.tables.length : 0}
+                  itemCount={tables && tables.length > 0 ? tables.length : 0}
                 >
                   {Row}
                 </FixedSizeList>
+                }
               </div>
             </Card>
+            </React.StrictMode>
 
           </Grid>
 
@@ -819,7 +911,7 @@ export function CollectionView({
                       Select destination collection
                     </MenuItem>
                     {
-                    availableCollections && (
+                      availableCollections && (
                       availableCollections.map( (coll, j) => {
                         if (
                           // Is moving to itself? or
@@ -852,6 +944,7 @@ export function CollectionView({
                 <DialogActions>
                   <Button
                     disableFocusRipple={true}
+                    disabled={targetCollectionID == ''}
                     className={classes.acceptButton}
                     onClick={()=>{showMoveDialog(true);}}
                   > Accept </Button>
@@ -958,7 +1051,6 @@ CollectionView.propTypes = {
 };
 
 const mapStateToProps = createStructuredSelector({
-  collectionView : makeSelectCollectionView(),
   locationData : makeSelectLocation(),
   loginState: makeSelectLogin(),
 });
