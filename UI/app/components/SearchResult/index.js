@@ -12,6 +12,8 @@ import {
   useNavigate,
 } from "react-router-dom";
 
+import './SearchResult.css';
+
 import { FormattedMessage } from 'react-intl';
 import messages from './messages';
 
@@ -35,43 +37,25 @@ function SearchResult({
   let navigate = useNavigate();
   return (
     <div
-      style={{
-        width: '100%',
-        marginBottom: 5,
-      }}
+      className='SearchResultContainer'
     >
       <Button
-        tooltip={"hello"}
-        style={{
-          // width:"100%",
-          textAlign:"left",
-          justifyContent:"left"
-        }}
+        tooltip={linkUrl}
         onClick={()=>
           linkUrl? navigate(linkUrl): null
         }
       >
-        { type == "table" ? <Table /> : <CollectionIcon /> }
+        { type == 'table' ? <Table /> : <CollectionIcon /> }
         <div
-          style={{
-            marginLeft: 5,
-            marginRight: 5,
-            color: 'blue',
-          }}
+          className='button-link'
         >{ text }</div>
       </Button>
       {
-        score ? <>
-          <div
-            style={{
-              // marginBottom: 5,
-              // color: 'blue',
-            }}
-          >
-            {selectedChunks.join(' ')}
-          </div>
-        </>
-        : null
+      score && <>
+        <div>
+          {selectedChunks.join(' ')}
+        </div>
+      </>
       }
     </div>
   );
