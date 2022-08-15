@@ -868,6 +868,7 @@ app.post(CONFIG.api_base_url+'/collections',
 
   switch (action) {
     case 'list':
+
       result = await dbDriver.collectionsList();
       result = result.filter(
         elm => collectionPermissions.read.includes(
@@ -878,6 +879,14 @@ app.post(CONFIG.api_base_url+'/collections',
       break;
 
     case 'get':
+      if (!collection_id == true) {
+        response = {
+          status: 'failed',
+          description: 'Collection id not valid',
+          collId: collection_id,
+        }
+        break;
+      }
       result = await dbDriver.collectionGet(collection_id);
 
       if (result == 'collection not found') {
