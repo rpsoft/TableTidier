@@ -10,6 +10,10 @@ import {
   updateCollectionTablesAction,
 } from './actions';
 
+import {
+  requestCollectionsListAction,
+} from '../Dashboard/actions';
+
 import appActions from '../App/actions';
 
 import makeSelectCollectionView, {  makeSelectCredentials } from './selectors';
@@ -274,7 +278,9 @@ export function* deleteCollection() {
       // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
     } else {
       yield put( yield issueAlertAction({ open: true, message: "Collection Deleted ", isError: false }))
-      // yield put( yield loadCollectionAction() );
+      // The UI will go to Dashboard so
+      // Update collection list after deleted collection
+      yield put( yield requestCollectionsListAction() );
     }
   } catch (err) {
     console.log(err)
