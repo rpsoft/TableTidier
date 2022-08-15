@@ -160,10 +160,13 @@ function driver(config) {
     collectionDelete: async function (collection_id) {
       try {
         let tables = await query(
-          `SELECT docid, page FROM public."table" WHERE collection_id = $1`,[collection_id]
-        )
+          `SELECT * FROM public."table" WHERE collection_id = $1`,[collection_id]
+        )        
         tables = tables.rows
-        await this.tablesRemove(tables, collection_id, true);
+        if (tables.length > 0) {
+          tables = tables.map(table => table.tid)
+          await this.tablesRemoveByTid(tables);
+        }
         await query(
           `DELETE FROM collection WHERE collection_id = $1`, [collection_id]
         )
