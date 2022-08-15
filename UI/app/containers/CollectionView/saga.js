@@ -274,7 +274,7 @@ export function* deleteCollection() {
       // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
     } else {
       yield put( yield issueAlertAction({ open: true, message: "Collection Deleted ", isError: false }))
-      yield put( yield loadCollectionAction() );
+      // yield put( yield loadCollectionAction() );
     }
   } catch (err) {
     console.log(err)
