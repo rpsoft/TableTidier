@@ -31,10 +31,11 @@ import messages from './messages';
 
 import { FixedSizeList } from 'react-window';
 
-import { loadCollectionAction, updateCollectionAction,
-         editCollectionAction, removeTablesAction,
-         moveTablesAction, deleteCollectionAction,
-         downloadDataAction } from './actions'
+import { 
+  loadCollectionAction, updateCollectionAction,
+  editCollectionAction, removeTablesAction,
+  moveTablesAction, deleteCollectionAction,
+  downloadDataAction } from './actions'
 
 import appActions from '../App/actions';
 
@@ -1018,21 +1019,21 @@ export function CollectionView({
                 <div className={classes.buttonHolder}>
                   <Button
                     variant="contained"
-                    onClick={ () => downloadData('results', tables.map( t => t.tid ) ) }
+                    onClick={ () => downloadData('results', Object.keys(checkedTables) ) }
                   > Data CSV <DownloadIcon/></Button>
                 </div>
 
                 <div className={classes.buttonHolder}>
                   <Button
                     variant="contained"
-                    onClick={ () => downloadData('metadata', tables.map( t => t.tid ) ) }
+                    onClick={ () => downloadData('metadata', Object.keys(checkedTables) ) }
                   > Metadata CSV <DownloadIcon/></Button>
                 </div>
 
                 <div className={classes.buttonHolder}>
                   <Button
                     variant="contained"
-                    onClick={ () => downloadData('json', tables.map( t => t.tid ) )}
+                    onClick={ () => downloadData('json', Object.keys(checkedTables) )}
                   > Data & Metadata JSON <DownloadIcon/></Button>
                 </div>
 
