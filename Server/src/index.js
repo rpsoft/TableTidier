@@ -791,9 +791,12 @@ const getResultsRefreshed = async ( tids ) => {
 
       // Check file exists
       const override_exists = await fs.stat(
-        path.join(tables_folder_override, entry.collection_id, entry.file_path)
-      )
-      .then(() => true, () => false)
+        path.join(
+          tables_folder_override,
+          entry.collection_id,
+          entry.file_path
+        )
+      ).then(() => true, () => false)
 
       const table_res = await getFileResults(
         entry.annotation,
@@ -811,6 +814,9 @@ const getResultsRefreshed = async ( tids ) => {
         // table_res,
         {
           tid: entry.tid,
+          doi: entry.doi || '',
+          pmid: entry.pmid || '',
+          url: entry.url || '',
           table_result: table_res
         },
       ]
@@ -951,26 +957,27 @@ app.post(CONFIG.api_base_url+'/collections',
       }
 
       // Download file
-      if ( target.includes('results') ){
-        // data csv
-        // ! :-) remove comments when ok with download csv
-        // const annotations = await dbDriver.annotationByIDGet(docid, page, collId)
-        // result = await dbDriver.annotationDataGet(tids)
-        // result = await dbDriver.resultsDataGet( tids );
-        result = await getResultsRefreshed( tids )
+      switch (target.toLowerCase()) {
+        case 'results':
+          // data csv
+          // ! :-) remove comments when ok with download csv
+          // const annotations = await dbDriver.annotationByIDGet(docid, page, collId)
+          // result = await dbDriver.annotationDataGet(tids)
+          // result = await dbDriver.resultsDataGet( tids );
+          result = await getResultsRefreshed( tids )
+          break;
+        case 'metadata':
+          // metadata csv
+          result = await dbDriver.metadataGet( tids );
+          break;
+        default:
+          // data & metadata json
+          // Default Action.
+          const result_res = await getResultsRefreshed( tids )
+          const result_met = await dbDriver.metadataGet( tids );
 
-      } else if ( target.includes('metadata') ) {
-        // metadata csv
-        // result = await dbDriver.metadataGet(tids)
-        result = await dbDriver.metadataGet( tids );
-      } else {
-        // data & metadata json
-        // Default Action.
-        const result_res = await getResultsRefreshed( tids )
-        const result_met = await dbDriver.metadataGet( tids );
-        // var result =
-
-        result = {data: result_res, metadata: result_met}
+          result = {data: result_res, metadata: result_met}
+          break;
       }
 
       response = {status: 'success', data: result}

@@ -113,6 +113,9 @@ function driver(config) {
           collection_id,
           file_path,
           "table".tid,
+          "table".doi,
+          "table".pmid,
+          "table".url,
           "annotations".annotation
         FROM 
           "table",
