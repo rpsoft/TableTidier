@@ -984,13 +984,25 @@ export function Annotator({
           <ListItem
             button
             onClick={ ()=> {
+              const {
+                tid,
+                docid,
+                page,
+                collection_id,
+                pmid,
+                doi,
+                url,
+              } = annotator.tableData.annotationData
               downloadFile(
                 {
                   // General info
-                  tid: annotator.tableData.annotationData.tid,
-                  docid: annotator.tableData.annotationData.docid,
-                  page: annotator.tableData.annotationData.page,
-                  collection_id: annotator.tableData.annotationData.collection_id,
+                  tid,
+                  docid,
+                  page,
+                  collection_id,
+                  pmid,
+                  doi,
+                  url,
                   // Data
                   tableResults: annotator.results,
                   metadata: annotator.metadata
@@ -1004,24 +1016,36 @@ export function Annotator({
             </ListItemIcon>
             <ListItemText
               style={{display:"inline", marginLeft:5}}
-              primary="Results & Metadata (.json)"
+              primary='Results & Metadata (.json)'
             />
           </ListItem>
 
           <ListItem
             button
             onClick={ ()=> {
+              const {
+                tid,
+                docid,
+                page,
+                collection_id,
+                pmid,
+                doi,
+                url,
+              } = annotator.tableData.annotationData
               downloadFile(
                 {
                   // General info
-                  tid: annotator.tableData.annotationData.tid,
-                  docid: annotator.tableData.annotationData.docid,
-                  page: annotator.tableData.annotationData.page,
-                  collection_id: annotator.tableData.annotationData.collection_id,
+                  tid,
+                  docid,
+                  page,
+                  collection_id,
+                  pmid,
+                  doi,
+                  url,
                   // Data
                   annotation: annotator.annotations,
                 },
-                fileNameRoot()+"_annotation"
+                fileNameRoot()+'_annotation'
               )
             }}
           >
