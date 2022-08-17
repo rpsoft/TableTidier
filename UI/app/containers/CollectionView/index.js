@@ -215,6 +215,7 @@ export function CollectionView({
   const [ owner_username, setOwner_username ] = useState();
   const [ tables, setTables ] = useState(collectionView.tables || []);
   const [ checkedTables, setCheckedTables ] = useState({});
+  const tableCheckedLastly = useRef(-1)
   const [ tablesSelectedNumber, setTablesSelectedNumber ] = useState(0);
   const tablesTotalLength = tables?.length
 
@@ -332,7 +333,27 @@ export function CollectionView({
     setTablesSelectedNumber(Object.keys(checkedTables_temp).length)
   }
 
+  // select a group of tables using shift key
+  const tablesCheckedByShift = (tablesSelected) => {
+    const checkedTables_temp = structuredClone(checkedTables)
+    tablesSelected.forEach(table => {
+      // is table already selected then skip
+      if (checkedTables_temp[table.tid]) {
+        return
+      }
+
+      checkedTables_temp[table.tid] = {
+        ref: table.docid+'_'+table.page,
+        checked: true,
+      }
+    })
+    setCheckedTables(checkedTables_temp)
+    // Set number of tables selected
+    setTablesSelectedNumber(Object.keys(checkedTables_temp).length)
+  }
+
   const tablesUnselectAll = () => {
+    tableCheckedLastly.current = -1
     setCheckedTables({})
     // Set number of tables selected
     setTablesSelectedNumber(0)
@@ -423,7 +444,28 @@ export function CollectionView({
     >
       <Checkbox
         checked={tid in checkedTables}
-        onChange={() => {toggleCheckBox(tid, table_key)}}
+        onChange={(event) => {
+          // selection with shift
+          if (
+            // tableCheckedLastly was set?
+            tableCheckedLastly.current > -1 &&
+            // tableCheckedLastly.current and index (selected row) are different
+            tableCheckedLastly.current != index &&
+            // checkedTables has at least 1 table selected 
+            Object.keys(checkedTables).length > 0 &&
+            // are shift pressed?
+            event.nativeEvent.shiftKey == true
+          ) {
+            // mark all the tables between actual index and tableCheckedLastly
+            tableCheckedLastly.current < index?
+              tablesCheckedByShift(tables.slice(tableCheckedLastly.current, index + 1))
+              : tablesCheckedByShift(tables.slice(index, tableCheckedLastly.current + 1))
+
+            return
+          }
+          tableCheckedLastly.current = index
+          toggleCheckBox(tid, table_key)
+        }}
         inputProps={{ 'aria-label': 'primary checkbox' }}
       />
       <span> -- </span>
