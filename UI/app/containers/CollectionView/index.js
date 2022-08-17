@@ -1019,6 +1019,7 @@ export function CollectionView({
                 <div className={classes.buttonHolder}>
                   <Button
                     variant="contained"
+                    disabled={Object.keys(checkedTables).length == 0}
                     onClick={ () => downloadData('results', Object.keys(checkedTables) ) }
                   > Data CSV <DownloadIcon/></Button>
                 </div>
@@ -1026,6 +1027,7 @@ export function CollectionView({
                 <div className={classes.buttonHolder}>
                   <Button
                     variant="contained"
+                    disabled={Object.keys(checkedTables).length == 0}
                     onClick={ () => downloadData('metadata', Object.keys(checkedTables) ) }
                   > Metadata CSV <DownloadIcon/></Button>
                 </div>
@@ -1033,6 +1035,7 @@ export function CollectionView({
                 <div className={classes.buttonHolder}>
                   <Button
                     variant="contained"
+                    disabled={Object.keys(checkedTables).length == 0}
                     onClick={ () => downloadData('json', Object.keys(checkedTables) )}
                   > Data & Metadata JSON <DownloadIcon/></Button>
                 </div>
