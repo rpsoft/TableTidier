@@ -83,9 +83,9 @@ function driver(config) {
         "table".tid,
         completion,
         annotation,
-        "table".doi,
-        "table".pmid,
-        "table".url
+        COALESCE("table".doi, '') AS doi,
+        COALESCE("table".pmid, '') AS pmid,
+        COALESCE("table".url, '') AS url
       FROM 
         "table"
       LEFT JOIN
@@ -113,9 +113,9 @@ function driver(config) {
           collection_id,
           file_path,
           "table".tid,
-          "table".doi,
-          "table".pmid,
-          "table".url,
+          COALESCE("table".doi, '') AS doi,
+          COALESCE("table".pmid, '') AS pmid,
+          COALESCE("table".url, '') AS url,
           "annotations".annotation
         FROM 
           "table",
