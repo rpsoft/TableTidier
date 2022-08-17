@@ -1252,11 +1252,11 @@ app.post(CONFIG.api_base_url+'/getTableContent',
     return res.json({status: 'unauthorised', body: req.body})
   }
 
-  try {
-    if ((docid && page && collId) == false) {
-      return res.json({status: 'wrong parameters', body: req.body})
-    }
+  if ((docid && page && collId) == false) {
+    return res.json({status: 'wrong parameters', body: req.body})
+  }
 
+  try {
     const predictionEnabled = JSON.parse(enablePrediction)
 
     const tableData = await readyTable(
