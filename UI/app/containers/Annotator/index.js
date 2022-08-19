@@ -99,7 +99,6 @@ import TableEditor from '../../components/TableEditor'
 import TableResult from '../../components/TableResult'
 import TableMetadata from '../../components/TableMetadata'
 import TableNotes from '../../components/TableNotes'
-import PopAlert from '../../components/PopAlert'
 
 import InfoPage from '../InfoPage'
 
@@ -326,8 +325,6 @@ export function Annotator({
   // ! :-) cuisIndex moved to get from redux store
   // const [ cuisIndex, setCuisIndex ] = React.useState( {} );
 
-  const [ alertData, setAlertData]  = React.useState( { open: false, message: "", isError: false } );
-
   const [ tid, setTid ] = React.useState('')
 
   const [ notesData, setNotesData ] = React.useState({ tableType:"", tableStatus:"", textNotes: "" });
@@ -432,8 +429,6 @@ export function Annotator({
       // setCuisIndex(annotator.cuis_index)
 
       setHeaderData( prepareMetadata(header_data, annotator.results) );
-
-      setAlertData(annotator.alertData)
 
       setTid(tableData.annotationData ? tableData.annotationData.tid : '')
 
@@ -624,8 +619,6 @@ export function Annotator({
       <meta name="description" content="Description of Annotations" />
     </Helmet>
       
-    <PopAlert alertData={alertData} setAlertData={setAlertData} />
-
     <div
       style={{
         display: 'grid',
