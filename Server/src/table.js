@@ -69,7 +69,7 @@ const readyTable = async (docname, page, collection_id, enablePrediction = false
         data.replace(/\s+/g, ' ').trim(),
         {}
       );
-      if ( (!tablePage) || (data.trim().length < 1)) {
+      if ( !tablePage || data.trim().length < 1 ) {
         // return ({htmlHeader: "",formattedPage : "", title: "" }) //Failed or empty
         return {status: 'failed', tableTitle: '', tableBody: '', predictedAnnotation: {} }
       }
@@ -77,12 +77,27 @@ const readyTable = async (docname, page, collection_id, enablePrediction = false
       let tableEdited = false;
 
       // Prevents infinite loop caused when no tables are present.
-      if ( ! (tablePage('table').text().length > 0) ) { 
+      if ( tablePage('table').text().length == 0 ) { 
         return {status: 'failed no table tag found ', tableTitle: '', tableBody: '', predictedAnnotation: {} }
       }
 
       // Remove all empty rows from the top.
-      while ( (tablePage('table').text().length > 0) && (tablePage('table tr:nth-child(1)').text().trim().length == 0 )) {
+      while (
+        tablePage('table').text().length > 0 &&
+        tablePage('table tr:nth-child(1)').text().trim().length == 0
+      ) {
+        // Prevents infinite loop caused when no more tables rows are present.
+        if ( tablePage('tr').length == 0 ) { 
+          return {
+            status: 'failed',
+            tableTitle: '',
+            tableBody: '',
+            predictedAnnotation: {},
+            description: 'The table seems to be empty. Is table empty?',
+            errorCode: 'IS_TABLE_EMPTY',
+          }
+        }
+
         tablePage('table tr:nth-child(1)').remove()
         tableEdited = true;
       }
