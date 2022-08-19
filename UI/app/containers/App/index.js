@@ -28,13 +28,6 @@ import Dashboard from '../Dashboard'
 import CollectionView from '../CollectionView'
 import HomePage from '../HomePage'
 
-import { connect } from 'react-redux';
-import { compose } from 'redux';
-import { createStructuredSelector } from 'reselect';
-import makeSelectLocation from './selectors'
-
-import {setLoginCredentialsAction} from './actions'
-
 import {
   URL_BASE,
 } from '../../links'
@@ -54,16 +47,12 @@ const urlBase = URL_BASE
 
 import Footer from '../../components/Footer'
 
-import { useCookies } from 'react-cookie';
-
 import PopAlert from 'components/PopAlert'
 
 import { SnackbarProvider } from 'notistack';
 import Grow from '@material-ui/core/Grow';
 import WarningIcon from '@material-ui/icons/Warning';
 import { makeStyles } from '@material-ui/core/styles';
-
-import {useIsMounted} from '../../utils/custom-hooks.js'
 
 const styleSeed = (theme) => ({
   // snackbar type style
@@ -100,6 +89,7 @@ const styleSeed = (theme) => ({
     // error
     '& > [class*=SnackbarItem-variantError]': {
       backgroundColor: theme.palette.dialog.errorBackground,
+      // backgroundColor: 'green',
       color: theme.palette.dialog.textColorDialog,
       '& .MuiSvgIcon-root': {
         color: 'rgb(225 1 1)',
@@ -109,20 +99,12 @@ const styleSeed = (theme) => ({
   }
 })
 
-export function App({
-  appData,
-  setLoginCredentials,
-}) {
+export function App({}) {
+  // const dispatch = useDispatch()
+
   const useStyles = makeStyles(styleSeed);
   const classes = useStyles({});
-  const [ cookies, setCookie, removeCookie ] = useCookies();
   const location = useLocation();
-  const isMounted = useIsMounted()
-
-  const [ alertData, setAlertData ]  = React.useState( appData.alertData ?
-    appData.alertData
-    : { open: false, message: '', isError: false }
-  );
 
   const searchScrollRef = useRef(null)
   const searchScrollHistoric = useRef({})
@@ -157,22 +139,6 @@ export function App({
   //     return
   //   }
   // })
-
-  useEffect(() => {
-    setAlertData(
-      appData.alertData ?
-        appData.alertData
-        : { open: false, message: '', isError: false }
-    )
-  }, [appData.alertData]);
-
-  const updateAlertData = (data) => {
-    if (isMounted()) {
-      setAlertData(data)
-    }
-  }
-
-  setLoginCredentials(cookies)
 
   return (
     <SnackbarProvider
@@ -222,8 +188,7 @@ export function App({
           <Route path="dashboard" element={<Dashboard />} />
         </Routes>
 
-        {/* ! :-) To locate the bad setState() call inside `App`, follow the stack trace as described in https://fb.me/setstate-in-render */}
-        <PopAlert alertData={alertData} setAlertData={updateAlertData} />
+        <PopAlert/>
       </main>
 
       <Footer />
@@ -231,27 +196,5 @@ export function App({
     </SnackbarProvider>
   );
 }
-// const mapStateToProps = createStructuredSelector({
-//   annotator: makeSelectAnnotator(),
-//   credentials: makeSelectCredentials(),
-//   // loginDetails: makeSelectLogin(),
-// });
-const mapStateToProps = createStructuredSelector({
-  appData : makeSelectLocation(),
-});
 
-function mapDispatchToProps(dispatch) {
-  return {
-    dispatch,
-    setLoginCredentials : (cookies) => dispatch( setLoginCredentialsAction(cookies) ),
-    // getCollectionData : () => dispatch( loadCollectionAction() ),
-  };
-}
-
-const withConnect = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-);
-
-export default compose(withConnect)(App);
-// export default App;
+export default App;
