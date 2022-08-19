@@ -96,6 +96,10 @@ export function* getTableContent( payload ) {
 
     if ( response.status ) {
       // check response status
+      if ( response.status == 'failed' && response.errorCode == 'IS_TABLE_EMPTY' ) {
+        yield put( yield issueAlertAction({ open: true, message: response.description, isError: true }))
+      }
+
       const responseCheck = fetchResultStatusCheck(response.status)
       if ( responseCheck.error == true ) {
         yield put( yield appActions.statusSet.action(responseCheck.code))
@@ -153,7 +157,7 @@ export function* getTableContent( payload ) {
   return {}
 }
 
-export function* getTableResult( payload ) {
+export function* getTableAnnotationPreview( payload ) {
 
   const credentials = yield select(makeSelectCredentials());
   const locationData = yield select(makeSelectLocation());
@@ -177,7 +181,6 @@ export function* getTableResult( payload ) {
 
   try {
     const response = yield call(request, requestURL, options);
-    
     if ( response.status ) {
       if ( response.status ) {
         // check response status
@@ -487,7 +490,7 @@ export function* getAutoLabels( payload ) {
 export default function* annotatorSaga() {
 
   yield takeLatest(LOAD_TABLE_CONTENT_ACTION, getTableContent);
-  yield takeLatest(LOAD_TABLE_RESULTS_ACTION, getTableResult);
+  yield takeLatest(LOAD_TABLE_RESULTS_ACTION, getTableAnnotationPreview);
   yield takeLatest(LOAD_TABLE_METADATA_ACTION, getTableMetadata);
   yield takeLatest(LOAD_CUIS_INDEX_ACTION, getCUISIndex);
 
