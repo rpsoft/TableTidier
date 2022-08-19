@@ -19,8 +19,6 @@ import {
   SAVE_TABLE_ANNOTATIONS_ACTION,
   SAVE_TABLE_METADATA_ACTION,
 
-  ISSUE_ALERT_ACTION,
-
   LOAD_CUIS_INDEX_ACTION,
   UPDATE_CUIS_INDEX_ACTION,
   INSERT_CUIS_INDEX_ACTION,
@@ -51,7 +49,6 @@ export const initialState = {
   annotations: [],
   results : [],
   metadata : {},
-  alertData: { open: false, message: '', isError: false },
   cuis_index: {},
   allowEdit: false,
 };
@@ -79,10 +76,6 @@ const annotatorReducer = (state = initialState, action) =>
       case UPDATE_TABLE_METADATA_ACTION:
 
         draft.metadata = action.metadata;
-        break;
-
-      case ISSUE_ALERT_ACTION:
-        draft.alertData = action.alertData
         break;
 
       case UPDATE_CUIS_INDEX_ACTION:

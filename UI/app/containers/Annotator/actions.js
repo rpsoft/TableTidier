@@ -129,14 +129,6 @@ export function saveTableMetadataAction(metadata) {
   };
 }
 
-// Issue alert
-export function issueAlertAction(alertData) {
-  return {
-    type: ISSUE_ALERT_ACTION,
-    alertData
-  };
-}
-
 // CUIS Handling.
 export function updateCuisIndexAction(cuis_index) {
   return {
