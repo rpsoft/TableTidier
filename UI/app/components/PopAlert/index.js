@@ -4,9 +4,17 @@
  *
  */
 
-import React, { memo } from 'react';
+import React from 'react';
 // import PropTypes from 'prop-types';
 // import styled from 'styled-components';
+
+import './PopAlert.css';
+
+import {
+  connect,
+  useSelector,
+  useDispatch,
+} from 'react-redux';
 
 import Fade from '@material-ui/core/Fade';
 import Snackbar from '@material-ui/core/Snackbar';
@@ -20,9 +28,22 @@ import { FormattedMessage } from 'react-intl';
 import messages from './messages';
 
 function PopAlert({
-  alertData,
-  setAlertData
+ 
 }) {
+  const appData = useSelector(state => state.app)
+  const [ alertData, setAlertData ]  = React.useState( appData.alertData ?
+    appData.alertData
+    : { open: false, message: '', isError: false }
+  );
+
+  React.useEffect(() => {
+    setAlertData(
+      appData.alertData ?
+        appData.alertData
+        : { open: false, message: '', isError: false }
+    )
+  }, [appData.alertData]);
+
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
       return;
@@ -33,12 +54,7 @@ function PopAlert({
   return (
     <Snackbar open={alertData.open} autoHideDuration={6000} onClose={handleClose}>
       <span
-        style={{
-          fontSize: 17,
-          textAlign:"center",
-          verticalAlign: "middle", paddingLeft:10,
-          backgroundColor: alertData.isError ? "rgb(253, 236, 234)": "rgb(237, 247, 237)"
-        }}
+        className={`PopAlertBase ${alertData.isError? 'PopAlertError': ''}`}
       >
         {
         alertData.isError ?
@@ -56,4 +72,4 @@ function PopAlert({
 
 PopAlert.propTypes = {};
 
-export default memo(PopAlert);
+export default PopAlert;
