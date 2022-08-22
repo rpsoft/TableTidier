@@ -22,14 +22,15 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import CollectionIcon from '@material-ui/icons/DynamicFeed';
 
-import IconButton from '@material-ui/core/IconButton';
-// import PersonIcon from '@material-ui/icons/Person';
-import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
+import PersonIcon from '@material-ui/icons/Person';
+// import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
 import PlayArrowIcon from '@material-ui/icons/PlayArrow';
 
 import {
   Card,
   Button,
+  // IconButton,
+  Tooltip,
 } from '@material-ui/core';
 
 const useStyles = makeStyles((theme) => ({
@@ -92,20 +93,36 @@ function Collection({
       {/* Info: number of tables and user owner */}
       <div
         style={{
-          marginTop: 5,
-          marginLeft: 5,
+          marginTop: 3,
+          // marginLeft: 5,
           marginRight: 5,
-          fontSize: 15
+          fontSize: 15,
+          textAlign: 'right',
         }}
       >
-        <div>
+        <Tooltip title="Owner" placement="bottom-end">
+          <span
+            style={{
+              marginLeft: 15,
+              // marginRight: 5,
+            }}
+          >
+            <PersonIcon
+              style={{
+                fontSize: 16,
+                color: 'grey'
+              }}
+            /> { owner_username || 'default owner'}
+          </span>
+        </Tooltip>
+
+        <div
+          style={{
+            marginTop: 5,
+          }}
+        >
           { table_n || '0'} tables
         </div>
-        <span
-          // style={{marginLeft: 15, marginRight: 5}}
-        >
-          Owner: { owner_username || 'default owner'}
-        </span>
       </div>
       <Button
         onClick={()=>navigate(collectionUrl)}
