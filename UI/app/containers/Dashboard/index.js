@@ -402,7 +402,7 @@ console.timeEnd('table_search_results')
       <div
         style={{
           paddingTop: '73px',
-          width: '79%',
+          width: 'calc(100% - 300px)',
         }}
       >
         <div className={classes.root}>
