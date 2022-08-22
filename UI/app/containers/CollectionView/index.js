@@ -834,27 +834,6 @@ export function CollectionView({
             </Card>
 
             <Card style={{padding:10}}>
-
-              {/* Table selection */}
-              {/* <ButtonGroup size="small" color="primary" aria-label="outlined primary button group">
-                <Button
-                  disabled={ tablesSelectedNumber == 0 }
-                  onClick={tablesUnselectAll}
-                >
-                  Unselect Tables</Button>
-                <Button
-                  disabled={ 
-                    'tables' in collectionView &&
-                    Array.isArray(collectionView.tables) &&
-                    tablesSelectedNumber == collectionView.tables.length
-                  }
-                  onClick={tablesSelectAll}
-                >
-                  Select All Tables</Button>
-              </ButtonGroup>
-
-              <hr/> */}
-
               {
                 // File Uploader if allowed
                 allowEdit && (
