@@ -35,7 +35,8 @@ import {
   loadCollectionAction, updateCollectionAction,
   editCollectionAction, removeTablesAction,
   moveTablesAction, deleteCollectionAction,
-  downloadDataAction } from './actions'
+  downloadDataAction
+} from './actions'
 
 import appActions from '../App/actions';
 
@@ -43,6 +44,15 @@ import {
   Link,
   useNavigate,
 } from "react-router-dom";
+
+import {
+  sortMin,
+  sortMax,
+  sortTextMin,
+  sortTextMax,
+  sortTextAsNumberMin,
+  sortTextAsNumberMax,
+} from '../../utils/sort';
 
 import './colection-view.css';
 import './pagination.css';
@@ -291,30 +301,26 @@ export function CollectionView({
   }
 
   // sort tables list from collection
-  const tablesSortByDocid = (type='alpha') => {
-    setTables([...tables].sort((a, b) => {
-      let nameA = a.docid.toUpperCase(); // ignore upper and lowercase
-      let nameB = b.docid.toUpperCase(); // ignore upper and lowercase
-      if (type.includes('tid') == true) {
-        nameA = a.tid
-        nameB = b.tid
-      }
+  const tablesSortByDocid = (sortBy='alpha') => {
+    let tablesSorted
 
-      if (type == 'alpha' || type.includes('min') == true) {
-        if (nameA < nameB) {
-          return -1;
-        } else if (nameA > nameB) {
-          return 1;
-        }
-        return 0;
-      }
-      if (nameA < nameB) {
-        return 1;
-      } else if (nameA > nameB) {
-        return -1;
-      }
-      return 0;
-    }))
+    // sort por sortby
+    switch(sortBy) {
+      case 'alpha':
+        tablesSorted = tables.sort(sortTextMin('docid'))
+        break
+      case 'omega':
+        tablesSorted = tables.sort(sortTextMax('docid'))
+        break
+      case 'tid-min':
+        tablesSorted = tables.sort(sortTextAsNumberMin('tid'))
+        break
+      case 'tid-max':
+        tablesSorted = tables .sort(sortTextAsNumberMax('tid'))
+        break
+    }
+
+    setTables(tablesSorted)
   }
 
   // tables select, cherry pick
