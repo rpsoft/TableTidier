@@ -6,11 +6,12 @@
 .dashboardCollectionListHeaderSortByForm.MuiFormControl-root {
   /* display: inline-flex; */
   font-size: small;
-  margin: 1px 10px;
+  margin: 1px 1px;
+  margin-left: 10px;
   min-width: 175px;
   /* vertical-align: baseline; */
 }
 
 .dashboardCollectionListHeaderSortByForm.MuiFormControl-root > div > .MuiSelect-root {
-  padding: 2px 7px;
+  padding: 7px 7px;
 }
