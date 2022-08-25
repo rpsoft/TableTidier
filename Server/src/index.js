@@ -246,7 +246,7 @@ app.post(CONFIG.api_base_url+'/tableUploader',
           const docid = baseFilename
           // encode filename
           // prevent invalid filename chars
-          const docidEncoded = encodeURIComponent(docid).replace('%20', ' ')
+          const docidEncoded = encodeURIComponent(docid).replaceAll('%20', ' ')
           const newTableFilename = `${docidEncoded}_${page}.${extension}`
 
           await fs.writeFile(path.join(tables_folder, collection_id, newTableFilename), table)

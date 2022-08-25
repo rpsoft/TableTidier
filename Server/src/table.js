@@ -23,7 +23,7 @@ async function refreshDocuments() {
 const readyTable = async (docname, page, collection_id, enablePrediction = false) => {
   // encode filename
   // prevent invalid filename chars
-  const docidEncoded = encodeURIComponent(docname).replace('%20', ' ')+'_'+page+'.html'
+  const docidEncoded = encodeURIComponent(docname).replaceAll('%20', ' ')+'_'+page+'.html'
   const docid = docname+'_'+page+'.html'
   let htmlFile = docidEncoded
 
