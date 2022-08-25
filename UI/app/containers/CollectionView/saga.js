@@ -124,7 +124,6 @@ export function* editCollectionData() {
     } else {
       // console.log("BOOM ALLES GUT")
 
-      yield put( yield updateCollectionAction(response.data) );
       yield put( yield issueAlertAction({ open: true, message: "Collection Changes Saved", isError: false }))
       // yield put( yield updateCollectionAction(response.data) );
     }
