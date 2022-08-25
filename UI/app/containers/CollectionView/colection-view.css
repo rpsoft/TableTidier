@@ -4,10 +4,10 @@
 }
 
 .collectionListHeaderSortByForm.MuiFormControl-root {
-  margin: 0 10px;
+  margin: 3px 10px;
   min-width: 120px;
   /* text-align: center; */
-  vertical-align: baseline;
+  /* vertical-align: baseline; */
 }
 
 .collectionListHeaderSortByForm.MuiFormControl-root > div > .MuiSelect-root {
