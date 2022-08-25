@@ -21,16 +21,34 @@ async function refreshDocuments() {
 }
 
 const readyTable = async (docname, page, collection_id, enablePrediction = false) => {
+  // encode filename
+  // prevent invalid filename chars
+  const docidEncoded = encodeURIComponent(docname).replace('%20', ' ')+'_'+page+'.html'
   const docid = docname+'_'+page+'.html'
-  const htmlFile = docid
+  let htmlFile = docidEncoded
 
   // If an override file exists then use it!. Overrides are those produced by the editor.
   const override_file_exists = await fs.stat(path.join(
     GENERAL_CONFIG.tables_folder_override,
     collection_id.toString(),
-    docid.toString()
+    docidEncoded.toString()
   ))
-  .then(() => true, () => false)
+  .then(() => true)
+  .catch(
+    // try to find not encoded version
+    (err) => {
+      console.log('Is already edited trying to find not encoded version: ' + err)
+      return fs.stat(path.join(
+        GENERAL_CONFIG.tables_folder_override,
+        collection_id.toString(),
+        docid.toString()
+      ))
+    }
+  )
+  .then(
+    () => true,
+    () => false
+  )
   .catch(err => console.log(err))
 
   const htmlFolder = path.join(
@@ -45,7 +63,14 @@ const readyTable = async (docname, page, collection_id, enablePrediction = false
   
   try {
     // Load file
+    //  First encoded if it fails try not encoded. 
     const data = await fs.readFile(path.join(htmlFolder, htmlFile), {encoding: 'utf8'})
+      .catch((err) => {
+        // try not encoded file
+        console.log('try to find not encoded version: ' + err)
+        htmlFile = docid
+        return fs.readFile(path.join(htmlFolder, htmlFile), {encoding: 'utf8'})
+      })
 
     // Return if not found
     if ( (!data) || (data.trim().length < 1)) {
