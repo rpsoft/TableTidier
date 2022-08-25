@@ -244,8 +244,10 @@ app.post(CONFIG.api_base_url+'/tableUploader',
         await Promise.all(tables_html.map( async (table, t) => {
           const page = t+1
           const docid = baseFilename
-
-          const newTableFilename = `${docid}_${page}.${extension}`
+          // encode filename
+          // prevent invalid filename chars
+          const docidEncoded = encodeURIComponent(docid).replace('%20', ' ')
+          const newTableFilename = `${docidEncoded}_${page}.${extension}`
 
           await fs.writeFile(path.join(tables_folder, collection_id, newTableFilename), table)
 
@@ -1230,7 +1232,6 @@ app.post(CONFIG.api_base_url+'/getTableContent',
   let tid = req.body.tid
 
   const collectionPermissions = await dbDriver.permissionsResourceGet('collections', user ? username : '')
-
   if (tid && !collId) {
     // get collId from tid
     const table = await dbDriver.tableGetByTid(tid)
@@ -1242,6 +1243,7 @@ app.post(CONFIG.api_base_url+'/getTableContent',
     docid = table.docid
     page = table.page
   }
+  
   const collection_data = await dbDriver.collectionGet(collId)
   // collection not found?
   if (collection_data == 'collection not found') {
