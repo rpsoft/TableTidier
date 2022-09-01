@@ -77,7 +77,7 @@ export function* getTableContent( payload ) {
 
   // console.log("tableDAta request for "+credentials.username)
   const params = new URLSearchParams({
-    docid: parsed.docid,
+    docid: encodeURIComponent(parsed.docid),
     page: parsed.page,
     collId: parsed.collId,
     tid: parsed.tid,
@@ -167,7 +167,7 @@ export function* getTableAnnotationPreview( payload ) {
   const requestURL = locationData.api_url+`annotationPreview`;
 
   const params = new URLSearchParams({
-    'docid' : parsed.docid,
+    docid: encodeURIComponent(parsed.docid),
     'page' : parsed.page,
     'collId' : parsed.collId,
     tid: parsed.tid,
@@ -243,7 +243,7 @@ export function* getTableMetadata( payload ) {
   const requestURL = locationData.api_url+`metadata`;
 
   const params = new URLSearchParams({
-    'docid' : parsed.docid,
+    docid: encodeURIComponent(parsed.docid),
     'page' : parsed.page,
     'collId' : parsed.collId,
     tid: payload.tid || parsed.tid,
@@ -307,7 +307,7 @@ export function* saveChanges ( payload ) {
   let requestURL = locationData.api_url;
 
   let pre_params = {
-    'docid' : parsed.docid,
+    docid: encodeURIComponent(parsed.docid),
     'page' : parsed.page,
     'collId' : parsed.collId,
     tid: payload.tid || parsed.tid,
@@ -418,7 +418,7 @@ export function* getAutoLabels( payload ) {
   const requestURL = locationData.api_url+`auto`;
 
   const params = new URLSearchParams({
-    'docid' : parsed.docid,
+    docid: encodeURIComponent(parsed.docid),
     'page' : parsed.page,
     'collId' : parsed.collId,
     tid: payload.tid || parsed.tid,
