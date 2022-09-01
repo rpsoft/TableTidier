@@ -1,13 +1,22 @@
+/**
+ * * classifier module
+ * 
+ *  - Classifier module uses UMLSData function
+ *  Loading UMLSData takes long time to parse (seconds approx 1.3 sec)
+ * 
+ *  - Classifier also uses a python module that also takes time to load a machine learning model
+ *  It takes approx. another 1.6 seconds.
+ * Then each call to the model takes between 50 - 100 ms
+ * 
+ */
+
 import * as cheerio from 'cheerio';
 import { metamap } from './metamap.js'
 import { UMLSData } from './utils/umls.js'
 
 // * Load UMLSData
-//     This function takes long time to parse (multiple seconds)
+//     This function takes long time to parse (may take multiple seconds)
 let umls_data_buffer = UMLSData()
-
-// UMLSData().then(result => umls_data_buffer = result)
-
 
 let assert = require('assert');
 let pythonBridge = require('python-bridge');
@@ -20,7 +29,6 @@ const CONFIG_PATH = process.env.CONFIG_PATH || process.cwd()
 const CONFIG = require(CONFIG_PATH + '/config.json')
 
 const classifierFile = CONFIG.system_path+'Classifier/trained/umls_full.model'
-
 // For python debugging remove this.
 python.ex`
   import warnings
@@ -72,7 +80,25 @@ python.ex`
     return data
 `;
 
-async function classify(terms){
+// * Frindely close the module
+// It stops accepting new Python commands, and waits for queue to finish
+//  then gracefully closes the Python process.
+//do something when app is closing
+process.on('exit', () => python.end());
+
+//catches ctrl+c event
+process.on('SIGINT', () => python.end());
+
+// catches "kill pid" (for example: nodemon restart)
+process.on('SIGUSR1', () => python.end());
+process.on('SIGUSR2', () => python.end());
+
+//catches uncaught exceptions
+process.on('uncaughtException', () => python.end());
+
+
+
+async function classify(terms) {
 
   let result = new Promise(function(resolve, reject) {
 
@@ -91,7 +117,7 @@ async function classify(terms){
       resolve({})
     }
   });
-
+  
   result = await result
 
   if ( result.terms ) {
