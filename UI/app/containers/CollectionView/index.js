@@ -442,7 +442,8 @@ export function CollectionView({
 
     const table_key = docid+'_'+page
 
-    const url = `/table?docid=${docid}&page=${page}&collId=${collection_id}`
+    // const url = `/table?docid=${docid}&page=${page}&collId=${collection_id}`
+    const url = `/table?tid=${tid}`
     return (
     <div
       className='collectionListRow'

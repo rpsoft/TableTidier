@@ -529,9 +529,11 @@ export function Annotator({
       docid,
       page,
       collection_id,
+      tid,
     } = tables[index]
 
-    const address = `/table?docid=${docid}&page=${page}&collId=${collection_id}`
+    // const address = `/table?docid=${docid}&page=${page}&collId=${collection_id}`
+    const address = `/table?tid=${tid}`
 
     return () => navigate(address)
   }
