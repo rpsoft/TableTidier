@@ -8,6 +8,7 @@ const fs = require('fs/promises');
 const path = require('path');
 const exec = require('child_process').exec;
 const axios = require('axios');
+const {UMLSData} = require('./utils/umls');
 
 const express = require('express');
 // morgan, HTTP request logger middleware for node.js
@@ -32,7 +33,6 @@ const dbDriver = require('./db/sniffer-driver')
 dbDriver.addDriver(pgDriver)
 
 const csv = require('csv-parser');
-const CsvReadableStream = require('csv-reader');
 
 // Import routes
 import usersRoutes from './routes/users'
@@ -265,67 +265,7 @@ app.post(CONFIG.api_base_url+'/tableUploader',
   });
 });
 
-async function UMLSData() {
-  let semtypes = new Promise( async (resolve,reject) => {
-    const fd = await fs.open(CONFIG.system_path+ 'Tools/metamap_api/cui_def.csv', 'r');
-    let inputStream = fd.createReadStream({encoding: 'utf8'});
 
-    const result = {};
-
-    inputStream
-      .pipe(new CsvReadableStream({ parseNumbers: true, parseBooleans: true, trim: true, skipHeader: true }))
-      .on('data', (row) => {
-        //console.log('A row arrived: ', row);
-        row[4].split(';').map( st => {
-          result[st] = result[st] ? result[st]+1 : 1
-        })
-      })
-      .on('end', (data) => resolve(result));
-  })
-
-  let cui_def = new Promise( async (resolve,reject) => {
-    const fd = await fs.open(CONFIG.system_path + 'Tools/metamap_api/cui_def.csv', 'r');
-    let inputStream = fd.createReadStream({encoding: 'utf8'});
-
-    const result = {};
-
-    inputStream
-      .pipe(new CsvReadableStream({ parseNumbers: true, parseBooleans: true, trim: true, skipHeader: true }))
-      .on('data', (row) => {
-        //console.log('A row arrived: ', row);
-        const [
-          key,
-          matchedText,
-          preferred,
-          hasMSH,
-          semTypes,
-        ] = row
-        result[key] = {matchedText, preferred, hasMSH, semTypes}
-      })
-      .on('end', (data) => resolve(result));
-  })
-
-  let cui_concept = new Promise( async (resolve,reject) =>{
-    const fd = await fs.open(CONFIG.system_path+ 'Tools/metamap_api/cui_concept.csv', 'r');
-    let inputStream = fd.createReadStream({encoding: 'utf8'});
-
-    const result = {};
-
-    inputStream
-      .pipe(new CsvReadableStream({ parseNumbers: true, parseBooleans: true, trim: true, skipHeader: true }))
-      .on('data', (row) => {
-        //console.log('A row arrived: ', row);
-        result[row[0]] = row[1]
-      })
-      .on('end', (data) => resolve(result));
-  })
-
-  semtypes = await semtypes
-  cui_def = await cui_def
-  cui_concept = await cui_concept
-
-  return {semtypes, cui_def, cui_concept}
-}
 
 async function CUIData () {
   const umlsData = await UMLSData();
@@ -648,32 +588,39 @@ app.post(CONFIG.api_base_url+'/metadata',
     return
   }
 
-  const {
-    action,
-
+  let {
     docid,
-    // page,
-    // collId,
+    page,
+    collId,
 
+    action,
     payload,
+    // sinble table
+    tid,
+    // multiple tables
     tids,
   } = req.body
 
+  // Prevent invalid chars error
+  docid = decodeURIComponent(docid)
+
   // vars as number
   // collection_id
-  let collId = parseInt(req.body.collId)
+  collId = parseInt(collId)
   // page
-  const page = parseInt(req.body.page)
+  page = parseInt(page)
 
   // req.user added by experessJwt
   const user = req?.user
   // username in user subject
   const username = user?.sub
-  let tid = req.body.tid
+
+  // parse tid
+  tid = parseInt(tid)
 
   const collectionPermissions = await dbDriver.permissionsResourceGet('collections', user ? username : '')
 
-  if (tid && !collId) {
+  if (tid && Number.isInteger(tid) == true) {
     // get collId from tid
     const table = await dbDriver.tableGetByTid(tid)
     // If table not found?
@@ -694,6 +641,7 @@ app.post(CONFIG.api_base_url+'/metadata',
   }
 
   if (
+    Number.isNaN(tid) == true ||
     tid === 'undefined' ||
     tid === 'null'
   ) {
@@ -846,10 +794,10 @@ app.post(CONFIG.api_base_url+'/collections',
     return
   }
 
-  const {
+  let {
     action,
 
-    // collection_id,
+    collection_id,
     collectionData,
 
     tid,
@@ -857,7 +805,7 @@ app.post(CONFIG.api_base_url+'/collections',
   } = req.body
 
   // collection_id as number
-  const collection_id = parseInt(req.body.collection_id)
+  collection_id = parseInt(collection_id)
 
   // req.user added by experessJwt
   const user = req?.user
@@ -1216,32 +1164,36 @@ app.post(CONFIG.api_base_url+'/getTableContent',
   
   let {
     enablePrediction,
-
     docid,
     page,
-    // collId,
+    collId,
+    tid,
   } = req.body
 
+  // Prevent invalid chars error
+  docid = decodeURIComponent(docid)
+
   // collId as integer
-  let collId = parseInt(req.body.collId)
+  collId = parseInt(collId)
 
   // req.user added by experessJwt
   const user = req?.user
   // username in user subject
   const username = user?.sub
-  let tid = req.body.tid
+  // parse tid
+  tid = parseInt(tid)
 
   const collectionPermissions = await dbDriver.permissionsResourceGet('collections', user ? username : '')
-  if (tid && !collId) {
+
+  if (tid && Number.isInteger(tid) == true) {
     // get collId from tid
     const table = await dbDriver.tableGetByTid(tid)
     // If table not found?
     if (table == 'not found') {
       return res.json({status: 'not found', tid: tid})
     }
-    collId = parseInt(table.collection_id)
-    docid = table.docid
-    page = table.page
+    collId = parseInt(table.collection_id);
+    ({docid, page} = table)
   }
   
   const collection_data = await dbDriver.collectionGet(collId)
@@ -1441,32 +1393,36 @@ app.post(CONFIG.api_base_url+'/annotationPreview',
   let {
     docid,
     page,
-    // collId,
-
+    collId,
+    tid,
     cachedOnly,
   } = req.body
 
+  // Prevent invalid chars error
+  docid = decodeURIComponent(docid)
+
   // collId as integer
-  let collId = parseInt(req.body.collId)
+  collId = parseInt(collId)
+
+  // parse tid
+  tid = parseInt(tid)
 
   // req.user added by experessJwt
   const user = req?.user
   // username in user subject
   const username = user?.sub
-  let tid = req.body.tid
 
   const collectionPermissions = await dbDriver.permissionsResourceGet('collections', user ? username : '')
 
-  if (tid && !collId) {
+  if (tid && Number.isInteger(tid) == true) {
     // get collId from tid
     const table = await dbDriver.tableGetByTid(tid)
     // If table not found?
     if (table == 'not found') {
       return res.json({status: 'not found', tid: tid})
     }
-    collId = parseInt(table.collection_id)
-    docid = table.docid
-    page = table.page
+    collId = parseInt(table.collection_id);
+    ({docid, page} = table)
   }
 
   const collection_data = await dbDriver.collectionGet(collId)
@@ -1659,7 +1615,6 @@ const getMMatch = async (phrase) => {
 }
 
 const processHeaders = async (headers) => {
-  // ! :-)
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat
   // flat deep 4
   const all_concepts = Array.from(new Set(Object.values(headers).flat().flat().flat().flat()))
@@ -1763,12 +1718,28 @@ app.post(CONFIG.api_base_url+'/notes',
     return
   }
 
-  const {
+  let {
     payload,
-    docid,
     page,
     collId,
+    tid,
   } = req.body
+
+  // Prevent invalid chars error
+  let docid = decodeURIComponent(req.body.docid)
+  // parse tid
+  tid = parseInt(tid)
+
+  if (tid && Number.isInteger(tid) == true) {
+    // get collId from tid
+    const table = await dbDriver.tableGetByTid(tid)
+    // If table not found?
+    if (table == 'not found') {
+      return res.json({status: 'not found', tid: tid})
+    }
+    collId = parseInt(table.collection_id);
+    ({docid, page} = table)
+  }
 
   const notesData = JSON.parse(payload)
 
@@ -1817,12 +1788,28 @@ app.post(CONFIG.api_base_url+'/text',
     return
   }
 
-  const {
+  let {
     payload,
-    docid,
     page,
     collId,
+    tid,
   } = req.body
+
+  // Prevent invalid chars error
+  let docid = decodeURIComponent(req.body.docid)
+  // parse tid
+  tid = parseInt(tid)
+
+  if (tid && Number.isInteger(tid) == true) {
+    // get collId from tid
+    const table = await dbDriver.tableGetByTid(tid)
+    // If table not found?
+    if (table == 'not found') {
+      return res.json({status: 'not found', tid: tid})
+    }
+    collId = parseInt(table.collection_id);
+    ({docid, page} = table)
+  }
 
   const folder_exists = await fs.stat( path.join(tables_folder_override, collId ))
     .then(() => true, () => false)
@@ -1867,11 +1854,27 @@ app.get(CONFIG.api_base_url+'/removeOverrideTable', async (req, res) => {
     tables_folder_override,
   } = global.CONFIG
 
-  const {
-    docid,
+  let {
     page,
     collId,
+    tid,
   } = req.body
+
+  // Prevent invalid chars error
+  let docid = decodeURIComponent(req.body.docid)
+  // parse tid
+  tid = parseInt(tid)
+
+  if (tid && Number.isInteger(tid) == true) {
+    // get collId from tid
+    const table = await dbDriver.tableGetByTid(tid)
+    // If table not found?
+    if (table == 'not found') {
+      return res.json({status: 'not found', tid: tid})
+    }
+    collId = parseInt(table.collection_id);
+    ({docid, page} = table)
+  }
 
   if (
     (
@@ -1922,11 +1925,29 @@ const getTable = async (req, res) => {
   if (!dataSource) {
     return res.send({status: 'wrong parameters', query: dataSource})
   }
-  const {
-    docid,
+
+  let {
     page,
     collId,
+    tid,
   } = dataSource
+
+  // Prevent invalid chars error
+  let docid = decodeURIComponent(req.body.docid)
+  // parse tid
+  tid = parseInt(tid)
+
+  if (tid && Number.isInteger(tid) == true) {
+    // get collId from tid
+    const table = await dbDriver.tableGetByTid(tid)
+    // If table not found?
+    if (table == 'not found') {
+      return res.json({status: 'not found', tid: tid})
+    }
+    collId = parseInt(table.collection_id);
+    ({docid, page} = table)
+  }
+
   try {
     if ( (dataSource && docid && page && collId) == false ) {
       return res.send({status: 'wrong parameters', query: dataSource})
@@ -1966,15 +1987,33 @@ app.post(CONFIG.api_base_url+'/saveAnnotation',
     return res.json({status:'unauthorised', payload: null})
   }
   
-  const {
+  let {
     action,
 
-    docid,
     page,
     collId,
 
     payload,
+    tid=undefined,
   } = req?.body
+
+  // Prevent invalid chars error
+  let docid = decodeURIComponent(req.body.docid)
+  // parse tid
+  tid = parseInt(tid)
+
+  if (tid && Number.isInteger(tid) == true) {
+    // get collId from tid
+    const table = await dbDriver.tableGetByTid(tid)
+    // If table not found?
+    if (table == 'not found') {
+      return res.json({status: 'not found', tid: tid})
+    }
+    collId = parseInt(table.collection_id);
+    ({docid, page} = table)
+  } else {
+    tid = await dbDriver.tidGet( docid, page, collId )
+  }
 
   if ( req.body && !action ){
     res.json({status: 'undefined', received : req.body})
@@ -1982,8 +2021,6 @@ app.post(CONFIG.api_base_url+'/saveAnnotation',
   }
 
   console.log(`Recording Annotation: ${docid}_${page}_${collId}`)
-
-  const tid = await dbDriver.tidGet ( docid, page, collId )
 
   const annotationData = JSON.parse(payload)
 
@@ -2026,12 +2063,14 @@ app.put(CONFIG.api_base_url+'/table/updateReferences',
     return
   }
 
-  const {
+  let {
     tid,
     pmid,
     doi,
     url,
   } = req?.body
+  // parse tid
+  tid = parseInt(tid)
 
   // Check user have permissions to update table
   const table = await dbDriver.tableGetByTid(tid);
@@ -2187,7 +2226,6 @@ const processAnnotationAndMetadata = async (docid, page, collId) => {
     })
     return acc
   }, {})
-
 
   const headDATA = prepareMetadata(header_data, tabularData.result)
 
