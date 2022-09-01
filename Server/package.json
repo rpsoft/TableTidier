@@ -16,7 +16,7 @@
     "db:up:sqlite": "db-migrate up:sqlite users -e sqlite",
     "db:down:sqlite": "db-migrate down:sqlite -e sqlite",
     "db:reset:sqlite": "db-migrate reset:sqlite -e sqlite",
-    "test": "jest test --verbose --testPathIgnorePatterns node_modules database ",
+    "test": "jest test --verbose --detectOpenHandles --testPathIgnorePatterns node_modules database ",
     "test_brk": "mocha --inspect-brk testing/tabuliser_testing.js",
     "test:pg": "DB_DRIVER_TYPE=postgres CONFIG_PATH=${PWD}/test/database jest test/database",
     "test:sqlite": "DB_DRIVER_TYPE=sqlite CONFIG_PATH=${PWD}/test/database jest test/database",
@@ -36,11 +36,12 @@
   "homepage": "https://github.com/rpsoft/tableAnnotator",
   "devDependencies": {
     "@babel/cli": "^7.18.6",
-    "@babel/core": "^7.18.6",
+    "@babel/core": "^7.18.13",
     "@babel/plugin-transform-runtime": "^7.13.10",
-    "@babel/preset-env": "^7.13.12",
+    "@babel/preset-env": "^7.18.10",
     "@babel/runtime": "^7.13.10",
     "autoprefixer": "^10.2.5",
+    "babel-jest": "^29.0.1",
     "babel-plugin-syntax-export-extensions": "^6.13.0",
     "babel-plugin-syntax-object-rest-spread": "^6.13.0",
     "babel-plugin-transform-async-to-generator": "^6.24.1",
@@ -64,6 +65,7 @@
     "jest": "^27.5.1",
     "jest-openapi": "^0.14.2",
     "nodemon": "^2.0.19",
+    "pretty-format": "^29.0.1",
     "swagger-jsdoc": "github:Surnet/swagger-jsdoc",
     "swagger-ui-express": "^4.3.0",
     "webpack": "^5.72.0",
@@ -114,6 +116,9 @@
     "workerpool": "^6.2.0"
   },
   "jest": {
-    "verbose": true
+    "verbose": true,
+    "transform": {
+      "\\.[jt]sx?$": "babel-jest"
+    }
   }
 }
