@@ -15,7 +15,11 @@ export default function configureStore(initialState = {}) {
   if (process.env.NODE_ENV !== 'production' && typeof window === 'object') {
     /* eslint-disable no-underscore-dangle */
     if (window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__)
-      composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({});
+      composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
+        // https://github.com/zalmoxisus/redux-devtools-extension/blob/master/docs/Features/Trace.md
+        // trace: true,
+        // traceLimit: 25,
+      });
 
     // NOTE: Uncomment the code below to restore support for Redux Saga
     // Dev Tools once it supports redux-saga version 1.x.x
