@@ -97,7 +97,7 @@ describe('dbDriver', () => {
             'deleted'
         ))
 
-        result = await Promise.all(
+        const result = await Promise.all(
           // delete documents only with valid docid
           files.filter(el => /&\d+_1.html$/.test(el) == true)
             .map(filename => fs.rm(
