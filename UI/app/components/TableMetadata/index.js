@@ -192,7 +192,7 @@ function TableMetadata({
           </div>
         </span> )}
 
-        <div style={{height:35, fontSize:22, paddingTop:5}}> 4. Table <b> Metadata </b></div>
+        <div style={{height:35, fontSize:22, paddingTop:5}}> 4. <b> Terminology </b></div>
       </div>
       {
         ///updateTableMetadata(Object.assign({}, metadata))
