@@ -109,7 +109,6 @@ export function* doLogout(action) {
 
   try {
     const response = yield call(request, requestURL, options);
-
     if (
       response.status &&
       (
@@ -136,7 +135,7 @@ export function* doLogout(action) {
   }
 }
 
-export function* refresTokenInterval(refreshToken) {
+export function* refreshTokenInterval(refreshToken) {
   let userInfo = JSON.parse(
     window.atob(refreshToken.split('.')[1])
   )
@@ -166,6 +165,12 @@ export function* refresTokenInterval(refreshToken) {
     options.headers['Refresh-Token'] = userInfo.refreshToken
 
     const response = yield call(request, requestURL, options)
+    if (response.status == 'unauthorised' && response.message == 'invalid token...') {
+      yield put( yield doLogOutAction());
+      // end refreshTokenInterval
+      continue
+    }
+    
     if (response.message == 'No authorization token was found') {
       continue
     }
@@ -182,10 +187,10 @@ export function* refresTokenInterval(refreshToken) {
   }
 }
 
-export function* refresToken(refreshTokenFromLogin, refreshPeriod) {
+export function* refreshToken(refreshTokenFromLogin, refreshPeriod) {
   let refreshToken = refreshTokenFromLogin
   try {
-    let clearRefresToken = null
+    let clearRefreshToken = null
     let action = ''
     while (true) {
       action = yield take([
@@ -194,16 +199,16 @@ export function* refresToken(refreshTokenFromLogin, refreshPeriod) {
         actions.refreshTokenRestart.type,
       ])
       // Stop and clean
-      if (clearRefresToken) {
-        yield cancel(clearRefresToken)
-        clearRefresToken = null
+      if (clearRefreshToken) {
+        yield cancel(clearRefreshToken)
+        clearRefreshToken = null
       }
       // Start and Refresh
       if (
         action.type == actions.refreshTokenStart.type ||
         action.type == actions.refreshTokenRestart.type
       ) {
-        clearRefresToken = yield fork(refresTokenInterval, action.refreshToken)
+        clearRefreshToken = yield fork(refreshTokenInterval, action.refreshToken)
       }
     }
   } finally {
@@ -216,5 +221,5 @@ export default function* loginSaga() {
   // See example in containers/HomePage/saga.js
   yield takeLatest(LOGIN_ACTION, doLogin);
   yield takeLatest(LOGOUT_ACTION, doLogout);
-  yield fork(refresToken)
+  yield fork(refreshToken)
 }

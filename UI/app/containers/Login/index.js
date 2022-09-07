@@ -176,12 +176,13 @@ export function Login({
         window.atob(token.split('.')[1])
       )
       // Check token expire date
+      // is token expired?
       if ((Date.now() - userInfo.exp*1e3) > 0) {
         // if expired set localStore refresToken
         removeRefreshToken()
+        return
       }
       dispatch(loginSuccessAction({username: userInfo.sub}))
-      // console.log('refreshToken: ' + JSON.stringify(userInfo))
       // Close login menu
       setLoginShowMenu(false)
     }
@@ -203,7 +204,7 @@ export function Login({
         return
       }
 
-      // oldValue == null and typeof oldValue == string logout
+      // if oldValue == null and typeof newValue == string logoin
       if (event.oldValue == null && typeof event.newValue == 'string') {
         // Login
         const token = JSON.parse(event.newValue).token
@@ -230,9 +231,18 @@ export function Login({
 
     // We can use refreshToken to obtain user's info
     if (refreshToken && !loginState.username) {
-      console.log('first load!! check refreshToken expired? clean: restore info from refreshToken, initiate refresh saga')
-      dispatch(actions.refreshTokenStart.action(refreshToken.token))
-      loginFromToken(refreshToken.token)
+      const tokenParsed = JSON.parse(window.atob(refreshToken.token.split('.')[1]))
+      // is token expired?
+      if (tokenParsed.exp * 1e3 - Date.now() < 0) {
+        // Expired token
+        // Clean token
+        dispatch(doLogOutAction())
+      } else {
+        // Not expired token
+        // restore info from refreshToken, initiate refresh saga
+        dispatch(actions.refreshTokenStart.action(refreshToken.token))
+        loginFromToken(refreshToken.token)
+      }
     }
 
     
