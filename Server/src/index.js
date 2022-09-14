@@ -39,7 +39,8 @@ import usersRoutes from './routes/users'
 usersRoutes.addDriver(dbDriver)
 
 // I want to access cheerio from everywhere.
-global.cheerio = require('cheerio');
+const cheerio = require('cheerio');
+global.cheerio = cheerio;
 
 global.CONFIG = GENERAL_CONFIG
 global.available_documents = {}
@@ -1811,11 +1812,16 @@ app.post(CONFIG.api_base_url+'/text',
     ({docid, page} = table)
   }
 
-  const folder_exists = await fs.stat( path.join(tables_folder_override, collId ))
+  const folder_exists = await fs.stat(
+      path.join(tables_folder_override, collId.toString())
+    )
     .then(() => true, () => false)
 
   if ( !folder_exists ) {
-    await fs.mkdir( path.join(tables_folder_override, collId), { recursive: true })
+    await fs.mkdir(
+      path.join(tables_folder_override, collId.toString()),
+      { recursive: true }
+    )
   }
 
   const payloadParsed = JSON.parse(payload)
@@ -1836,7 +1842,14 @@ app.post(CONFIG.api_base_url+'/text',
   const completeFile = '<html><body>'+titleText+body+'</body></html>'
 
   try {
-    await fs.writeFile( path.join(tables_folder_override, collId, `${docid}_${page}.html`), completeFile )
+    await fs.writeFile(
+      path.join(
+        tables_folder_override,
+        collId.toString(),
+        `${docid}_${page}.html`
+      ),
+      completeFile
+    )
     const textResponse = `Written replacement for: ${collId} // ${docid}_${page}.html`
     console.log(textResponse);
     res.json({
@@ -1886,7 +1899,11 @@ app.get(CONFIG.api_base_url+'/removeOverrideTable', async (req, res) => {
     return res.send({status: 'no changes'})
   }
 
-  const pathToFile = path.join(tables_folder_override, collId, `${docid}_${page}.html`)
+  const pathToFile = path.join(
+    tables_folder_override,
+    collId.toString(),
+    `${docid}_${page}.html`
+  )
   const file_exists = await fs.stat(pathToFile)
     .then(() => true, () => false)
 
