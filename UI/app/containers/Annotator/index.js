@@ -682,10 +682,13 @@ export function Annotator({
                         updateReferences()
                       }
 
-                      saveTextChanges(title, body);
                       setEditorEnabled(false);
-                      loadTableContent(false);
-                      loadTableResults(false);
+
+                      saveTextChanges(title, body);
+
+                      // Called from saga after saveTextChanges:
+                      // loadTableContent(false);
+                      // loadTableResults(false);
                     } }
                   >
                       Save Edit Changes <EditIcon style={{marginLeft:5}}/>

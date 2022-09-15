@@ -39,9 +39,7 @@ import {
   loadCuisIndexAction,
 } from './actions';
 
-import appActions from '../App/actions';
-
-import {issueAlertAction} from '../App/actions'
+import appActions, { issueAlertAction } from '../App/actions';
 
 import {
   URL_BASE,
@@ -387,6 +385,9 @@ export function* saveChanges ( payload ) {
     // yield put( yield updateTableResultsAction(response.result) );
     switch( payload.type ) {
       case SAVE_TABLE_TEXT_ACTION:
+        // Called after saveTextChanges
+        yield put(loadTableContentAction(false))
+        yield put(loadTableResultsAction(false))
         yield put( yield issueAlertAction({ open: true, message: 'Table Successfully Saved', isError: false }))
         break;
       case SAVE_TABLE_NOTES_ACTION:
@@ -407,8 +408,7 @@ export function* saveChanges ( payload ) {
 }
 
 
-export function* getAutoLabels( payload ) {
-
+export function* getAutoLabels(payload) {
   const credentials = yield select(makeSelectCredentials());
   const locationData = yield select(makeSelectLocation());
   const loginData = yield select(makeSelectLogin());

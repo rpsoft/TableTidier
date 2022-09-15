@@ -83,8 +83,13 @@ const annotatorReducer = (state = initialState, action) =>
         break;
 
       case SAVE_TABLE_TEXT_ACTION:
+        draft.tableData.tableTitle = action.tableTitle
+        draft.tableData.tableBody = action.tableBody
       case SAVE_TABLE_NOTES_ACTION:
-        draft.tableData = {...draft.tableData,...action.notes}
+        draft.tableData = {
+          ...draft.tableData,
+          ...action.notes
+        }
 
       case SAVE_TABLE_ANNOTATIONS_ACTION:
       case SAVE_TABLE_METADATA_ACTION:
