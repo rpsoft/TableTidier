@@ -64,7 +64,7 @@
     "gulp": "^4.0.2",
     "jest": "^27.5.1",
     "jest-openapi": "^0.14.2",
-    "nodemon": "^2.0.19",
+    "nodemon": "^2.0.20",
     "pretty-format": "^29.0.1",
     "swagger-jsdoc": "github:Surnet/swagger-jsdoc",
     "swagger-ui-express": "^4.3.0",
@@ -111,7 +111,7 @@
     "passport-local": "^1.0.0",
     "pg": "^8.5.1",
     "python-bridge": "^1.1.0",
-    "sqlite3": "^5.0.3",
+    "sqlite3": "^5.1.1",
     "util": "^0.12.3",
     "workerpool": "^6.2.0"
   },
