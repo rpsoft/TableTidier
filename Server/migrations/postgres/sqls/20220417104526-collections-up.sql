@@ -41,4 +41,12 @@ VALUES
     'james@example.com',
     'public',
     'in progress'
+  ),
+  (
+    2,
+    'This is the second collection, testing collection',
+    'The testing collection 2',
+    'lili@example.com',
+    'public',
+    'in progress'
   );
