@@ -163,7 +163,7 @@ describe('dbDriver', () => {
       const docid = '28905478'
       const page = 1
       const collId = 1
-      const result = await dbDriver.tableCreate(docid, page, collId);
+      const result = await dbDriver.tableCreate({docid, page, collId});
       expect(result).toEqual('parameters not valid');
     });
     test('Create table', async () => {
@@ -172,11 +172,28 @@ describe('dbDriver', () => {
       const user = james.email
       const collection_id = 1
       const file_path = `${docid}_${page}.html`
-      let result = await dbDriver.tableCreate(docid, page, user, collection_id, file_path);
-      expect(result).toEqual('done');
+      let result = await dbDriver.tableCreate({docid, page, user, collection_id, file_path});
+      expect(result).toHaveProperty('tid');
       // Create another file to use with tablesMoveByTid
-      result = await dbDriver.tableCreate(docidValid2, page, user, collection_id, `${docidValid2}_${page}.html`);
+      result = await dbDriver.tableCreate({
+        docid: docidValid2, page, user, collection_id, 
+        file_path: `${docidValid2}_${page}.html`
+      });
+      expect(result).toHaveProperty('tid');
+    });
+    test('Copy table', async () => {
+      // copy table 1 to collection 2
+      const tableToCopyTid = 1
+      const collectionTargetCollid = 2
+      let result = await dbDriver.tableCopy(tableToCopyTid, collectionTargetCollid);
+      // debugger
+      // new copied table tid
+      const tid = result.tid
+
+      result = await dbDriver.tablesRemoveByTid([tid]);
       expect(result).toEqual('done');
+
+
     });
 
     // tablesMove
@@ -303,7 +320,7 @@ describe('dbDriver', () => {
     // collectionsList
     test('collectionsList', async () => {
       const collectionsList = await dbDriver.collectionsList();
-      expect(collectionsList.length).toEqual(1);
+      expect(collectionsList.length).toEqual(2);
       expect(parseInt(collectionsList[0]['table_n'])).toEqual(3);
     });
 
@@ -317,7 +334,7 @@ describe('dbDriver', () => {
       const result = await dbDriver.collectionGet(1);
       expect(Object.keys(result).length).toEqual(8);
       expect(result.collection_id.toString()).toEqual('1');
-      expect(result.collectionsList.length).toEqual(1);
+      expect(result.collectionsList.length).toEqual(2);
     });
 
     // collectionCreate
@@ -397,6 +414,19 @@ describe('dbDriver', () => {
       const collId = 1
       const annotations = await dbDriver.annotationByIDGet(docid, page, collId);
       expect(annotations.annotation.annotations.length).toEqual(5);
+    });
+    // annotationGetByTid
+    test('annotationGetByTid table not valid', async () => {
+      // trying a not existing table
+      const tid = 3
+      const annotations = await dbDriver.annotationGetByTid(tid);
+      expect(annotations).toEqual(null);
+    });
+    test('annotationGetByTid table valid', async () => {
+      // get annotations from first table (test table)
+      const tid = 1
+      const annotations = await dbDriver.annotationGetByTid(tid);
+      expect(annotations).toHaveProperty('annotation');
     });
     // annotationDataGet
     test('annotationDataGet table not valid', async () => {
@@ -606,7 +636,7 @@ describe('dbDriver', () => {
     // permissionsResourceGet
     test('permissionsResourceGet', async () => {
       const permissions = await dbDriver.permissionsResourceGet('collections', james.email);
-      expect(permissions).toEqual({read: [1], write: [1]});
+      expect(permissions).toEqual({read: [1, 2], write: [1]});
     });
   });
   // resultsDataGet

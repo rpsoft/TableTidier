@@ -80,6 +80,29 @@ function driver(config) {
       return annotations.rows[0]
     },
 
+    // Returns the annotation for a single document/table using table id
+    annotationGetByTid: async (tid) => {
+      if ( tid == 'undefined' ) {
+        return `parameters not valid`
+      }
+
+      const annotations = await query(
+        `SELECT *
+        FROM
+          annotations
+        WHERE
+          tid = $1`,
+        [tid]
+      )
+      if (annotations.rows[0] == undefined) {
+        return null
+      }
+      // bigint (64 bits) returned as string by pg module
+      // convert to integer
+      annotations.rows[0].tid = parseInt(annotations.rows[0].tid)
+      return annotations.rows[0]
+    },
+
     // Get multiple tables and annotations
     annotationDataGet: async (tids) => {
       if (Array.isArray(tids) == false) return 'tids not valid, array expected'
@@ -443,22 +466,82 @@ function driver(config) {
       }
     },
 
-    tableCreate: async (docid, page, user, collection_id, file_path) => {
+    // copy table to other collection.
+    tableCopy: async function(tid, collectionTarget) {
+      // check that collectionTarget is a different collection
+      const tableToCopy = await this.tableGetByTid(tid)
+      const tableToCopyAnnotations = await this.tableGetByTid(tid)
+      const tableToCopyMetadata = await this.tableGetByTid(tid)
+      // create table usig tableToCopy data
+      let result = await this.tableCreate(tableToCopy)
+        
+      // {
+      //   docid,
+      //   page,
+      //   user,
+      //   collection_id,
+      //   file_path,
+      // });
+
+      // debugger
+      // copy table
+      // copy annotations
+      // copy metadata
+      return result
+      
+    },
+
+    tableCreate: async ({
+      // necessary fields
+      docid,
+      page,
+      user,
+      collection_id,
+      file_path,
+      // optional fields
+      notes='',
+      tableType='',
+      pmid='',
+      doi='',
+      url='',
+    }) => {
       // not valid parameters?
       if (!!(docid && page && user && collection_id && file_path) == false) {
         return `parameters not valid`
       }
       try {
-        await query(
-        `INSERT INTO public."table"(
-          docid, page, "user", notes, collection_id, file_path, "tableType")
-        VALUES ($1, $2, $3, $4, $5, $6, $7);`,
-        [docid, page, user, '', collection_id, file_path, '']
+        const result = await query(
+        `INSERT INTO public."table" (
+          docid,
+          page,
+          "user",
+          notes,
+
+          collection_id,
+          file_path,
+          "tableType",
+          pmid,
+
+          doi,
+          url
         )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        returning *;`,
+        [
+          docid, page, user, notes,
+          collection_id, file_path, tableType, pmid,
+          doi, url
+        ])
+
+        // bigint (64 bits) returned as string by pg module
+        // convert to integer
+        result.rows[0].collection_id = parseInt(result.rows[0].collection_id)
+        result.rows[0].tid = parseInt(result.rows[0].tid)
+
+        return result.rows[0]
       } catch (err) {
         return err
       }
-      return 'done'
     },
 
     tableGet: async (docid, page, collId) => {

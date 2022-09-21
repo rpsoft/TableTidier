@@ -250,9 +250,18 @@ app.post(CONFIG.api_base_url+'/tableUploader',
           const docidEncoded = encodeURIComponent(docid).replaceAll('%20', ' ')
           const newTableFilename = `${docidEncoded}_${page}.${extension}`
 
-          await fs.writeFile(path.join(tables_folder, collection_id, newTableFilename), table)
+          await fs.writeFile(
+            path.join(tables_folder, collection_id, newTableFilename),
+            table
+          )
 
-          await dbDriver.tableCreate(docid, page, username_uploader, collection_id, newTableFilename)
+          await dbDriver.tableCreate({
+            docid,
+            page,
+            user: username_uploader,
+            collection_id,
+            file_path: newTableFilename,
+          })
           results.push({filename: newTableFilename, status: 'success'})
         }))
       } catch(err) {

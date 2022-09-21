@@ -103,6 +103,26 @@ function driver(config) {
       return annotations
     },
 
+    // Returns the annotation for a single document/table using table id
+    annotationGetByTid: async (tid) => {
+      if ( tid == 'undefined' ) {
+        return `parameters not valid`
+      }
+
+      const annotations = await queryGet(
+        `SELECT *
+        FROM
+          annotations
+        WHERE
+          tid = $1`,
+        [tid]
+      )
+      if (annotations == undefined) {
+        return null
+      }
+      return annotations
+    },
+
     // Get multiple tables and annotations
     annotationDataGet: async (tids) => {
       if (Array.isArray(tids) == false) return 'tids not valid, array expected'
@@ -482,22 +502,82 @@ function driver(config) {
 
     resultsDataGet: (tids) => query(`SELECT * FROM "result" WHERE tid = ANY ($1)`, [tids]),
 
-    tableCreate: async (docid, page, user, collection_id, file_path) => {
+    // copy table to other collection.
+    tableCopy: async function(tid, collectionTarget) {
+      // check that collectionTarget is a different collection
+      const tableToCopy = await this.tableGetByTid(tid)
+      const tableToCopyAnnotations = await this.tableGetByTid(tid)
+      const tableToCopyMetadata = await this.tableGetByTid(tid)
+      // create table usig tableToCopy data
+      let result = await this.tableCreate(tableToCopy)
+        
+      // {
+      //   docid,
+      //   page,
+      //   user,
+      //   collection_id,
+      //   file_path,
+      // });
+
+      // debugger
+      // copy table
+      // copy annotations
+      // copy metadata
+      return result
+      
+    },
+
+    tableCreate: async ({
+      // necessary fields
+      docid,
+      page,
+      user,
+      collection_id,
+      file_path,
+      // optional fields
+      notes='',
+      tableType='',
+      pmid='',
+      doi='',
+      url='',
+    }) => {
       // not valid parameters?
       if (!!(docid && page && user && collection_id && file_path) == false) {
         return `parameters not valid`
       }
       try {
-        await queryRun(
-          `INSERT INTO "table"(
-             tid, docid, page, "user", notes, collection_id, file_path, "tableType")
-           VALUES ((SELECT IFNULL(max(tid), 0) + 1 FROM "table"), $1, $2, $3, $4, $5, $6, $7);`,
-          [docid, page, user, '', collection_id, file_path, '']
+        // it uses tid to fill with the next tid number:
+        //   tid last index + 1
+        const result = await queryGet(
+          `INSERT INTO "table" (
+            tid,
+            docid,
+            page,
+            "user",
+            notes,
+  
+            collection_id,
+            file_path,
+            "tableType",
+            pmid,
+  
+            doi,
+            url
           )
+          VALUES (
+            (SELECT IFNULL(max(tid), 0) + 1 FROM "table"),
+            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
+          )
+          returning *;`,
+          [
+            docid, page, user, notes,
+            collection_id, file_path, tableType, pmid,
+            doi, url
+          ])
+        return result
       } catch (err) {
         return err
       }
-      return 'done'
     },
 
     tableGet: async (docid, page, collId) => {
