@@ -19,15 +19,60 @@ CREATE TABLE IF NOT EXISTS metadata
 
 INSERT INTO
   metadata
-  (concept_source, concept_root, concept, cuis, cuis_selected, istitle, labeller, tid)
+  (
+    concept_source,
+    concept_root,
+    concept,
+    cuis,
+    
+    qualifiers,
+    cuis_selected,
+    qualifiers_selected,
+    istitle,
+
+    labeller,
+    tid
+  )
 VALUES
 (
   '',
   '',
   '£90 ml/minute',
   'C0439232;C0700321;C0702093;C1282918;C2347166;C0439083;C0439526;C1705224;C3887665;C0439087;C3842582',
+  
+  '',
   'C0439232;C0700321',
+  '',
   false,
+
+  'lili@example.com',
+  1
+),
+(
+  '',
+  '',
+  'Factor V Leiden or prothrombin mutation',
+  'C0584960;C1610621',
+
+  '',
+  'C0584960;C1610621',
+  '',
+  false,
+
+  'lili@example.com',
+  1
+),
+(
+  '',
+  'Factor V Leiden or prothrombin mutation',
+  'Present',
+  'C0150312',
+
+  '',
+  'C0150312',
+  '',
+  false,
+
   'lili@example.com',
   1
 );
