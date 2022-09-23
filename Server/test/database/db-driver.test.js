@@ -98,8 +98,8 @@ describe('dbDriver', () => {
         ))
 
         const result = await Promise.all(
-          // delete documents only with valid docid
-          files.filter(el => /&\d+_1.html$/.test(el) == true)
+          // delete all documents ending with '.html'
+          files.filter(el => /.html$/.test(el) == true)
             .map(filename => fs.rm(
               path.join(
                 CONFIG_PATH.tables_folder_deleted,
@@ -122,6 +122,28 @@ describe('dbDriver', () => {
             filename
           ),
           'TEST FILE. PLEASE DELETE ME IF YOU READ THIS. CAN BE REMOVED!',
+        )
+        return result
+      } catch (err) {
+        throw err
+      }
+    }
+
+    // Move table file to deleted tables folder
+    const tableFileDelete = async (filename, collectionId) => {
+      // Create a test file using equal docid of create table test
+      try {
+        const result = await fs.rename(
+          path.join(
+            CONFIG_PATH.tables_folder,
+            collectionId.toString(),
+            filename
+          ),
+          path.join(
+            CONFIG_PATH.tables_folder_deleted,
+            'deleted',
+            filename
+          ),
         )
         return result
       } catch (err) {
@@ -185,15 +207,27 @@ describe('dbDriver', () => {
       // copy table 1 to collection 2
       const tableToCopyTid = 1
       const collectionTargetCollid = 2
-      let result = await dbDriver.tableCopy(tableToCopyTid, collectionTargetCollid);
-      // debugger
+
+      // Create a test file using equal docid of create table test tid=1
+      await tableCreateFile('28905478_1.html', 1)
+      
+      let result = await dbDriver.tableCopy(
+        tableToCopyTid,
+        collectionTargetCollid,
+        james.email
+      );
       // new copied table tid
-      const tid = result.tid
+      const tableCopiedTid = result.tid
 
-      result = await dbDriver.tablesRemoveByTid([tid]);
-      expect(result).toEqual('done');
+      // Check that file moved...
+      expect(result).toHaveProperty('tid');
+      expect(typeof tableCopiedTid).toBe('number')
 
+      // clean copied table and files
+      result = await dbDriver.tablesRemoveByTid([tableCopiedTid]);
 
+      // Removed file created for testing
+      await tableFileDelete('28905478_1.html', 1)
     });
 
     // tablesMove
@@ -478,19 +512,31 @@ describe('dbDriver', () => {
       annotationsTableTest = await dbDriver.annotationDataGet([tid]);
       expect(annotationsTableTest[0].annotation.annotations.length).toEqual(5);
     });
+    test('annotationDeleteByTid', async () => {
+      // Add new annotation
+      const tidTest = 7
+      await dbDriver.annotationInsert(
+        tidTest,
+        {annotation: {annotations: 'Test Delete Annotation. This should be deleted'}}
+      )
+      // Delete annotation by table id
+      await dbDriver.annotationDeleteByTid(tidTest)
+      const annotations = await dbDriver.annotationGetByTid(tidTest);
+      expect(annotations).toEqual(null);
+    });
   });
   describe('Metadata', () => {
     // metadataGet
     test('metadataGet', async () => {
       const tids = 1
       const metadata = await dbDriver.metadataGet(tids);
-      expect(metadata.length).toEqual(1);
+      expect(metadata.length).toEqual(3);
       expect(metadata[0].tid).toEqual(1);
     });
     test('metadataGet multiple tids', async () => {
       const tids = [1, 2]
       const metadata = await dbDriver.metadataGet(tids);
-      expect(metadata.length).toEqual(1);
+      expect(metadata.length).toEqual(3);
       expect(metadata[0].tid).toEqual(1);
     });
 
@@ -520,7 +566,7 @@ describe('dbDriver', () => {
         tid: 2
       }
       const tids = 1
-      const metadata = await dbDriver.metadataSet(
+      const metadata = await dbDriver.metadataSet({
         concept_source,
         concept_root,
         concept,
@@ -531,7 +577,7 @@ describe('dbDriver', () => {
         istitle,
         labeller,
         tid
-      );
+      });
       expect(metadata).toEqual(undefined);
     });
     // metadataClear
