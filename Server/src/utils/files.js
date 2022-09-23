@@ -28,6 +28,46 @@ const folderCreateIfNotExists = foldername => {
   )
 }
 
+
+/** 
+ * Copy a table file from a source to a destination collection
+ * 
+ * @param {object} filedata
+ * @param {string} filedata.source source path to copy
+ * @param {string} filedata.dest destination path to copy to
+ * */ 
+exports.fileTableCopy = async ({source, dest}) => {
+  // check where file exists HTML_TABLES and HTML_TABLES_OVERRIDE
+  const fileRoutesExists = await Promise.all(
+    foldersRoot.map(foldername =>
+      fs.access(
+        path.join(foldername, source)
+      ).then(() => true, () => false))
+  )
+
+  // if all the routes are false
+  // file do not exists!!!
+  if (fileRoutesExists.reduce((prev, current) => prev || current, false) == false) {
+    return Promise.reject(new Error('fail: file to copy do not exists!!!'))
+  }
+
+  // Copy table where exists
+  const result = await Promise.all(fileRoutesExists.map((exists, index) => {
+    if (exists) {
+      // copy file
+      return fs.cp(
+        // source
+        path.join(foldersRoot[index], source),
+        // dest
+        path.join(foldersRoot[index], dest),
+        {recursive: true}
+      ).then(source + ' copied to ' + foldersRoot[index])
+    }
+    return Promise.resolve('no need to copy to ' + foldersRoot[index])
+  }))
+  return result
+}
+
 /** 
  * Move a file between collections
  * 
