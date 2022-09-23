@@ -11,6 +11,7 @@ const path = require('path');
 const {
   fileToCollectionMove,
   fileFromCollectionDelete,
+  fileTableCopy,
 } = require('../utils/files')
 
 const {
@@ -64,6 +65,24 @@ function driver(config) {
     // Return db handler
     db: dbLoadingPromise,
     close: () => db.close(),
+
+    annotationDeleteByTid: async (tid) => {
+      if ( tid == 'undefined' ) {
+        return `parameters not valid`
+      }
+
+      const result = await queryGet(
+        `DELETE FROM "annotations"
+        WHERE
+          tid = $1;`,
+        [tid]
+      )
+      if (result == undefined) {
+        return 'done'
+      }
+
+      return result
+    },
 
     // Returns the annotation for a single document/table
     annotationByIDGet: async (docid, page, collId) => {
@@ -386,18 +405,18 @@ function driver(config) {
 
     metadataGet: (tids) => queryAll(`SELECT * FROM metadata WHERE tid IN (${tids})`),
 
-    metadataSet: (
-      concept_source,
-      concept_root,
-      concept,
-      cuis,
-      cuis_selected,
-      qualifiers,
-      qualifiers_selected,
+    metadataSet: ({
+      concept_source='',
+      concept_root='',
+      concept='',
+      cuis='',
+      cuis_selected='',
+      qualifiers='',
+      qualifiers_selected='',
       istitle=false,
       labeller,
       tid
-    ) => queryRun(`
+    }) => queryRun(`
     INSERT INTO 
     metadata(
       concept_source,
@@ -503,28 +522,62 @@ function driver(config) {
     resultsDataGet: (tids) => query(`SELECT * FROM "result" WHERE tid = ANY ($1)`, [tids]),
 
     // copy table to other collection.
-    tableCopy: async function(tid, collectionTarget) {
+    tableCopy: async function(tid, collectionTarget, user) {
       // check that collectionTarget is a different collection
       const tableToCopy = await this.tableGetByTid(tid)
-      const tableToCopyAnnotations = await this.tableGetByTid(tid)
-      const tableToCopyMetadata = await this.tableGetByTid(tid)
-      // create table usig tableToCopy data
-      let result = await this.tableCreate(tableToCopy)
-        
-      // {
-      //   docid,
-      //   page,
-      //   user,
-      //   collection_id,
-      //   file_path,
-      // });
+      const tableToCopyAnnotations = await this.annotationGetByTid(tid)
+      const tableToCopyMetadata = await this.metadataGet(tid)
 
-      // debugger
       // copy table
       // copy annotations
       // copy metadata
+      // create table usig tableToCopy data     
+      let tableCopied = await this.tableCreate({
+        ...tableToCopy,
+        user,
+        collection_id: collectionTarget,
+      })
+      let result = await this.annotationInsert(tableCopied.tid, tableToCopyAnnotations.annotation)
+
+      // copy metadata to copied table
+      result = await Promise.all(tableToCopyMetadata.map(
+        metadata => this.metadataSet({
+          ...metadata,
+          labeller: user,
+          tid: tableCopied.tid
+        })
+      ))
+      // Copy file source to destination
+      const fileSource = tableToCopy.file_path
+      const filename = `${tableCopied.tid}-table-tidier.html`;
+      try{
+        await fileTableCopy({
+          // source path to copy
+          source: path.join(
+            tableToCopy.collection_id.toString(),
+            fileSource
+          ),
+          // destination path to copy to
+          dest: path.join(
+            collectionTarget.toString(),
+            filename
+          )
+        })
+      } catch (err){
+        const errorText = `Copy Fail: ` + err + JSON.stringify(err)
+        return errorText
+      }
+
+      // Update filename from copied table
+      result = await queryGet(`
+        UPDATE "table"
+        SET file_path='${filename}'
+        WHERE tid=${tableCopied.tid} returning *;
+      `, [])
+
+      // debugger
+
       return result
-      
     },
 
     tableCreate: async ({
@@ -637,6 +690,7 @@ function driver(config) {
           page,
         } = table
 
+        // Move table
         await queryRun(
           `UPDATE "table"
           SET collection_id=$4
@@ -648,6 +702,7 @@ function driver(config) {
             $4: target_collection_id
           })
   
+        // Move table file
         const filename = `${docid}_${page}.html`;
         try{
           await fileToCollectionMove(
@@ -676,6 +731,7 @@ function driver(config) {
       if (tables.length == 0) return 'tables empty'
 
       for (const tid of tables) {
+        // Move table
         const movedTable = await queryGet(
           `UPDATE "table"
           SET collection_id=$2
@@ -685,6 +741,7 @@ function driver(config) {
             $2: target_collection_id,
           })
   
+        // Move table file
         const {
           file_path: filename,
         } = movedTable
@@ -710,7 +767,7 @@ function driver(config) {
       return 'done'
     },
 
-    tablesRemove: async (tables, collection_id, fromSelect = false) => {
+    tablesRemove: async function (tables, collection_id, fromSelect = false) {
       if (Array.isArray(tables) == false) return 'tables not valid, array expected'
       if (tables.length == 0) return 'tables empty'
 
@@ -743,6 +800,12 @@ function driver(config) {
           tid,
         } = tableDeleted
 
+        // Remove table annotations
+        await this.annotationDeleteByTid(tid)
+        // Remove table metadata
+        await this.metadataClear(tid)
+
+        // Move table file to deleted folder
         try{
           await fileFromCollectionDelete(
             {
@@ -757,14 +820,14 @@ function driver(config) {
             'deleted' 
           )
         } catch (err) {
-          const errorText = `REMOVE FAil: ` + err + JSON.stringify(err)
+          const errorText = `REMOVE Fail: ` + err + JSON.stringify(err)
           return errorText
         }
       }
       return 'done'
     },
 
-    tablesRemoveByTid: async (tables) => {
+    tablesRemoveByTid: async function (tables) {
       if (Array.isArray(tables) == false) return 'tables not valid, array expected'
       if (tables.length == 0) return 'tables empty'
   
@@ -779,14 +842,20 @@ function driver(config) {
         } catch (err) {
           return err
         }
-  
+
+        // Remove table annotations
+        await this.annotationDeleteByTid(tid)
+        // Remove table metadata
+        await this.metadataClear(tid)
+
+        // Move table file to deleted folder
         const {
           file_path: filename,
           collection_id,
         } = tableDeleted
 
         try{
-          await fileFromCollectionDelete(
+          const result = await fileFromCollectionDelete(
             {
               filename,
               // current path
@@ -799,7 +868,7 @@ function driver(config) {
             'deleted' 
           )
         } catch (err) {
-          const errorText = `REMOVE FAil: ` + err + JSON.stringify(err)
+          const errorText = `REMOVE Fail: ` + err + JSON.stringify(err)
           return errorText
         }
       }
