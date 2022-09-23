@@ -562,18 +562,18 @@ const setMetadata = async ( metadata ) => {
       tid,
     } = metadata[key]
     try {
-      const done = await dbDriver.metadataSet(
+      const done = await dbDriver.metadataSet({
         concept_source,
         concept_root,
         concept,
-        cuis.join(';'),
-        cuis_selected.join(';'),
-        qualifiers.join(';'),
-        qualifiers_selected.join(';'),
+        cuis: cuis.join(';'),
+        cuis_selected: cuis_selected.join(';'),
+        qualifiers: qualifiers.join(';'),
+        qualifiers_selected: qualifiers_selected.join(';'),
         istitle,
         labeller,
         tid
-      )
+      })
       results.push(done);
       console.log('insert: '+key+' -- '+ new Date())
     } catch (err) {
