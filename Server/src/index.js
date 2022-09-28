@@ -245,23 +245,29 @@ app.post(CONFIG.api_base_url+'/tableUploader',
         await Promise.all(tables_html.map( async (table, t) => {
           const page = t+1
           const docid = baseFilename
-          // encode filename
-          // prevent invalid filename chars
-          const docidEncoded = encodeURIComponent(docid).replaceAll('%20', ' ')
-          const newTableFilename = `${docidEncoded}_${page}.${extension}`
+          
+          const newTable = await dbDriver.tableCreate({
+            docid,
+            page,
+            user: username_uploader,
+            collection_id,
+            file_path: 'temporal name',
+          })
+
+          // Table Tidier File Name Format
+          const newTableFilename = `${newTable.tid}-table-tidier.html`;
+          const tableFileChangeName = dbDriver.tableFilePathUpdate(
+            newTable.tid,
+            newTableFilename
+          )
 
           await fs.writeFile(
             path.join(tables_folder, collection_id, newTableFilename),
             table
           )
+          // File Write and Table Change Name working in parallel
+          await tableFileChangeName
 
-          await dbDriver.tableCreate({
-            docid,
-            page,
-            user: username_uploader,
-            collection_id,
-            file_path: newTableFilename,
-          })
           results.push({filename: newTableFilename, status: 'success'})
         }))
       } catch(err) {
@@ -370,7 +376,7 @@ const tabularFromAnnotation = async ( annotation ) => {
   }
 
   try {
-    const data = await fs.readFile(path.join(htmlFolder,htmlFile), {encoding: 'utf8'})
+    const data = await fs.readFile(path.join(htmlFolder, htmlFile), {encoding: 'utf8'})
     const ann = annotation
     const tablePage = cheerio.load(data);
 
@@ -1081,6 +1087,42 @@ app.post(CONFIG.api_base_url+'/tables',
 
       result = await dbDriver.tablesRemove(tablesList, collection_id);
       break;
+    case 'copy':
+      if ( collectionPermissions.write.includes(targetCollectionID) == false ) {
+        res.json({status: 'FAIL', payload: 'do not have permissions on destination'})
+        return
+      }
+
+      const tableSourceInfo = await Promise.all(
+        tablesList.map(tid => dbDriver.tableGetByTid(parseInt(tid))))
+
+      // Copy tables
+      let copyResult = await Promise.all(tableSourceInfo.map(async (table) => {
+        // Check table collection source has read permission
+        if (collectionPermissions.read.includes(table['collection_id']) == false ) {
+          return {
+            table: table.tid,
+            status: 'error',
+            error: 'unauthorized, table belongs to private collection'
+          }
+        }
+        const result = await dbDriver.tableCopy(
+          table.tid,
+          targetCollectionID,
+          username
+        );
+        return {
+          table: result.tid,
+          status: 'success',
+        }
+      }))
+
+      return res.json({
+        status: 'success',
+        data: copyResult,
+      })
+      break;
+
     case 'move':
       if ( collectionPermissions.write.includes(targetCollectionID) == false ) {
         res.json({status: 'FAIL', payload: 'do not have permissions on destination'})
@@ -1192,12 +1234,13 @@ app.post(CONFIG.api_base_url+'/getTableContent',
   const username = user?.sub
   // parse tid
   tid = parseInt(tid)
+  let table = null
 
   const collectionPermissions = await dbDriver.permissionsResourceGet('collections', user ? username : '')
 
   if (tid && Number.isInteger(tid) == true) {
     // get collId from tid
-    const table = await dbDriver.tableGetByTid(tid)
+    table = await dbDriver.tableGetByTid(tid)
     // If table not found?
     if (table == 'not found') {
       return res.json({status: 'not found', tid: tid})
@@ -1205,7 +1248,7 @@ app.post(CONFIG.api_base_url+'/getTableContent',
     collId = parseInt(table.collection_id);
     ({docid, page} = table)
   }
-  
+
   const collection_data = await dbDriver.collectionGet(collId)
   // collection not found?
   if (collection_data == 'collection not found') {
@@ -1220,14 +1263,17 @@ app.post(CONFIG.api_base_url+'/getTableContent',
     return res.json({status: 'wrong parameters', body: req.body})
   }
 
+  if (!table) {
+    table = await dbDriver.tableGet(docid, page, collId)
+  }
+
   try {
     const predictionEnabled = JSON.parse(enablePrediction)
 
     const tableData = await readyTable(
-      docid,
-      page,
+      table.file_path,
       collId,
-      // false, predictions are disabled.
+      // predictions
       predictionEnabled
     )
 
@@ -1809,10 +1855,11 @@ app.post(CONFIG.api_base_url+'/text',
   let docid = decodeURIComponent(req.body.docid)
   // parse tid
   tid = parseInt(tid)
+  let table = null
 
   if (tid && Number.isInteger(tid) == true) {
     // get collId from tid
-    const table = await dbDriver.tableGetByTid(tid)
+    table = await dbDriver.tableGetByTid(tid)
     // If table not found?
     if (table == 'not found') {
       return res.json({status: 'not found', tid: tid})
@@ -1821,11 +1868,19 @@ app.post(CONFIG.api_base_url+'/text',
     ({docid, page} = table)
   }
 
+  if (!table) {
+    table = await dbDriver.tableGet(docid, page, collId)
+  }
+
   const folder_exists = await fs.stat(
-      path.join(tables_folder_override, collId.toString())
+      path.join(
+        tables_folder_override,
+        table.file_path
+      )
     )
     .then(() => true, () => false)
 
+  // If folder don't exists create collection folder
   if ( !folder_exists ) {
     await fs.mkdir(
       path.join(tables_folder_override, collId.toString()),
@@ -1855,7 +1910,7 @@ app.post(CONFIG.api_base_url+'/text',
       path.join(
         tables_folder_override,
         collId.toString(),
-        `${docid}_${page}.html`
+        table.file_path
       ),
       completeFile
     )
@@ -1886,10 +1941,11 @@ app.get(CONFIG.api_base_url+'/removeOverrideTable', async (req, res) => {
   let docid = decodeURIComponent(req.body.docid)
   // parse tid
   tid = parseInt(tid)
+  let table = null
 
   if (tid && Number.isInteger(tid) == true) {
     // get collId from tid
-    const table = await dbDriver.tableGetByTid(tid)
+    table = await dbDriver.tableGetByTid(tid)
     // If table not found?
     if (table == 'not found') {
       return res.json({status: 'not found', tid: tid})
@@ -1908,10 +1964,14 @@ app.get(CONFIG.api_base_url+'/removeOverrideTable', async (req, res) => {
     return res.send({status: 'no changes'})
   }
 
+  if (!table) {
+    table = await dbDriver.tableGet(docid, page, collId)
+  }
+
   const pathToFile = path.join(
     tables_folder_override,
     collId.toString(),
-    `${docid}_${page}.html`
+    table.file_path
   )
   const file_exists = await fs.stat(pathToFile)
     .then(() => true, () => false)
@@ -1962,10 +2022,11 @@ const getTable = async (req, res) => {
   let docid = decodeURIComponent(req.body.docid)
   // parse tid
   tid = parseInt(tid)
+  let table = null
 
   if (tid && Number.isInteger(tid) == true) {
     // get collId from tid
-    const table = await dbDriver.tableGetByTid(tid)
+    table = await dbDriver.tableGetByTid(tid)
     // If table not found?
     if (table == 'not found') {
       return res.json({status: 'not found', tid: tid})
@@ -1978,10 +2039,15 @@ const getTable = async (req, res) => {
     if ( (dataSource && docid && page && collId) == false ) {
       return res.send({status: 'wrong parameters', query: dataSource})
     }
+
+    if (!table) {
+      table = await dbDriver.tableGet(docid, page, collId)
+    }
+
     const tableData = await readyTable(
-      docid,
-      page,
+      table.file_path,
       collId,
+      // false, predictions are disabled.
       false
     )
     return res.send(tableData)
