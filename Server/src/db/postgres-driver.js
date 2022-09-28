@@ -512,6 +512,7 @@ function driver(config) {
       ))
       // Copy file source to destination
       const fileSource = tableToCopy.file_path
+      // Table Tidier File Name Format
       const filename = `${tableCopied.tid}-table-tidier.html`;
       try{
         await fileTableCopy({
@@ -532,11 +533,12 @@ function driver(config) {
       }
 
       // Update filename from copied table
-      result = await query(`
-        UPDATE public."table"
-        SET file_path='${filename}'
-        WHERE tid=${tableCopied.tid} returning *;
-      `, [])
+      result = await this.tableFilePathUpdate(tableCopied.tid, filename)
+      // await query(`
+      //   UPDATE public."table"
+      //   SET file_path='${filename}'
+      //   WHERE tid=${tableCopied.tid} returning *;
+      // `, [])
 
       // bigint (64 bits) returned as string by pg module
       // convert to integer
@@ -726,6 +728,16 @@ function driver(config) {
 
       return 'done'
     },
+
+    tableFilePathUpdate: (tid, filename) => query(
+      `UPDATE public."table"
+      SET
+        file_path=$2
+      WHERE
+        tid=$1
+      returning *;`,
+      [tid, filename]
+    ),
 
     tablesRemove: async function (tables, collection_id, fromSelect = false) {
       if (Array.isArray(tables) == false) return 'tables not valid, array expected'
