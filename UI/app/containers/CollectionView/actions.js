@@ -71,3 +71,18 @@ export function downloadDataAction(target, tids) {
     tids: tids
   };
 }
+
+export default {
+  tablesCopy: {
+    // name format: 'yourproject/YourContainer/YOUR_ACTION_CONSTANT'
+    type: 'app/CollectionView/COPY_TABLES_ACTION',
+    action: function(tablesList, targetCollectionID) {
+      return {
+        type: this.type,
+        tablesList,
+        targetCollectionID,
+      }
+    }
+  },
+
+}
