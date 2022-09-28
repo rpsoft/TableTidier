@@ -158,41 +158,43 @@ export function App({}) {
       classes={{root: classes.snackbarClasses}}
       TransitionComponent={Grow}
     >
-      <header>
-        <Login />
-      </header>
+      <React.StrictMode>
+        <header>
+          <Login />
+        </header>
 
-      <main
-        ref={searchScrollRef}
-      >
-        <Routes>
-          <Route path="/" element={<HomePage />} />
+        <main
+          ref={searchScrollRef}
+        >
+          <Routes>
+            <Route path="/" element={<HomePage />} />
 
-          <Route
-            path="table"
-            element={
-              <React.Suspense fallback={<>...</>}>
-                <Annotator />
-              </React.Suspense>
+            <Route
+              path="table"
+              element={
+                <React.Suspense fallback={<>...</>}>
+                  <Annotator />
+                </React.Suspense>
+              }
+            />
+            {
+              // <Route path="/table" component={TableContainer}></Route>
+              // <Route path="/allresults" component={ResultsContainer}></Route>
+              // <Route path="/metaresults" component={MetaContainer}></Route>
+              // <Route path="/cuiadmin" component={CuiAdminContainer}></Route>
+              // <Route path="/list" component={AppContainer}></Route>
             }
-          />
-          {
-            // <Route path="/table" component={TableContainer}></Route>
-            // <Route path="/allresults" component={ResultsContainer}></Route>
-            // <Route path="/metaresults" component={MetaContainer}></Route>
-            // <Route path="/cuiadmin" component={CuiAdminContainer}></Route>
-            // <Route path="/list" component={AppContainer}></Route>
-          }
-          <Route path="register" element={<Register />} />
-          <Route path="collection" element={<CollectionView />} />
-          <Route path="dashboard" element={<Dashboard />} />
-        </Routes>
+            <Route path="register" element={<Register />} />
+            <Route path="collection" element={<CollectionView />} />
+            <Route path="dashboard" element={<Dashboard />} />
+          </Routes>
 
-        <PopAlert/>
-      </main>
+          <PopAlert/>
+        </main>
 
-      <Footer />
-      <GlobalStyle />
+        <Footer />
+        <GlobalStyle />
+      </React.StrictMode>
     </SnackbarProvider>
   );
 }
