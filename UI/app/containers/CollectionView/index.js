@@ -31,7 +31,7 @@ import messages from './messages';
 
 import { FixedSizeList } from 'react-window';
 
-import { 
+import collectionViewReduxActions, {
   loadCollectionAction, updateCollectionAction,
   editCollectionAction, removeTablesAction,
   moveTablesAction, deleteCollectionAction,
@@ -93,6 +93,7 @@ import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import FileCopyIcon from '@material-ui/icons/FileCopy';
 
 import {
   GetApp as DownloadIcon,
@@ -101,7 +102,6 @@ import {
   // Link as LinkIcon,
   // Edit as EditIcon,
 } from '@material-ui/icons';
-
 
 import SearchBar from 'Checkbox../../components/SearchBar'
 
@@ -234,6 +234,7 @@ export function CollectionView({
   const [ targetCollectionID, setTargetCollectionID] = useState('');
   const [ availableCollections, setAvailableCollections ] = useState([]);
   const [ moveDialogOpen, setMoveDialogOpen ] = useState(false);
+  const [ copyDialogOpen, setCopyDialogOpen ] = useState(false);
   const [ moveDialog, showMoveDialog ] = useState(false);
   const [ moveDialogWarningText, setMoveDialogWarningText ] = useState('');
 
@@ -634,6 +635,7 @@ export function CollectionView({
 
             {/* collection list headers */}
             <Card
+              id="tableListHeaderBar"
               style={{
                 marginBottom: 3,
                 padding: '3px auto',
@@ -701,8 +703,6 @@ export function CollectionView({
             </Card>
 
             {/* Search List */}
-            <React.StrictMode>
-
             <Card>
               <div
                 style={{
@@ -726,12 +726,14 @@ export function CollectionView({
                 }
               </div>
             </Card>
-            </React.StrictMode>
 
           </Grid>
 
           {/* side panels */}
-          <Grid item xs={3}>
+          <Grid
+            item xs={3}
+            id="sidePanelContainer"
+          >
 
             <NavigationBar
               stylesCustom={{
@@ -857,6 +859,147 @@ export function CollectionView({
               }
 
               {
+                // Show button Copy if user is logged and tables selected
+                loginState.username && (
+                <div className={classes.buttonHolder} id="CopyTables">
+                  <Button
+                    variant="contained"
+                    disabled={ tablesSelectedNumber == 0}
+                    onClick={() => { setCopyDialogOpen(true); }}
+                  >
+                    Copy Tables <FileCopyIcon style={{marginLeft:5}}/>
+                  </Button>
+                </div> )
+              }
+
+              <Dialog
+                aria-labelledby="customized-dialog-title"
+                open={copyDialogOpen}
+                onClose={ () => setCopyDialogOpen(false) }
+              >
+                <DialogTitle id="customized-dialog-title" >
+                  Copy Tables to Target Collection
+                </DialogTitle>
+                <DialogContent>
+                  <Select
+                    labelId="demo-simple-select-helper-label"
+                    id="demo-simple-select-helper"
+                    displayEmpty
+                    value={targetCollectionID}
+                    onChange={async (event) => {
+
+                      // Check if target collection already has tables
+                      const newTargetCollectionID = event.target.value
+                      setTargetCollectionID(newTargetCollectionID)
+                      // filter already checked
+                      const tablesNotCheckedAtTargetCollection = Object.entries(checkedTables).filter(
+                        table => {
+                          const [key, value] = table;
+                          return newTargetCollectionID in value == false
+                      }).map(table => table[0])
+                      // ask server about tables not checked
+
+                      const tablesAlreadyAtTargetCollection = Object.entries(checkedTables).filter(
+                        table => {
+                          const [key, value] = table;
+                          return newTargetCollectionID in value && value[newTargetCollectionID] == true
+                      })
+                      // Show warning of tables already present at target collection
+                      if (tablesAlreadyAtTargetCollection.length == 0) {
+                        return setMoveDialogWarningText('')
+                      }
+
+                      let warningMessage = (<>
+                        <div>
+                        {
+                          tablesAlreadyAtTargetCollection.length == 1 ? 'File ' : 'Files '
+                        } already present in collecion {newTargetCollectionID}:
+                        </div>
+                        {
+                          tablesAlreadyAtTargetCollection.map((table, index) => {
+                            return (index == 0 ? '': ', ') + table[0]
+                          })
+                        }
+                      </>)
+                      setMoveDialogWarningText(warningMessage)
+                    }}
+                    style={{width:"100%"}}
+                  >
+                    <MenuItem value="" disabled>
+                      Select destination collection
+                    </MenuItem>
+                    {
+                      availableCollections && (
+                      availableCollections.map( (coll, j) => {
+                        if (
+                          // Is moving to itself? or
+                          // Is not the owner of the collection?
+                          coll.collection_id == collection_id ||
+                          coll.owner_username != loginState.username
+                        ) {
+                          return null
+                        }
+
+                        return (
+                          <MenuItem key={j} value={coll.collection_id}>
+                            <SearchResult
+                              text={`${coll.collection_id} -- ${coll.title}`}
+                              type={'collection'}
+                            />
+                          </MenuItem>)
+                      }))
+                    }
+                  </Select>
+                  <div style={{
+                    color:"red",
+                    marginTop:5,
+                    marginBottom:5,
+                  }}>
+                    {/* Show move tables warning messages */}
+                    {moveDialogWarningText}
+                  </div>
+                </DialogContent>
+                <DialogActions>
+                  <Button
+                    disableFocusRipple={true}
+                    disabled={targetCollectionID == ''}
+                    className={classes.acceptButton}
+                    onClick={()=>{showMoveDialog(true);}}
+                  > Accept </Button>
+                  <Button
+                    className={classes.cancelButton}
+                    onClick={()=>{
+                      setTargetCollectionID('');
+                      setMoveDialogWarningText('')
+                      setCopyDialogOpen(false);
+                    }}
+                  >Cancel </Button>
+                </DialogActions>
+
+                <ConfirmationDialog
+                  title={"Copy Tables"}
+                  accept_action={
+                    () => {
+                      dispatch(
+                        collectionViewReduxActions.tablesCopy.action(
+                          checkedTables,
+                          targetCollectionID
+                        )
+                      )
+                      setCopyDialogOpen(false);
+                      setCheckedTables({});
+                      setTablesSelectedNumber(0);
+                      setTargetCollectionID('');
+                      setMoveDialogWarningText('')
+                      showMoveDialog(false);
+                    }
+                  }
+                  cancel_action={ () => {showMoveDialog(false);} }
+                  open={moveDialog}
+                />
+              </Dialog>
+
+              {
               // Move tables if allowed
               allowEdit && (
               <div className={classes.buttonHolder}>
@@ -884,6 +1027,7 @@ export function CollectionView({
                     displayEmpty
                     value={targetCollectionID}
                     onChange={async (event) => {
+
                       // Check if target collection already has tables
                       const newTargetCollectionID = event.target.value
                       setTargetCollectionID(newTargetCollectionID)
