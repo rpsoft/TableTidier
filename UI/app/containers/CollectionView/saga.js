@@ -4,7 +4,7 @@ import { LOAD_COLLECTION_ACTION, EDIT_COLLECTION_ACTION,
   REMOVE_TABLES_ACTION, MOVE_TABLES_ACTION,
   DELETE_COLLECTION_ACTION, DOWNLOAD_DATA_ACTION} from './constants';
 
-import {
+import collectionViewReduxActions, {
   loadCollectionAction,
   updateCollectionAction,
   updateCollectionTablesAction,
@@ -182,6 +182,52 @@ export function* removeCollectionTables ( payload ) {
   return {}
 }
 
+export function* copyCollectionTables ( payload ) {
+  // const credentials = yield select(makeSelectCredentials());
+  const loginData = yield select(makeSelectLogin());
+  const collectionState = yield select(makeSelectCollectionView());
+
+  const parsed = queryString.parse(location.search);
+  const params = new URLSearchParams({
+    'tablesList' : JSON.stringify(Object.keys(payload.tablesList)),
+    'targetCollectionID' : payload.targetCollectionID,
+    'action' : 'copy'
+  });
+
+  const options = generateOptionsPost(params, loginData.token)
+
+  const locationData = yield select(makeSelectLocation());
+  const requestURL = locationData.api_url+`tables`;
+
+  try {
+    const response = yield call(request, requestURL, options);
+
+    if ( response.status && response.status == 'unauthorised' ) {
+      yield put( yield updateCollectionAction({
+        title : '', collection_id : '', description: '', owner_username : '', tables : []
+      }) );
+      return {}
+    }
+    if ( response.status == 'FAIL' ) {
+      yield put( yield issueAlertAction({ open: true, message: response.payload, isError: true }))
+      return {}
+    }
+
+    if (response.data.moved && response.data.moved.length == 0) {
+      yield put( yield issueAlertAction({ open: true, message: 'Tables were not Moved', isError: true }))
+      return {}
+    }
+
+    yield put( yield issueAlertAction({ open: true, message: 'Tables Copied', isError: false }))
+  } catch (err) {
+    console.log(err)
+    yield put( yield updateCollectionAction({
+      title : '', collection_id : '', description: '', owner_username : '', tables : []
+    }) );
+  }
+
+  return {}
+}
 
 export function* moveCollectionTables ( payload ) {
   // const credentials = yield select(makeSelectCredentials());
@@ -522,6 +568,7 @@ export default function* collectionViewSaga() {
   yield takeLatest(EDIT_COLLECTION_ACTION, editCollectionData);
   yield takeLatest(DELETE_COLLECTION_ACTION, deleteCollection);
   yield takeLatest(REMOVE_TABLES_ACTION, removeCollectionTables);
+  yield takeLatest(collectionViewReduxActions.tablesCopy.type, copyCollectionTables);
   yield takeLatest(MOVE_TABLES_ACTION, moveCollectionTables);
   yield takeLatest(DOWNLOAD_DATA_ACTION, downloadTids);
 }
