@@ -20,18 +20,20 @@ async function refreshDocuments() {
   DOCS = res.DOCS
 }
 
-const readyTable = async (docname, page, collection_id, enablePrediction = false) => {
+// const readyTable = async (docname, page, collection_id, enablePrediction = false) => {
+const readyTable = async (filename, collection_id, enablePrediction = false) => {
   // encode filename
   // prevent invalid filename chars
-  const docidEncoded = encodeURIComponent(docname).replaceAll('%20', ' ')+'_'+page+'.html'
-  const docid = docname+'_'+page+'.html'
-  let htmlFile = docidEncoded
+  
+  // const docidEncoded = encodeURIComponent(docname).replaceAll('%20', ' ')+'_'+page+'.html'
+  // const docid = docname+'_'+page+'.html'
+  // let htmlFile = docidEncoded
 
   // If an override file exists then use it!. Overrides are those produced by the editor.
   const override_file_exists = await fs.stat(path.join(
     GENERAL_CONFIG.tables_folder_override,
     collection_id.toString(),
-    docidEncoded.toString()
+    filename.toString()
   ))
   .then(() => true)
   .catch(
@@ -41,7 +43,7 @@ const readyTable = async (docname, page, collection_id, enablePrediction = false
       return fs.stat(path.join(
         GENERAL_CONFIG.tables_folder_override,
         collection_id.toString(),
-        docid.toString()
+        filename.toString()
       ))
     }
   )
@@ -59,17 +61,16 @@ const readyTable = async (docname, page, collection_id, enablePrediction = false
     collection_id.toString()
   )
 
-  console.log(`Loading Table: ${docid} ${override_file_exists ? ' [Override Folder]': ''}`)
+  console.log(`Loading Table: ${filename} ${override_file_exists ? ' [Override Folder]': ''}`)
   
   try {
     // Load file
     //  First encoded if it fails try not encoded. 
-    const data = await fs.readFile(path.join(htmlFolder, htmlFile), {encoding: 'utf8'})
+    const data = await fs.readFile(path.join(htmlFolder, filename), {encoding: 'utf8'})
       .catch((err) => {
         // try not encoded file
         console.log('try to find not encoded version: ' + err)
-        htmlFile = docid
-        return fs.readFile(path.join(htmlFolder, htmlFile), {encoding: 'utf8'})
+        return fs.readFile(path.join(htmlFolder, filename), {encoding: 'utf8'})
       })
 
     // Return if not found
@@ -175,10 +176,10 @@ const readyTable = async (docname, page, collection_id, enablePrediction = false
       }
 
       if ( tableEdited ) {
-        console.log('Table corrected on the fly: '+path.join(htmlFolder, htmlFile));
-        fs.writeFile(path.join(htmlFolder, htmlFile),  tablePage.html())
+        console.log('Table corrected on the fly: '+path.join(htmlFolder, filename));
+        fs.writeFile(path.join(htmlFolder, filename),  tablePage.html())
         .catch((err) => {
-          console.log(`Error: Table corrected on the fly: ${path.join(htmlFolder, htmlFile)} ` + err);
+          console.log(`Error: Table corrected on the fly: ${path.join(htmlFolder, filename)} ` + err);
           if (err) throw err;
         });
       }
