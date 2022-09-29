@@ -40,16 +40,17 @@ function TableNotes(
   }
 ) {
 
-  var modifyNotes = (key, value) => {
-    var new_notes = Object.assign({}, notesData);
+  const modifyNotes = (key, value) => {
+    const new_notes = Object.assign({}, notesData);
     new_notes[key] = value
     setNotesData(new_notes);
-
   }
 
   const heading = {fontWeight:"bold"}
 
-  const NA_to_empty = (term) => (term && term == "NA") ? "" : term // Dealing with legacy NA values.
+  const NA_to_empty = (term) => (term && term == "NA") ?
+    ''
+    : term // Dealing with legacy NA values.
 
 
   // if ( !permissions.read ){
@@ -79,8 +80,7 @@ function TableNotes(
               style={{width:300}}>
               <MenuItem value={""}></MenuItem>
               <MenuItem value={"baseline_table"}>Baseline</MenuItem>
-              <MenuItem value={"result_table_without_subgroup"}>Result Table</MenuItem>
-              <MenuItem value={"result_table_subgroup"}>Result Table With Subgroups</MenuItem>
+              <MenuItem value={"results_table"}>Results Table</MenuItem>
               <MenuItem value={"other_table"}>Other</MenuItem>
             </Select> : NA_to_empty(notesData.tableType)
           }
