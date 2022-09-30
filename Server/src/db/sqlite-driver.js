@@ -85,9 +85,9 @@ function driver(config) {
     },
 
     // Returns the annotation for a single document/table
-    annotationByIDGet: async (docid, page, collId) => {
-      if ( docid == 'undefined' || page == 'undefined' || collId == 'undefined' ) {
-        return `parameters not valid`
+    annotationJoinTableGet: async (tid) => {
+      if ( tid == 'undefined') {
+        return `undefined tid not valid`
       }
 
       const annotations = await queryGet(
@@ -112,8 +112,8 @@ function driver(config) {
       ON
         "table".tid = annotations.tid
       WHERE
-      docid=$1 AND page=$2 AND collection_id = $3`,
-        [docid, page, collId]
+       "table".tid = $1;`,
+        [tid]
       )
       if (annotations == undefined) {
         return null
