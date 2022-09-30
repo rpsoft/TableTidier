@@ -1277,11 +1277,7 @@ app.post(CONFIG.api_base_url+'/getTableContent',
       predictionEnabled
     )
 
-    let annotation = await dbDriver.annotationByIDGet(
-      docid,
-      page,
-      collId,
-    )
+    let annotation = await dbDriver.annotationJoinTableGet(table.tid)
 
     tableData.collectionData = collection_data
 
@@ -1323,7 +1319,7 @@ app.post(CONFIG.api_base_url+'/getTableContent',
             collection_id: collId,
             completion: '',
             docid,
-            file_path: `${docid}_${page}.html`,
+            // file_path: table.file_path,
             notes: '',
             page,
             tableType: '',
@@ -1402,14 +1398,15 @@ app.get(CONFIG.api_base_url+'/cuiRecommend', async function(req,res){
   res.send( cuiRecommend )
 });
 
-const prepareAnnotationPreview = async (docid, page, collId, cachedOnly) => {
+const prepareAnnotationPreview = async (tid, cachedOnly) => {
    // Path to tables
    const {
     tables_folder,
     tables_folder_override,
   } = global.CONFIG
 
-  const annotations = await dbDriver.annotationByIDGet(docid, page, collId)
+  const annotations = await dbDriver.annotationJoinTableGet(tid)
+
   if ( !annotations ) {
     return {state: 'fail', result: []}
   }
@@ -1502,7 +1499,7 @@ app.post(CONFIG.api_base_url+'/annotationPreview',
       return res.json({status: 'wrong parameters', body : req.body})
     }
 
-    res.json(await prepareAnnotationPreview(docid , page, collId, cachedOnly))
+    res.json(await prepareAnnotationPreview(tid, cachedOnly))
   } catch (err) {
     console.log(err)
     res.json({
@@ -2274,8 +2271,11 @@ const prepareMetadata = (headerData, tableResults) => {
 }
 
 // * :-) not used?
+
 const processAnnotationAndMetadata = async (docid, page, collId) => {
-  const tabularData = await prepareAnnotationPreview(docid, page, collId, false)
+    // ! :-) prepareAnnotationPreview needs tid
+  // const tabularData = await prepareAnnotationPreview(docid, page, collId, false)
+  const tabularData = await prepareAnnotationPreview(tid, false)
 
   if (
     (
