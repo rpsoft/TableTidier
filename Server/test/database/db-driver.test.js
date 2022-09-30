@@ -426,27 +426,21 @@ describe('dbDriver', () => {
     });
   });
   describe('Annotations', () => {
-    // annotationByIDGet
-    test('annotationByIDGet table not valid', async () => {
-      const docid = '3333333'
-      const page = 2
-      const collId = 1
-      const annotations = await dbDriver.annotationByIDGet(docid, page, collId);
+    // annotationJoinTableGet
+    test('annotationJoinTableGet table not valid', async () => {
+      const tid = 9
+      const annotations = await dbDriver.annotationJoinTableGet(tid);
       expect(annotations).toEqual(null);
     });
-    test('annotationByIDGet table page without anotations ', async () => {
-      const docid = '28905478'
-      const page = 2
-      const collId = 1
-      const annotations = await dbDriver.annotationByIDGet(docid, page, collId);
+    test('annotationJoinTableGet table page without anotations ', async () => {
+      const tid = 2
+      const annotations = await dbDriver.annotationJoinTableGet(tid);
       expect(typeof annotations).toEqual('object');
       expect(annotations.annotation).toEqual(null);
     });
-    test('annotationByIDGet', async () => {
-      const docid = '28905478'
-      const page = 1
-      const collId = 1
-      const annotations = await dbDriver.annotationByIDGet(docid, page, collId);
+    test('annotationJoinTableGet', async () => {
+      const tid = 1
+      const annotations = await dbDriver.annotationJoinTableGet(tid);
       expect(annotations.annotation.annotations.length).toEqual(5);
     });
     // annotationGetByTid
