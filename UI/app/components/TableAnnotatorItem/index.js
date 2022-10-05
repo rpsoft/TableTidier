@@ -1,6 +1,6 @@
 /**
  *
- * TableAnnotator
+ * TableAnnotatorItem
  *
  */
 
@@ -46,20 +46,13 @@ function TableAnnotatorItem({
   // const [descriptors, setDescriptors] = React.useState( Object.keys(annotationData.content) )
   // const [formaters, setFormaters] = React.useState( Object.keys(annotationData.qualifiers) )
 
-
-
-  //
   // React.useEffect(() => {
   //
   //   setLocation(annotationData.location)
   //   setDescriptors({...annotationData.content})
   //   setFormaters({...annotationData.qualifiers})
   //
-  //
   // }, [annotationData]);
-  //
-
-
 
   const handleChange = (event, data, source) => {
      // var prevState = this.state
@@ -77,92 +70,116 @@ function TableAnnotatorItem({
     // this.props.addAnnotation(this.state)
   }
 
-
   // {"location":"Row","content":{"arms":true},"qualifiers":{},"number":"1"}
 
+  // const descriptors_available = ["outcomes", "characteristic_name", "characteristic_level", "arms", "measures", "time/period", "other", "p-interaction"]
+  const descriptors_available = {
+    outcomes: 'outcomes',
+    features: 'characteristics (features)',
+    arms: 'arms (main exposure)',
+    measures: 'measures',
+    times: 'times',
+    statistics: 'statistics',
+    other: 'other',
+  }
 
+  const formaters_available = {
+    plain: 'plain',
+    bold: 'bold',
+    indented: 'indented',
+    italic: 'italic',
+    empty_row: 'empty_row',
+    empty_row_with_p_value: 'empty_row_with_p_value',
+ }
 
-  const descriptors_available = ["outcomes", "characteristic_name", "characteristic_level", "arms", "measures", "time/period", "other", "p-interaction"]
-  const formaters_available = ["plain", "bold", "indented", "italic", "empty_row","empty_row_with_p_value"]
-
-  const Object2Array = (obj) => Array.isArray(obj) ? obj : Object.keys(obj) // This is a fix for legacy annotations.
+  // This is a fix for legacy annotations.
+  const Object2Array = (obj) => Array.isArray(obj) ? obj : Object.keys(obj)
 
   const descriptors_selected = annotationData.content ? Object2Array(annotationData.content) : []
   const formaters_selected = annotationData.qualifiers ? Object2Array(annotationData.qualifiers) : []
 
   return (
-    <div style={{marginLeft:5, height: 40}}  >
+    <div style={{marginLeft:5, height: 40}}>
+      {
+      enableDelete &&
+      <Fab
+        style={{height:25, width:35, marginRight:20, backgroundColor:"#ffa3a3"}}
+        onClick={ () => { deleteAnnotation(id) } }
+      ><DeleteIcon style={{height:20}}/> </Fab>
+      }
 
-            {enableDelete ? <Fab style={{height:25, width:35, marginRight:20, backgroundColor:"#ffa3a3"}} onClick={ () => { deleteAnnotation(id) } } ><DeleteIcon style={{height:20}}/> </Fab> : ""}
+      <DragIndicatorIcon style={{cursor:"pointer"}}/>
 
+      <span>
 
-          <DragIndicatorIcon style={{cursor:"pointer"}}/>
-          <span>
+        <RaisedButton
+          style={{minWidth: "auto", width: 30, marginLeft: 5}}
+          onClick={() => {editAnnotation( id, "subAnnotation", false)}}
+        > <KeyboardArrowLeftIcon /> </RaisedButton>
+        <RaisedButton
+          style={{minWidth: "auto", width: 30, marginLeft: 5}}
+          onClick={() => {editAnnotation( id, "subAnnotation", true)}}
+        > <KeyboardArrowRightIcon /> </RaisedButton>
 
-            <RaisedButton style={{minWidth: "auto", width: 30, marginLeft: 5}} onClick={() => {editAnnotation( id, "subAnnotation", false)}}> <KeyboardArrowLeftIcon /> </RaisedButton>
-            <RaisedButton style={{minWidth: "auto", width: 30, marginLeft: 5}} onClick={() => {editAnnotation( id, "subAnnotation", true)}}> <KeyboardArrowRightIcon /> </RaisedButton>
+        <span> {
+        annotationData.subAnnotation && <SubdirectoryArrowRightIcon style={{marginLeft:20}}/>
+        } </span>
 
-            <span> { annotationData.subAnnotation ? <SubdirectoryArrowRightIcon style={{marginLeft:20}}/> : ""} </span>
+        <SelectField
+          value={ annotationData.location }
+          onChange={(event,index,value) => { editAnnotation( id, "location", index.props.value);}}
+          style={{width:130,marginLeft:10}}
+        >
+          <MenuItem value={"Col"} key={1} >Column</MenuItem>
+          <MenuItem value={"Row"} key={2} >Row</MenuItem>
+        </SelectField>
 
-            <SelectField
-                value={ annotationData.location }
-                onChange={(event,index,value) => { editAnnotation( id, "location", index.props.value);}}
-                style={{width:130,marginLeft:10}}
-                >
-                  <MenuItem value={"Col"} key={1} >Column</MenuItem>
-                  <MenuItem value={"Row"} key={2} >Row</MenuItem>
-            </SelectField>
+        <Input
+          disabled={false}
+          value={ annotationData.number }
+          placeholder={'0'}
+          type="number"
+          onChange={(event, value) => { editAnnotation( id, "number", event.target.value ) }}
+          inputProps={{style: { textAlign: 'center' }}}
+          style={{width:40,marginLeft:20, textAlign:"center"}}
+        />
 
-            <Input
-                  disabled={false}
-                  value={ annotationData.number }
-                  placeholder={"0"}
-                  type="number"
-                  onChange={(event,value) => { editAnnotation( id, "number", event.target.value ) }}
-                  inputProps={{style: { textAlign: 'center' }}}
-                  style={{width:40,marginLeft:20, textAlign:"center"}}
-                />
+        <MultiplePopOver
+          value={ descriptors_selected }
+          variable={"Content "}
+          options={ descriptors_available }
+          updateAnnotation={ (values) => { editAnnotation( id, "content", values )  } }
+          style={{marginLeft:10}}
+        />
 
+        <MultiplePopOver
+          value={ formaters_selected }
+          variable={"Format "}
+          options={ formaters_available }
+          updateAnnotation={ (values) => {  editAnnotation( id, "qualifiers", values ) } }
+          style={{marginLeft:10}}
+        />
 
+        {
+          // <span style={{marginLeft:10, padding:9, border:"1px solid black", borderRadius:5}}>
+          //   Subordinate ?
+          //  <Checkbox
+          //    checked={ false }
+          //    onChange={ () => {} }
+          //    inputProps={{ 'aria-label': 'primary checkbox' }}
+          //  />
+          // </span>
+          //   <RaisedButton
+          //   variant={"contained"}
+          //   style={{marginLeft: 30, backgroundColor:"#ffa3a3"}}
+          //   onClick={() => { deleteAnnotation()}}
+          //
+          // ><DeleteIcon /></RaisedButton>
+          // optionsShown ? <span> <KeyboardBackspaceIcon style={{marginLeft:30}}/>
+          // <Fab style={{height:25, width:35, marginLeft:30, backgroundColor:"#ffa3a3"}} ><DeleteIcon style={{height:20}}/> </Fab></span> : ""
+        }
 
-            <MultiplePopOver
-                         value={ descriptors_selected }
-                         variable={"Content "}
-                         options={ descriptors_available }
-                         updateAnnotation={ (values) => { editAnnotation( id, "content", values )  } }
-                         style={{marginLeft:10}}
-                         />
-
-            <MultiplePopOver
-                         value={ formaters_selected }
-                         variable={"Format "}
-                         options={ formaters_available }
-                         updateAnnotation={ (values) => {  editAnnotation( id, "qualifiers", values ) } }
-                         style={{marginLeft:10}}
-                         />
-
-
-
-            {
-              // <span style={{marginLeft:10, padding:9, border:"1px solid black", borderRadius:5}}>
-              //   Subordinate ?
-              //  <Checkbox
-              //    checked={ false }
-              //    onChange={ () => {} }
-              //    inputProps={{ 'aria-label': 'primary checkbox' }}
-              //  />
-              // </span>
-              //   <RaisedButton
-              //   variant={"contained"}
-              //   style={{marginLeft: 30, backgroundColor:"#ffa3a3"}}
-              //   onClick={() => { deleteAnnotation()}}
-              //
-              // ><DeleteIcon /></RaisedButton>
-              // optionsShown ? <span> <KeyboardBackspaceIcon style={{marginLeft:30}}/>
-              // <Fab style={{height:25, width:35, marginLeft:30, backgroundColor:"#ffa3a3"}} ><DeleteIcon style={{height:20}}/> </Fab></span> : ""
-            }
-
-          </span>
+      </span>
     </div>
   );
 }
