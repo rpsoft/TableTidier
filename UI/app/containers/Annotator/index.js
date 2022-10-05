@@ -128,7 +128,7 @@ const useStyles = makeStyles((theme) => ({
   },
   drawerPaper: {
     width: drawerWidth,
-    height: `calc(100% - 124px)`,
+    height: `calc(100% - 50px)`,
     left: 'auto',
     right: 15,
   },
@@ -737,6 +737,7 @@ export function Annotator({
 
           {/* side menu */}
       <Card
+        id="sideMenu"
         className={classes.drawer}
         // variant="permanent"
         classes={{
