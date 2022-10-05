@@ -479,7 +479,7 @@ export function CollectionView({
       <span> -- </span>
       <Link to={url} className={classes.link}>
         <SearchResult
-          text={ `${table_key} -- ${user} -- ${notes}` }
+          text={ `${table_key} -- ${user} -- ${notes? notes.slice(0, 100): ''}` }
           type={"table"}
         />
       </Link>
