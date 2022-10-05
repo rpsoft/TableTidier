@@ -65,63 +65,85 @@ function TableAnnotator({
     setAnnotations(temp.slice());
   }
 
-  const AnnotationList = annotations ? <List
+  const AnnotationList = annotations && (
+    <List
       values={annotations}
       onChange={({ oldIndex, newIndex }) =>
         setAnnotations(arrayMove(annotations, oldIndex, newIndex))
       }
-      renderList={({ children, props }) => <div {...props}>{children}</div>}
-      renderItem={({ value, index, props }) => <div {...props}>{
-        <TableAnnotatorItem
+      renderList={ ({ children, props }) => <div {...props}>{children}</div> }
+      renderItem={ ({ value, index, props }) => (
+        <div {...props}>
+          <TableAnnotatorItem
             id={index}
             annotationData={ value }
             deleteAnnotation={ deleteAnnotationLine }
             editAnnotation={ changeAnnotationData }
             enableDelete={ enableDelete }
-        />}
-      </div>}
-    />: ""
+          />
+        </div>
+      )}
+    />
+  )
 
-  if (!allowEdit){
-    return <div style={{padding:"7px 7px 7px 7px"}} >
-              <div style={{height:35, fontSize:22}}>
-              <div style={{paddingTop:5}}> 2. Table <b> Annotations </b> <span style={{fontSize:15}}>(Editing Disabled - Read-only mode)</span> </div>
-              </div>
-            </div>
+  if (!allowEdit) {
+    return (
+      <div style={{padding:"7px 7px 7px 7px"}} >
+        <div style={{height:35, fontSize:22}}>
+          <div
+            style={{paddingTop:5}}
+          > 2. Table <b> Annotations </b> <span style={{fontSize:15}}>(Editing Disabled - Read-only mode)</span> </div>
+        </div>
+      </div>)
   }
 
   return (
     <div style={{padding:"7px 7px 7px 7px"}} >
         <div style={{height:35, fontSize:22}}>
 
-          <Button variant="outlined" style={{backgroundColor:"lightblue", float:"right"}} onClick={ () => { saveAnnotationChanges(tid, annotations); loadTableResults();} }> save annotation changes </Button>
-          <Button variant="outlined" style={{backgroundColor:"lightblue", float:"right", marginRight:10}} onClick={ () => { loadTableResults(true) } }> Auto Annotate <AdbIcon /></Button>
+          <Button
+            variant="outlined"
+            style={{backgroundColor:"lightblue", float:"right"}}
+            onClick={ () => { saveAnnotationChanges(tid, annotations); loadTableResults();} }
+          > save annotation changes </Button>
+          <Button
+            variant="outlined"
+            style={{backgroundColor:"lightblue", float:"right", marginRight:10}}
+            onClick={ () => { loadTableResults(true) } }
+          > Auto Annotate <AdbIcon /></Button>
 
           <span style={{float:"right", marginRight:10, fontSize:17, border:"1px #acacac solid", borderRadius:10, paddingLeft:10}}>
             Enable Delete
             <Switch
-                checked={enableDelete}
-                onChange={() => { setEnableDelete(!enableDelete) }}
-                name="checkedA"
-                inputProps={{ 'aria-label': 'secondary checkbox' }}
-                classes={{
-                  root: classes.root, // class name, e.g. `classes-nesting-root-x`
-                }}
-              />
+              checked={enableDelete}
+              onChange={() => { setEnableDelete(!enableDelete) }}
+              name="checkedA"
+              inputProps={{ 'aria-label': 'secondary checkbox' }}
+              classes={{
+                root: classes.root, // class name, e.g. `classes-nesting-root-x`
+              }}
+            />
           </span>
 
           <div style={{paddingTop:5,display:"inline"}}>2. Table <b> Structure </b></div>
-          <Button variant="outlined" style={{backgroundColor:"lightgreen", display:"inline"}} onClick={ () => { var temp = Array.from(annotations); temp.push({location: "Col" , content:{}, qualifiers:{}, number:"1", subAnnotation:false}); setAnnotations( temp )} }> + add annotation item</Button>
+          <Button
+            variant="outlined"
+            style={{backgroundColor:"lightgreen", display:"inline"}}
+            onClick={ () => {
+              const temp = Array.from(annotations);
+              temp.push({location: "Col" , content:{}, qualifiers:{}, number:"1", subAnnotation:false});
+              setAnnotations( temp )
+            }}
+          > + add annotation item</Button>
         </div>
 
-      {//<div>{JSON.stringify(annotations)}</div>
-      }
+        {//<div>{JSON.stringify(annotations)}</div>
+        }
         <hr style={{borderTop:"1px #acacac dashed"}}/>
 
         <div style={{width:"100%",whiteSpace: "nowrap"}}>
           {AnnotationList}
         </div>
-
 
     </div>
   );
