@@ -1270,7 +1270,7 @@ app.post(CONFIG.api_base_url+'/getTableContent',
   try {
     const predictionEnabled = JSON.parse(enablePrediction)
 
-    const tableData = await readyTable(
+    let tableData = readyTable(
       table.file_path,
       collId,
       // predictions
@@ -1278,6 +1278,56 @@ app.post(CONFIG.api_base_url+'/getTableContent',
     )
 
     let annotation = await dbDriver.annotationJoinTableGet(table.tid)
+
+    tableData = await tableData
+
+    // mapped the old terms (eg characteristic_level) over to the new (eg characteristic)
+    // ## table structure elements
+    // outcomes = outcomes
+    // arms = arms (main exposure)
+    // measures = measures
+    // time/period = times
+    // p-interaction - statistics
+    // characteristic_name = characteristics (features)
+    // characteristic_level = characteristics (features)
+
+    // this terms are also defined at UI in component TableAnnotatorItem
+
+    const autoAnnotationMapTerms = {
+      outcomes: 'outcomes',
+      arms: 'arms',
+      measures: 'measures',
+      'time/period': 'times',
+      'p-interaction': 'statistics',
+      'characteristic_name': 'characteristics',
+      'characteristic_level': 'characteristics',
+    }
+
+    // map columns
+    if (tableData.predictedAnnotation.cols) {
+      // mapped the old terms (eg characteristic_level) over to the new
+      tableData.predictedAnnotation.cols = tableData.predictedAnnotation.cols.map(
+        annotation => ({
+          ...annotation,
+          descriptors: annotation.descriptors.map(
+            descriptor => autoAnnotationMapTerms[descriptor]
+          ),
+        })
+      )
+    }
+    
+    // map rows
+    if (tableData.predictedAnnotation.rows) {
+      // mapped the old terms (eg characteristic_level) over to the new
+      tableData.predictedAnnotation.rows = tableData.predictedAnnotation.rows.map(
+        annotation => ({
+          ...annotation,
+          descriptors: annotation.descriptors.map(
+            descriptor => autoAnnotationMapTerms[descriptor]
+          ),
+        })
+      )
+    }
 
     tableData.collectionData = collection_data
 
@@ -1323,7 +1373,9 @@ app.post(CONFIG.api_base_url+'/getTableContent',
             notes: '',
             page,
             tableType: '',
-            tid: tableData.collectionData.tables.filter( table => table.docid == docid && table.page == page )[0].tid,
+            tid: tableData.collectionData.tables.filter(
+              table => table.docid == docid && table.page == page
+            )[0].tid,
             user: username,
           }
         }
