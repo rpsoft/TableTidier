@@ -75,7 +75,7 @@ function TableAnnotatorItem({
   // const descriptors_available = ["outcomes", "characteristic_name", "characteristic_level", "arms", "measures", "time/period", "other", "p-interaction"]
   const descriptors_available = {
     outcomes: 'outcomes',
-    features: 'characteristics (features)',
+    characteristics: 'characteristics (features)',
     arms: 'arms (main exposure)',
     measures: 'measures',
     times: 'times',
