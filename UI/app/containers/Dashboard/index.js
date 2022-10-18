@@ -263,32 +263,34 @@ export function Dashboard({
   // Search results
   const SearchResulRow = ({ index }) => {
     let {
-      doc: table_key,
       selectedChunks,
       score,
-     } = dashboard.search_results[index]
+      info,
+    } = dashboard.search_results[index]
+
+    const {
+      tid,
+      collection_id: collId,
+      docid,
+      page,
+    } = info
 
     const searchContent = dashboard.searchContent.split(' ')
 
-    const findFirstNumber = /\d/g.exec(table_key)
-    // If text before collection number
-    if (findFirstNumber.index > 0) {
-      // remove text from begging to findFirstNumber.index
-      table_key = table_key.slice(findFirstNumber.index)
-    }
-    const elems = table_key.split('_')
-
-    const [collId, docname] = elems[0].split('/')
-    const page = elems[1]
+    const tableHeader = `table id: ${tid} collection ${collId} / ${docid} page ${page} `
 
     // var notes = collectionView.tables[index].notes ? collectionView.tables[index].notes : ""
     // var user = collectionView.tables[index].user ? collectionView.tables[index].user : ""
 
-    const url = `/table?docid=${docname}&page=${page}&collId=${collId}`
+    // debugger
+    // if (tid == '2967') debugger
+
+    // const url = `/table?docid=${docname}&page=${page}&collId=${collId}`
+    const url = `/table?tid=${tid}`
 
     return (
       <div
-        key={collId+docname+page}
+        key={tid}
         className={classes.searchItem}
       >
         {
@@ -304,16 +306,18 @@ export function Dashboard({
         </div>
 
         <SearchTableItem
-          text={table_key}
+          text={tableHeader}
           type={'table'}
           searchContent={searchContent}
           selectedChunks={selectedChunks.slice(0, 2)}
+          info={info}
           score={score}
           linkUrl={url}
         />
       </div>
     )
   }
+
   // React.memo(
   console.time('table_search_results')
   const table_search_results = (

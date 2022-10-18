@@ -22,6 +22,7 @@ function SearchTableItem({
   searchContent,
   // info about search
   selectedChunks,
+  info,
   score,
   // link to table
   linkUrl,
@@ -38,9 +39,9 @@ function SearchTableItem({
       { text }
       </Link>
 
-      <span> DOI </span>
-      <span> PMID </span>
-      <span> url </span>
+      {info.doi && <span> DOI {info.doi}</span>}
+      {info.pmid && <span> PMID {info.pmid}</span>}
+      {info.url && <span> url {info.url}</span>}
       {
         score && (
         <div
