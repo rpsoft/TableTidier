@@ -338,14 +338,54 @@ const rebuildSearchIndex = async () => {
   tablesInFolderOverride = tablesInFolderOverride.map(
     (dir) => path.join(tables_folder_override, dir)
   )
-  // search index
-  global.searchIndex = await easysearch.indexFolder(
-    [
-      ...tablesInFolder,
-      ...tablesInFolderOverride
-    ],
+
+  // Get DB info
+  // [
+  //   {
+  //     tid,
+  //     file_path,
+  //     other,
+  //   },
+  //   ...
+  // ]
+  const tablesInfo = await dbDriver.tablesSearchIndexInfo()
+  // prepare files paths
+  for (let info of tablesInfo) {
+    const pathOverride = path.join(
+      tables_folder_override,
+      info.collection_id,
+      info.file_path
+    )
+
+    // If file exists at tables_folder_override
+    info.file_path = fs.access(pathOverride)
+      .then(() => true, () => false) == true ?
+        pathOverride
+        // else path is in tables_folder
+        : path.join(
+          tables_folder,
+          info.collection_id,
+          info.file_path
+        )
+  }
+
+  // Search index by DB info
+  global.searchIndex = await easysearch.indexFromDB(
+    tablesInfo,
+    {
+      filePathFieldName: 'file_path',
+      linkFieldName: 'tid',
+    },
     true
   )
+  // search index
+  // global.searchIndex = await easysearch.indexFolder(
+  //   [
+  //     ...tablesInFolder,
+  //     ...tablesInFolderOverride
+  //   ],
+  //   true
+  // )
 }
 
 const tabularFromAnnotation = async ( annotation ) => {
@@ -1189,12 +1229,12 @@ app.post(CONFIG.api_base_url+'/search',
     (elm) => collectionPermissions.read.includes(
       // Extract collection id from path.
       // Example: 1 from 'HTML_TABLES/1/20463178_2.html'
-      parseInt(/\d+/g.exec(elm.doc)[0])
+      parseInt(elm.info.collection_id)
     )
   )
 
   // remove extension
-  search_results.forEach( elm => elm.doc = elm.doc.replace('.html', '') )
+  // search_results.forEach( elm => elm.doc = elm.doc.replace('.html', '') )
 
   console.log(`SEARCH: ${search_results.length} for ${searchContent}`)
 
