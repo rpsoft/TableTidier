@@ -320,6 +320,8 @@ async function CUIData () {
   }
 }
 
+let globalSearchIndex = {}
+
 const rebuildSearchIndex = async () => {
   // Path to tables
   const {
@@ -370,7 +372,7 @@ const rebuildSearchIndex = async () => {
   }
 
   // Search index by DB info
-  global.searchIndex = await easysearch.indexFromDB(
+  globalSearchIndex = await easysearch.indexFromDB(
     tablesInfo,
     {
       filePathFieldName: 'file_path',
@@ -379,7 +381,7 @@ const rebuildSearchIndex = async () => {
     true
   )
   // search index
-  // global.searchIndex = await easysearch.indexFolder(
+  // globalSearchIndex = await easysearch.indexFolder(
   //   [
   //     ...tablesInFolder,
   //     ...tablesInFolderOverride
@@ -1223,7 +1225,7 @@ app.post(CONFIG.api_base_url+'/search',
   const username = user?.sub
   const collectionPermissions = await dbDriver.permissionsResourceGet('collections', user ? username : '')
 
-  let search_results = easysearch.search( global.searchIndex, searchContent)
+  let search_results = easysearch.search( globalSearchIndex, searchContent)
 
   search_results = search_results.filter(
     (elm) => collectionPermissions.read.includes(
