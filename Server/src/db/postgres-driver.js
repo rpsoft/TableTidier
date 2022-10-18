@@ -861,6 +861,28 @@ function driver(config) {
       return tid.rows[0].tid
     },
 
+    tablesSearchIndexInfo: async () => {
+      const tablesInfo = await query(
+        `SELECT 
+          tid,
+          file_path,
+          collection_id,
+          docid,
+          "page",
+          COALESCE("table".doi, '') AS doi,
+          COALESCE("table".pmid, '') AS pmid,
+          COALESCE("table".url, '') AS url,
+          "user"
+        FROM public."table"
+        ORDER BY tid`,
+        []
+      )
+      if ( tablesInfo.rows && tablesInfo.rows.length == 0 ){
+        return 'not found'
+      }
+      return tablesInfo.rows
+    },
+
     userCreate: async (userData) => {
       const {
         username,
