@@ -1225,6 +1225,7 @@ app.post(CONFIG.api_base_url+'/search',
   const username = user?.sub
   const collectionPermissions = await dbDriver.permissionsResourceGet('collections', user ? username : '')
 
+  // Search index
   let search_results = easysearch.search( globalSearchIndex, searchContent)
 
   search_results = search_results.filter(
@@ -1235,6 +1236,89 @@ app.post(CONFIG.api_base_url+'/search',
     )
   )
 
+  const metadataSearchItemsWords = searchContent.split(' ')
+  // Search metadata at DB for each search item/'word'
+  const metadataSearchItems = await Promise.all(
+    metadataSearchItemsWords.map(word => dbDriver.searchMetadata(word))
+  )
+
+  let metadataSearchByTableId = {}
+
+  // For each search item/word metadata from DB search,
+  // Generate an object map of tables id with scores
+  //   each searchItem = 10 points
+  //   each metadata = 1 point
+  metadataSearchItems.forEach((metadataSearch, index) => {
+    const searchItem = metadataSearchItemsWords[index]
+    for (let metadata of Object.keys(metadataSearch)) {
+      for (let table of metadataSearch[metadata]) {
+        const tid = table.tid
+        // metadataSearch[metadata]
+        // if table already added to metadataSearchByTableId
+        if (metadataSearchByTableId[tid]) {
+          // increase score +1
+          metadataSearchByTableId[tid].score += 1
+          // add metadata if not present
+          if (metadataSearchByTableId[tid].metadata.includes(metadata) == false ) {
+            metadataSearchByTableId[tid].metadata.push(metadata)
+          }
+          // Add searchItem if not present
+          if (metadataSearchByTableId[tid].searchItems.includes(searchItem) == false ) {
+            // Add 10 points to the score
+            metadataSearchByTableId[tid].score += 10
+            metadataSearchByTableId[tid].searchItems.push(searchItem)
+          }
+          // next table
+          continue
+        }
+  
+        // Add table to metadataSearchByTableId
+        metadataSearchByTableId[tid] = {
+          doc: tid,
+          // get info from easysearch index
+          info: globalSearchIndex.doc_info[tid],
+          // initial score
+          score: 11,
+          // get doc chunks from easysearch index
+          selectedChunks: globalSearchIndex.doc_chunks[tid],
+          metadata: [metadata],
+          searchItems: [searchItem]
+        }
+      }
+    }
+  })
+
+
+  if (Object.keys(metadataSearchByTableId).length > 0) {
+    // debugger
+
+    // sort metadata by score and tid
+    let sortedArray = Object.keys(metadataSearchByTableId)
+      .map(tid => metadataSearchByTableId[tid])
+      .sort((a, b) => {
+        if (a.score === b.score){
+          return parseInt(a.doc) > parseInt(b.doc) ? -1 : 1
+        } else {
+          return a.score > b.score ? -1 : 1
+        }
+      })
+
+    // if table is duplicated at search index and metadata
+    // remove table duplicate from search index
+    Object.keys(metadataSearchByTableId).forEach(tid => {
+      const indexTid = search_results.indexOf(tid)
+      if (indexTid < 0) {
+        return
+      }
+      search_results.splice(indexTid, 1);
+    })
+
+    return res.json({
+      search_results,
+      metadata: sortedArray,
+    })
+  }
+
   // remove extension
   // search_results.forEach( elm => elm.doc = elm.doc.replace('.html', '') )
 
@@ -1244,7 +1328,8 @@ app.post(CONFIG.api_base_url+'/search',
   //   search_results = search_results.slice(0,100)
   // }
 
-  res.json(search_results)
+  
+  res.json({search_results})
 });
 
 app.post(CONFIG.api_base_url+'/getTableContent',
