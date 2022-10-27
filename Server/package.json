@@ -18,11 +18,11 @@
     "db:reset:sqlite": "db-migrate reset:sqlite -e sqlite",
     "test": "jest test --verbose --detectOpenHandles --testPathIgnorePatterns node_modules database ",
     "test_brk": "mocha --inspect-brk testing/tabuliser_testing.js",
-    "test:pg": "DB_DRIVER_TYPE=postgres CONFIG_PATH=${PWD}/test/database jest test/database",
-    "test:sqlite": "DB_DRIVER_TYPE=sqlite CONFIG_PATH=${PWD}/test/database jest test/database",
+    "test:pg": "DB_DRIVER_TYPE=postgres CONFIG_PATH=${PWD}/test/database jest db-driver",
+    "test:sqlite": "DB_DRIVER_TYPE=sqlite CONFIG_PATH=${PWD}/test/database jest db-driver",
     "test:watch": "jest test --verbose --testPathIgnorePatterns node_modules database --watch",
-    "test:watch:pg": "DB_DRIVER_TYPE=postgres CONFIG_PATH=${PWD}/test/database jest --watch",
-    "test:watch:sqlite": "DB_DRIVER_TYPE=sqlite CONFIG_PATH=${PWD}/test/database jest --watch"
+    "test:watch:pg": "DB_DRIVER_TYPE=postgres CONFIG_PATH=${PWD}/test/database jest --watch db-driver",
+    "test:watch:sqlite": "DB_DRIVER_TYPE=sqlite CONFIG_PATH=${PWD}/test/database jest --watch db-driver"
   },
   "repository": {
     "type": "git",
@@ -87,7 +87,7 @@
     "csv-writer": "^1.6.0",
     "db-migrate": "^1.0.0-beta.18",
     "db-migrate-pg": "^1.2.2",
-    "db-migrate-sqlite3": "^0.4.0",
+    "db-migrate-sqlite3": "github:alex-grinvich/sqlite",
     "dotenv": "^16.0.0",
     "double-ended-queue": "^2.1.0-0",
     "es6-promise": "~4.2.8",
