@@ -475,12 +475,28 @@ function driver(config) {
       )
     },
 
-    resultsDataGet: async(tids) => {
+    resultsDataGet: async (tids) => {
       try {
         const results = await query(`SELECT * FROM public."result" WHERE tid = ANY ($1)`, [tids])
         return results.rows
       } catch (err) {
         return err
+      }
+    },
+
+    searchMetadata: async (word) => {
+      let pmid = query(`SELECT * FROM "public"."table" where pmid like '${word}%';`, [])
+      let doi =  query(`SELECT * FROM "public"."table" where doi like '${word}%';`, [])
+      let url =  query(`SELECT * FROM "public"."table" where url like '%${word}%';`, [])
+
+      pmid = await pmid
+      doi =  await doi
+      url =  await url
+
+      return {
+        pmid: pmid.rows,
+        doi: doi.rows,
+        url: url.rows,
       }
     },
 

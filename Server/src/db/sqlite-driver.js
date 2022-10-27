@@ -521,6 +521,22 @@ function driver(config) {
 
     resultsDataGet: (tids) => query(`SELECT * FROM "result" WHERE tid = ANY ($1)`, [tids]),
 
+    searchMetadata: async (word) => {
+      let pmid = queryAll(`SELECT * FROM "table" where pmid like '${word}%';`, [])
+      let doi =  queryAll(`SELECT * FROM "table" where doi like '${word}%';`, [])
+      let url =  queryAll(`SELECT * FROM "table" where url like '%${word}%';`, [])
+
+      pmid = await pmid
+      doi =  await doi
+      url =  await url
+
+      return {
+        pmid,
+        doi,
+        url,
+      }
+    },
+
     // copy table to other collection.
     tableCopy: async function(tid, collectionTarget, user) {
       // check that collectionTarget is a different collection
