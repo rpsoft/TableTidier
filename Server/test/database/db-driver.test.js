@@ -348,6 +348,15 @@ describe('dbDriver', () => {
       expect(table.pmid).toEqual(pmid);
     });
   });
+  describe('Search', () => {
+    // searchMetadata
+    test('searchMetadata', async () => {
+      const doiCode = '10.1161/JAHA.118.010748'
+      const searchMetadata = await dbDriver.searchMetadata(doiCode);
+      expect(searchMetadata.doi.length).toEqual(1);
+      expect(searchMetadata.doi[0].doi).toEqual(doiCode);
+    });
+  });
   describe('Collections', () => {
     // permissionsResourceGet from collection
 
