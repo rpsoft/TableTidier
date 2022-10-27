@@ -1236,7 +1236,11 @@ app.post(CONFIG.api_base_url+'/search',
     )
   )
 
+  // Get search items/words
+  // Filter by size and it does not contain spaces
   const metadataSearchItemsWords = searchContent.split(' ')
+    .filter(word => word.length > 2 && word.includes(' ') == false)
+
   // Search metadata at DB for each search item/'word'
   const metadataSearchItems = await Promise.all(
     metadataSearchItemsWords.map(word => dbDriver.searchMetadata(word))
