@@ -1250,8 +1250,8 @@ app.post(CONFIG.api_base_url+'/search',
 
   // For each search item/word metadata from DB search,
   // Generate an object map of tables id with scores
-  //   each searchItem = 10 points
-  //   each metadata = 1 point
+  //   each searchItem/word matched = 10 points
+  //   each metadata matched = 1 point
   metadataSearchItems.forEach((metadataSearch, index) => {
     const searchItem = metadataSearchItemsWords[index]
     for (let metadata of Object.keys(metadataSearch)) {
@@ -1275,7 +1275,7 @@ app.post(CONFIG.api_base_url+'/search',
           // next table
           continue
         }
-  
+
         // Add table to metadataSearchByTableId
         metadataSearchByTableId[tid] = {
           doc: tid,
@@ -1284,7 +1284,8 @@ app.post(CONFIG.api_base_url+'/search',
           // initial score
           score: 11,
           // get doc chunks from easysearch index
-          selectedChunks: globalSearchIndex.doc_chunks[tid],
+          // limit number of chucks to length 10 
+          selectedChunks: globalSearchIndex.doc_chunks[tid].slice(0, 10),
           metadata: [metadata],
           searchItems: [searchItem]
         }
@@ -1294,8 +1295,6 @@ app.post(CONFIG.api_base_url+'/search',
 
 
   if (Object.keys(metadataSearchByTableId).length > 0) {
-    // debugger
-
     // sort metadata by score and tid
     let sortedArray = Object.keys(metadataSearchByTableId)
       .map(tid => metadataSearchByTableId[tid])
@@ -1310,10 +1309,12 @@ app.post(CONFIG.api_base_url+'/search',
     // if table is duplicated at search index and metadata
     // remove table duplicate from search index
     Object.keys(metadataSearchByTableId).forEach(tid => {
-      const indexTid = search_results.indexOf(tid)
+      const indexTid = search_results.findIndex(table => table.doc == tid)
+      // if it is not duplicated check next
       if (indexTid < 0) {
         return
       }
+      // remove duplicated table
       search_results.splice(indexTid, 1);
     })
 
