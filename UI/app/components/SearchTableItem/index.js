@@ -3,6 +3,7 @@
  * SearchTableItem
  *
  */
+ import './SearchTableItem.css';
 
 import React from 'react';
 // import PropTypes from 'prop-types';
@@ -29,6 +30,19 @@ function SearchTableItem({
   data,
   onClick,
 }) {
+
+  // if searchContent includes input word then add bold markup to the word 
+  const boldIfNamed = (metadataItem) => (<span className="SearchTableItemMetadata">{
+    searchContent.reduce(
+      (prev, searchItem) => metadataItem.includes(searchItem) || prev, false) ?
+      (<b>{metadataItem + ' '}</b>)
+      : metadataItem
+  }</span>)
+  
+  const MetadataItem = (props) => (
+    <div className="SearchTableItemMetadataHeader">{props.children}</div>
+  )
+
   return (
     <div
       className="search_info"
@@ -39,9 +53,14 @@ function SearchTableItem({
       { text }
       </Link>
 
-      {info.doi && <span> DOI {info.doi}</span>}
-      {info.pmid && <span> PMID {info.pmid}</span>}
-      {info.url && <span> url {info.url}</span>}
+      <div
+        className="SearchTableItemMetadataContainer"
+      >
+        {info.doi && <MetadataItem> DOI {boldIfNamed(info.doi)}</MetadataItem>}
+        {info.pmid && <MetadataItem> PMID {boldIfNamed(info.pmid)}</MetadataItem>}
+        {info.url && <MetadataItem> Url {boldIfNamed(info.url)}</MetadataItem>}
+      </div>
+
       {
         score && (
         <div
