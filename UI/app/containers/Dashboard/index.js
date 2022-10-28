@@ -4,7 +4,7 @@
  *
  */
 
- import './Dashboard.css';
+import './Dashboard.css';
 
 import React, { useEffect, memo, useState, useRef, useMemo } from 'react';
 import PropTypes from 'prop-types';
@@ -275,7 +275,7 @@ export function Dashboard({
       page,
     } = info
 
-    const searchContent = dashboard.searchContent.split(' ')
+    const searchContent = dashboard.searchContent.trim().split(' ')
 
     const tableHeader = `table id: ${tid} collection ${collId} / ${docid} page ${page} `
 
