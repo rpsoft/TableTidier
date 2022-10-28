@@ -10,6 +10,7 @@ export const initialState = {
   searchContent : '',
   searchType : {},
   search_results : [],
+  search_results_metadata: [],
   collections : [],
 };
 
@@ -23,13 +24,22 @@ const dashboardReducer = (state = initialState, action) =>
 
         break;
       case SEARCH_RESULTS_UPDATE_ACTION:
-        draft.search_results = action.search_results;
+        const newSearchInfo = action.search_results.metadata ?
+          [
+            ...action.search_results.metadata,
+            ...action.search_results.search_results
+          ]
+          : action.search_results.search_results
+        draft.search_results = newSearchInfo;
+        draft.search_results_metadata = action.search_results.metadata ?
+          action.search_results.metadata
+          : []
+
         break;
       case UPDATE_COLLECTIONS_LIST_ACTION:
         
         draft.collections = action.collections_list;
         break;
-
     }
   });
 
