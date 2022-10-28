@@ -1,8 +1,16 @@
 import { take, call, put, select, takeLatest } from 'redux-saga/effects';
 
-import { SEARCH_ACTION, REQUEST_COLLECTIONS_LIST_ACTION, CREATE_COLLECTION_ACTION } from './constants';
+import {
+  SEARCH_ACTION,
+  REQUEST_COLLECTIONS_LIST_ACTION,
+  CREATE_COLLECTION_ACTION
+} from './constants';
 
-import { updateSearchResultsAction, updateCollectionsListAction } from './actions';
+import {
+  updateSearchResultsAction,
+  updateCollectionsListAction
+} from './actions';
+
 import makeSelectDashboard, {makeSelectCredentials} from './selectors';
 
 import 
@@ -38,15 +46,13 @@ export function* doSearch() {
     const response = yield call(request, requestURL, options);
 
     if ( response.status && response.status == 'unauthorised') {
-
-    } else {
-      // debugger
-      yield put( yield updateSearchResultsAction(response) );
+      return
     }
+
+    yield put( yield updateSearchResultsAction(response) );
   } catch (err) {
     console.log(err)
   }
-
 }
 
 export function* listCollections() {
@@ -117,6 +123,5 @@ export function* createCollection() {
 export default function* dashboardSaga() {
   yield takeLatest(SEARCH_ACTION, doSearch);
   yield takeLatest(REQUEST_COLLECTIONS_LIST_ACTION, listCollections);
-
   yield takeLatest(CREATE_COLLECTION_ACTION, createCollection);
 }
