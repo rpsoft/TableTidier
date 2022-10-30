@@ -2354,6 +2354,12 @@ app.put(CONFIG.api_base_url+'/table/updateReferences',
 
   try {
     const result = await dbDriver.tableReferencesUpdate(tid, pmid, doi, url);
+
+    // Update table info at search index info (globalSearchIndex)
+    globalSearchIndex.doc_info[tid].pmid = pmid
+    globalSearchIndex.doc_info[tid].doi = doi
+    globalSearchIndex.doc_info[tid].url = url
+
   } catch (err) {
     console.log(err)
   }
