@@ -26,6 +26,7 @@ import Register from '../Register'
 const Annotator = React.lazy(/* webpackChunkName: "Annotator" */ () => import("../Annotator"));
 import Dashboard from '../Dashboard'
 import CollectionView from '../CollectionView'
+import Documentation from '../Documentation'
 import HomePage from '../HomePage'
 
 import {
@@ -187,6 +188,7 @@ export function App({}) {
             <Route path="register" element={<Register />} />
             <Route path="collection" element={<CollectionView />} />
             <Route path="dashboard" element={<Dashboard />} />
+            <Route path="documentation" element={<Documentation />} />
           </Routes>
 
           <PopAlert/>
