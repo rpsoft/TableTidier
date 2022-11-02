@@ -23,7 +23,7 @@ function Footer() {
       }}
     >
       <div>
-        University of Glasgow 2020 - MVLS - Public Health
+        University of Glasgow 2022 - MVLS - Public Health
       </div>
     </footer>
   );
