@@ -89,7 +89,7 @@ export function Documentation(props) {
         <li>
           <VideoDescription
             title='Overview of the table window'
-            summary='It gives overview to help navigate the table window.'
+            summary='It gives an overview to help navigate the table window.'
             linkText='https://vimeo.com/764949695'
             linkHref='https://vimeo.com/764949695'
           />
@@ -97,7 +97,7 @@ export function Documentation(props) {
         <li>
           <VideoDescription
             title='Using TableTidier to tidy tables to a standard format'
-            summary='Illustrates how to use TableTidier to standardise the structure of a table.'
+            summary='Illustrates how to use TableTidier to standardize the structure of a table.'
             linkText='https://vimeo.com/764934913'
             linkHref='https://vimeo.com/764934913'
           />
