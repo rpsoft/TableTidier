@@ -633,7 +633,7 @@ export function Annotator({
           // marginTop: 5,
           // marginBottom: openMargin,
           minHeight: '85vh',
-          height: '85vh',
+          height: '86.3vh',
           marginRight: 5,
           overflow: 'scroll',
         }}
@@ -1063,16 +1063,44 @@ export function Annotator({
 
     {/* Edition menu */}
     <Card
-      style={{
-        position: 'fixed',
-        // left: 0,
-        bottom: 60,
-        width: '100%',
-        height: bottomEnabled ? bottomSize : 62
-      }}
+      style={
+        bottomEnabled?
+        {
+          position: 'fixed',
+          left: 0,
+          bottom: 60,
+          width: '100%',
+          height: bottomEnabled ? bottomSize : 62
+        }
+        :
+        {
+          position: 'fixed',
+          // left: 0,
+          right: 5,
+          bottom: 60,
+          width: 250,
+          height: bottomEnabled ? bottomSize : 62
+        }
+      }
     >
-      <div style={{width:"100%", backgroundColor: "#a3a3a3", height:5}}> </div>
-      <div style={{width:"100%", minWidth:800, height: bottomEnabled ? "100%" : 65, backgroundColor:"#e5e5e5"}}>
+      <div style={{width:"100%", backgroundColor: "#a3a3a3", height:5}}></div>
+      <div
+        style={{
+          width:"100%",
+          // minWidth:800,
+          height: bottomEnabled ? "100%" : 65, backgroundColor:"#e5e5e5"
+        }}
+      >
+        {!bottomEnabled && ( <span
+          style={{
+            position: 'relative',
+            top: 20,
+            left: 35,
+          }}
+        >
+          Table Analysis
+        </span>)}
+
         {
         // If menu to extend bottom menu
         !bottomEnabled && (
