@@ -140,7 +140,7 @@ export function HomePage({
         <div id="metamap">
           <h4>Use of MetaMap and MetaMap Tools</h4>
           <div className='metamap-text'>
-            This software uses MetaMap (version 2016v2)
+            This software uses MetaMap (version 2018)
             that was developed and funded by the National Library of Medicine,
             part of the National Institutes of Health,
             and agency of the United States Department of Health and Human Services,
