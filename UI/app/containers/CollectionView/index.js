@@ -131,7 +131,7 @@ const queryString = require('query-string');
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
-    marginTop:10,
+    // marginTop:10,
   },
   checkBoxIntermediateSelected: {
     color: theme.palette.secondary.light,
@@ -558,7 +558,17 @@ export function CollectionView({
   }
 
   return (
-    <div style={{margin:10, minHeight: "84vh"}}>
+    <div
+      style={{
+        margin: 10,
+        marginTop: 0,
+        marginBottom: 0,
+        // minHeight: "84vh",
+        display: 'grid',
+        gridTemplateColumns: '1fr auto',
+        gridTemplateRows: 'auto',
+      }}
+    >
       <Helmet>
         <title>TableTidier - Collections</title>
         <meta name="description" content="Description of Collections" />
@@ -706,8 +716,8 @@ export function CollectionView({
             <Card>
               <div
                 style={{
-                  minHeight: 900,
-                  height: '70vh',
+                  // minHeight: 900,
+                  height: '60.5vh',
                   backgroundColor: 'white',
                   overflowY: 'auto',
                 }}
