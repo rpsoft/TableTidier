@@ -41,6 +41,7 @@ import {
 export function HomePage({
 }) {
   const theme = useTheme();
+  const mainTextColor = theme.palette.grey[800]
 
   return (
   <div
@@ -69,8 +70,25 @@ export function HomePage({
       <div className='main'>
         <h2 style={{fontSize:35}}> Welcome to TableTidier! </h2>
 
-        <div style={{maxWidth:600 }}>
-          TableTidier is mainly a web application to support the extraction of structured data from scanned document tables. But it is also crowdsourced repository of publicly available structured data to further support research efforts.
+        <div
+          style={{
+            maxWidth: 600,
+            color: mainTextColor,
+            textIndent: 30,
+          }}
+        >
+          TableTidier is designed to convert variously (and sometimes idiosyncratically)
+          structured tables with non-standard terminologies into standard formats.
+          Please see the documentation for additional details.
+          <br/>
+          We have been able to work at converting TableTidier from an in-house tool
+          to one others can use thanks to a research enrichment grant from the&nbsp;
+          <Link
+            target="_blank"
+            href='https://wellcome.org/'
+          >
+            Wellcome Trust.
+          </Link>
         </div>
 
         <h4 style={{marginLeft:15}}>
@@ -106,14 +124,23 @@ export function HomePage({
         <div
           style={{
             border: "1px solid  #b7b7b7",
-            padding: 15,
-            paddingTop: 0,
+            paddingLeft: 15,
+            // paddingTop: 0,
             marginRight: 30,
             marginTop: 40,
             marginBottom: 40,
             maxWidth: 600,
           }}
         >
+          <h4
+            style={{
+              marginBottom: 10,
+            }}
+          >Contact:</h4>
+          <div>
+            tabletidier@glasgow.ac.uk
+          </div>
+          <br/>
           <h4>
             Want to contribute or report issues?
               <br/>Visit our github repository:
@@ -128,18 +155,16 @@ export function HomePage({
                 TableTidier in GitHub
               </Link>
           </h4>
-
-          <h4>Contact us:</h4>
-          <div>
-            Jesus A. Rodriguez Perez ( Jesus.RodriguezPerez@glasgow.ac.uk )
-            <br /><br />
-            David McAllister ( David.McAllister@glasgow.ac.uk )
-          </div>
         </div>
 
         <div id="metamap">
           <h4>Use of MetaMap and MetaMap Tools</h4>
-          <div className='metamap-text'>
+          <div
+            className='metamap-text'
+            style={{
+              color: mainTextColor,
+            }}
+          >
             This software uses MetaMap (version 2018)
             that was developed and funded by the National Library of Medicine,
             part of the National Institutes of Health,
@@ -163,13 +188,30 @@ export function HomePage({
           </div>
         </div>
       </div>
+
+      {/* Side panel with logos */}
       <div
         className='logos'
         // style={{borderLeft:"1px solid black", verticalAlign:"top", padding:20}}
       >
         <div style={{marginBottom:50,textAlign:"right",}}>
-          <img style={{height: 70  }} src="https://www.gla.ac.uk/3t4/img/marque.svg" /><br />
-          <img style={{height: 70, marginLeft:10, marginTop:20  }} src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Wellcome_Trust_logo.svg/200px-Wellcome_Trust_logo.svg.png" />
+          <Link
+            target="_blank"
+            href='https://www.gla.ac.uk'
+          >
+            <img style={{height: 70}} src="https://www.gla.ac.uk/3t4/img/marque.svg" />
+          </Link>
+
+          <br />
+          <Link
+            target="_blank"
+            href='https://wellcome.org/'
+          >
+            <img
+              style={{height: 70, marginLeft:10, marginTop:20}}
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Wellcome_Trust_logo.svg/200px-Wellcome_Trust_logo.svg.png"
+            />
+          </Link>
         </div>
       </div>
     </div>
