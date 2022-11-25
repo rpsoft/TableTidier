@@ -4,6 +4,8 @@
  *
  */
 
+import './dragstyle.css';
+
 import React, { memo, useRef } from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -55,6 +57,7 @@ import CsvDownloader from 'react-csv-downloader';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 
 import {
+  Link,
   Card, Checkbox,
   Select as SelectField,
   TextField,
@@ -78,7 +81,12 @@ import {
 import {
   ArrowDropUp,
   ArrowDropDown,
+  Edit as EditIcon,
+  Link as LinkIcon,
   Close as CloseIcon,
+  GetApp as DownloadIcon,
+  NavigateBefore as NavigateBeforeIcon,
+  NavigateNext as NavigateNextIcon,
 }from '@material-ui/icons';
 
 import InboxIcon from '@material-ui/icons/MoveToInbox';
@@ -107,16 +115,6 @@ import NavigationBar from 'components/NavigationBar'
 import AnnotatorMenuButtons from 'components/AnnotatorMenuButtons'
 
 import prepareMetadata from './metadataUtil'
-
-import {
-  GetApp as DownloadIcon,
-  NavigateBefore as NavigateBeforeIcon,
-  NavigateNext as NavigateNextIcon,
-  Link as LinkIcon,
-  Edit as EditIcon,
-} from '@material-ui/icons';
-
-import './dragstyle.css';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -839,9 +837,27 @@ export function Annotator({
         <dl className={classes.tableIdentifiers} >
         {
         editorEnabled == false ? <>
-          <dt> PMID </dt>
+          <dt>
+            {!pmid ? 'PMID'
+              : (
+                <Link
+                  href={'https://pubmed.ncbi.nlm.nih.gov/'+pmid}
+                  underline="hover"
+                  target="_blank"
+                >PMID</Link>
+              )}
+          </dt>
           <dd> {pmid} </dd>
-          <dt> DOI </dt>
+          <dt>
+            {!doi ? 'DOI'
+              : (
+                <Link
+                  href={'https://doi.org/'+doi}
+                  underline="hover"
+                  target="_blank"
+                >DOI</Link>
+              )}
+          </dt>
           <dd> {doi} </dd>
           <dt> Url </dt>
           <dd> <a href={url} target="_blank">{url}</a> </dd>
