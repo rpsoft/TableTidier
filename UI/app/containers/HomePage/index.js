@@ -121,6 +121,16 @@ export function HomePage({
           </LinkReactRouter>
         </h4>
 
+        <h4 style={{marginLeft:15}}>
+          <ArrowRightIcon />
+          
+          <LinkReactRouter to="videos">
+            <span style={{fontSize:17,marginLeft:5}}>
+              Videos
+            </span>
+          </LinkReactRouter>
+        </h4>
+      
         <div
           style={{
             border: "1px solid  #b7b7b7",
@@ -137,9 +147,15 @@ export function HomePage({
               marginBottom: 10,
             }}
           >Contact:</h4>
-          <div>
+          <address
+            style={{
+              display: 'inline',
+              color: 'darkblue',
+            }}
+          >
             tabletidier@glasgow.ac.uk
-          </div>
+          </address>
+
           <br/>
           <h4>
             Want to contribute or report issues?
