@@ -1,4 +1,7 @@
 import { createGlobalStyle } from 'styled-components';
+import {
+  grey,
+} from '@material-ui/core/colors';
 
 const GlobalStyle = createGlobalStyle`
   html,
@@ -41,11 +44,30 @@ const GlobalStyle = createGlobalStyle`
     grid-area: footer;
   }
 
+  .doc {
+    color: ${grey[800]};
+  }
+  .indent {
+    text-indent: 30px;
+  }
+
   p,
   label {
     font-family: Georgia, Times, 'Times New Roman', serif;
     line-height: 1.5em;
   }
+
+  p.doc {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    line-height: 1.15;
+  }
+
+  .quote-warn {
+    border-left: 15px solid #ff8b8b;
+    margin-left: 0px;
+    padding-left: 10px;
+  }
+
 `;
 
 export default GlobalStyle;
