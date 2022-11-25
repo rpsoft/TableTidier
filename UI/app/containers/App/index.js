@@ -24,6 +24,7 @@ import Login from '../Login'
 import Register from '../Register'
 // import Annotator from '../Annotator'
 const Annotator = React.lazy(/* webpackChunkName: "Annotator" */ () => import("../Annotator"));
+const VideosPage = React.lazy(/* webpackChunkName: "Videos" */ () => import("../VideosPage"));
 import Dashboard from '../Dashboard'
 import CollectionView from '../CollectionView'
 import Documentation from '../Documentation'
@@ -189,6 +190,14 @@ export function App({}) {
             <Route path="collection" element={<CollectionView />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="documentation" element={<Documentation />} />
+            <Route
+              path="videos"
+              element={
+                <React.Suspense fallback={<>...</>}>
+                  <VideosPage />
+                </React.Suspense>
+              }
+            />
           </Routes>
 
           <PopAlert/>
