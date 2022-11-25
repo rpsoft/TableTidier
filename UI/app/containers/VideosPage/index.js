@@ -61,7 +61,7 @@ export function VideosPage(props) {
       padding: 20,
       paddingLeft: 70,
       paddingRight: 70,
-      height: "80vh",
+      // height: "80vh",
       textAlign: "justify",
     }}>
       <div
