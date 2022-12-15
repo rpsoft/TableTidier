@@ -58,7 +58,7 @@
     "ejs": "^3.1.6",
     "ejs-locals": "^1.0.2",
     "es6-promise": "~4.2.8",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "express-session": "^1.17.1",
     "gulp": "^4.0.2",
     "gulp-babel": "^8.0.0",
