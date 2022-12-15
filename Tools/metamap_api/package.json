@@ -65,7 +65,7 @@
     "ejs": "^3.0.1",
     "ejs-locals": "^1.0.2",
     "es6-promise": "^4.2.8",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "gulp-sass": "^4.0.2",
     "html": "^1.0.0",
     "js-base64": "^2.5.1",
