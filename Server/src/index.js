@@ -984,7 +984,26 @@ app.post(CONFIG.api_base_url+'/collections',
           const result_res = await getResultsRefreshed( tids )
           const result_met = await dbDriver.metadataGet( tids );
 
-          result = {data: result_res, metadata: result_met}
+          // Add metadata field to each table data
+          result_res.forEach(table => table.metadata = [])
+          // use this map tid to index to move metadata from result_met to table
+          const resultMapTidToIndex = result_res.reduce(
+            (prev, table, index) => {
+              prev.set(parseInt(table.tid), index)
+              return prev
+            },
+            new Map()
+          )
+          // move each metadata to result_res
+          result_met.forEach(metadata => {
+            const tid = metadata.tid
+            // remove tid from data
+            delete metadata.tid
+
+            result_res[resultMapTidToIndex.get(tid)].metadata.push(metadata)
+          })
+
+          result = result_res
           break;
       }
 
