@@ -1008,6 +1008,19 @@ export function Annotator({
                 doi,
                 url,
               } = annotator.tableData.annotationData
+              // remove 'docid_page' redundant field from data
+              const data = annotator.results.map(item => {
+                const itemCopy = {...item};
+                delete itemCopy.docid_page;
+                return itemCopy
+              })
+              // remove 'tid' redundant field from metadata
+              const metadataKeys = Object.keys(annotator.metadata)
+              const metadata = metadataKeys.map(metaKey => {
+                const metadataItemCopy = {...annotator.metadata[metaKey]};
+                delete metadataItemCopy.tid;
+                return metadataItemCopy
+              })
               downloadFile(
                 {
                   // General info
@@ -1018,9 +1031,9 @@ export function Annotator({
                   pmid,
                   doi,
                   url,
-                  // Data
-                  tableResults: annotator.results,
-                  metadata: annotator.metadata
+                  // Data & Metadata
+                  tableResults: data,
+                  metadata: metadata
                 },
                 fileNameRoot()+'_all_data'
               )
