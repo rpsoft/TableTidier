@@ -114,7 +114,7 @@ function TableMetadataItem(
         {color: 'blue', fontWeight: 'bold'}
         : {}
 
-    const preferred = cuisIndex[cui].preferred ?
+    const preferred = cuisIndex[cui]?.preferred ?
       cuisIndex[cui].preferred
       : '';
 
