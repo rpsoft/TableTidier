@@ -4,9 +4,12 @@
  *
  */
 
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 // import PropTypes from 'prop-types';
 // import styled from 'styled-components';
+import {
+  useSelector,
+} from 'react-redux';
 
 import { FormattedMessage } from 'react-intl';
 import messages from './messages';
@@ -31,7 +34,8 @@ function TableMetadataItem(
     keyN,
     tableConcept,
     metadata,
-    cuisIndex,
+    // Take this info from redux store
+    // cuisIndex,
     toggleCui,
     deleteCui,
     addCuis,
@@ -39,7 +43,6 @@ function TableMetadataItem(
     allowEdit
   }
 ) {
-
   const theme = useTheme();
 
   const {
@@ -50,6 +53,12 @@ function TableMetadataItem(
   const [ open, setOpen ] = React.useState(false)
   const [ dialogConcept, setDialogConcept ] = React.useState("")
   const [ queryText, setQueryText ] = React.useState("")
+
+  // get CuisIndex from redux store
+  const cuisIndex = useSelector(state => state.annotator && state.annotator.cuis_index || {})
+  // get cuisIndexKeys from redux store
+  const cuisIndexKeys = useSelector(
+    state => state.annotator && state.annotator.cuisIndexKeys || [])
 
   let root = tableConcept.slice(0,tableConcept.length-1)[0]
       root = root ? root.trim() : ""
@@ -68,12 +77,14 @@ function TableMetadataItem(
 
   const [ dialogSelectedCuis, setDialogSelectedCuis ] = React.useState(cuis_selected)
 
-  const searchItems = (query) => {
+  // Search cuis
+  const searchItems = () => {
+    let query = queryText
     if  (query.length < 3){
-      return Object.keys(cuisIndex)
+      return cuisIndexKeys
     }
 
-    return Object.keys(cuisIndex).reduce( (acc,cui,i) => {
+    return cuisIndexKeys.reduce( (acc,cui,i) => {
       const cuiItem = cuisIndex[cui]
       const queryLowerCase = query.toLowerCase()
       if (
@@ -87,7 +98,10 @@ function TableMetadataItem(
     }, [])
   }
 
-  const cuiSearchResults = searchItems(queryText) //.map( (cui,i) => <div key={i}> {cuisIndex[cui].preferred} </div>)
+  console.time('TableMetadataItem')
+  const cuiSearchResults = useMemo(searchItems, [queryText, cuisIndexKeys]) //.map( (cui,i) => <div key={i}> {cuisIndex[cui].preferred} </div>)
+  console.timeEnd('TableMetadataItem')
+  console.log(keyN)
 
   const toggleDialogCui = (cui) => {
     const selCuis = Array.from(dialogSelectedCuis)
