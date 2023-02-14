@@ -250,6 +250,9 @@ export function Annotator({
   )
   // get CuisIndex from redux store
   const cuisIndex = useSelector(state => state.annotator && state.annotator.cuis_index || {})
+  // get cuisIndexKeys from redux store
+  const cuisIndexKeys = useSelector(
+    state => state.annotator && state.annotator.cuisIndexKeys || [])
 
   const classes = useStyles();
   const theme = useTheme();
@@ -469,7 +472,7 @@ export function Annotator({
     // ! :-) Can we call load Cuis Index only one time?
     //  ex: once cuisIndex is loaded at redux store don't call again?
     // heavy process leave for last
-    if ( Object.keys(cuisIndex).length < 1 ) {
+    if ( cuisIndexKeys.length == 0 ) {
       dispatch(loadCuisIndexAction())
     }
   }, [location.search, loginState.username]);
