@@ -983,9 +983,11 @@ app.post(CONFIG.api_base_url+'/collections',
           // Default Action.
           const result_res = await getResultsRefreshed( tids )
           const result_met = await dbDriver.metadataGet( tids );
-
-          // Add metadata field to each table data
-          result_res.forEach(table => table.metadata = [])
+          // Add metadata and metadataMapper fields to each table data
+          result_res.forEach(table => {
+            table.metadata = []
+            table.metadataMapper = {}
+          })
           // use this map tid to index to move metadata from result_met to table
           const resultMapTidToIndex = result_res.reduce(
             (prev, table, index) => {
@@ -999,8 +1001,11 @@ app.post(CONFIG.api_base_url+'/collections',
             const tid = metadata.tid
             // remove tid from data
             delete metadata.tid
-
-            result_res[resultMapTidToIndex.get(tid)].metadata.push(metadata)
+            // Access table tid info
+            const tableTid = result_res[resultMapTidToIndex.get(tid)]
+            // link concept to metadata by index
+            tableTid.metadataMapper[metadata.concept] = tableTid.metadata.length
+            tableTid.metadata.push(metadata)
           })
 
           result = result_res
