@@ -266,23 +266,23 @@ function TableMetadata({
       {
         Object.keys(headerData).map( (ann_groups,j) => {
 
-            return <div key={j}> <h3>{ann_groups}</h3><div>{
-              headerData[ann_groups].map(
-                (item, i) => {
-                   // debugger
-                  return <TableMetadataItem
-                            key={ i }
-                            keyN={ i }
-                            tableConcept={ item }
-                            metadata={ metadata }
-                            cuisIndex={ cuisIndex }
-                            toggleCui={ toggleCui }
-                            addCuis={ addCuis }
-                            deleteCui={ deleteCui }
-                            enableDelete={ enableDelete }
-                            allowEdit= {allowEdit}
-                          />}
-              )} </div></div>
+          return <div key={j}> <h3>{ann_groups}</h3><div>{
+            headerData[ann_groups].map(
+              (item, i) => {
+                  // debugger
+                return  <TableMetadataItem
+                          key={ i }
+                          keyN={ i }
+                          tableConcept={ item }
+                          metadata={ metadata }
+                          cuisIndex={ cuisIndex }
+                          toggleCui={ toggleCui }
+                          addCuis={ addCuis }
+                          deleteCui={ deleteCui }
+                          enableDelete={ enableDelete }
+                          allowEdit= {allowEdit}
+                        />}
+            )} </div></div>
         })
       }
 
