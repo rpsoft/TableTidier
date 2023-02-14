@@ -1011,6 +1011,7 @@ export function Annotator({
                 doi,
                 url,
               } = annotator.tableData.annotationData
+              let metadataMapper = {}
               // remove 'docid_page' redundant field from data
               const data = annotator.results.map(item => {
                 const itemCopy = {...item};
@@ -1019,11 +1020,13 @@ export function Annotator({
               })
               // remove 'tid' redundant field from metadata
               const metadataKeys = Object.keys(annotator.metadata)
-              const metadata = metadataKeys.map(metaKey => {
+              const metadata = metadataKeys.map((metaKey, index) => {
+                metadataMapper[annotator.metadata[metaKey].concept] = index;
                 const metadataItemCopy = {...annotator.metadata[metaKey]};
                 delete metadataItemCopy.tid;
-                return metadataItemCopy
+                return metadataItemCopy;
               })
+
               downloadFile(
                 {
                   // General info
@@ -1036,7 +1039,8 @@ export function Annotator({
                   url,
                   // Data & Metadata
                   tableResults: data,
-                  metadata: metadata
+                  metadata: metadata,
+                  metadataMapper,
                 },
                 fileNameRoot()+'_all_data'
               )
