@@ -98,10 +98,7 @@ function TableMetadataItem(
     }, [])
   }
 
-  console.time('TableMetadataItem')
   const cuiSearchResults = useMemo(searchItems, [queryText, cuisIndexKeys]) //.map( (cui,i) => <div key={i}> {cuisIndex[cui].preferred} </div>)
-  console.timeEnd('TableMetadataItem')
-  console.log(keyN)
 
   const toggleDialogCui = (cui) => {
     const selCuis = Array.from(dialogSelectedCuis)
