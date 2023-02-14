@@ -50,6 +50,8 @@ export const initialState = {
   results : [],
   metadata : {},
   cuis_index: {},
+  // Array from cuis_index keys
+  cuisIndexKeys: [],
   allowEdit: false,
 };
 
@@ -80,6 +82,7 @@ const annotatorReducer = (state = initialState, action) =>
 
       case UPDATE_CUIS_INDEX_ACTION:
         draft.cuis_index = action.cuis_index
+        draft.cuisIndexKeys = Object.keys(action.cuis_index)
         break;
 
       case SAVE_TABLE_TEXT_ACTION:
