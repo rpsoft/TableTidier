@@ -17,14 +17,11 @@ const logger = require('morgan')
 const multer = require('multer');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const html = require("html");
 const Cookies = require('cookies')
 // JWT Authentication
 // https://github.com/MichielDeMey/express-jwt-permissions
 // https://github.com/auth0/express-jwt
 const experessJwt = require('express-jwt');
-const jwt = require('jsonwebtoken');
-const guard = require('express-jwt-permissions')()
 const {getJwtFromCookie} = require('./utils/jwt-utils');
 
 // DB driver
@@ -32,7 +29,7 @@ const pgDriver = require('./db/postgres-driver')({...GENERAL_CONFIG.db})
 const dbDriver = require('./db/sniffer-driver')
 dbDriver.addDriver(pgDriver)
 
-const csv = require('csv-parser');
+// const csv = require('csv-parser');
 
 // Import routes
 import usersRoutes from './routes/users'
@@ -67,13 +64,13 @@ global.pool = pgDriver.pool
 // generate public key:
 // openssl ec -in private.pem -pubout -out public.pem
 
-const privatekey = fsClassic.readFileSync('./certificates/private.pem')
+// const privatekey = fsClassic.readFileSync('./certificates/private.pem')
 const publickey = fsClassic.readFileSync('./certificates/public.pem')
 
 // const SESSION_TOKEN_EXPIRATION_TIME = '24h'
-const SESSION_TOKEN_EXPIRATION_TIME = '1m'
+// const SESSION_TOKEN_EXPIRATION_TIME = '1m'
 // In miliseconds
-const SESSION_TOKEN_REFRESH_TIME = 20*1e3
+// const SESSION_TOKEN_REFRESH_TIME = 20*1e3
 
 // TTidier subsystems load.
 console.log("Loading Files Management")
@@ -92,20 +89,20 @@ console.log("Loading Table Libs")
 import {
   tableDBDriverSet,
   readyTable,
-  prepareAvailableDocuments,
-  refreshDocuments,
+  // prepareAvailableDocuments,
+  // refreshDocuments,
 } from "./table.js"
 // configure table with dbDriver
 tableDBDriverSet(dbDriver)
 
 console.log("Loading MetaMap Docker Comms Module")
-import { metamap } from "./metamap.js"
+// import { metamap } from "./metamap.js"
 
 console.log("Loading Tabuliser Module")
 import { getFileResults } from "./tabuliser.js"
 
 console.log("Loading Extra Functions")
-import ef from "./extra_functions.js"
+// import ef from "./extra_functions.js"
 
 console.log("Loading Search Module")
 const easysearch = require('@sephir/easy-search')

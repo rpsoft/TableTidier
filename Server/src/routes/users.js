@@ -303,8 +303,8 @@ router.route('/refreshToken')
     console.log(req.user)
     if (!req.user.email) return res.sendStatus(401);
 
-    // verify requestRefreshToken
-    const requestRefreshToken = req.headers?.['refresh-token']
+    // // verify requestRefreshToken
+    // const requestRefreshToken = req.headers?.['refresh-token']
 
     const refreshTokenStatus = jwt.verify(
       req.headers?.['refresh-token'],
