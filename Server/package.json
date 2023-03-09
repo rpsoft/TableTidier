@@ -73,6 +73,7 @@
   },
   "dependencies": {
     "@sephir/easy-search": "github:rpsoft/easy-search",
+    "array-permutation-recursive": "^1.0.0",
     "axios": "^0.26.1",
     "bluebird": "^3.7.2",
     "body-parser": "^1.19.0",
