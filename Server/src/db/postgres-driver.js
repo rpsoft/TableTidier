@@ -126,11 +126,14 @@ function driver(config) {
       if (Array.isArray(tids) == false) return 'tids not valid, array expected'
       const annotations = await query(
         `SELECT 
+          "table".tid,
           docid,
           page,
           collection_id,
+          notes,
+          "tableType",
+          completion,
           file_path,
-          "table".tid,
           COALESCE("table".doi, '') AS doi,
           COALESCE("table".pmid, '') AS pmid,
           COALESCE("table".url, '') AS url,

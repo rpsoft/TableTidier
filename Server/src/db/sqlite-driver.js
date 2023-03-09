@@ -147,11 +147,14 @@ function driver(config) {
       if (Array.isArray(tids) == false) return 'tids not valid, array expected'
       const annotations = await queryAll(
         `SELECT 
+          "table".tid,
           docid,
           page,
           collection_id,
           file_path,
-          "table".tid,
+          notes,
+          "tableType",
+          completion,
           COALESCE("table".doi, '') AS doi,
           COALESCE("table".pmid, '') AS pmid,
           COALESCE("table".url, '') AS url,
