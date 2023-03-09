@@ -94,6 +94,7 @@ import {
 } from "./table.js"
 // configure table with dbDriver
 tableDBDriverSet(dbDriver)
+import generateMetamappers from './utils/metadata-mapper.js';
 
 console.log("Loading MetaMap Docker Comms Module")
 // import { metamap } from "./metamap.js"
@@ -145,7 +146,7 @@ const storage = multer.diskStorage({
   }
 })
 
-app.get(CONFIG.api_base_url+'/',function(req,res){
+app.get(global.CONFIG.api_base_url+'/', function(req,res){
   res.send('TTidier Server running.')
 });
 
@@ -176,7 +177,7 @@ const tableSplitter = async ( tablePath ) => {
   }
 }
 
-app.post(CONFIG.api_base_url+'/tableUploader',
+app.post(global.CONFIG.api_base_url+'/tableUploader',
   experessJwt({
     secret: publickey,
     algorithms: ['ES256'],
@@ -199,7 +200,7 @@ app.post(CONFIG.api_base_url+'/tableUploader',
     } = global.CONFIG
 
     const files = req.files;
-    let index, len;
+    // let index, len;
 
     const results = []
     const {
@@ -234,7 +235,7 @@ app.post(CONFIG.api_base_url+'/tableUploader',
         // Format file name. all '_' to '-'
         const cleanFilename = file.originalname.replaceAll('_', '-')
         const file_elements = cleanFilename.split('.')
-        const extension = file_elements.pop()
+        // const extension = file_elements.pop()
         const baseFilename = file_elements.join('.')
 
         await fs.mkdir(path.join(tables_folder, collection_id), { recursive: true })
@@ -277,8 +278,6 @@ app.post(CONFIG.api_base_url+'/tableUploader',
     res.send(results);
   });
 });
-
-
 
 async function CUIData () {
   const umlsData = await UMLSData();
@@ -448,7 +447,8 @@ async function main() {
 
   // UMLS Data buffer
   console.time('UMLSData')
-  umls_data_buffer = await UMLSData();
+  // eslint-disable-next-line no-unused-vars
+  const umls_data_buffer = await UMLSData();
   console.timeEnd('UMLSData')
 
   // await refreshDocuments()
@@ -497,7 +497,7 @@ async function main() {
 // });
 
 // * :-) check calls from ui
-app.get(CONFIG.api_base_url+'/listDeletedTables', async (req,res) => {
+app.get(global.CONFIG.api_base_url+'/listDeletedTables', async (req,res) => {
   try {
     const items = await fs.readdir( tables_folder_deleted )
     res.send(items)
@@ -506,7 +506,7 @@ app.get(CONFIG.api_base_url+'/listDeletedTables', async (req,res) => {
   }
 });
 
-app.get(CONFIG.api_base_url+'/modifyCUIData', async (req, res) => {
+app.get(global.CONFIG.api_base_url+'/modifyCUIData', async (req, res) => {
   if ( !req.query ) {
     res.status(400).send('UPDATE failed. No query');
   }
@@ -536,7 +536,7 @@ app.get(CONFIG.api_base_url+'/modifyCUIData', async (req, res) => {
 });
 
 // * :-) Use html DELETE verb
-app.get(CONFIG.api_base_url+'/cuiDeleteIndex', async (req, res) => {
+app.get(global.CONFIG.api_base_url+'/cuiDeleteIndex', async (req, res) => {
   if ( !req.query ) {
     res.status(400).send('CUI delete index failed. No query');
   }
@@ -558,7 +558,7 @@ app.get(CONFIG.api_base_url+'/cuiDeleteIndex', async (req, res) => {
   }
 });
 
-app.get(CONFIG.api_base_url+'/getMetadataForCUI', async function(req,res){
+app.get(global.CONFIG.api_base_url+'/getMetadataForCUI', async function(req,res){
   if ( !req.query ) {
     res.status(400).send('CUI getMetadata failed. No query');
   }
@@ -629,7 +629,7 @@ const setMetadata = async ( metadata ) => {
   return results
 }
 
-app.post(CONFIG.api_base_url+'/metadata',
+app.post(global.CONFIG.api_base_url+'/metadata',
   experessJwt({
     secret: publickey,
     algorithms: ['ES256'],
@@ -741,7 +741,7 @@ app.post(CONFIG.api_base_url+'/metadata',
   res.json({status: 'success', data: result})
 });
 
-app.post(CONFIG.api_base_url+'/cuis', async (req, res) => {
+app.post(global.CONFIG.api_base_url+'/cuis', async (req, res) => {
 
   if ( req.body && ( ! req.body.action ) ){
     res.json({status: 'undefined', received : req.body})
@@ -765,19 +765,19 @@ app.post(CONFIG.api_base_url+'/cuis', async (req, res) => {
   }
 });
 
-// :-) move to JWT
+// :-) moved to JWT
 // Simple validation
-function validateUser (username, hash){
-    var validate_user;
-    for ( var u in global.records ) {
-      if ( global.records[u].username == username ){
-         var user = global.records[u]
-         var db_hash = getUserHash(user)
-         validate_user = hash == db_hash.hash ? user : false
-      }
-    }
-    return validate_user;
-}
+// function validateUser (username, hash){
+//     var validate_user;
+//     for ( var u in global.records ) {
+//       if ( global.records[u].username == username ){
+//          var user = global.records[u]
+//          var db_hash = getUserHash(user)
+//          validate_user = hash == db_hash.hash ? user : false
+//       }
+//     }
+//     return validate_user;
+// }
 
 const getResultsRefreshed = async ( tids ) => {
    // Path to tables
@@ -818,11 +818,19 @@ const getResultsRefreshed = async ( tids ) => {
         ...table_results,
         // table_res,
         {
-          tid: entry.tid,
+          tid: parseInt(entry.tid),
+          docid: entry.docid,
+          page: entry.page,
+          collection_id: parseInt(entry.collection_id),
           doi: entry.doi || '',
           pmid: entry.pmid || '',
           url: entry.url || '',
-          table_result: table_res
+          annotations: {
+            notes: entry.notes ?? '',
+            tableType: entry.tableType ?? '',
+            completion: entry.completion ?? '',
+          },
+          tableResults: table_res
         },
       ]
 
@@ -835,7 +843,7 @@ const getResultsRefreshed = async ( tids ) => {
 }
 
 // Collections
-app.post(CONFIG.api_base_url+'/collections',
+app.post(global.CONFIG.api_base_url+'/collections',
   experessJwt({
     secret: publickey,
     algorithms: ['ES256'],
@@ -946,8 +954,9 @@ app.post(CONFIG.api_base_url+'/collections',
         response = responseUnauthorised()
         break;
       }
-      const allCollectionData = JSON.parse( collectionData )
-      result = await dbDriver.collectionEdit(allCollectionData);
+      result = await dbDriver.collectionEdit(
+        JSON.parse( collectionData )
+      );
       // // * :-) Collections Edit return collection_id save a step
       // result = await dbDriver.collectionGet(collection_id);
       response = {status: 'success', data: result}
@@ -983,7 +992,6 @@ app.post(CONFIG.api_base_url+'/collections',
           // Add metadata and metadataMapper fields to each table data
           result_res.forEach(table => {
             table.metadata = []
-            table.metadataMapper = {}
           })
           // use this map tid to index to move metadata from result_met to table
           const resultMapTidToIndex = result_res.reduce(
@@ -1001,8 +1009,13 @@ app.post(CONFIG.api_base_url+'/collections',
             // Access table tid info
             const tableTid = result_res[resultMapTidToIndex.get(tid)]
             // link concept to metadata by index
-            tableTid.metadataMapper[metadata.concept] = tableTid.metadata.length
             tableTid.metadata.push(metadata)
+          })
+
+          result_res.forEach(table => {
+            const { concMapper, posiMapper } = generateMetamappers(table)
+            table.concMapper = concMapper
+            table.posiMapper = posiMapper
           })
 
           result = result_res
@@ -1038,7 +1051,7 @@ const tableTidListCheckIfInTargetCollection = async (list, collectionId) => {
   )))
 }
 
-app.post(CONFIG.api_base_url+'/tables',
+app.post(global.CONFIG.api_base_url+'/tables',
   experessJwt({
     secret: publickey,
     algorithms: ['ES256'],
@@ -1110,7 +1123,6 @@ app.post(CONFIG.api_base_url+'/tables',
         }))
       })
       return
-      break;
     case 'checkFiles':
       if ( collectionPermissions.write.includes(collection_id) == false ) {
         res.json({status: 'FAIL', payload: 'do not have permissions on collection'})
@@ -1134,7 +1146,6 @@ app.post(CONFIG.api_base_url+'/tables',
         }))
       })
       return
-      break;
     case 'remove':
       if ( collectionPermissions.write.includes(collection_id) == false ) {
         res.json({status: 'FAIL', payload: 'do not have permissions on collection'})
@@ -1156,10 +1167,12 @@ app.post(CONFIG.api_base_url+'/tables',
         return
       }
 
+      // eslint-disable-next-line no-case-declarations
       const tableSourceInfo = await Promise.all(
         tablesList.map(tid => dbDriver.tableGetByTid(parseInt(tid))))
 
       // Copy tables
+      // eslint-disable-next-line no-case-declarations
       let copyResult = await Promise.all(tableSourceInfo.map(async (table) => {
         // Check table collection source has read permission
         if (collectionPermissions.read.includes(table['collection_id']) == false ) {
@@ -1192,12 +1205,14 @@ app.post(CONFIG.api_base_url+'/tables',
         return
       }
 
+      // eslint-disable-next-line no-case-declarations
       const tablesFoundAtCollectionReducer = (prev, table, index) => {
         typeof table == 'string' && table == 'not found'?
           prev.moved.push(tablesList[index])
           : prev.existAtCollection.push(tablesList[index]);
         return prev;
       }
+      // eslint-disable-next-line no-case-declarations
       let payload
 
       // Check if it is a table id
@@ -1217,7 +1232,6 @@ app.post(CONFIG.api_base_url+'/tables',
         status: 'success',
         data: payload,
       })
-      break;
     case 'list':  // This is the same as not doing anything and returning the collection and its tables.
     default:
   }
@@ -1226,7 +1240,7 @@ app.post(CONFIG.api_base_url+'/tables',
   res.json({status: 'success', data: result})
 });
 
-app.post(CONFIG.api_base_url+'/search',
+app.post(global.CONFIG.api_base_url+'/search',
   experessJwt({
     secret: publickey,
     algorithms: ['ES256'],
@@ -1238,7 +1252,7 @@ app.post(CONFIG.api_base_url+'/search',
   const {
     searchContent,
   } = req.body
-  var type = JSON.parse(req.body.searchType)
+  // var type = JSON.parse(req.body.searchType)
 
   // req.user added by experessJwt
   const user = req?.user
@@ -1353,12 +1367,11 @@ app.post(CONFIG.api_base_url+'/search',
   // if ( search_results.length > 100){
   //   search_results = search_results.slice(0,100)
   // }
-
   
   res.json({search_results})
 });
 
-app.post(CONFIG.api_base_url+'/getTableContent',
+app.post(global.CONFIG.api_base_url+'/getTableContent',
   experessJwt({
     secret: publickey,
     algorithms: ['ES256'],
@@ -1583,7 +1596,7 @@ const getRecommendedCUIS = async () => {
     const rec_cuisInner = []
 
     cuis.forEach((cui) => {
-    	if ( excluded_cuis.includes(cui) == false ) {
+      if ( excluded_cuis.includes(cui) == false ) {
         if ( rep_cuis.includes(cui) == false ) {
           rec_cuisInner.push(cui)
         }
@@ -1598,7 +1611,7 @@ const getRecommendedCUIS = async () => {
   return recommend_cuis
 }
 
-app.get(CONFIG.api_base_url+'/cuiRecommend', async function(req,res){
+app.get(global.CONFIG.api_base_url+'/cuiRecommend', async function(req,res){
   const cuiRecommend = await getRecommendedCUIS()
   res.send( cuiRecommend )
 });
@@ -1639,7 +1652,7 @@ const prepareAnnotationPreview = async (tid, cachedOnly) => {
 }
 
 // Generates the results table live preview, connecting to the R API.
-app.post(CONFIG.api_base_url+'/annotationPreview',
+app.post(global.CONFIG.api_base_url+'/annotationPreview',
   experessJwt({
     secret: publickey,
     algorithms: ['ES256'],
@@ -1716,7 +1729,7 @@ app.post(CONFIG.api_base_url+'/annotationPreview',
 });
 
 // Returns all annotations for all document/tables.
-app.get(CONFIG.api_base_url+'/formattedResults', async function (req, res){
+app.get(global.CONFIG.api_base_url+'/formattedResults', async function (req, res){
   const results = await dbDriver.annotationResultsGet()
 
   if ( !results ) {
@@ -1860,7 +1873,7 @@ const getMMatch = async (phrase) => {
         if ( acc.cuis.indexOf(el.CUI) < 0 ) {
           acc.cuis.push(el.CUI);
           acc.data.push(el)
-        };
+        }
         return acc
       }, {cuis: [], data: []} ).data
     r = r.sort( (a,b) => a.score - b.score)
@@ -1928,7 +1941,7 @@ const processHeaders = async (headers) => {
 * auto label
 */
 // :-) auto?
-app.post(CONFIG.api_base_url+'/auto', async (req, res) => {
+app.post(global.CONFIG.api_base_url+'/auto', async (req, res) => {
   try{
     if( (req.body && req.body.headers) == false ) {
       return res.send({status: 'wrong parameters', query : req.query})
@@ -1942,7 +1955,7 @@ app.post(CONFIG.api_base_url+'/auto', async (req, res) => {
   }
 });
 
-app.get(CONFIG.api_base_url+'/getMMatch',async (req, res) => {
+app.get(global.CONFIG.api_base_url+'/getMMatch',async (req, res) => {
   try {
     if(req.query && req.query.phrase ){
       const mm_match = await getMMatch(req.query.phrase)
@@ -1954,7 +1967,7 @@ app.get(CONFIG.api_base_url+'/getMMatch',async (req, res) => {
   }
 });
 
-app.post(CONFIG.api_base_url+'/notes',
+app.post(global.CONFIG.api_base_url+'/notes',
   experessJwt({
     secret: publickey,
     algorithms: ['ES256'],
@@ -2018,7 +2031,7 @@ app.post(CONFIG.api_base_url+'/notes',
   res.json({status:'Successful', payload: null})
 })
 
-app.post(CONFIG.api_base_url+'/text',
+app.post(global.CONFIG.api_base_url+'/text',
   experessJwt({
     secret: publickey,
     algorithms: ['ES256'],
@@ -2123,11 +2136,11 @@ app.post(CONFIG.api_base_url+'/text',
       data: textResponse,
     })
   } catch(err) {
-    throw err;
-  };
+    console.log(err)
+  }
 })
 
-app.get(CONFIG.api_base_url+'/removeOverrideTable', async (req, res) => {
+app.get(global.CONFIG.api_base_url+'/removeOverrideTable', async (req, res) => {
    // Path to tables
    const {
     tables_folder_override,
@@ -2191,11 +2204,12 @@ app.get(CONFIG.api_base_url+'/removeOverrideTable', async (req, res) => {
 });
 
 // * :-) where lives function classify?
-app.get(CONFIG.api_base_url+'/classify', async (req, res) => {
+app.get(global.CONFIG.api_base_url+'/classify', async (req, res) => {
   const {
-    terms
-  } = req?.query
-  if(req.query && terms){
+    terms=null,
+  } = req?.query || {}
+
+  if(req.query && terms) {
     console.log(terms)
 
     res.send({results: await classify(terms.split(","))})
@@ -2204,10 +2218,10 @@ app.get(CONFIG.api_base_url+'/classify', async (req, res) => {
 
 const getTable = async (req, res) => {
   // check if it is a get or a post
-  const dataSource = query in req ?
-    query
-    : body in req ?
-    body
+  const dataSource = 'query' in req ?
+    req.query
+    : 'body' in req ?
+    req.body
     : null
 
   if (!dataSource) {
@@ -2262,10 +2276,10 @@ const getTable = async (req, res) => {
   }
 }
 
-app.get(CONFIG.api_base_url+'/getTable', getTable);
-app.post(CONFIG.api_base_url+'/getTable', getTable);
+app.get(global.CONFIG.api_base_url+'/getTable', getTable);
+app.post(global.CONFIG.api_base_url+'/getTable', getTable);
 
-app.post(CONFIG.api_base_url+'/saveAnnotation',
+app.post(global.CONFIG.api_base_url+'/saveAnnotation',
   experessJwt({
     secret: publickey,
     algorithms: ['ES256'],
@@ -2289,7 +2303,7 @@ app.post(CONFIG.api_base_url+'/saveAnnotation',
 
     payload,
     tid=undefined,
-  } = req?.body
+  } = req?.body || {}
 
   // Prevent invalid chars error
   let docid = decodeURIComponent(req.body.docid)
@@ -2335,7 +2349,7 @@ app.post(CONFIG.api_base_url+'/saveAnnotation',
   res.json({status:"success", payload: ''})
 });
 
-app.put(CONFIG.api_base_url+'/table/updateReferences',
+app.put(global.CONFIG.api_base_url+'/table/updateReferences',
   experessJwt({
     secret: publickey,
     algorithms: ['ES256'],
@@ -2362,7 +2376,7 @@ app.put(CONFIG.api_base_url+'/table/updateReferences',
     pmid,
     doi,
     url,
-  } = req?.body
+  } = req?.body || {}
   // parse tid
   tid = parseInt(tid)
 
@@ -2406,7 +2420,7 @@ const prepareMetadata = (headerData, tableResults) => {
         } else {
           acc.groups.push([...acc.temp,item].reverse());
           acc.temp = []
-        };
+        }
         return acc
       }, {groups:[], temp: []})
 
@@ -2578,13 +2592,13 @@ app.use(function (err, req, res, next) {
   return res.status(500).json({message: err.message});
 });
 
-const myShellScript = exec(`fuser -k ${CONFIG.api_port}/tcp`);
+const myShellScript = exec(`fuser -k ${global.CONFIG.api_port}/tcp`);
 
-app.listen(CONFIG.api_port, '0.0.0.0', () => {
+app.listen(global.CONFIG.api_port, '0.0.0.0', () => {
   console.log(`Table Tidier Server running on port ${
-    CONFIG.api_port
+    global.CONFIG.api_port
   } with base: ${
-    CONFIG.api_base_url
+    global.CONFIG.api_base_url
   }  :: ${new Date().toISOString()}`);
 });
 
