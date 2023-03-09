@@ -18,7 +18,6 @@ import { UMLSData } from './utils/umls.js'
 //     This function takes long time to parse (may take multiple seconds)
 let umls_data_buffer = UMLSData()
 
-let assert = require('assert');
 let pythonBridge = require('python-bridge');
 
 let python = pythonBridge({
@@ -80,21 +79,21 @@ python.ex`
     return data
 `;
 
-// * Frindely close the module
-// It stops accepting new Python commands, and waits for queue to finish
-//  then gracefully closes the Python process.
-//do something when app is closing
-process.on('exit', () => python.end());
+// // * Frindely close the module
+// // It stops accepting new Python commands, and waits for queue to finish
+// //  then gracefully closes the Python process.
+// //do something when app is closing
+// process.on('exit', () => python.end());
 
-//catches ctrl+c event
-process.on('SIGINT', () => python.end());
+// //catches ctrl+c event
+// process.on('SIGINT', () => python.end());
 
-// catches "kill pid" (for example: nodemon restart)
-process.on('SIGUSR1', () => python.end());
-process.on('SIGUSR2', () => python.end());
+// // catches "kill pid" (for example: nodemon restart)
+// process.on('SIGUSR1', () => python.end());
+// process.on('SIGUSR2', () => python.end());
 
-//catches uncaught exceptions
-process.on('uncaughtException', () => python.end());
+// //catches uncaught exceptions
+// process.on('uncaughtException', () => python.end());
 
 
 
@@ -277,7 +276,6 @@ async function feature_extraction (lines) {
     ])
 
     const pred_class = await classify(terms_features)
-
     predictions[l] = {pred_class, terms, cellClasses, terms_features}
   }
 
