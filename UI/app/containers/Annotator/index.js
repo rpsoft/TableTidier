@@ -8,53 +8,33 @@ import './dragstyle.css';
 
 import React, { memo, useRef } from 'react';
 import PropTypes from 'prop-types';
+// eslint-disable-next-line prettier/prettier
 import {
   connect,
   useSelector,
   useDispatch,
 } from 'react-redux';
 import { Helmet } from 'react-helmet';
-import { FormattedMessage } from 'react-intl';
+// import { FormattedMessage } from 'react-intl';
 import { createStructuredSelector } from 'reselect';
 import { compose } from 'redux';
 
 import { useInjectSaga } from 'utils/injectSaga';
 import { useInjectReducer } from 'utils/injectReducer';
 
-import {makeSelectCredentials} from '../App/selectors'
-import {makeSelectLogin} from '../Login/selectors'
-
-
-import makeSelectAnnotator from './selectors';
-import reducer from './reducer';
-import saga from './saga';
-import messages from './messages';
-import {
-  loadTableContentAction,
-  loadTableResultsAction,
-  loadTableMetadataAction,
-  saveTableTextAction,
-  saveTableNoteAction,
-  saveTableAnnotationAction,
-  saveTableMetadataAction,
-  loadCuisIndexAction,
-  updateTableMetadataAction,
-  autoLabelHeadersAction,
-} from './actions'
-
-import appActions from '../App/actions';
-
+// eslint-disable-next-line prettier/prettier
 import {
   useNavigate,
   useLocation,
   useSearchParams
 } from "react-router-dom";
 
-// import {browserHistory} from 'react-router';
-
 import CsvDownloader from 'react-csv-downloader';
-
 import { makeStyles, useTheme } from '@material-ui/core/styles';
+
+// import messages from './messages';
+
+// import {browserHistory} from 'react-router';
 
 import {
   Link,
@@ -99,8 +79,9 @@ import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 // import Draggable from 'react-draggable';
 
 // import { Resizable, ResizableBox } from 'react-resizable';
+import NavigationBar from 'components/NavigationBar';
 
-const drawerWidth = 250;
+import AnnotatorMenuButtons from 'components/AnnotatorMenuButtons';
 
 import TableAnnotator from '../../components/TableAnnotator'
 import TableEditor from '../../components/TableEditor'
@@ -110,11 +91,29 @@ import TableNotes from '../../components/TableNotes'
 
 import InfoPage from '../InfoPage'
 
-import NavigationBar from 'components/NavigationBar'
+import prepareMetadata from './metadataUtil';
+import { makeSelectCredentials } from '../App/selectors';
 
-import AnnotatorMenuButtons from 'components/AnnotatorMenuButtons'
+import { makeSelectLogin } from '../Login/selectors';
+import makeSelectAnnotator from './selectors';
+import reducer from './reducer';
+import saga from './saga';
+import {
+  loadTableContentAction,
+  loadTableResultsAction,
+  loadTableMetadataAction,
+  saveTableTextAction,
+  saveTableNoteAction,
+  saveTableAnnotationAction,
+  saveTableMetadataAction,
+  loadCuisIndexAction,
+  updateTableMetadataAction,
+  autoLabelHeadersAction,
+} from './actions';
+import appActions from '../App/actions';
+import generateMetamappers from '../../utils/metadata-mapper.js';
 
-import prepareMetadata from './metadataUtil'
+const drawerWidth = 250;
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -1011,7 +1010,6 @@ export function Annotator({
                 doi,
                 url,
               } = annotator.tableData.annotationData
-              let metadataMapper = {}
               // remove 'docid_page' redundant field from data
               const data = annotator.results.map(item => {
                 const itemCopy = {...item};
@@ -1021,11 +1019,21 @@ export function Annotator({
               // remove 'tid' redundant field from metadata
               const metadataKeys = Object.keys(annotator.metadata)
               const metadata = metadataKeys.map((metaKey, index) => {
-                metadataMapper[annotator.metadata[metaKey].concept] = index;
                 const metadataItemCopy = {...annotator.metadata[metaKey]};
                 delete metadataItemCopy.tid;
                 return metadataItemCopy;
               })
+
+              const { concMapper, posiMapper } = generateMetamappers({
+                tableResults: data,
+                metadata,
+              })
+
+              const {
+                tableType='',
+                notes='',
+                completion=''
+              } = annotator.tableData.annotationData
 
               downloadFile(
                 {
@@ -1037,10 +1045,17 @@ export function Annotator({
                   pmid,
                   doi,
                   url,
+                  annotations: {
+                    notes: notes ?? '',
+                    tableType: tableType ?? '',
+                    completion: completion ?? '',
+                  },
                   // Data & Metadata
                   tableResults: data,
                   metadata: metadata,
-                  metadataMapper,
+                  concMapper,
+                  posiMapper,
+
                 },
                 fileNameRoot()+'_all_data'
               )
