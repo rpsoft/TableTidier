@@ -14,7 +14,8 @@ import { FormattedMessage } from 'react-intl';
 import messages from './messages';
 
 import TableAnnotatorItem from 'components/TableAnnotatorItem'
-
+import VisibilityIcon from '@material-ui/icons/Visibility';
+import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import AdbIcon from '@material-ui/icons/Adb';
 
 import ReactDOM from "react-dom";
@@ -52,6 +53,7 @@ function TableAnnotator({
   const classes = useStyles();
 
   const [enableDelete, setEnableDelete] = React.useState(false);
+  const [ shown, setShown ] =  React.useState(true)
 
   const changeAnnotationData = (index, key, data) => {
     var temp = Array.from(annotations);
@@ -92,7 +94,13 @@ function TableAnnotator({
         <div style={{height:35, fontSize:22}}>
           <div
             style={{paddingTop:5}}
-          > 2. Table <b> Annotations </b> <span style={{fontSize:15}}>(Editing Disabled - Read-only mode)</span> </div>
+          > 2. Table <b> Annotations </b> <span style={{fontSize:15}}>(Editing Disabled - Read-only mode)</span> <Button
+                variant="outlined"
+                onClick={ () => { shown ? setShown(false) : setShown(true)}}
+              >
+                { shown ? <VisibilityIcon style={{marginLeft:5}} /> : <VisibilityOffIcon style={{marginLeft:5}} />} 
+              
+              </Button></div>
         </div>
       </div>)
   }
@@ -101,49 +109,60 @@ function TableAnnotator({
     <div style={{padding:"7px 7px 7px 7px"}} >
         <div style={{height:35, fontSize:22}}>
 
-          <Button
-            variant="outlined"
-            style={{backgroundColor:"lightblue", float:"right"}}
-            onClick={ () => { saveAnnotationChanges(tid, annotations); loadTableResults();} }
-          > save annotation changes </Button>
-          <Button
-            variant="outlined"
-            style={{backgroundColor:"lightblue", float:"right", marginRight:10}}
-            onClick={ () => { loadTableResults(true) } }
-          > Auto Annotate <AdbIcon /></Button>
+          { shown ? <span> 
+                          <Button
+                            variant="outlined"
+                            style={{backgroundColor:"lightblue", float:"right"}}
+                            onClick={ () => { saveAnnotationChanges(tid, annotations); loadTableResults();} }
+                          > save annotation changes </Button>
+                          <Button
+                            variant="outlined"
+                            style={{backgroundColor:"lightblue", float:"right", marginRight:10}}
+                            onClick={ () => { loadTableResults(true) } }
+                          > Auto Annotate <AdbIcon /></Button>
 
-          <span style={{float:"right", marginRight:10, fontSize:17, border:"1px #acacac solid", borderRadius:10, paddingLeft:10}}>
-            Enable Delete
-            <Switch
-              checked={enableDelete}
-              onChange={() => { setEnableDelete(!enableDelete) }}
-              name="checkedA"
-              inputProps={{ 'aria-label': 'secondary checkbox' }}
-              classes={{
-                root: classes.root, // class name, e.g. `classes-nesting-root-x`
-              }}
-            />
-          </span>
+                          <span style={{float:"right", marginRight:10, fontSize:17, border:"1px #acacac solid", borderRadius:10, paddingLeft:10}}>
+                            Enable Delete
+                            <Switch
+                              checked={enableDelete}
+                              onChange={() => { setEnableDelete(!enableDelete) }}
+                              name="checkedA"
+                              inputProps={{ 'aria-label': 'secondary checkbox' }}
+                              classes={{
+                                root: classes.root, // class name, e.g. `classes-nesting-root-x`
+                              }}
+                            />
+                          </span>
+                        </span>  : "" }
 
-          <div style={{paddingTop:5,display:"inline"}}>2. Table <b> Structure </b></div>
+          <div style={{paddingTop:5,display:"inline"}}>2. Table <b> Structure </b>
           <Button
+                variant="outlined"
+                onClick={ () => { shown ? setShown(false) : setShown(true)}}
+              >
+                { shown ? <VisibilityIcon style={{marginLeft:5}} /> : <VisibilityOffIcon style={{marginLeft:5}} />} 
+              
+              </Button>
+          </div>
+          
+          { shown ? <Button
             variant="outlined"
-            style={{backgroundColor:"lightgreen", display:"inline"}}
+            style={{backgroundColor:"lightgreen", display:"inline",marginLeft:5}}
             onClick={ () => {
               const temp = Array.from(annotations);
               temp.push({location: "Col" , content:{}, qualifiers:{}, number:"1", subAnnotation:false});
               setAnnotations( temp )
             }}
-          > + add annotation item</Button>
+          > + add annotation item</Button> : "" }
         </div>
 
         {//<div>{JSON.stringify(annotations)}</div>
         }
         <hr style={{borderTop:"1px #acacac dashed"}}/>
 
-        <div style={{width:"100%",whiteSpace: "nowrap"}}>
+        {shown ? <div style={{width:"100%",whiteSpace: "nowrap"}}>
           {AnnotationList}
-        </div>
+        </div> : ""}
 
     </div>
   );

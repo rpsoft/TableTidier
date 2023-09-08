@@ -59,9 +59,10 @@ export function HomePage({
     </Helmet>
     <Card style={{
       marginTop: 10,
-      padding: 20,
+      padding: 30,
       paddingLeft: 70,
       paddingRight: 20,
+      paddingBottom: 40,
       // height: "80vh",
       textAlign: "justify"
     }}>
@@ -74,15 +75,14 @@ export function HomePage({
           style={{
             maxWidth: 600,
             color: mainTextColor,
-            textIndent: 30,
+            textIndent: 0,
           }}
         >
           TableTidier is designed to convert variously (and sometimes idiosyncratically)
           structured tables with non-standard terminologies into standard formats.
           Please see the documentation for additional details.
-          <br/>
-          We have been able to work at converting TableTidier from an in-house tool
-          to one others can use thanks to a research enrichment grant from the&nbsp;
+          <br/><br/>
+          TableTidier evolved from an in-house tool to one others can use thanks to a research enrichment grant from the&nbsp;
           <Link
             target="_blank"
             href='https://wellcome.org/'
@@ -201,6 +201,13 @@ export function HomePage({
             >
               UMLS - Metathesaurus License Agreement
             </Link>
+
+            <br />
+            THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+            INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+            PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE 
+            FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+            ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
           </div>
         </div>
       </div>
