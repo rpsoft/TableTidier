@@ -29,55 +29,58 @@ const CONFIG = require(CONFIG_PATH + '/config.json')
 
 const classifierFile = CONFIG.system_path+'Classifier/trained/umls_full.model'
 // For python debugging remove this.
-python.ex`
-  import warnings
-  warnings.filterwarnings("ignore", category=FutureWarning)
-  warnings.filterwarnings("ignore", category=UserWarning)
-  import pandas as pd
-  import pickle
-  import sys
 
-  model = pickle.load(open(${classifierFile}, 'rb'))
+//debugger
 
-  def predict(data):
+// python.ex`
+//   import warnings
+//   warnings.filterwarnings("ignore", category=FutureWarning)
+//   warnings.filterwarnings("ignore", category=UserWarning)
+//   import pandas as pd
+//   import pickle
+//   import sys
 
-      c = ['clean_concept', 'is_bold', 'is_italic', 'is_indent', 'is_empty_row',
-          'is_empty_row_p', 'cuis', 'semanticTypes']
+//   model = pickle.load(open(${classifierFile}, 'rb'))
 
-      customPredict = pd.DataFrame(
-          data = data,
-          columns = c)
+//   def predict(data):
 
-      customPredict = customPredict[['clean_concept', 'is_bold', 'is_italic',
-          'is_indent', 'is_empty_row', 'is_empty_row_p', 'semanticTypes']]
+//       c = ['clean_concept', 'is_bold', 'is_italic', 'is_indent', 'is_empty_row',
+//           'is_empty_row_p', 'cuis', 'semanticTypes']
 
-      return (model["target_codec"].inverse_transform(model["trained_model"].predict(customPredict)))
+//       customPredict = pd.DataFrame(
+//           data = data,
+//           columns = c)
 
-  def groupedPredict( data ):
+//       customPredict = customPredict[['clean_concept', 'is_bold', 'is_italic',
+//           'is_indent', 'is_empty_row', 'is_empty_row_p', 'semanticTypes']]
 
-      c = ['clean_concept',
-          'is_bold', 'is_italic', 'is_indent', 'is_empty_row',
-          'is_empty_row_p', 'cuis', 'semanticTypes']
+//       return (model["target_codec"].inverse_transform(model["trained_model"].predict(customPredict)))
 
-      customPredict = pd.DataFrame(
-          data = data,
-          columns = c)
+//   def groupedPredict( data ):
 
-      predictions = (model["target_codec"].inverse_transform(model["trained_model"].predict(customPredict)))
+//       c = ['clean_concept',
+//           'is_bold', 'is_italic', 'is_indent', 'is_empty_row',
+//           'is_empty_row_p', 'cuis', 'semanticTypes']
 
-      terms = []
-      classes = []
+//       customPredict = pd.DataFrame(
+//           data = data,
+//           columns = c)
 
-      for t in range(0,len(data)):
-          terms.append(data[t][0])
-          classes.append(";".join(predictions[t]))
+//       predictions = (model["target_codec"].inverse_transform(model["trained_model"].predict(customPredict)))
 
-      return({"terms": terms, "classes" : classes})
+//       terms = []
+//       classes = []
 
-  def printAll(data):
-    print(data)
-    return data
-`;
+//       for t in range(0,len(data)):
+//           terms.append(data[t][0])
+//           classes.append(";".join(predictions[t]))
+
+//       return({"terms": terms, "classes" : classes})
+
+//   def printAll(data):
+//     print(data)
+//     return data
+// `;
 
 // // * Frindely close the module
 // // It stops accepting new Python commands, and waits for queue to finish
