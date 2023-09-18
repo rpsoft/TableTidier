@@ -1012,7 +1012,8 @@ export function Annotator({
           height: 'calc(86.3vh - 20px)',
           marginRight: 5,
           overflow: 'scroll',
-          marginLeft: 5
+          marginLeft: 5,
+          width: "fit-content"
         }}
       >
         <div className={classes.root}>

@@ -39,6 +39,8 @@ const GlobalStyle = createGlobalStyle`
     grid-area: main;
     overflow: auto;
     padding: 5px 5px 5px 5px;
+    margin-left: auto;
+    margin-right: auto;
   }
   #app > footer {
     grid-area: footer;
