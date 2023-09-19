@@ -1,3 +1,5 @@
+import { createTheme } from '@material-ui/core/styles';
+
 import {
   cyan700,
   grey,
@@ -7,7 +9,7 @@ import {
 import {fade} from '@material-ui/core/styles/colorManipulator';
 import spacing from '@material-ui/core/styles/colorManipulator';
 
-export default {
+const theme = createTheme({
   spacing: spacing,
   fontFamily: 'Roboto, sans-serif',
   palette: {
@@ -28,7 +30,23 @@ export default {
     selectionBackground: '#f0f030',
     chip: '#efefef',
     chipSelected: '#ff5f5f',
+    dialog: {
+      accept: '#93de85',
+      cancel: '#f98989',
+      // cancel: '#ffbdbd',
+      cancel2: '#f98989',
+      normalBackground: 'rgb(245 249 232)',
+      successBackground: 'rgb(237, 247, 237)',
+      infoBackground: 'rgb(163 198 249)',
+      warningBackground: 'rgb(255 233 184)',
+      errorBackground: 'rgb(255 182 182)',
+      textColorDialog: 'black',
+    },
   },
-};
-// event.nativeEvent.stopPropagation();
-// event.nativeEvent.stopImmediatePropagation();
+  sizes: {
+    minWidth: '800px',
+    maxWidth: '1390px',
+  }
+});
+
+export default theme

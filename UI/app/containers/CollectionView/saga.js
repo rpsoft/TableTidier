@@ -4,56 +4,92 @@ import { LOAD_COLLECTION_ACTION, EDIT_COLLECTION_ACTION,
   REMOVE_TABLES_ACTION, MOVE_TABLES_ACTION,
   DELETE_COLLECTION_ACTION, DOWNLOAD_DATA_ACTION} from './constants';
 
-import { loadCollectionAction, updateCollectionAction } from './actions';
+import collectionViewReduxActions, {
+  loadCollectionAction,
+  updateCollectionAction,
+  updateCollectionTablesAction,
+} from './actions';
+
+import {
+  requestCollectionsListAction,
+} from '../Dashboard/actions';
+
+import appActions from '../App/actions';
 
 import makeSelectCollectionView, {  makeSelectCredentials } from './selectors';
 
 import makeSelectLocation from '../App/selectors'
 import {issueAlertAction} from '../App/actions'
 
+import makeSelectLogin from '../Login/selectors'
+
 const queryString = require('query-string');
 
-import csv from 'react-csv-downloader/dist/lib/csv';
+import csv from 'react-csv-downloader/dist/esm/lib/csv';
 
-import request from '../../utils/request';
+import 
+  request,
+  {
+    generateOptionsPost
+  }
+from '../../utils/request';
+
+import {fetchResultStatusCheck} from '../../utils/saga-utils'
 
 export function* getCollectionData() {
 
-  const credentials = yield select(makeSelectCredentials());
   const locationData = yield select(makeSelectLocation());
+  const loginData = yield select(makeSelectLogin());
 
   const parsed = queryString.parse(location.search);
 
   const requestURL = locationData.api_url+`collections`;
 
-  if ( parsed.collId == "new"){
-    yield put( yield updateCollectionAction({title : "", collection_id : "new", description: "", owner_username : ""}) );
+  if ( parsed.collId == 'new') {
+    yield put( yield updateCollectionAction({
+      title: '',
+      collection_id: 'new',
+      description: '',
+      owner_username : ''
+    }) );
     return
   }
 
   const params = new URLSearchParams({
-      'hash' : credentials.hash,
-      'username' :  credentials.username,
-      'collection_id' : parsed.collId,
-      'action' : 'get'
-    });
+    'collection_id' : parsed.collId,
+    'action' : 'get'
+  });
 
-  const options = {
-    method: 'POST',
-    body: params
-  }
+  const options = generateOptionsPost(params, loginData.token)
 
   try {
     const response = yield call(request, requestURL, options);
 
-    if ( response.status && response.status == "unauthorised"){
-      // COUld probably redirect to /
-      yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
+    if ( response.status ) {
+      // check response status
+      const responseCheck = fetchResultStatusCheck(response.status)
 
-    } else {
-      // debugger
-      yield put( yield updateCollectionAction(response.data) );
+      if ( response.status && response.status == 'unauthorised' ) {
+        // Clean collecion
+        yield put( yield updateCollectionAction({
+          title: '',
+          collection_id: '',
+          description: '',
+          owner_username: '',
+          collectionsList: []
+        }) );
+      }
+
+      if ( responseCheck.error == true ) {
+        yield put( yield appActions.statusSet.action(responseCheck.code))
+        return
+      }
     }
+
+    // clean app status
+    yield put( yield appActions.statusSet.action(''))
+    yield put( yield updateCollectionAction(response.data) );
+
   } catch (err) {
     console.log(err)
   }
@@ -61,29 +97,23 @@ export function* getCollectionData() {
   return {}
 }
 
-
 export function* editCollectionData() {
 
-  const credentials = yield select(makeSelectCredentials());
   const locationData = yield select(makeSelectLocation());
   const collectionState = yield select(makeSelectCollectionView());
+  const loginData = yield select(makeSelectLogin());
 
   const parsed = queryString.parse(location.search);
 
   const requestURL = locationData.api_url+`collections`;
 
   const params = new URLSearchParams({
-      'hash' : credentials.hash,
-      'username' :  credentials.username,
       'collection_id' : parsed.collId,
       'collectionData' : JSON.stringify(collectionState),
       'action' : 'edit'
     });
 
-  const options = {
-    method: 'POST',
-    body: params
-  }
+  const options = generateOptionsPost(params, loginData.token)
 
   try {
     const response = yield call(request, requestURL, options);
@@ -94,7 +124,6 @@ export function* editCollectionData() {
     } else {
       // console.log("BOOM ALLES GUT")
 
-      yield put( yield updateCollectionAction(response.data) );
       yield put( yield issueAlertAction({ open: true, message: "Collection Changes Saved", isError: false }))
       // yield put( yield updateCollectionAction(response.data) );
     }
@@ -103,35 +132,37 @@ export function* editCollectionData() {
   }
 
   return {}
-  // return {collection: "hello"}
 }
 
 
 export function* removeCollectionTables ( payload ) {
 
-  const credentials = yield select(makeSelectCredentials());
+  // const credentials = yield select(makeSelectCredentials());
+  const loginData = yield select(makeSelectLogin());
+
   const parsed = queryString.parse(location.search);
 
   const params = new URLSearchParams({
-      'hash' : credentials.hash,
-      'username' :  credentials.username,
-      'collection_id' : parsed.collId,
-      'tablesList' : JSON.stringify(Object.keys(payload.tablesList)),
-      'action' : 'remove'
-    });
+    'collection_id' : parsed.collId,
+    'tablesList' : JSON.stringify(Object.keys(payload.tablesList)),
+    'action' : 'remove'
+  });
 
-  const options = {
-    method: 'POST',
-    body: params
-  }
+  const options = generateOptionsPost(params, loginData.token)
 
   const locationData = yield select(makeSelectLocation());
   const requestURL = locationData.api_url+`tables`;
   try {
     const response = yield call(request, requestURL, options);
 
-    if ( response.status && response.status == "unauthorised"){
-      yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", tables : []}) );
+    if ( response.status && response.status == 'unauthorised'){
+      yield put( yield updateCollectionAction({
+        title: '',
+        collection_id: '',
+        description: '',
+        owner_username: '',
+        tables: []
+    }) );
 
     } else {
       yield put( yield updateCollectionAction(response.data) );
@@ -139,50 +170,128 @@ export function* removeCollectionTables ( payload ) {
     }
   } catch (err) {
     console.log(err)
-    yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", tables : []}) );
+    yield put( yield updateCollectionAction({
+      title: '',
+      collection_id: '',
+      description: '',
+      owner_username: '',
+      tables: []
+    }) );
   }
 
   return {}
 }
 
+export function* copyCollectionTables ( payload ) {
+  // const credentials = yield select(makeSelectCredentials());
+  const loginData = yield select(makeSelectLogin());
+  const collectionState = yield select(makeSelectCollectionView());
 
-export function* moveCollectionTables ( payload ) {
-  const credentials = yield select(makeSelectCredentials());
   const parsed = queryString.parse(location.search);
-
   const params = new URLSearchParams({
-      'hash' : credentials.hash,
-      'username' :  credentials.username,
-      'collection_id' : parsed.collId,
-      'tablesList' : JSON.stringify(Object.keys(payload.tablesList)),
-      'targetCollectionID' : payload.targetCollectionID,
-      'action' : 'move'
-    });
+    'tablesList' : JSON.stringify(Object.keys(payload.tablesList)),
+    'targetCollectionID' : payload.targetCollectionID,
+    'action' : 'copy'
+  });
 
-  const options = {
-    method: 'POST',
-    body: params
-  }
+  const options = generateOptionsPost(params, loginData.token)
 
   const locationData = yield select(makeSelectLocation());
   const requestURL = locationData.api_url+`tables`;
 
   try {
-
     const response = yield call(request, requestURL, options);
 
-    if ( response.status && response.status == "unauthorised"){
-
-      yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", tables : []}) );
-
-    } else {
-      yield put( yield updateCollectionAction(response.data) );
-      yield put( yield issueAlertAction({ open: true, message: "Collection Tables Moved", isError: false }))
+    if ( response.status && response.status == 'unauthorised' ) {
+      yield put( yield updateCollectionAction({
+        title : '', collection_id : '', description: '', owner_username : '', tables : []
+      }) );
+      return {}
     }
-  } catch (err) {
+    if ( response.status == 'FAIL' ) {
+      yield put( yield issueAlertAction({ open: true, message: response.payload, isError: true }))
+      return {}
+    }
 
+    if (response.data.moved && response.data.moved.length == 0) {
+      yield put( yield issueAlertAction({ open: true, message: 'Tables were not Moved', isError: true }))
+      return {}
+    }
+
+    yield put( yield issueAlertAction({ open: true, message: 'Tables Copied', isError: false }))
+  } catch (err) {
     console.log(err)
-    yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", tables : []}) );
+    yield put( yield updateCollectionAction({
+      title : '', collection_id : '', description: '', owner_username : '', tables : []
+    }) );
+  }
+
+  return {}
+}
+
+export function* moveCollectionTables ( payload ) {
+  // const credentials = yield select(makeSelectCredentials());
+  const loginData = yield select(makeSelectLogin());
+  const collectionState = yield select(makeSelectCollectionView());
+
+  const parsed = queryString.parse(location.search);
+
+  const params = new URLSearchParams({
+    'collection_id' : parsed.collId,
+    'tablesList' : JSON.stringify(Object.keys(payload.tablesList)),
+    'targetCollectionID' : payload.targetCollectionID,
+    'action' : 'move'
+  });
+
+  const options = generateOptionsPost(params, loginData.token)
+
+  const locationData = yield select(makeSelectLocation());
+  const requestURL = locationData.api_url+`tables`;
+
+  try {
+    const response = yield call(request, requestURL, options);
+
+    if ( response.status && response.status == 'unauthorised' ) {
+      yield put( yield updateCollectionAction({
+        title : '', collection_id : '', description: '', owner_username : '', tables : []
+      }) );
+      return {}
+    }
+    if ( response.status == 'FAIL' ) {
+      yield put( yield issueAlertAction({ open: true, message: response.payload, isError: true }))
+      return {}
+    }
+
+    if (response.data.moved && response.data.moved.length == 0) {
+      yield put( yield issueAlertAction({ open: true, message: 'Tables were not Moved', isError: true }))
+      return {}
+    }
+    const movedTables = response.data.moved
+
+    // Remove moved tables from redux store collection
+    let filteredTables
+
+    // Check if it is a table id
+    // Is it a number?
+    if (/^\d+$/.test(movedTables[0]) == true) {
+      filteredTables = collectionState.tables.filter(table => {
+        return movedTables.includes(table.tid) == false
+      })
+    } else {
+      filteredTables = collectionState.tables.filter(table => {
+        const {docid, page} = table
+        const tableText = docid+'_'+page
+        return movedTables.includes(tableText) == false
+      })
+    }
+
+    yield put( yield updateCollectionTablesAction(filteredTables) );
+    yield put( yield issueAlertAction({ open: true, message: 'Collection Tables Moved', isError: false }))
+  } catch (err) {
+    console.log(err)
+    yield put( yield updateCollectionAction({
+      title : '', collection_id : '', description: '', owner_username : '', tables : []
+    }) );
   }
 
   return {}
@@ -193,54 +302,44 @@ export function* deleteCollection() {
   const credentials = yield select(makeSelectCredentials());
   const locationData = yield select(makeSelectLocation());
   const collectionState = yield select(makeSelectCollectionView());
+  const loginData = yield select(makeSelectLogin());
 
   const parsed = queryString.parse(location.search);
 
   const requestURL = locationData.api_url+`collections`;
 
   const params = new URLSearchParams({
-      'hash' : credentials.hash,
-      'username' :  credentials.username,
       'collection_id' : parsed.collId,
       'action' : 'delete'
     });
 
-  const options = {
-    method: 'POST',
-    body: params
-  }
+  const options = generateOptionsPost(params, loginData.token)
 
   try {
     const response = yield call(request, requestURL, options);
 
     if ( response.status && response.status == "unauthorised"){
-
       // COUld probably redirect to /
       // yield put( yield updateCollectionAction({title : "", collection_id : "", description: "", owner_username : "", collectionsList : []}) );
-
     } else {
       yield put( yield issueAlertAction({ open: true, message: "Collection Deleted ", isError: false }))
-      // yield put( yield updateCollectionAction(response.data) );
+      // The UI will go to Dashboard so
+      // Update collection list after deleted collection
+      yield put( yield requestCollectionsListAction() );
     }
   } catch (err) {
     console.log(err)
   }
 
   return {}
-  // return {collection: "hello"}
 }
-
-//
-
-
-
 
 export function* downloadTids({target, tids}) {
 
-
-  const credentials = yield select(makeSelectCredentials());
+  // const credentials = yield select(makeSelectCredentials());
   const locationData = yield select(makeSelectLocation());
   const collectionState = yield select(makeSelectCollectionView());
+  const loginData = yield select(makeSelectLogin());
 
   const parsed = queryString.parse(location.search);
 
@@ -261,26 +360,25 @@ export function* downloadTids({target, tids}) {
   // +( target.indexOf("metadata") > -1 ? "metadata" : ""
 
   const params = new URLSearchParams({
-      'hash' : credentials.hash,
-      'username' :  credentials.username,
-      'collection_id' : parsed.collId,
-      'action' : 'download',
-      'target' : target,
-      'tid' : JSON.stringify(tids),
-    });
+    'collection_id' : parsed.collId,
+    'action' : 'download',
+    'target' : target,
+    'tid' : JSON.stringify(tids),
+  });
 
-  const options = {
-    method: 'POST',
-    body: params
-  }
+  const options = generateOptionsPost(params, loginData.token)
 
-  var downloadData = async (filename, columns, datas) => {
-    var stuffhere = await csv(
-      {filename, separator:";", wrapColumnChar:"'", columns, datas}
-    )
-    var data = new Blob([stuffhere], {type: 'text/csv'});
-    var csvURL = window.URL.createObjectURL(data);
-    var tempLink = document.createElement('a');
+  const downloadData = async (filename, columns, datas) => {
+    const stuffhere = await csv({
+      filename,
+      separator: ';',
+      wrapColumnChar: `'`,
+      columns,
+      datas
+    })
+    const data = new Blob([stuffhere], {type: 'text/csv'});
+    const csvURL = window.URL.createObjectURL(data);
+    const tempLink = document.createElement('a');
     tempLink.href = csvURL;
     tempLink.setAttribute('download', filename);
     tempLink.click();
@@ -292,14 +390,14 @@ export function* downloadTids({target, tids}) {
   //   {id: "1", data: [`thingsd , dom,ethign " else '`, `hello fudfa vjdf`].join(",")},{id: "2", data: JSON.stringify([2043,32,423,52,23,4,5,4])}
   // ])
 
-  const downloadFile = async (data, filename = "mydata") => {
+  const downloadFile = async (data, filename = 'mydata') => {
     const fileName = filename;
     const json = JSON.stringify(data);
-    const blob = new Blob([json],{type:'application/json'});
+    const blob = new Blob([json],{type: 'application/json'});
     const href = await URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = href;
-    link.download = fileName + ".json";
+    link.download = fileName + '.json';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -308,74 +406,155 @@ export function* downloadTids({target, tids}) {
   try {
     const response = yield call(request, requestURL, options);
 
-    if ( response.status && response.status == "unauthorised"){
+    if ( response.status && response.status == 'unauthorised') {
 
-      yield put( yield issueAlertAction({ open: true, message: "Failed Data download", isError: true }))
+      yield put( yield issueAlertAction({
+        open: true,
+        message: 'Failed Data download',
+        isError: true
+      }))
     } else {
-      // debugger
-      switch (target) {
-        case "result":
-          var result = response.data.rows.reduce(
-            (acc, tableData, i) => {
-              tableData.tableResult.map(
-                (tres) => {
-                  acc.data.push( {tid: tableData.tid, ...tres} );
-                  acc.headers = Array.from( new Set([...acc.headers,... Object.keys(tres)]));
-                }); return acc;
-              }, {data:[],headers:[]})
+      let result
+      let headers
+      let data
+      // console.log(target)
 
-          var headers = result.headers.map( heads => { return {id: heads, displayName: heads} } )
-          var data = result.data
-          data = data.map( (item) => {var headers = Object.keys(item); headers.map( head => { if (typeof item[head] === 'string'){ item[head] = item[head].trim() }  }); return item  } )
-          downloadData("collection_"+parsed.collId+"_results.csv", headers, data)
+      switch (target) {
+        case 'results':
+          // csv result
+
+          headers = [
+            'collection_id',
+            'tid',
+            'docid',
+            'page',
+            'user',
+            // Rest of headers
+          ]
+
+          const headersBase = [
+            'row',
+            'col',
+            'value',
+          ]
+
+          // Extract all different headers
+          let headersAlt = response.data.reduce((prev, table) => {
+            // tableHeaders 
+            table.table_result.forEach(tableLine => {
+              const headersTemp = Object.keys(tableLine)
+              headersTemp.forEach(header => prev.includes(header) == false ?
+              prev.push(header)
+              : null
+              )
+            })
+            return prev
+          }, [])
+          // Remove headersBase
+          headersAlt = headersAlt.filter(header => headersBase.includes(header) == false)
+          // Sort dynamic headers
+          headersAlt.sort()
+          
+          // Used to create csv data in order
+          const headersTables = [...headersBase, ...headersAlt]
+
+          // Used to get statistics
+          const headersSet = new Map()
+          const headersLeng = new Map()
+
+          // Get data
+          data = response.data.reduce((prev, table) => {
+            // console.log(table)
+            // ex: {tid: '2969', table_result: Array(38)}
+
+            // Extract table general info from collectionState
+            const tableGeneralInfo = collectionState.tables.find(tableTemp => tableTemp.tid == table.tid)
+            // console.log(tableGeneralInfo)
+
+            // Add table info to the rows
+            const tableInfoAdd = (values) => [
+              tableGeneralInfo.collection_id,
+              tableGeneralInfo.tid,
+              tableGeneralInfo.docid,
+              tableGeneralInfo.page,
+              tableGeneralInfo.user,
+              ...values,
+            ]
+            // Get table info
+            const rows = table.table_result.map(dataRow => {
+              const row = headersTables.map(headerKey => {
+                if (headerKey in dataRow == false) {
+                  return ''
+                }
+                return dataRow[headerKey]
+              })
+
+              return tableInfoAdd(row)
+            })
+
+            return rows?
+              [...prev, ...rows]
+              : prev
+          }, [])
+
+          // Get more frequent headers
+          // a = Array.from(headersSet)
+          // b = a.sort((a, b) => b[1] - a[1])
+
+          headers = [
+            ...headers,
+            ...headersBase,
+            ...headersAlt,
+          ]
+
+          downloadData(`collection_${parsed.collId}_results.csv`, headers, data)
           break;
-        case "metadata":
-          var result = response.data.rows.reduce(
-                    (acc, tableData, i) => {
-                          acc.data.push( {tid: tableData.tid, ...tableData} );
-                          acc.headers = Array.from( new Set([...acc.headers,... Object.keys(tableData)]));
-                        return acc;
-                      }, {data:[],headers:[]})
-          var headers = result.headers.map( heads => { return {id: heads, displayName: heads} } )
-          var data = result.data.map( (item) => {var headers = Object.keys(item); headers.map( head => { if (typeof item[head] === 'string'){ item[head] = item[head].trim() }  }); return item  } )
-          downloadData("collection_"+parsed.collId+"_metadata.csv", headers, data)
+        case 'metadata':
+          // csv metadata
+
+          headers = response.data.length > 0 ? Object.keys(response.data[0]) : []
+
+          data = response.data.reduce((prev, metadataLine, currentIndex) => {
+            // Extract table general info from collectionState
+            const tableGeneralInfo = collectionState.tables.find(tableTemp => tableTemp.tid == metadataLine.tid)
+
+            // Add table info to the rows
+            const tableInfoAdd = (value) => [
+              tableGeneralInfo.collection_id,
+              tableGeneralInfo.tid,
+              tableGeneralInfo.docid,
+              tableGeneralInfo.page,
+              tableGeneralInfo.user,
+              ...value,
+            ]
+            // Get metadata info
+
+            if (!metadataLine) return prev
+
+            const row = tableInfoAdd(
+              headers.map(header => metadataLine[header])
+            )
+            prev.push(row)
+            return prev
+          }, [])
+
+          // headers table info + headers metadata
+          headers = [
+            'collection_id',
+            'tid',
+            'docid',
+            'page',
+            'user',
+            ...headers,
+          ]
+
+          downloadData(`collection_${parsed.collId}_metadata.csv`, headers, data)
           break;
-        case "json":
-          debugger
-          downloadFile( {selected_results: response.data}, "collection_"+parsed.collId+"_all")
+        case 'json':
+          downloadFile( {selected_results: response.data}, `collection_${parsed.collId}_all`)
           break;
         default:
-
       }
-      // if ( target.indexOf("result") > -1 ){
-      //   var result = response.data.rows.reduce(
-      //     (acc, tableData, i) => {
-      //       tableData.tableResult.map(
-      //         (tres) => {
-      //           acc.data.push( {tid: tableData.tid, ...tres} );
-      //           acc.headers = Array.from( new Set([...acc.headers,... Object.keys(tres)]));
-      //         }); return acc;
-      //       }, {data:[],headers:[]})
-      //
-      //   var headers = result.headers.map( heads => { return {id: heads, displayName: heads} } )
-      //   var data = result.data
-      //   data = data.map( (item) => {var headers = Object.keys(item); headers.map( head => { if (typeof item[head] === 'string'){ item[head] = item[head].trim() }  }); return item  } )
-      //   downloadData("collection_"+parsed.collId+"_results.csv", headers, data)
-      // } else {
-      //   var result = response.data.rows.reduce(
-      //             (acc, tableData, i) => {
-      //                   acc.data.push( {tid: tableData.tid, ...tableData} );
-      //                   acc.headers = Array.from( new Set([...acc.headers,... Object.keys(tableData)]));
-      //                 return acc;
-      //               }, {data:[],headers:[]})
-      //   var headers = result.headers.map( heads => { return {id: heads, displayName: heads} } )
-      //   var data = result.data.map( (item) => {var headers = Object.keys(item); headers.map( head => { if (typeof item[head] === 'string'){ item[head] = item[head].trim() }  }); return item  } )
-      //
-      //
-      //   downloadData("collection_"+parsed.collId+"_metadata.csv", headers, data)
-      // }
-
-
     }
   } catch (err) {
     console.log(err)
@@ -383,14 +562,13 @@ export function* downloadTids({target, tids}) {
   return {}
 }
 
-
 // Individual exports for testing
 export default function* collectionViewSaga() {
   yield takeLatest(LOAD_COLLECTION_ACTION, getCollectionData);
   yield takeLatest(EDIT_COLLECTION_ACTION, editCollectionData);
   yield takeLatest(DELETE_COLLECTION_ACTION, deleteCollection);
   yield takeLatest(REMOVE_TABLES_ACTION, removeCollectionTables);
+  yield takeLatest(collectionViewReduxActions.tablesCopy.type, copyCollectionTables);
   yield takeLatest(MOVE_TABLES_ACTION, moveCollectionTables);
   yield takeLatest(DOWNLOAD_DATA_ACTION, downloadTids);
-
 }

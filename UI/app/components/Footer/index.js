@@ -15,11 +15,17 @@ import Card from '@material-ui/core/Card'
 
 function Footer() {
   return (
-    <Card style={{padding:20, marginTop:20, borderTop: "#8e8e8e 2px solid"}}>
+    <footer
+      style={{
+        padding:20,
+        borderTop: '#8e8e8e 2px solid',
+        backgroundColor: 'rgb(244, 244, 244)',
+      }}
+    >
       <div>
-        University of Glasgow 2020 - MVLS - Public Health
+        University of Glasgow 2022 - MVLS - Public Health
       </div>
-    </Card>
+    </footer>
   );
 }
 

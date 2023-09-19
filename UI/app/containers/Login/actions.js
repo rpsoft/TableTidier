@@ -4,7 +4,12 @@
  *
  */
 
-import { LOGIN_ACTION, LOGIN_ACTION_SUCCESS, LOGIN_ACTION_FAILED, LOGOUT_ACTION } from './constants';
+import {
+  LOGIN_ACTION,
+  LOGIN_ACTION_SUCCESS,
+  LOGIN_ACTION_FAILED,
+  LOGOUT_ACTION
+} from './constants';
 
 
 export function doLoginAction(username, password) {
@@ -15,10 +20,10 @@ export function doLoginAction(username, password) {
   };
 }
 
-export function loginSuccessAction(token) {
+export function loginSuccessAction(userInfo) {
   return {
     type: LOGIN_ACTION_SUCCESS,
-    payload: token,
+    payload: userInfo,
   };
 }
 
@@ -33,4 +38,34 @@ export function doLogOutAction() {
   return {
     type: LOGOUT_ACTION,
   };
+}
+
+export default {
+  refreshTokenStart: {
+    // name format: 'yourproject/YourContainer/YOUR_ACTION_CONSTANT'
+    type: 'app/App/APP_STATUS_START',
+    action: function(refreshToken) {
+      return {
+        type: this.type,
+        refreshToken,
+      }
+    }
+  },
+  refreshTokenStop: {
+    type: 'app/App/REFRESH_TOKEN_STOP',
+    action: function() {
+      return {
+        type: this.type,
+      }
+    }
+  },
+  refreshTokenRestart: {
+    type: 'app/App/REFRESH_TOKEN_RESTART',
+    action: function(refreshToken) {
+      return {
+        type: this.type,
+        refreshToken,
+      }
+    }
+  },
 }

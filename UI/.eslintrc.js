@@ -7,7 +7,13 @@ const prettierOptions = JSON.parse(
 
 module.exports = {
   parser: 'babel-eslint',
-  extends: ['airbnb', 'prettier', 'prettier/react'],
+  extends: [
+    'airbnb',
+    'prettier',
+    'prettier/react',
+    'plugin:react/recommended',
+    'plugin:react/jsx-runtime',
+  ],
   plugins: ['prettier', 'redux-saga', 'react', 'react-hooks', 'jsx-a11y'],
   env: {
     jest: true,
@@ -85,5 +91,8 @@ module.exports = {
         config: './internals/webpack/webpack.prod.babel.js',
       },
     },
+    'react': {
+      version: 'detect'
+    }
   },
 };

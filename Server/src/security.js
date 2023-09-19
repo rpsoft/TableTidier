@@ -1,79 +1,103 @@
-var passport = require('passport');
-const crypto = require('crypto');
+const passport = require('passport');
 
 import passportCustom from 'passport-custom';
 const CustomStrategy = passportCustom.Strategy;
 
-global.records = [
-  //   { id: 1, username: 'jack', password: 'secret', displayName: 'Jack', email: 'jack@example.com', registered : "1588283579685", role: "viewer" }
-  // , { id: 2, username: 'jill', password: 'birthday', displayName: 'Jill', email:'jill@example.com', registered : "1588283575644", role: "user" }
-  // , { id: 3, username: 'suso', password: 'me', displayName: 'Jesus', email: 'suso@example.com', registered : "1588283589667", role: "admin" }
-];
+// https://github.com/jaredhanson/passport-local
+// const localStrategy = require('passport-local').Strategy;
 
+let dbDriver = {}
+// Pass dbDriver to access DB
+export function passportAddDriver(driver) { dbDriver = driver }
 
-export async function initialiseUsers() {
-  var client = await global.pool.connect()
-  var result = await client.query('SELECT id, username, password, "displayName", email, registered, role FROM public.users')
-        client.release()
+// Create user
+passport.use(
+  'signup',
+  new CustomStrategy(
+    async (req, done) => {
+      const {
+        email,
+        username,
+        password,
+      } = req.body
 
-  global.records = result.rows;
-}
+      const FAIL_GENERIC_MESSAGE = 'email, username or password are not valid'
 
-
-export async function createUser(userData) {
-  var client = await global.pool.connect()
-
-  var result = await client.query(
-    'INSERT INTO public.users( username, password, "displayName", email, registered, role) VALUES ($1, $2, $3, $4, $5, $6)',
-    [userData.username, userData.password, userData.displayName, userData.email,  Date.now(), "standard" ]);
-
-  client.release()
-
-  await initialiseUsers()
-
-  return result
-}
-
-
-
-
-export function getUserHash(user){
-  var hash = crypto.createHmac('sha256', CONFIG.hashSecret)
-                     .update(user.username+user.password+user.registered)
-                     .digest('hex');
-
- return {username : user.username, password: user.password, hash}
-}
-
-
-passport.use(new CustomStrategy(
-  function(req, done) {
-
-    for ( var i in global.records ){
-      if ( global.records[i].username == req.body.username ){
-        if (global.records[i].password != req.body.password) {
-          return done(null, false);
-        }
-        return done(null, getUserHash(records[i]));
+      if (
+        !email ||
+        !username ||
+        !password
+      ) {
+        return done(null, false, { message: FAIL_GENERIC_MESSAGE });
       }
-    }ns
 
-    return done(null, false);
-  }
-));
+      try {
+        // check if user exists
+        const emailIsUsed = await dbDriver.userGet({ email });
+        const usernameIsUsed = await dbDriver.userGet({ username });
+        if (emailIsUsed || usernameIsUsed) {
+          return done(null, false, 'email or username not available');
+        }
 
-passport.serializeUser(function(user, cb) {
-  cb(null, user.id);
-});
+        const user = await dbDriver.userCreate({ email, username, password });
 
-passport.deserializeUser(function(id, cb) {
-  for ( var i in global.records ){
-    if ( global.records[i].id == id ){
-      return cb(null, global.records[i]);
+        return done(null, user);
+      } catch (error) {
+        done(error);
+      }
     }
-  }
-  return cb(null,false)
-});
+  )
+);
 
+// Authenticate user
+passport.use(
+  'login',
+  new CustomStrategy( async (req, done) => {
+    const {
+      username,
+      password,
+    } = req.body
+
+    const LOGIN_FAIL_GENERIC_MESSAGE = 'user or password not valid'
+
+    if (!username || !password) {
+      return done(null, false, { message: LOGIN_FAIL_GENERIC_MESSAGE });
+    }
+
+    try {
+      // Find user
+      const user = await dbDriver.userGet({username});
+
+      // User exists?
+      if (!user) {
+        return done(null, false, { message: LOGIN_FAIL_GENERIC_MESSAGE });
+      }
+
+      // Valid password?
+      if (user.password !== password) {
+        return done(null, false, { message: LOGIN_FAIL_GENERIC_MESSAGE });
+      }
+      // Add Permissions and roles
+      // Example
+      const userJWT = {
+        _id: user.id,
+        // subject
+        sub: user.username,
+        email: user.email,
+        // https://github.com/MichielDeMey/express-jwt-permissions
+        permissions: [
+          "status",
+          // "admin",
+          "user:read",
+          "user:write",
+          `role:${user.role}`
+        ],
+      }
+      return done(null, {user, jwt: userJWT}, { message: 'Logged in Successfully' });
+    } catch (error) {
+      return done(error);
+    }
+  })
+);
 
 export default passport;

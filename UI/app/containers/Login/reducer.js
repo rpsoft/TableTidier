@@ -4,14 +4,26 @@
  *
  */
 import produce from 'immer';
-import { LOGIN_ACTION, LOGIN_ACTION_SUCCESS, LOGIN_ACTION_FAILED, LOGOUT_ACTION } from './constants';
+import {
+  LOGIN_ACTION,
+  LOGIN_ACTION_SUCCESS,
+  LOGIN_ACTION_FAILED,
+  LOGIN_UPDATE_TOKEN,
+  LOGOUT_ACTION
+} from './constants';
+
+import actions from './actions'
 
 export const initialState = {
-  username : "",
-  password : "",
-  token : "",
-  error : null,
-  loginWarning : "",
+  // Store pre login user in tempUser
+  tempUser: {
+    username: '',
+    password: '',
+  },
+  username: '',
+  password: '',
+  error: null,
+  loginWarning: '',
 };
 
 /* eslint-disable default-case, no-param-reassign */
@@ -19,25 +31,29 @@ const loginReducer = (state = initialState, action) =>
   produce(state, draft => {
     switch (action.type) {
       case LOGIN_ACTION:
-        draft.username = action.username;
-        draft.password = action.password;
-        draft.loginWarning = "";
+        // store pre user in temporal user
+        draft.tempUser = {
+          username: action.username,
+          password: action.password,
+        };
+        draft.loginWarning = '';
         break;
       case LOGIN_ACTION_SUCCESS:
-        draft.token = action.payload;
+        // Get the user from temporal user
+        draft.username = action.payload.username || state.tempUser.username;
+        // clean temporal user
+        draft.tempUser = initialState.tempUser;
         draft.error = null;
-        draft.loginWarning = "";
+        draft.loginWarning = '';
         break;
       case LOGIN_ACTION_FAILED:
         draft.error = action.payload;
-        draft.token = "";
-        draft.loginWarning = "invalid details, have you registered?";
+        draft.loginWarning = 'invalid details, have you registered?';
         break;
       case LOGOUT_ACTION:
-        // console.log("REDUCER LOGOUT")
-        draft.error = "";
-        draft.token = "";
-        draft.loginWarning = "";
+        draft.username = '';
+        draft.error = '';
+        draft.loginWarning = '';
         break;
     }
   });

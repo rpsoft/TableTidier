@@ -1,7 +1,7 @@
 
 global.sleep = (ms) => {
     return new Promise(resolve=>{
-        setTimeout(resolve,ms)
+        setTimeout(resolve, ms)
     })
 }
 
@@ -15,7 +15,7 @@ Object.defineProperty(Array.prototype, 'flat', {
 
 //Important to use this function for all text extracted from the tables.
 global.prepare_cell_text = (text) => {
-    return text.replace(/([^A-z0-9 ])/g, " $1 ").replace(/[0-9]+/g, ' $nmbr$ ').replace(/ +/g," ").trim().toLowerCase()
+  return text.replace(/([^A-z0-9 ])/g, " $1 ").replace(/[0-9]+/g, ' $nmbr$ ').replace(/ +/g," ").trim().toLowerCase()
 }
 
 //
@@ -25,9 +25,6 @@ global.prepare_cell_text = (text) => {
 //
 //   return term
 // }
-
-
-
 
 function extractMMData (r) {
   try{

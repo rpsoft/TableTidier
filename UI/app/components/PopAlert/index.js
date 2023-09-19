@@ -4,9 +4,17 @@
  *
  */
 
-import React, { memo } from 'react';
+import React from 'react';
 // import PropTypes from 'prop-types';
 // import styled from 'styled-components';
+
+import './PopAlert.css';
+
+import {
+  connect,
+  useSelector,
+  useDispatch,
+} from 'react-redux';
 
 import Fade from '@material-ui/core/Fade';
 import Snackbar from '@material-ui/core/Snackbar';
@@ -20,28 +28,43 @@ import { FormattedMessage } from 'react-intl';
 import messages from './messages';
 
 function PopAlert({
-  alertData,
-  setAlertData
+ 
 }) {
+  const appData = useSelector(state => state.app)
+  const [ alertData, setAlertData ]  = React.useState( appData.alertData ?
+    appData.alertData
+    : { open: false, message: '', isError: false }
+  );
+
+  React.useEffect(() => {
+    setAlertData(
+      appData.alertData ?
+        appData.alertData
+        : { open: false, message: '', isError: false }
+    )
+  }, [appData.alertData]);
+
   const handleClose = (event, reason) => {
-      if (reason === 'clickaway') {
-        return;
-      }
-
-      var prev_data = alertData
-      prev_data.open = false
-
-      setAlertData({...alertData, open: false});
-    };
+    if (reason === 'clickaway') {
+      return;
+    }
+    setAlertData({...alertData, open: false});
+  };
 
   return (
     <Snackbar open={alertData.open} autoHideDuration={6000} onClose={handleClose}>
-      <span style={{fontSize: 17, textAlign:"center",
-                    verticalAlign: "middle", paddingLeft:10,
-                    backgroundColor: alertData.isError ? "rgb(253, 236, 234)": "rgb(237, 247, 237)"}} >
-          { alertData.isError ? <WarningIcon style={{color:"#f44336"}} fontSize="small" /> : <CheckCircleOutlineIcon style={{color:"#4caf50"}} fontSize="small"  /> }
-          <span style={{marginLeft:10}}>{alertData.message || "message"} </span>
-          <IconButton style={{marginLeft:50}} onClick={handleClose}> <HighlightOffIcon fontSize="small" /> </IconButton>
+      <span
+        className={`PopAlertBase ${alertData.isError? 'PopAlertError': ''}`}
+      >
+        {
+        alertData.isError ?
+          <WarningIcon style={{color:"#f44336"}} fontSize="small" />
+          : <CheckCircleOutlineIcon style={{color:"#4caf50"}} fontSize="small"  />
+        }
+        <span style={{marginLeft:10}}>
+          {alertData.message || "message"}
+        </span>
+        <IconButton style={{marginLeft:50}} onClick={handleClose}> <HighlightOffIcon fontSize="small" /> </IconButton>
       </span>
     </Snackbar>
   );
@@ -49,4 +72,4 @@ function PopAlert({
 
 PopAlert.propTypes = {};
 
-export default memo(PopAlert);
+export default PopAlert;

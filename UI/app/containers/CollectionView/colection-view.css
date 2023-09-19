@@ -1,0 +1,23 @@
+.collectionListHeaderTitleSelect {
+  font-size: small;
+  margin-left: 40px;
+}
+
+.collectionListHeaderSortByForm.MuiFormControl-root {
+  margin: 3px 10px;
+  min-width: 120px;
+  /* text-align: center; */
+  /* vertical-align: baseline; */
+}
+
+.collectionListHeaderSortByForm.MuiFormControl-root > div > .MuiSelect-root {
+  /* padding-top: 3px; */
+  /* padding-bottom: 10px; */
+  padding: 6px 7px;
+}
+
+
+.collectionListRow {
+  display: flex;
+  align-items: center;
+}

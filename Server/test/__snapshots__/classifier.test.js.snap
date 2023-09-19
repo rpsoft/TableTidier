@@ -1,0 +1,2067 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`classifiers attemptPrediction 1`] = `
+Object {
+  "cols": Array 1 [
+    Object {
+      "c": 0,
+      "descriptors": Array 1 [
+        "characteristic_level",
+      ],
+      "unique_modifier": "",
+    },
+  ],
+  "predictions": Array 49 [
+    Object {
+      "cellClasses": Array 3 [
+        "bold ",
+        "indent bold",
+        "indent bold",
+      ],
+      "pred_class": Object {
+        "intensive therapy n $nmbr$": "",
+        "standard therapy n $nmbr$": "arms",
+        "variable": "",
+      },
+      "terms": Array 3 [
+        "variable",
+        "intensive therapy n $nmbr$",
+        "standard therapy n $nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["variable", "1", "0", "0", "0", "0", "C0439828;C4553760", "qlco;inpr"],
+        Array 8 ["intensive therapy n $nmbr$", "1", "0", "1", "0", "0", "C0039798;C0087111;C1363945", "ftcn;topp;fndg"],
+        Array 8 ["standard therapy n $nmbr$", "1", "0", "1", "0", "0", "C2936643", "hlca"],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "",
+        "indent",
+        "indent",
+      ],
+      "pred_class": Object {
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$": "characteristic_level",
+        "age yr": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "age yr",
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["age yr", "0", "0", "0", "0", "0", "C0001779;C0439234", "orga;tmco"],
+        Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+        Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "",
+        "indent",
+        "indent",
+      ],
+      "pred_class": Object {
+        "$nmbr$ $nmbr$": "characteristic_level",
+        "female sex": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "female sex",
+        "$nmbr$ $nmbr$",
+        "$nmbr$ $nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["female sex", "0", "0", "0", "0", "0", "C0086287", "orga"],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "",
+        "indent",
+        "indent",
+      ],
+      "pred_class": Object {
+        "$nmbr$": "characteristic_level",
+        "median duration of diabetes yr": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "median duration of diabetes yr",
+        "$nmbr$",
+        "$nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["median duration of diabetes yr", "0", "0", "0", "0", "0", "C0449238;C2926735", "tmco;orch;phsu"],
+        Array 8 ["$nmbr$", "0", "0", "1", "0", "0", "", ""],
+        Array 8 ["$nmbr$", "0", "0", "1", "0", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "",
+        "indent",
+        "indent",
+      ],
+      "pred_class": Object {
+        "$nmbr$ $nmbr$": "characteristic_level",
+        "previous cardiovascular event": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "previous cardiovascular event",
+        "$nmbr$ $nmbr$",
+        "$nmbr$ $nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["previous cardiovascular event", "0", "0", "0", "0", "0", "C0205156;C1320716;C1552607", "tmco;fndg;tmco"],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "",
+        "indent",
+        "indent",
+      ],
+      "pred_class": Object {
+        "$nmbr$ $nmbr$": "characteristic_level",
+        "previous congestive heart failure": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "previous congestive heart failure",
+        "$nmbr$ $nmbr$",
+        "$nmbr$ $nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["previous congestive heart failure", "0", "0", "0", "0", "0", "C0205156;C0018802;C1552607", "tmco;dsyn;tmco"],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "empty_row",
+        "",
+        "",
+      ],
+      "pred_class": Object {
+        "race or ethnic group f": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "race or ethnic group f",
+        "",
+        "",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["race or ethnic group f", "0", "0", "0", "1", "0", "C0034510;C1706779;C3853635;C0441840", "popg;gngm;popg;clas"],
+        Array 8 ["", "0", "0", "0", "1", "0", "", ""],
+        Array 8 ["", "0", "0", "0", "1", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "indent ",
+        "indent",
+        "indent",
+      ],
+      "pred_class": Object {
+        "$nmbr$ $nmbr$": "characteristic_level",
+        "white": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "white",
+        "$nmbr$ $nmbr$",
+        "$nmbr$ $nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["white", "0", "0", "1", "0", "0", "C0007457;C0043157;C0220938", "popg;popg;qlco"],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "indent ",
+        "indent",
+        "indent",
+      ],
+      "pred_class": Object {
+        "$nmbr$ $nmbr$": "characteristic_level",
+        "black": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "black",
+        "$nmbr$ $nmbr$",
+        "$nmbr$ $nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["black", "0", "0", "1", "0", "0", "C0005680;C0027567;C0085756;C0439541", "popg;popg;popg;qlco"],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "indent ",
+        "indent",
+        "indent",
+      ],
+      "pred_class": Object {
+        "$nmbr$ $nmbr$": "characteristic_level",
+        "hispanic": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "hispanic",
+        "$nmbr$ $nmbr$",
+        "$nmbr$ $nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["hispanic", "0", "0", "1", "0", "0", "C0086409", "popg"],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "empty_row",
+        "",
+        "",
+      ],
+      "pred_class": Object {
+        "education": "characteristic_level;characteristic_name",
+      },
+      "terms": Array 3 [
+        "education",
+        "",
+        "",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["education", "0", "0", "0", "1", "0", "C0013621;C0013622;C0013658;C0039401", "edac;clas;fndg;edac"],
+        Array 8 ["", "0", "0", "0", "1", "0", "", ""],
+        Array 8 ["", "0", "0", "0", "1", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "indent ",
+        "indent",
+        "indent",
+      ],
+      "pred_class": Object {
+        "$nmbr$ $nmbr$": "characteristic_level",
+        "less than high school": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "less than high school",
+        "$nmbr$ $nmbr$",
+        "$nmbr$ $nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["less than high school", "0", "0", "1", "0", "0", "C0599395;C0683862;C0870649", "mnob;orgt;inpr;popg"],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "indent ",
+        "indent",
+        "indent",
+      ],
+      "pred_class": Object {
+        "$nmbr$ $nmbr$": "characteristic_level",
+        "high school graduate": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "high school graduate",
+        "$nmbr$ $nmbr$",
+        "$nmbr$ $nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["high school graduate", "0", "0", "1", "0", "0", "C0870649;C1549971", "popg;inpr"],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "indent ",
+        "indent",
+        "indent",
+      ],
+      "pred_class": Object {
+        "$nmbr$ $nmbr$": "characteristic_level",
+        "some college": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "some college",
+        "$nmbr$ $nmbr$",
+        "$nmbr$ $nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["some college", "0", "0", "1", "0", "0", "C0557806", "mnob"],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "indent ",
+        "indent",
+        "indent",
+      ],
+      "pred_class": Object {
+        "$nmbr$ $nmbr$": "characteristic_level",
+        "college degree or higher": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "college degree or higher",
+        "$nmbr$ $nmbr$",
+        "$nmbr$ $nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["college degree or higher", "0", "0", "1", "0", "0", "C0441889;C0449286;C0542560;C2348088;C0205250", "qlco;qnco;inpr;qnco;qlco"],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "empty_row",
+        "",
+        "",
+      ],
+      "pred_class": Object {
+        "cigarette smoking status": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "cigarette smoking status",
+        "",
+        "",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["cigarette smoking status", "0", "0", "0", "1", "0", "C1519386", "clna"],
+        Array 8 ["", "0", "0", "0", "1", "0", "", ""],
+        Array 8 ["", "0", "0", "0", "1", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "indent ",
+        "indent",
+        "indent",
+      ],
+      "pred_class": Object {
+        "$nmbr$ $nmbr$": "characteristic_level",
+        "current": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "current",
+        "$nmbr$ $nmbr$",
+        "$nmbr$ $nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["current", "0", "0", "1", "0", "0", "C0521116;C1705970", "tmco;npop"],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "indent ",
+        "indent",
+        "indent",
+      ],
+      "pred_class": Object {
+        "$nmbr$ $nmbr$": "characteristic_level",
+        "former": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "former",
+        "$nmbr$ $nmbr$",
+        "$nmbr$ $nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["former", "0", "0", "1", "0", "0", "C0205156;C0750523", "tmco;idcn"],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "indent ",
+        "indent",
+        "indent",
+      ],
+      "pred_class": Object {
+        "$nmbr$ $nmbr$": "characteristic_level",
+        "never": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "never",
+        "$nmbr$ $nmbr$",
+        "$nmbr$ $nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["never", "0", "0", "1", "0", "0", "C2003901", "tmco"],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "",
+        "indent",
+        "indent",
+      ],
+      "pred_class": Object {
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$": "characteristic_level",
+        "weight kg": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "weight kg",
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["weight kg", "0", "0", "0", "0", "0", "C0022718;C0439209;C4054209", "geoa;qnco;qnco"],
+        Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+        Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "",
+        "indent",
+        "indent",
+      ],
+      "pred_class": Object {
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$": "characteristic_level",
+        "body mass index": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "body mass index",
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["body mass index", "0", "0", "0", "0", "0", "C0005893;C0578022;C1305855", "diap;fndg;clna"],
+        Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+        Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "",
+        "indent",
+        "indent",
+      ],
+      "pred_class": Object {
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$": "characteristic_level",
+        "waist circumference cm": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "waist circumference cm",
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["waist circumference cm", "0", "0", "0", "0", "0", "C0455829", "clna"],
+        Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+        Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "empty_row",
+        "",
+        "",
+      ],
+      "pred_class": Object {
+        "blood pressure mm hg": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "blood pressure mm hg",
+        "",
+        "",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["blood pressure mm hg", "0", "0", "0", "1", "0", "C0005823;C0439475;C1271104;C1272641", "orgf;qnco;fndg;fndg"],
+        Array 8 ["", "0", "0", "0", "1", "0", "", ""],
+        Array 8 ["", "0", "0", "0", "1", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "indent ",
+        "indent",
+        "indent",
+      ],
+      "pred_class": Object {
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$": "characteristic_level",
+        "systolic": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "systolic",
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["systolic", "0", "0", "1", "0", "0", "C0039155", "tmco"],
+        Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+        Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "indent ",
+        "indent",
+        "indent",
+      ],
+      "pred_class": Object {
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$": "characteristic_level",
+        "diastolic": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "diastolic",
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["diastolic", "0", "0", "1", "0", "0", "C0012000", "clna"],
+        Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+        Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "empty_row",
+        "",
+        "",
+      ],
+      "pred_class": Object {
+        "medications": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "medications",
+        "",
+        "",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["medications", "0", "0", "0", "1", "0", "C0013227;C0802604;C2598133;C4284232", "phsu;clna;clna;inpr"],
+        Array 8 ["", "0", "0", "0", "1", "0", "", ""],
+        Array 8 ["", "0", "0", "0", "1", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "indent ",
+        "indent",
+        "indent",
+      ],
+      "pred_class": Object {
+        "$nmbr$ $nmbr$": "characteristic_level",
+        "insulin": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "insulin",
+        "$nmbr$ $nmbr$",
+        "$nmbr$ $nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["insulin", "0", "0", "1", "0", "0", "C0021641;C1533581;C1579433;C3714501", "aapp;horm;phsu;aapp;horm;phsu;phsu;horm;phsu"],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "indent ",
+        "indent",
+        "indent",
+      ],
+      "pred_class": Object {
+        "$nmbr$ $nmbr$": "characteristic_level",
+        "metformin": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "metformin",
+        "$nmbr$ $nmbr$",
+        "$nmbr$ $nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["metformin", "0", "0", "1", "0", "0", "C0025598", "orch;phsu"],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "indent ",
+        "indent",
+        "indent",
+      ],
+      "pred_class": Object {
+        "$nmbr$ $nmbr$": "characteristic_level",
+        "any sulfonylurea": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "any sulfonylurea",
+        "$nmbr$ $nmbr$",
+        "$nmbr$ $nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["any sulfonylurea", "0", "0", "1", "0", "0", "C0038766;C3536898", "orch;phsu;phsu"],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "indent ",
+        "indent",
+        "indent",
+      ],
+      "pred_class": Object {
+        "$nmbr$ $nmbr$": "characteristic_level",
+        "any thiazolidinedione": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "any thiazolidinedione",
+        "$nmbr$ $nmbr$",
+        "$nmbr$ $nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["any thiazolidinedione", "0", "0", "1", "0", "0", "C0289779;C1257987;C3537039", "orch;phsu;orch;phsu;phsu"],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "indent ",
+        "indent",
+        "indent",
+      ],
+      "pred_class": Object {
+        "$nmbr$ $nmbr$": "characteristic_level",
+        "any antihypertensive agent": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "any antihypertensive agent",
+        "$nmbr$ $nmbr$",
+        "$nmbr$ $nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["any antihypertensive agent", "0", "0", "1", "0", "0", "C0003364", "phsu"],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "indent ",
+        "indent",
+        "indent",
+      ],
+      "pred_class": Object {
+        "$nmbr$ $nmbr$": "characteristic_level",
+        "angiotensin converting enzyme inhibitor": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "angiotensin converting enzyme inhibitor",
+        "$nmbr$ $nmbr$",
+        "$nmbr$ $nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["angiotensin converting enzyme inhibitor", "0", "0", "1", "0", "0", "C0003015;C2757044;C3536837;C4541021", "phsu;moft;phsu;qlco"],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "indent ",
+        "indent",
+        "indent",
+      ],
+      "pred_class": Object {
+        "$nmbr$ $nmbr$": "characteristic_level",
+        "aspirin": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "aspirin",
+        "$nmbr$ $nmbr$",
+        "$nmbr$ $nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["aspirin", "0", "0", "1", "0", "0", "C0004057", "orch;phsu"],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "indent ",
+        "indent",
+        "indent",
+      ],
+      "pred_class": Object {
+        "$nmbr$ $nmbr$": "characteristic_level",
+        "beta blocker": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "beta blocker",
+        "$nmbr$ $nmbr$",
+        "$nmbr$ $nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["beta blocker", "0", "0", "1", "0", "0", "C0001645", "phsu"],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "indent ",
+        "indent",
+        "indent",
+      ],
+      "pred_class": Object {
+        "$nmbr$ $nmbr$": "characteristic_level",
+        "any thiazide diuretic": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "any thiazide diuretic",
+        "$nmbr$ $nmbr$",
+        "$nmbr$ $nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["any thiazide diuretic", "0", "0", "1", "0", "0", "C0012802;C3536861", "orch;phsu;phsu"],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "indent ",
+        "indent",
+        "indent",
+      ],
+      "pred_class": Object {
+        "$nmbr$ $nmbr$": "characteristic_level",
+        "statin": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "statin",
+        "$nmbr$ $nmbr$",
+        "$nmbr$ $nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["statin", "0", "0", "1", "0", "0", "C0360714", "orch;phsu"],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "empty_row",
+        "",
+        "",
+      ],
+      "pred_class": Object {
+        "glycated hemoglobin": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "glycated hemoglobin",
+        "",
+        "",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["glycated hemoglobin", "0", "0", "0", "1", "0", "C0017853", "aapp;bacs"],
+        Array 8 ["", "0", "0", "0", "1", "0", "", ""],
+        Array 8 ["", "0", "0", "0", "1", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "indent ",
+        "indent",
+        "indent",
+      ],
+      "pred_class": Object {
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$": "characteristic_level",
+        "mean": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "mean",
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["mean", "0", "0", "1", "0", "0", "C0444504;C2347634;C2348143", "qnco;qnco;qnco"],
+        Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+        Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "indent ",
+        "indent",
+        "indent",
+      ],
+      "pred_class": Object {
+        "$nmbr$ $nmbr$": "characteristic_level",
+        "median": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "median",
+        "$nmbr$ $nmbr$",
+        "$nmbr$ $nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["median", "0", "0", "1", "0", "0", "C0549183;C0876920;C2347635;C2348144;C2939193", "spco;qnco;qnco;qnco;spco"],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+        Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "",
+        "indent",
+        "indent",
+      ],
+      "pred_class": Object {
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$": "characteristic_level",
+        "fasting serum glucose mg dl": "characteristic_level;characteristic_name",
+      },
+      "terms": Array 3 [
+        "fasting serum glucose mg dl",
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["fasting serum glucose mg dl", "0", "0", "0", "0", "0", "C0202041;C0439269;C3534430", "lbpr;qnco;fndg"],
+        Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+        Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "empty_row",
+        "",
+        "",
+      ],
+      "pred_class": Object {
+        "cholesterol mg dl": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "cholesterol mg dl",
+        "",
+        "",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["cholesterol mg dl", "0", "0", "0", "1", "0", "C0008377;C0439269", "bacs;orch;qnco"],
+        Array 8 ["", "0", "0", "0", "1", "0", "", ""],
+        Array 8 ["", "0", "0", "0", "1", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "indent ",
+        "indent",
+        "indent",
+      ],
+      "pred_class": Object {
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$": "characteristic_level",
+        "total": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "total",
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["total", "0", "0", "1", "0", "0", "C0439175;C0439810", "qnco;qlco"],
+        Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+        Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "indent ",
+        "indent",
+        "indent",
+      ],
+      "pred_class": Object {
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$": "characteristic_level",
+        "low density lipoprotein": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "low density lipoprotein",
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["low density lipoprotein", "0", "0", "1", "0", "0", "C0023823", "bacs;orch"],
+        Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+        Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "indent empty_row",
+        "",
+        "",
+      ],
+      "pred_class": Object {
+        "high density lipoprotein": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "high density lipoprotein",
+        "",
+        "",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["high density lipoprotein", "0", "0", "1", "1", "0", "C0023821", "aapp;bacs"],
+        Array 8 ["", "0", "0", "0", "1", "0", "", ""],
+        Array 8 ["", "0", "0", "0", "1", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "indent ",
+        "indent",
+        "indent",
+      ],
+      "pred_class": Object {
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$": "characteristic_level",
+        "women": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "women",
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["women", "0", "0", "1", "0", "0", "C0043210", "popg"],
+        Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+        Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "indent ",
+        "indent",
+        "indent",
+      ],
+      "pred_class": Object {
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$": "characteristic_level",
+        "men": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "men",
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["men", "0", "0", "1", "0", "0", "C0025266", "popg"],
+        Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+        Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "",
+        "indent",
+        "indent",
+      ],
+      "pred_class": Object {
+        "$nmbr$": "characteristic_level",
+        "median triglyceride mg dl": "characteristic_level",
+      },
+      "terms": Array 3 [
+        "median triglyceride mg dl",
+        "$nmbr$",
+        "$nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["median triglyceride mg dl", "0", "0", "0", "0", "0", "C0041004;C0439269", "bacs;orch;qnco"],
+        Array 8 ["$nmbr$", "0", "0", "1", "0", "0", "", ""],
+        Array 8 ["$nmbr$", "0", "0", "1", "0", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "",
+        "indent",
+        "indent",
+      ],
+      "pred_class": Object {
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$": "characteristic_level",
+        "potassium mg dl": "characteristic_level;characteristic_name",
+      },
+      "terms": Array 3 [
+        "potassium mg dl",
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["potassium mg dl", "0", "0", "0", "0", "0", "C0032821;C0439269;C0202194;C0304475;C0597277;C3714637", "bacs;elii;phsu;qnco;lbpr;inch;phsu;elii;phsu;phsu"],
+        Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+        Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      ],
+    },
+    Object {
+      "cellClasses": Array 3 [
+        "",
+        "indent",
+        "indent",
+      ],
+      "pred_class": Object {
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$": "characteristic_level",
+        "serum creatinine mg dl": "characteristic_level;characteristic_name",
+      },
+      "terms": Array 3 [
+        "serum creatinine mg dl",
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+        "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+      ],
+      "terms_features": Array 3 [
+        Array 8 ["serum creatinine mg dl", "0", "0", "0", "0", "0", "C0201976;C0439269;C0600061", "lbpr;qnco;fndg"],
+        Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+        Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      ],
+    },
+  ],
+  "rows": Array 0 [],
+}
+`;
+
+exports[`classifiers feature_extraction 1`] = `
+Array 49 [
+  Object {
+    "cellClasses": Array 3 [
+      "bold ",
+      "indent bold",
+      "indent bold",
+    ],
+    "pred_class": Object {
+      "intensive therapy n $nmbr$": "",
+      "standard therapy n $nmbr$": "arms",
+      "variable": "",
+    },
+    "terms": Array 3 [
+      "variable",
+      "intensive therapy n $nmbr$",
+      "standard therapy n $nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["variable", "1", "0", "0", "0", "0", "C0439828;C4553760", "qlco;inpr"],
+      Array 8 ["intensive therapy n $nmbr$", "1", "0", "1", "0", "0", "C0039798;C0087111;C1363945", "ftcn;topp;fndg"],
+      Array 8 ["standard therapy n $nmbr$", "1", "0", "1", "0", "0", "C2936643", "hlca"],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "",
+      "indent",
+      "indent",
+    ],
+    "pred_class": Object {
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$": "characteristic_level",
+      "age yr": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "age yr",
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["age yr", "0", "0", "0", "0", "0", "C0001779;C0439234", "orga;tmco"],
+      Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "",
+      "indent",
+      "indent",
+    ],
+    "pred_class": Object {
+      "$nmbr$ $nmbr$": "characteristic_level",
+      "female sex": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "female sex",
+      "$nmbr$ $nmbr$",
+      "$nmbr$ $nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["female sex", "0", "0", "0", "0", "0", "C0086287", "orga"],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "",
+      "indent",
+      "indent",
+    ],
+    "pred_class": Object {
+      "$nmbr$": "characteristic_level",
+      "median duration of diabetes yr": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "median duration of diabetes yr",
+      "$nmbr$",
+      "$nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["median duration of diabetes yr", "0", "0", "0", "0", "0", "C0449238;C2926735", "tmco;orch;phsu"],
+      Array 8 ["$nmbr$", "0", "0", "1", "0", "0", "", ""],
+      Array 8 ["$nmbr$", "0", "0", "1", "0", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "",
+      "indent",
+      "indent",
+    ],
+    "pred_class": Object {
+      "$nmbr$ $nmbr$": "characteristic_level",
+      "previous cardiovascular event": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "previous cardiovascular event",
+      "$nmbr$ $nmbr$",
+      "$nmbr$ $nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["previous cardiovascular event", "0", "0", "0", "0", "0", "C0205156;C1320716;C1552607", "tmco;fndg;tmco"],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "",
+      "indent",
+      "indent",
+    ],
+    "pred_class": Object {
+      "$nmbr$ $nmbr$": "characteristic_level",
+      "previous congestive heart failure": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "previous congestive heart failure",
+      "$nmbr$ $nmbr$",
+      "$nmbr$ $nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["previous congestive heart failure", "0", "0", "0", "0", "0", "C0205156;C0018802;C1552607", "tmco;dsyn;tmco"],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "empty_row",
+      "",
+      "",
+    ],
+    "pred_class": Object {
+      "race or ethnic group f": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "race or ethnic group f",
+      "",
+      "",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["race or ethnic group f", "0", "0", "0", "1", "0", "C0034510;C1706779;C3853635;C0441840", "popg;gngm;popg;clas"],
+      Array 8 ["", "0", "0", "0", "1", "0", "", ""],
+      Array 8 ["", "0", "0", "0", "1", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "indent ",
+      "indent",
+      "indent",
+    ],
+    "pred_class": Object {
+      "$nmbr$ $nmbr$": "characteristic_level",
+      "white": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "white",
+      "$nmbr$ $nmbr$",
+      "$nmbr$ $nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["white", "0", "0", "1", "0", "0", "C0007457;C0043157;C0220938", "popg;popg;qlco"],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "indent ",
+      "indent",
+      "indent",
+    ],
+    "pred_class": Object {
+      "$nmbr$ $nmbr$": "characteristic_level",
+      "black": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "black",
+      "$nmbr$ $nmbr$",
+      "$nmbr$ $nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["black", "0", "0", "1", "0", "0", "C0005680;C0027567;C0085756;C0439541", "popg;popg;popg;qlco"],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "indent ",
+      "indent",
+      "indent",
+    ],
+    "pred_class": Object {
+      "$nmbr$ $nmbr$": "characteristic_level",
+      "hispanic": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "hispanic",
+      "$nmbr$ $nmbr$",
+      "$nmbr$ $nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["hispanic", "0", "0", "1", "0", "0", "C0086409", "popg"],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "empty_row",
+      "",
+      "",
+    ],
+    "pred_class": Object {
+      "education": "characteristic_level;characteristic_name",
+    },
+    "terms": Array 3 [
+      "education",
+      "",
+      "",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["education", "0", "0", "0", "1", "0", "C0013621;C0013622;C0013658;C0039401", "edac;clas;fndg;edac"],
+      Array 8 ["", "0", "0", "0", "1", "0", "", ""],
+      Array 8 ["", "0", "0", "0", "1", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "indent ",
+      "indent",
+      "indent",
+    ],
+    "pred_class": Object {
+      "$nmbr$ $nmbr$": "characteristic_level",
+      "less than high school": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "less than high school",
+      "$nmbr$ $nmbr$",
+      "$nmbr$ $nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["less than high school", "0", "0", "1", "0", "0", "C0599395;C0683862;C0870649", "mnob;orgt;inpr;popg"],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "indent ",
+      "indent",
+      "indent",
+    ],
+    "pred_class": Object {
+      "$nmbr$ $nmbr$": "characteristic_level",
+      "high school graduate": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "high school graduate",
+      "$nmbr$ $nmbr$",
+      "$nmbr$ $nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["high school graduate", "0", "0", "1", "0", "0", "C0870649;C1549971", "popg;inpr"],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "indent ",
+      "indent",
+      "indent",
+    ],
+    "pred_class": Object {
+      "$nmbr$ $nmbr$": "characteristic_level",
+      "some college": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "some college",
+      "$nmbr$ $nmbr$",
+      "$nmbr$ $nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["some college", "0", "0", "1", "0", "0", "C0557806", "mnob"],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "indent ",
+      "indent",
+      "indent",
+    ],
+    "pred_class": Object {
+      "$nmbr$ $nmbr$": "characteristic_level",
+      "college degree or higher": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "college degree or higher",
+      "$nmbr$ $nmbr$",
+      "$nmbr$ $nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["college degree or higher", "0", "0", "1", "0", "0", "C0441889;C0449286;C0542560;C2348088;C0205250", "qlco;qnco;inpr;qnco;qlco"],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "empty_row",
+      "",
+      "",
+    ],
+    "pred_class": Object {
+      "cigarette smoking status": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "cigarette smoking status",
+      "",
+      "",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["cigarette smoking status", "0", "0", "0", "1", "0", "C1519386", "clna"],
+      Array 8 ["", "0", "0", "0", "1", "0", "", ""],
+      Array 8 ["", "0", "0", "0", "1", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "indent ",
+      "indent",
+      "indent",
+    ],
+    "pred_class": Object {
+      "$nmbr$ $nmbr$": "characteristic_level",
+      "current": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "current",
+      "$nmbr$ $nmbr$",
+      "$nmbr$ $nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["current", "0", "0", "1", "0", "0", "C0521116;C1705970", "tmco;npop"],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "indent ",
+      "indent",
+      "indent",
+    ],
+    "pred_class": Object {
+      "$nmbr$ $nmbr$": "characteristic_level",
+      "former": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "former",
+      "$nmbr$ $nmbr$",
+      "$nmbr$ $nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["former", "0", "0", "1", "0", "0", "C0205156;C0750523", "tmco;idcn"],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "indent ",
+      "indent",
+      "indent",
+    ],
+    "pred_class": Object {
+      "$nmbr$ $nmbr$": "characteristic_level",
+      "never": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "never",
+      "$nmbr$ $nmbr$",
+      "$nmbr$ $nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["never", "0", "0", "1", "0", "0", "C2003901", "tmco"],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "",
+      "indent",
+      "indent",
+    ],
+    "pred_class": Object {
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$": "characteristic_level",
+      "weight kg": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "weight kg",
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["weight kg", "0", "0", "0", "0", "0", "C0022718;C0439209;C4054209", "geoa;qnco;qnco"],
+      Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "",
+      "indent",
+      "indent",
+    ],
+    "pred_class": Object {
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$": "characteristic_level",
+      "body mass index": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "body mass index",
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["body mass index", "0", "0", "0", "0", "0", "C0005893;C0578022;C1305855", "diap;fndg;clna"],
+      Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "",
+      "indent",
+      "indent",
+    ],
+    "pred_class": Object {
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$": "characteristic_level",
+      "waist circumference cm": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "waist circumference cm",
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["waist circumference cm", "0", "0", "0", "0", "0", "C0455829", "clna"],
+      Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "empty_row",
+      "",
+      "",
+    ],
+    "pred_class": Object {
+      "blood pressure mm hg": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "blood pressure mm hg",
+      "",
+      "",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["blood pressure mm hg", "0", "0", "0", "1", "0", "C0005823;C0439475;C1271104;C1272641", "orgf;qnco;fndg;fndg"],
+      Array 8 ["", "0", "0", "0", "1", "0", "", ""],
+      Array 8 ["", "0", "0", "0", "1", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "indent ",
+      "indent",
+      "indent",
+    ],
+    "pred_class": Object {
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$": "characteristic_level",
+      "systolic": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "systolic",
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["systolic", "0", "0", "1", "0", "0", "C0039155", "tmco"],
+      Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "indent ",
+      "indent",
+      "indent",
+    ],
+    "pred_class": Object {
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$": "characteristic_level",
+      "diastolic": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "diastolic",
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["diastolic", "0", "0", "1", "0", "0", "C0012000", "clna"],
+      Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "empty_row",
+      "",
+      "",
+    ],
+    "pred_class": Object {
+      "medications": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "medications",
+      "",
+      "",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["medications", "0", "0", "0", "1", "0", "C0013227;C0802604;C2598133;C4284232", "phsu;clna;clna;inpr"],
+      Array 8 ["", "0", "0", "0", "1", "0", "", ""],
+      Array 8 ["", "0", "0", "0", "1", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "indent ",
+      "indent",
+      "indent",
+    ],
+    "pred_class": Object {
+      "$nmbr$ $nmbr$": "characteristic_level",
+      "insulin": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "insulin",
+      "$nmbr$ $nmbr$",
+      "$nmbr$ $nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["insulin", "0", "0", "1", "0", "0", "C0021641;C1533581;C1579433;C3714501", "aapp;horm;phsu;aapp;horm;phsu;phsu;horm;phsu"],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "indent ",
+      "indent",
+      "indent",
+    ],
+    "pred_class": Object {
+      "$nmbr$ $nmbr$": "characteristic_level",
+      "metformin": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "metformin",
+      "$nmbr$ $nmbr$",
+      "$nmbr$ $nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["metformin", "0", "0", "1", "0", "0", "C0025598", "orch;phsu"],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "indent ",
+      "indent",
+      "indent",
+    ],
+    "pred_class": Object {
+      "$nmbr$ $nmbr$": "characteristic_level",
+      "any sulfonylurea": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "any sulfonylurea",
+      "$nmbr$ $nmbr$",
+      "$nmbr$ $nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["any sulfonylurea", "0", "0", "1", "0", "0", "C0038766;C3536898", "orch;phsu;phsu"],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "indent ",
+      "indent",
+      "indent",
+    ],
+    "pred_class": Object {
+      "$nmbr$ $nmbr$": "characteristic_level",
+      "any thiazolidinedione": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "any thiazolidinedione",
+      "$nmbr$ $nmbr$",
+      "$nmbr$ $nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["any thiazolidinedione", "0", "0", "1", "0", "0", "C0289779;C1257987;C3537039", "orch;phsu;orch;phsu;phsu"],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "indent ",
+      "indent",
+      "indent",
+    ],
+    "pred_class": Object {
+      "$nmbr$ $nmbr$": "characteristic_level",
+      "any antihypertensive agent": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "any antihypertensive agent",
+      "$nmbr$ $nmbr$",
+      "$nmbr$ $nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["any antihypertensive agent", "0", "0", "1", "0", "0", "C0003364", "phsu"],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "indent ",
+      "indent",
+      "indent",
+    ],
+    "pred_class": Object {
+      "$nmbr$ $nmbr$": "characteristic_level",
+      "angiotensin converting enzyme inhibitor": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "angiotensin converting enzyme inhibitor",
+      "$nmbr$ $nmbr$",
+      "$nmbr$ $nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["angiotensin converting enzyme inhibitor", "0", "0", "1", "0", "0", "C0003015;C2757044;C3536837;C4541021", "phsu;moft;phsu;qlco"],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "indent ",
+      "indent",
+      "indent",
+    ],
+    "pred_class": Object {
+      "$nmbr$ $nmbr$": "characteristic_level",
+      "aspirin": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "aspirin",
+      "$nmbr$ $nmbr$",
+      "$nmbr$ $nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["aspirin", "0", "0", "1", "0", "0", "C0004057", "orch;phsu"],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "indent ",
+      "indent",
+      "indent",
+    ],
+    "pred_class": Object {
+      "$nmbr$ $nmbr$": "characteristic_level",
+      "beta blocker": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "beta blocker",
+      "$nmbr$ $nmbr$",
+      "$nmbr$ $nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["beta blocker", "0", "0", "1", "0", "0", "C0001645", "phsu"],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "indent ",
+      "indent",
+      "indent",
+    ],
+    "pred_class": Object {
+      "$nmbr$ $nmbr$": "characteristic_level",
+      "any thiazide diuretic": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "any thiazide diuretic",
+      "$nmbr$ $nmbr$",
+      "$nmbr$ $nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["any thiazide diuretic", "0", "0", "1", "0", "0", "C0012802;C3536861", "orch;phsu;phsu"],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "indent ",
+      "indent",
+      "indent",
+    ],
+    "pred_class": Object {
+      "$nmbr$ $nmbr$": "characteristic_level",
+      "statin": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "statin",
+      "$nmbr$ $nmbr$",
+      "$nmbr$ $nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["statin", "0", "0", "1", "0", "0", "C0360714", "orch;phsu"],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "empty_row",
+      "",
+      "",
+    ],
+    "pred_class": Object {
+      "glycated hemoglobin": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "glycated hemoglobin",
+      "",
+      "",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["glycated hemoglobin", "0", "0", "0", "1", "0", "C0017853", "aapp;bacs"],
+      Array 8 ["", "0", "0", "0", "1", "0", "", ""],
+      Array 8 ["", "0", "0", "0", "1", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "indent ",
+      "indent",
+      "indent",
+    ],
+    "pred_class": Object {
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$": "characteristic_level",
+      "mean": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "mean",
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["mean", "0", "0", "1", "0", "0", "C0444504;C2347634;C2348143", "qnco;qnco;qnco"],
+      Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "indent ",
+      "indent",
+      "indent",
+    ],
+    "pred_class": Object {
+      "$nmbr$ $nmbr$": "characteristic_level",
+      "median": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "median",
+      "$nmbr$ $nmbr$",
+      "$nmbr$ $nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["median", "0", "0", "1", "0", "0", "C0549183;C0876920;C2347635;C2348144;C2939193", "spco;qnco;qnco;qnco;spco"],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      Array 8 ["$nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "",
+      "indent",
+      "indent",
+    ],
+    "pred_class": Object {
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$": "characteristic_level",
+      "fasting serum glucose mg dl": "characteristic_level;characteristic_name",
+    },
+    "terms": Array 3 [
+      "fasting serum glucose mg dl",
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["fasting serum glucose mg dl", "0", "0", "0", "0", "0", "C0202041;C0439269;C3534430", "lbpr;qnco;fndg"],
+      Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "empty_row",
+      "",
+      "",
+    ],
+    "pred_class": Object {
+      "cholesterol mg dl": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "cholesterol mg dl",
+      "",
+      "",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["cholesterol mg dl", "0", "0", "0", "1", "0", "C0008377;C0439269", "bacs;orch;qnco"],
+      Array 8 ["", "0", "0", "0", "1", "0", "", ""],
+      Array 8 ["", "0", "0", "0", "1", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "indent ",
+      "indent",
+      "indent",
+    ],
+    "pred_class": Object {
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$": "characteristic_level",
+      "total": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "total",
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["total", "0", "0", "1", "0", "0", "C0439175;C0439810", "qnco;qlco"],
+      Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "indent ",
+      "indent",
+      "indent",
+    ],
+    "pred_class": Object {
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$": "characteristic_level",
+      "low density lipoprotein": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "low density lipoprotein",
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["low density lipoprotein", "0", "0", "1", "0", "0", "C0023823", "bacs;orch"],
+      Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "indent empty_row",
+      "",
+      "",
+    ],
+    "pred_class": Object {
+      "high density lipoprotein": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "high density lipoprotein",
+      "",
+      "",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["high density lipoprotein", "0", "0", "1", "1", "0", "C0023821", "aapp;bacs"],
+      Array 8 ["", "0", "0", "0", "1", "0", "", ""],
+      Array 8 ["", "0", "0", "0", "1", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "indent ",
+      "indent",
+      "indent",
+    ],
+    "pred_class": Object {
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$": "characteristic_level",
+      "women": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "women",
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["women", "0", "0", "1", "0", "0", "C0043210", "popg"],
+      Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "indent ",
+      "indent",
+      "indent",
+    ],
+    "pred_class": Object {
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$": "characteristic_level",
+      "men": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "men",
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["men", "0", "0", "1", "0", "0", "C0025266", "popg"],
+      Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "",
+      "indent",
+      "indent",
+    ],
+    "pred_class": Object {
+      "$nmbr$": "characteristic_level",
+      "median triglyceride mg dl": "characteristic_level",
+    },
+    "terms": Array 3 [
+      "median triglyceride mg dl",
+      "$nmbr$",
+      "$nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["median triglyceride mg dl", "0", "0", "0", "0", "0", "C0041004;C0439269", "bacs;orch;qnco"],
+      Array 8 ["$nmbr$", "0", "0", "1", "0", "0", "", ""],
+      Array 8 ["$nmbr$", "0", "0", "1", "0", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "",
+      "indent",
+      "indent",
+    ],
+    "pred_class": Object {
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$": "characteristic_level",
+      "potassium mg dl": "characteristic_level;characteristic_name",
+    },
+    "terms": Array 3 [
+      "potassium mg dl",
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["potassium mg dl", "0", "0", "0", "0", "0", "C0032821;C0439269;C0202194;C0304475;C0597277;C3714637", "bacs;elii;phsu;qnco;lbpr;inch;phsu;elii;phsu;phsu"],
+      Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+    ],
+  },
+  Object {
+    "cellClasses": Array 3 [
+      "",
+      "indent",
+      "indent",
+    ],
+    "pred_class": Object {
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$": "characteristic_level",
+      "serum creatinine mg dl": "characteristic_level;characteristic_name",
+    },
+    "terms": Array 3 [
+      "serum creatinine mg dl",
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+      "$nmbr$ $nmbr$ $nmbr$ $nmbr$",
+    ],
+    "terms_features": Array 3 [
+      Array 8 ["serum creatinine mg dl", "0", "0", "0", "0", "0", "C0201976;C0439269;C0600061", "lbpr;qnco;fndg"],
+      Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+      Array 8 ["$nmbr$ $nmbr$ $nmbr$ $nmbr$", "0", "0", "1", "0", "0", "", ""],
+    ],
+  },
+]
+`;

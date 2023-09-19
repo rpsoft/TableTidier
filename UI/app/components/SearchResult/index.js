@@ -8,6 +8,12 @@ import React from 'react';
 // import PropTypes from 'prop-types';
 // import styled from 'styled-components';
 
+import {
+  useNavigate,
+} from "react-router-dom";
+
+import './SearchResult.css';
+
 import { FormattedMessage } from 'react-intl';
 import messages from './messages';
 
@@ -22,15 +28,35 @@ import Button from '@material-ui/core/Button';
 function SearchResult({
   text,
   type,
+  selectedChunks,
+  score,
+  linkUrl,
   data,
   onClick
 }) {
+  let navigate = useNavigate();
   return (
-    <div>
-      <Button tooltip={"hello"} style={{width:"100%", textAlign:"left", justifyContent:"left"}} onClick={onClick} >
-        { type == "table" ? <Table /> : <CollectionIcon /> }
-        <div style={{marginLeft:5}}>{ text }</div>
+    <div
+      className='SearchResultContainer'
+    >
+      <Button
+        tooltip={linkUrl}
+        onClick={()=>
+          linkUrl? navigate(linkUrl): null
+        }
+      >
+        { type == 'table' ? <Table /> : <CollectionIcon /> }
+        <div
+          className='button-link'
+        >{ text }</div>
       </Button>
+      {
+      score && <>
+        <div>
+          {selectedChunks.join(' ')}
+        </div>
+      </>
+      }
     </div>
   );
 }

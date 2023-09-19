@@ -44,3 +44,18 @@ export default function request(url, options) {
     .then(checkStatus)
     .then(parseJSON);
 }
+
+export function generateOptionsPost(params, token) {
+  const options = {
+    method: 'POST',
+    headers: {},
+    body: params
+  }
+
+  // Authorization JWT
+  if (token) {
+    options.headers.Authorization = `Bearer ${token}`
+  }
+
+  return options
+}

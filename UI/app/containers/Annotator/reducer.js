@@ -19,8 +19,6 @@ import {
   SAVE_TABLE_ANNOTATIONS_ACTION,
   SAVE_TABLE_METADATA_ACTION,
 
-  ISSUE_ALERT_ACTION,
-
   LOAD_CUIS_INDEX_ACTION,
   UPDATE_CUIS_INDEX_ACTION,
   INSERT_CUIS_INDEX_ACTION,
@@ -29,30 +27,31 @@ import {
 
 export const initialState = {
   tableData: {
-    collId:"",
-    docid:"",
-    page:"",
+    collId: '',
+    docid: '',
+    page: '',
 
     annotationData: {},
     collectionData: {tables:[]},
     predictedAnnotation : {},
 
-    tableBody: "<div>Empty content</div>",
-    tablePosition:-1,
-    tableTitle: "<div>Empty title</div>",
+    tableBody: '<div>Empty content</div>',
+    tablePosition: -1,
+    tableTitle: '<div>Empty title</div>',
 
-    tableStatus:"",
-    tableType:"",
-    textNotes:"",
+    tableStatus: '',
+    tableType: '',
+    textNotes: '',
 
-    status:"",
+    status: '',
     permissions: {read:false, write: false}
   },
   annotations: [],
   results : [],
   metadata : {},
-  alertData: { open: false, message: "", isError: false },
   cuis_index: {},
+  // Array from cuis_index keys
+  cuisIndexKeys: [],
   allowEdit: false,
 };
 
@@ -68,7 +67,6 @@ const annotatorReducer = (state = initialState, action) =>
         draft.tableData = action.tableData;
         draft.allowEdit = action.tableData.permissions.write;
         break;
-
       case UPDATE_TABLE_ANNOTATIONS_ACTION:
         draft.annotations = action.annotations;
         break;
@@ -82,21 +80,22 @@ const annotatorReducer = (state = initialState, action) =>
         draft.metadata = action.metadata;
         break;
 
-      case ISSUE_ALERT_ACTION:
-        draft.alertData = action.alertData
-        break;
-
       case UPDATE_CUIS_INDEX_ACTION:
         draft.cuis_index = action.cuis_index
+        draft.cuisIndexKeys = Object.keys(action.cuis_index)
         break;
 
       case SAVE_TABLE_TEXT_ACTION:
+        draft.tableData.tableTitle = action.tableTitle
+        draft.tableData.tableBody = action.tableBody
       case SAVE_TABLE_NOTES_ACTION:
-        draft.tableData = {...draft.tableData,...action.notes}
+        draft.tableData = {
+          ...draft.tableData,
+          ...action.notes
+        }
 
       case SAVE_TABLE_ANNOTATIONS_ACTION:
       case SAVE_TABLE_METADATA_ACTION:
-
     }
 
     return;

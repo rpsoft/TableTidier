@@ -1,0 +1,23 @@
+{
+  "dev": {
+    "driver": "sqlite3",
+    "filename": "./dev.db"
+  },
+  "test": {
+    "driver": "sqlite3",
+    "filename": ":memory:"
+  },
+  "sqlite": {
+    "driver": "sqlite3",
+    "filename": "./dev.db"
+  },
+  "postgres": {
+    "driver": "pg",
+    "user": "admin",
+    "password": "password",
+    "host": "host",
+    "database": "ihw_annotator_test",
+    "port": "5432",
+    "schema": "my_schema"
+  }
+}

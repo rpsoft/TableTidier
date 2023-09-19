@@ -7,9 +7,12 @@
  *
  */
 
-import React, { useEffect, memo, useState } from 'react';
-import { Switch, Route } from 'react-router-dom';
-
+import React, { useEffect, memo, useState, useRef } from 'react';
+import {
+  Routes,
+  Route,
+  useLocation,
+} from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 // import HomePage from 'containers/HomePage/Loadable';
@@ -19,17 +22,13 @@ import GlobalStyle from '../../global-styles';
 
 import Login from '../Login'
 import Register from '../Register'
-import Annotator from '../Annotator'
+// import Annotator from '../Annotator'
+const Annotator = React.lazy(/* webpackChunkName: "Annotator" */ () => import("../Annotator"));
+const VideosPage = React.lazy(/* webpackChunkName: "Videos" */ () => import("../VideosPage"));
 import Dashboard from '../Dashboard'
 import CollectionView from '../CollectionView'
+import Documentation from '../Documentation'
 import HomePage from '../HomePage'
-
-import { connect } from 'react-redux';
-import { compose } from 'redux';
-import { createStructuredSelector } from 'reselect';
-import makeSelectLocation from './selectors'
-
-import {setLoginCredentialsAction} from './actions'
 
 import {
   URL_BASE,
@@ -50,80 +49,165 @@ const urlBase = URL_BASE
 
 import Footer from '../../components/Footer'
 
-import { useCookies } from 'react-cookie';
-
 import PopAlert from 'components/PopAlert'
 
+import { SnackbarProvider } from 'notistack';
+import Grow from '@material-ui/core/Grow';
+import WarningIcon from '@material-ui/icons/Warning';
+import { makeStyles } from '@material-ui/core/styles';
 
+const styleSeed = (theme) => ({
+  // snackbar type style
+  snackbarClasses: {
+    // normal
+    '& > [class*=SnackbarItem-contentRoot]': {
+      backgroundColor: theme.palette.dialog.normalBackground,
+      color: theme.palette.dialog.textColorDialog,
+    },
+    // success 
+    '& > [class*=SnackbarItem-variantSuccess]': {
+      backgroundColor: theme.palette.dialog.successBackground,
+      color: theme.palette.dialog.textColorDialog,
+      '& .MuiSvgIcon-root': {
+        color: 'rgb(76, 175, 80)',
+      }
+    },
+    // info
+    '& > [class*=SnackbarItem-variantInfo]': {
+      backgroundColor: theme.palette.dialog.infoBackground,
+      color: theme.palette.dialog.textColorDialog,
+      '& .MuiSvgIcon-root': {
+        color: 'rgb(6 92 213)',
+      }
+    },
+    // warning
+    '& > [class*=SnackbarItem-variantWarning]': {
+      backgroundColor: theme.palette.dialog.warningBackground,
+      color: theme.palette.dialog.textColorDialog,
+      '& .MuiSvgIcon-root': {
+        color: 'rgb(231 131 3)',
+      }
+    },
+    // error
+    '& > [class*=SnackbarItem-variantError]': {
+      backgroundColor: theme.palette.dialog.errorBackground,
+      // backgroundColor: 'green',
+      color: theme.palette.dialog.textColorDialog,
+      '& .MuiSvgIcon-root': {
+        color: 'rgb(225 1 1)',
+      }
+    },
 
-export function App({
-  // appData,
-  setLoginCredentials,
-  appData
-}) {
+  }
+})
 
-  const [ cookies, setCookie, removeCookie ] = useCookies();
-  const [ alertData, setAlertData ]  = React.useState( appData.alertData ? appData.alertData : { open: false, message: "", isError: false } );
+export function App({}) {
+  // const dispatch = useDispatch()
 
+  const useStyles = makeStyles(styleSeed);
+  const classes = useStyles({});
+  const location = useLocation();
 
-  useEffect(() => {
+  const searchScrollRef = useRef(null)
+  const searchScrollHistoric = useRef({})
 
-      setAlertData(appData.alertData ? appData.alertData : { open: false, message: "", isError: false })
+  // useEffect(() => {
+  //   console.log(location.pathname);
+  //   // Send request to your server to increment page view count
+  //   return () => {
+  //     console.log('saliendo');
+  //     console.log(location.pathname);
+  //   }
+  // }, [location]);
 
-  }, [appData.alertData]);
-
-  setLoginCredentials(cookies)
+  // ! :-> scroll study. See trello scroll ticket
+  // useEffect(() => {
+  //   if (location.pathname.includes('/dashboard') == true) {
+  //     if (location.key in searchScrollHistoric.current) {
+  //        searchScrollRef.current.scrollTop = searchScrollHistoric.current[location.key]
+  //     } else {
+  //       // Go to top
+  //       searchScrollRef.current.scrollTop = 0
+  //     }
+  //   }
+  //   console.log(searchScrollRef.current.scrollTop)
+  //   return () => {
+  //     // Store scroll
+  //     console.log(searchScrollRef.current.scrollTop)
+  //     if (location.pathname.includes('/dashboard') == true) {
+  //       // searchScrollHistoric.current[location.key] = searchScrollRef.current.scrollTop
+  //       searchScrollHistoric.current[location.key] = searchScrollRef.current.scrollTop
+  //     }
+  //     return
+  //   }
+  // })
 
   return (
-    <div id={"container"} style={{marginLeft:"auto", marginRight:"auto", minWidth:800, maxWidth:1400, width:"100%", minHeight:"100vh"}}>
-        <Login />
+    <SnackbarProvider
+      maxSnack={3}
+      autoHideDuration={10000}
+      anchorOrigin={{
+        vertical: 'bottom',
+        horizontal: 'center',
+        // horizontal: 'left',
+      }}
+      // iconVariant={{
+      //   success: '✅',
+      //   error: <WarningIcon style={{color:"#f44336"}} fontSize="small" />,
+      //   warning: '⚠️',
+      //   info: 'ℹ️',
+      // }}
+      classes={{root: classes.snackbarClasses}}
+      TransitionComponent={Grow}
+    >
+      <React.StrictMode>
+        <header>
+          <Login />
+        </header>
 
-          <div style={{padding:5, paddingTop:65,  marginLeft:10, paddingBottom:70, minHeight:"90vh"}}>
-            <Switch>
-              <Route path="/table" component={Annotator} />
-              {
-                // <Route path="/table" component={TableContainer}></Route>
-                // <Route path="/allresults" component={ResultsContainer}></Route>
-                // <Route path="/metaresults" component={MetaContainer}></Route>
-                // <Route path="/cuiadmin" component={CuiAdminContainer}></Route>
-                // <Route path="/list" component={AppContainer}></Route>
+        <main
+          ref={searchScrollRef}
+        >
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+
+            <Route
+              path="table"
+              element={
+                <React.Suspense fallback={<>...</>}>
+                  <Annotator />
+                </React.Suspense>
               }
-              <Route path="/register" component={Register}></Route>
-              <Route path="/collection" component={CollectionView}></Route>
-              <Route path="/dashboard" component={Dashboard}></Route>
-              <Route path="/" component={HomePage}></Route>
-            </Switch>
-          </div>
+            />
+            {
+              // <Route path="/table" component={TableContainer}></Route>
+              // <Route path="/allresults" component={ResultsContainer}></Route>
+              // <Route path="/metaresults" component={MetaContainer}></Route>
+              // <Route path="/cuiadmin" component={CuiAdminContainer}></Route>
+              // <Route path="/list" component={AppContainer}></Route>
+            }
+            <Route path="register" element={<Register />} />
+            <Route path="collection" element={<CollectionView />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="documentation" element={<Documentation />} />
+            <Route
+              path="videos"
+              element={
+                <React.Suspense fallback={<>...</>}>
+                  <VideosPage />
+                </React.Suspense>
+              }
+            />
+          </Routes>
 
+          <PopAlert/>
+        </main>
 
-      <PopAlert alertData={alertData} setAlertData={setAlertData} />
-
-      <div style={{position:"fixed", left:0, bottom:0, width:"100%" }}><Footer /></div>
-      <GlobalStyle />
-    </div>
+        <Footer />
+        <GlobalStyle />
+      </React.StrictMode>
+    </SnackbarProvider>
   );
 }
-// const mapStateToProps = createStructuredSelector({
-//   annotator: makeSelectAnnotator(),
-//   credentials: makeSelectCredentials(),
-//   // loginDetails: makeSelectLogin(),
-// });
-const mapStateToProps = createStructuredSelector({
-   appData : makeSelectLocation(),
-});
 
-function mapDispatchToProps(dispatch) {
-  return {
-    dispatch,
-    setLoginCredentials : (cookies) => dispatch( setLoginCredentialsAction(cookies) ),
-    // getCollectionData : () => dispatch( loadCollectionAction() ),
-  };
-}
-
-const withConnect = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-);
-
-export default compose(withConnect)(App);
-// export default App;
+export default App;

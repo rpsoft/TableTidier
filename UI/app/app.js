@@ -12,9 +12,14 @@ import '@babel/polyfill';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import { ConnectedRouter } from 'connected-react-router';
-import history from 'utils/history';
+// import { ConnectedRouter } from 'connected-react-router';
+import {
+  BrowserRouter,
+} from "react-router-dom";
 import 'sanitize.css/sanitize.css';
+
+import { ThemeProvider } from '@material-ui/core/styles';
+import theme from './muiLMSTheme';
 
 // Import root app
 import App from 'containers/App';
@@ -55,23 +60,33 @@ var proc_host_vars = {
 }
 
 const initialState = {
-  app: {...proc_host_vars,
-    api_url : 'http://'+proc_host_vars.ui_host + ( proc_host_vars.server_port && (proc_host_vars.ui_host.indexOf("localhost") > -1) ? ':' + proc_host_vars.server_port : '') + URL_BASE
+  app: {
+    ...proc_host_vars,
+    api_url : location.protocol + '//' +
+              proc_host_vars.ui_host +
+              (
+                proc_host_vars.server_port && (proc_host_vars.ui_host.includes("localhost")) ?
+                  ':' + proc_host_vars.server_port
+                  : ''
+              ) +
+              URL_BASE
   }
 }
 
 // console.log(initialState)
 
-const store = configureStore(initialState, history);
+const store = configureStore(initialState);
 const MOUNT_NODE = document.getElementById('app');
 
 const render = messages => {
   ReactDOM.render(
     <Provider store={store}>
       <LanguageProvider messages={messages}>
-        <ConnectedRouter history={history}>
-            <App/>
-        </ConnectedRouter>
+        <BrowserRouter>
+          <ThemeProvider theme={theme}>
+            <App />
+          </ThemeProvider>
+        </BrowserRouter>
       </LanguageProvider>
     </Provider>,
     MOUNT_NODE,

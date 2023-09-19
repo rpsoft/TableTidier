@@ -1,0 +1,17 @@
+.dashboardCollectionListHeaderTitleSelect {
+  font-size: small;
+  margin-left: 40px;
+}
+
+.dashboardCollectionListHeaderSortByForm.MuiFormControl-root {
+  /* display: inline-flex; */
+  font-size: small;
+  margin: 1px 1px;
+  margin-left: 10px;
+  min-width: 175px;
+  /* vertical-align: baseline; */
+}
+
+.dashboardCollectionListHeaderSortByForm.MuiFormControl-root > div > .MuiSelect-root {
+  padding: 7px 7px;
+}

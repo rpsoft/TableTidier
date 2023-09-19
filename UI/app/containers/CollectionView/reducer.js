@@ -4,17 +4,21 @@
  *
  */
 import produce from 'immer';
-import { LOAD_COLLECTION_ACTION, UPDATE_COLLECTION_ACTION } from './constants';
+import {
+  LOAD_COLLECTION_ACTION,
+  UPDATE_COLLECTION_ACTION,
+  UPDATE_COLLECTION_TABLES_ACTION,
+} from './constants';
 
 export const initialState = {
-  title :"",
-  collection_id : "",
-  description : "",
-  owner_username : "",
+  title :'',
+  collection_id : '',
+  description : '',
+  owner_username : '',
   tables : [],
   collectionsList : [],
-  visibility : "public",
-  completion : "in progress",
+  visibility : 'public',
+  completion : 'in progress',
   permissions : {read: false, write: false}
 };
 
@@ -25,7 +29,6 @@ const collectionViewReducer = (state = initialState, action) =>
       case LOAD_COLLECTION_ACTION:
         break;
       case UPDATE_COLLECTION_ACTION:
-        // debugger
         try{
           if ( action.collectionData){
             draft.title = action.collectionData.title;
@@ -40,9 +43,11 @@ const collectionViewReducer = (state = initialState, action) =>
           }
         } catch(e){
           console.log(e)
-          // debugger
         }
         // console.log("REDUCED = "+JSON.stringify(action.collectionData))
+        break;
+      case UPDATE_COLLECTION_TABLES_ACTION:
+        draft.tables = action.tables;
         break;
     }
   });
