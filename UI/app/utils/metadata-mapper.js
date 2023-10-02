@@ -78,24 +78,40 @@ export default function generateMetamappers(data) {
     let resultFieldsValues = fieldsToLink.map(item=>result[item])
   
     for (let field of resultFieldsValues) {
-      const {name, index: idx} = findNode(
-        field,
-        getPermutations(
-          resultFieldsValues.filter(item => item != field)),
-          concMapper) || {}
-      if (name == null) continue
 
-      posiMapper[col] = {
-        // Add previous added column fields if exists
-        ...(posiMapper[col] || {}),
-        // Add rows
-        [row]: posiMapper[col]? 
-          {
-            ...(posiMapper[col][row] || {}),
-            [name]: idx
-          }: {
-            [name]: idx
-          }
+      try {      
+      
+        var permutations = getPermutations(
+          resultFieldsValues.filter(item => item != field))
+
+        if ( ! Array.isArray(permutations) ){
+          permutations = [[permutations, permutations]]
+
+          debugger
+        }
+
+
+        const {name, index: idx} = findNode(
+          field, permutations, concMapper) || {}
+
+        if (name == null) continue
+
+        posiMapper[col] = {
+          // Add previous added column fields if exists
+          ...(posiMapper[col] || {}),
+          // Add rows
+          [row]: posiMapper[col]? 
+            {
+              ...(posiMapper[col][row] || {}),
+              [name]: idx
+            }: {
+              [name]: idx
+            }
+        }
+
+      } catch (e) {
+        console.log("hello "+e)
+        debugger
       }
     }
   })

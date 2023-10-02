@@ -41,6 +41,7 @@ const GlobalStyle = createGlobalStyle`
     padding: 5px 5px 5px 5px;
     margin-left: auto;
     margin-right: auto;
+    min-width: 900px;
   }
   #app > footer {
     grid-area: footer;

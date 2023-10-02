@@ -997,7 +997,7 @@ export function Annotator({
       style={{
         display: 'grid',
         gridTemplateColumns: 'auto 1fr',
-        gridTemplateRows: 'auto',
+        gridTemplateRows: 'auto'
       }}
     >
 
@@ -1009,11 +1009,13 @@ export function Annotator({
           // marginTop: 5,
           // marginBottom: openMargin,
           minHeight: '85vh',
-          height: 'calc(86.3vh - 20px)',
+          height:  'fit-content',//'calc(86.3vh - 20px)',
           marginRight: 5,
-          overflow: 'scroll',
+          // overflow: '',
           marginLeft: 5,
-          width: "fit-content"
+          width: "fit-content",
+          // minWidth: 800,
+          paddingBottom: 800
         }}
       >
         <div className={classes.root}>

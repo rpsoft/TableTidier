@@ -489,7 +489,7 @@ export function Dashboard({
       <div
         style={{
           paddingTop: '73px',
-          width: 'calc(100% - 300px)',
+          //width: 'calc(100% - 300px)',
         }}
       >
         {/* Tabs */}

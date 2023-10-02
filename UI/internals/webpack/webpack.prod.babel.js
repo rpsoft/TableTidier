@@ -121,7 +121,7 @@ module.exports = require('./webpack.base.babel')({
       description: 'Table Tidier Annotator Platform',
       background_color: '#fafafa',
       theme_color: '#b1624d',
-      inject: true,
+      inject: false,
       ios: true,
       icons: [
         {

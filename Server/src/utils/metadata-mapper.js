@@ -77,7 +77,13 @@ export default function generateMetamappers(data) {
     let fieldsToLink = resultFields.filter(item => fieldsToRemove.includes(item) == false)
     let resultFieldsValues = fieldsToLink.map(item=>result[item])
   
+    
     for (let field of resultFieldsValues) {
+
+      debugger
+
+      console.log("MELACOME")
+
       const {name, index: idx} = findNode(
         field,
         getPermutations(
