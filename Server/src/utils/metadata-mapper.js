@@ -79,29 +79,36 @@ export default function generateMetamappers(data) {
   
     
     for (let field of resultFieldsValues) {
+      try {      
+      
+        var permutations = getPermutations(
+          resultFieldsValues.filter(item => item != field))
 
-      debugger
+        if ( ! Array.isArray(permutations) ){
+          permutations = [[permutations, permutations]]
+        }
 
-      console.log("MELACOME")
+        const {name, index: idx} = findNode(
+          field, permutations, concMapper) || {}
 
-      const {name, index: idx} = findNode(
-        field,
-        getPermutations(
-          resultFieldsValues.filter(item => item != field)),
-          concMapper) || {}
-      if (name == null) continue
+        if (name == null) continue
 
-      posiMapper[col] = {
-        // Add previous added column fields if exists
-        ...(posiMapper[col] || {}),
-        // Add rows
-        [row]: posiMapper[col]? 
-          {
-            ...(posiMapper[col][row] || {}),
-            [name]: idx
-          }: {
-            [name]: idx
-          }
+        posiMapper[col] = {
+          // Add previous added column fields if exists
+          ...(posiMapper[col] || {}),
+          // Add rows
+          [row]: posiMapper[col]? 
+            {
+              ...(posiMapper[col][row] || {}),
+              [name]: idx
+            }: {
+              [name]: idx
+            }
+        }
+
+      } catch (e) {
+        console.log("Permutations Error?: "+e)
+        // debugger
       }
     }
   })

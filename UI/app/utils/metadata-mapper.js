@@ -86,10 +86,7 @@ export default function generateMetamappers(data) {
 
         if ( ! Array.isArray(permutations) ){
           permutations = [[permutations, permutations]]
-
-          debugger
         }
-
 
         const {name, index: idx} = findNode(
           field, permutations, concMapper) || {}
@@ -110,8 +107,8 @@ export default function generateMetamappers(data) {
         }
 
       } catch (e) {
-        console.log("hello "+e)
-        debugger
+        console.log("Permutations Error?: "+e)
+        // debugger
       }
     }
   })
