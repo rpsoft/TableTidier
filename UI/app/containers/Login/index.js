@@ -263,7 +263,7 @@ export function Login({
 
   return (
     <AppBar
-      position="static"
+      position="fixed"
       className={classes.appBar}
     >
     <Toolbar>

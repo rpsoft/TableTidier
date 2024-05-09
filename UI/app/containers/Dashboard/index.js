@@ -171,25 +171,16 @@ export function Dashboard({
   doSearch,
   createCollection,
   listCollections,
-
   dashboard,
   loginState,
 }) {
   useInjectReducer({ key: 'dashboard', reducer });
   useInjectSaga({ key: 'dashboard', saga });
 
-  const theme = useTheme();
-
-  // const [searchContent, setSearchContent ] = useState(dashboard.searchContent);
-  // const [searchType, setSearchType ] = useState(dashboard.searchType);
-
-  // const [collections, setCollections ] = useState(doSearch("placebo", searchType));
-
-  const [charCount, setCharCount ]  = useState(0);
 
   const classes = useStyles();
 
-   const [ dashboardListSortBy, setDashboardListSortBy ] = useState('coll-min');
+  const [ dashboardListSortBy, setDashboardListSortBy ] = useState('coll-min');
 
   const [ checkedTables, setCheckedTables ] = useState({});
 
@@ -254,8 +245,6 @@ export function Dashboard({
         break
     }
 
-    // set filtrado
-    // setDashboardList(collectionsSorted)
     return collectionsSorted
 
   }, [dashboard.collections, tabSelected, dashboardListSortBy]);
@@ -279,13 +268,6 @@ export function Dashboard({
 
     const tableHeader = `table id: ${tid} collection ${collId} / ${docid} page ${page} `
 
-    // var notes = collectionView.tables[index].notes ? collectionView.tables[index].notes : ""
-    // var user = collectionView.tables[index].user ? collectionView.tables[index].user : ""
-
-    // debugger
-    // if (tid == '2967') debugger
-
-    // const url = `/table?docid=${docname}&page=${page}&collId=${collId}`
     const url = `/table?tid=${tid}`
 
     return (
@@ -293,14 +275,6 @@ export function Dashboard({
         key={tid}
         className={classes.searchItem}
       >
-        {
-        // <Checkbox checked={checkedTables[table_key]}
-        //     onChange={() => {toggleCheckBox(table_key)}}
-        //     inputProps={{ 'aria-label': 'primary checkbox' }}
-        //     />
-        //     <span> -- </span>
-        }
-        {/* search index */}
         <div>
            {`${index+1} - `}
         </div>
@@ -318,40 +292,11 @@ export function Dashboard({
     )
   }
 
-  // React.memo(
   console.time('table_search_results')
   const table_search_results = (
-    // // 
-    // <FixedSizeList
-    //   height={searchAreaRef.current? searchAreaRef.current.offsetHeight : 1}
-    //   width={"100%"}
-    //   itemSize={60}
-    //   itemCount={
-    //     dashboard.search_results ?
-    //       dashboard.search_results.length
-    //       : 0
-    //   }
-    // >
-    //   {searchResulRow}
-    // </FixedSizeList>
-
-  // // 
-  // <VariableSizeList
-  // height={searchAreaRef.current? searchAreaRef.current.offsetHeight : 1}
-  // // width={"100%"}
-  // itemSize={60}
-  // itemCount={
-  //   dashboard.search_results ?
-  //     dashboard.search_results.length
-  //     : 0
-  // }
-  // >
-  // {searchResulRow}
-  // </VariableSizeList>
-
-  //
+   
     <div
-      // className={}
+ 
       style={{
         padding: '10px',
         paddingTop: 20,
@@ -360,7 +305,6 @@ export function Dashboard({
       {
       dashboard.search_results.length &&
       dashboard.search_results
-        // .slice(0, 120)
         .map((data, index) => <SearchResulRow key={data.doc} index={index}/>)
       }
     </div>
@@ -385,12 +329,10 @@ export function Dashboard({
 
   return (
     <div
+  
       style={{
         marginLeft: 'auto',
         marginRight: 'auto',
-        minWidth: theme.sizes.minWidth,
-        maxWidth: theme.sizes.maxWidth,
-
         minHeight: '84vh',
       }}
     >
@@ -400,46 +342,41 @@ export function Dashboard({
       </Helmet>
 
       <div
+        className='grid grid-cols-6 gap-4 pt-6'
         style={{
           zIndex: 10,
-          width: '98%',
-          marginLeft: 'auto',
-          minWidth: theme.sizes.minWidth,
-          maxWidth: theme.sizes.maxWidth,
-          position: 'absolute',
+          width: '100%',
+          marginTop:10
         }}
       >
-        <Card
-          style={{
-            marginTop: 5,
-            padding: 10,
-            backgroundColor: "#e4e2e2",
-          }}
-        >
-          <div>
-            <SearchBar
-              searchCont = {dashboard.searchContent}
-              doSearch = {doSearch}
-              // {
-              //   (searchContent, searchType) => {
-              //     setSearchContent(searchContent)
-              //     setSearchType(searchType)
-              //   }
-              // }
-              // setCharCount={ setCharCount }
-            />
-          </div>
-        </Card>
+        <div className='mt-[200px]'><h4>hello</h4></div>
+        <div className='col-span-3' >
+          <Card
+            
+            style={{
+              marginTop: 70,
+              padding: 10,
+              backgroundColor: "#e4e2e2",
+          
+              width: "100%",
+            }}
+          >
+            <div>
+              <SearchBar
+                searchCont = {dashboard.searchContent}
+                doSearch = {doSearch}
+              />
+            </div>
+          </Card>
+        </div>
+        
 
         {/* side panels */}
         <div
-          style={{
-            position: 'relative',
-          }}
+          className=''         
         >
           <div
             style={{
-              position: 'absolute',
               right: 0,
               // width: '25%',
             }}
@@ -474,10 +411,6 @@ export function Dashboard({
                   <div className={classes.buttonHolder}>
                     <Button disabled={true} variant="contained" > Results to New Collection </Button>
                   </div>
-                  {
-                  // <div className={classes.buttonHolder}><Button variant="contained" > Option 2 </Button> </div>
-                  // <div className={classes.buttonHolder}><Button variant="contained" > Option 3 </Button> </div>
-                  }
                 </div>
               </Card>
             </Card>
@@ -485,12 +418,9 @@ export function Dashboard({
         </div>
       </div>
 
-      {/* Collectios list */}
+      {/* Collections list */}
       <div
-        style={{
-          paddingTop: '73px',
-          //width: 'calc(100% - 300px)',
-        }}
+        className='col-span-1'
       >
         {/* Tabs */}
         <Card
@@ -552,9 +482,17 @@ export function Dashboard({
           </span>
         </Card>
 
-        {/* main list */}
-        <div className={classes.root}>
+        <div className="grid grid-cols-3 grid-rows-3 w-[900px]">
+          <div className="col-span-2 pt-5">01</div>
+          <div className="col-span-2">02</div>
+          <div>03</div>
+          <div>04</div>
+          <div>05</div>
+        </div>
 
+        {/* main list */ }
+        <div className="col-span-2">
+        
           { dashboard.search_results.length ?
               <Card style={{marginTop:10,padding:10, fontWeight:"bold"}}>
                 <div> {

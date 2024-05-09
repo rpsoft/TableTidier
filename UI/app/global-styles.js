@@ -20,7 +20,7 @@ const GlobalStyle = createGlobalStyle`
   #app {
     position: absolute;
     width: 100%;
-    height: 100vh;
+    // min-height: 100vh;
     background-color: #656565;
     
     /* grid container settings */
@@ -37,11 +37,8 @@ const GlobalStyle = createGlobalStyle`
   }
   #app > main {
     grid-area: main;
-    overflow: auto;
+    // overflow: auto;
     padding: 5px 5px 5px 5px;
-    margin-left: auto;
-    margin-right: auto;
-    min-width: 900px;
   }
   #app > footer {
     grid-area: footer;

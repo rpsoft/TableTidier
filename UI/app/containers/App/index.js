@@ -34,17 +34,6 @@ import {
   URL_BASE,
 } from '../../links'
 
-// import {
-//   // Core components
-//   AppContainer,
-//   CommonView,
-//   ResultsContainer,
-//   MetaContainer,
-//   TableContainer,
-//   AnnotationView,
-//   CuiAdminContainer,
-// } from '../../components/'
-
 const urlBase = URL_BASE
 
 import Footer from '../../components/Footer'
@@ -111,37 +100,6 @@ export function App({}) {
   const searchScrollRef = useRef(null)
   const searchScrollHistoric = useRef({})
 
-  // useEffect(() => {
-  //   console.log(location.pathname);
-  //   // Send request to your server to increment page view count
-  //   return () => {
-  //     console.log('saliendo');
-  //     console.log(location.pathname);
-  //   }
-  // }, [location]);
-
-  // ! :-> scroll study. See trello scroll ticket
-  // useEffect(() => {
-  //   if (location.pathname.includes('/dashboard') == true) {
-  //     if (location.key in searchScrollHistoric.current) {
-  //        searchScrollRef.current.scrollTop = searchScrollHistoric.current[location.key]
-  //     } else {
-  //       // Go to top
-  //       searchScrollRef.current.scrollTop = 0
-  //     }
-  //   }
-  //   console.log(searchScrollRef.current.scrollTop)
-  //   return () => {
-  //     // Store scroll
-  //     console.log(searchScrollRef.current.scrollTop)
-  //     if (location.pathname.includes('/dashboard') == true) {
-  //       // searchScrollHistoric.current[location.key] = searchScrollRef.current.scrollTop
-  //       searchScrollHistoric.current[location.key] = searchScrollRef.current.scrollTop
-  //     }
-  //     return
-  //   }
-  // })
-
   return (
     <SnackbarProvider
       maxSnack={3}
@@ -165,7 +123,7 @@ export function App({}) {
           <Login />
         </header>
 
-        <main
+        <main 
           ref={searchScrollRef}
         >
           <Routes>
@@ -179,13 +137,6 @@ export function App({}) {
                 </React.Suspense>
               }
             />
-            {
-              // <Route path="/table" component={TableContainer}></Route>
-              // <Route path="/allresults" component={ResultsContainer}></Route>
-              // <Route path="/metaresults" component={MetaContainer}></Route>
-              // <Route path="/cuiadmin" component={CuiAdminContainer}></Route>
-              // <Route path="/list" component={AppContainer}></Route>
-            }
             <Route path="register" element={<Register />} />
             <Route path="collection" element={<CollectionView />} />
             <Route path="dashboard" element={<Dashboard />} />

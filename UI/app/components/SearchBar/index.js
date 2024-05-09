@@ -97,7 +97,7 @@ event.stopPropagation();
   }
 
   return (
-    <div style={{height:"auto",  minWidth:"50%", maxWidth:600, marginLeft:"auto", marginRight:"auto"}}>
+    <div className="" style={{height:"auto",  minWidth:"50%", maxWidth:600, marginLeft:"auto", marginRight:"auto"}}>
       <Paper component="form" className={classes.root}>
         <InputBase
           className={ classes.input }

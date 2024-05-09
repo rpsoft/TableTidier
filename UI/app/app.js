@@ -24,6 +24,7 @@ import theme from './muiLMSTheme';
 // Import root app
 import App from 'containers/App';
 
+
 // Import Language Provider
 import LanguageProvider from 'containers/LanguageProvider';
 
@@ -44,6 +45,10 @@ import { translationMessages } from './i18n';
 //
 // var hfeh = argv
 import { URL_BASE } from './links'
+
+// Import CSS for tailwind
+import "app.css"
+
 
 var proc_host_vars = {
   // "INIT_CWD" : process.env.INIT_CWD,
@@ -72,6 +77,9 @@ const initialState = {
               URL_BASE
   }
 }
+
+
+
 
 // console.log(initialState)
 
