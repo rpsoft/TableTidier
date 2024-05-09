@@ -30,6 +30,10 @@ byobu-tmux send-keys "node build/index.js" C-m
 # byobu-tmux send-keys "./node_modules/gulp/bin/gulp.js watch" C-m
 
 # Work preview on 3rd pane
+byobu-tmux select-pane -t 2
+byobu-tmux send-keys "cd ../UI" C-m
+byobu-tmux send-keys "bun run dev" C-m
+
 # byobu-tmux select-pane -t 2
 # BANNER="
 
