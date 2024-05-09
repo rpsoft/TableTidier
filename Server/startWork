@@ -58,9 +58,9 @@ byobu-tmux send-keys "bun run dev" C-m
 # byobu-tmux send 'htop -t' ENTER; 
 
 # UI on 4th pane
-byobu-tmux select-pane -t 3
-byobu-tmux send-keys "cd ../UI" C-m
-byobu-tmux send-keys "npm start" C-m
+#byobu-tmux select-pane -t 3
+#byobu-tmux send-keys "cd ../UI" C-m
+#byobu-tmux send-keys "npm start" C-m
 #byobu-tmux send-keys "watchify --debug ./build/gms-client.js -o public/lib/bundle.js" C-m
 
 byobu-tmux select-layout even-vertical
