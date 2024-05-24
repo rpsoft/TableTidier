@@ -12,7 +12,7 @@ const Page = async () => {
 
     return (
         <SessionProvider session={session} refetchInterval={5 * 60}>
-            { session ? <div>{session?.user.name}+ ' SECRET HERE! '</div> : <div>Nothing here</div>}
+            { session ? <div>{session?.user.name + ' SECRET HERE! '}</div> : <div>Nothing here</div>}
             </SessionProvider>
     );
 };
