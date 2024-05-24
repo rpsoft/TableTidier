@@ -28,77 +28,6 @@ const CONFIG_PATH = process.env.CONFIG_PATH || process.cwd()
 const CONFIG = require(CONFIG_PATH + '/config.json')
 
 const classifierFile = CONFIG.system_path+'Classifier/trained/umls_full.model'
-// For python debugging remove this.
-
-//debugger
-
-// python.ex`
-//   import warnings
-//   warnings.filterwarnings("ignore", category=FutureWarning)
-//   warnings.filterwarnings("ignore", category=UserWarning)
-//   import pandas as pd
-//   import pickle
-//   import sys
-
-//   model = pickle.load(open(${classifierFile}, 'rb'))
-
-//   def predict(data):
-
-//       c = ['clean_concept', 'is_bold', 'is_italic', 'is_indent', 'is_empty_row',
-//           'is_empty_row_p', 'cuis', 'semanticTypes']
-
-//       customPredict = pd.DataFrame(
-//           data = data,
-//           columns = c)
-
-//       customPredict = customPredict[['clean_concept', 'is_bold', 'is_italic',
-//           'is_indent', 'is_empty_row', 'is_empty_row_p', 'semanticTypes']]
-
-//       return (model["target_codec"].inverse_transform(model["trained_model"].predict(customPredict)))
-
-//   def groupedPredict( data ):
-
-//       c = ['clean_concept',
-//           'is_bold', 'is_italic', 'is_indent', 'is_empty_row',
-//           'is_empty_row_p', 'cuis', 'semanticTypes']
-
-//       customPredict = pd.DataFrame(
-//           data = data,
-//           columns = c)
-
-//       predictions = (model["target_codec"].inverse_transform(model["trained_model"].predict(customPredict)))
-
-//       terms = []
-//       classes = []
-
-//       for t in range(0,len(data)):
-//           terms.append(data[t][0])
-//           classes.append(";".join(predictions[t]))
-
-//       return({"terms": terms, "classes" : classes})
-
-//   def printAll(data):
-//     print(data)
-//     return data
-// `;
-
-// // * Frindely close the module
-// // It stops accepting new Python commands, and waits for queue to finish
-// //  then gracefully closes the Python process.
-// //do something when app is closing
-// process.on('exit', () => python.end());
-
-// //catches ctrl+c event
-// process.on('SIGINT', () => python.end());
-
-// // catches "kill pid" (for example: nodemon restart)
-// process.on('SIGUSR1', () => python.end());
-// process.on('SIGUSR2', () => python.end());
-
-// //catches uncaught exceptions
-// process.on('uncaughtException', () => python.end());
-
-
 
 async function classify(terms) {
 
@@ -343,15 +272,6 @@ const attemptPrediction = async (actual_table) => {
       }
     )
   )
-
-  // :-) never used
-  // var cleanModifier = (modifier) => {
-  //   modifier = modifier ? modifier : ""; //prevent blow up
-  //   return modifier.replace("firstCol","empty_row").replace("firstLastCol","empty_row_with_p_value")
-  //                   .replace("indent0","indent").replace("indent1","indent")
-  //                   .replace("indent2","indent").replace("indent3","indent")
-  //                   .replace("indent4","indent").trim()
-  // }
 
   const isTermNumber = (term) => {
     term = term ? term : '' ; // Just in case term is undefined

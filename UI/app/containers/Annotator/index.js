@@ -842,7 +842,7 @@ export function Annotator({
                       separator=";"
                       wrapColumnChar="'"
                       columns={['tid', ...annotationHeaders].map( item => { return {id: item, displayName: item} } )}
-                      datas={results.map(line => ({tid, ...line}) )}
+                      datas={results?.map(line => ({tid, ...line}) )}
                     >
                       Table Data (.csv)
                     </CsvDownloader>
