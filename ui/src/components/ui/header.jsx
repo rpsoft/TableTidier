@@ -29,7 +29,7 @@ const Header = async () => {
                     {session ? (
                         <div>Welcome, {session?.user?.name}! <SignOut />
                         
-                        <Image src= {session.user.image} alt={session.user.name} width={32} height={32} className='rounded-full'/> 
+                        <Image src= {session?.user?.image} alt={session?.user?.name} width={32} height={32} className='rounded-full'/> 
                         </div>
                     ) : 
                         <Link href="/api/auth/signin"> <button>Sign In</button> </Link>
