@@ -6,11 +6,13 @@ import Link from 'next/link';
 
 function SignOut() {
     return (
-        <form action={async () => {
-            'use server';
-            await signOut();
-            // window.location.reload();
-        }}>
+        <form action={
+            async () => {
+                'use server';
+                await signOut();
+                // window.location.reload();
+            }
+        }>
             <button type="submit">Sign Out</button>
         </form>  
     );

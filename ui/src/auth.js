@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import Auth0Provider from "next-auth/providers/auth0";
 
+
 export const {
     handlers: { GET, POST },
     auth,
@@ -18,15 +19,6 @@ export const {
              clientId: process.env.AUTH0_CLIENT_ID,
              clientSecret: process.env.AUTH0_CLIENT_SECRET,           
              issuer: process.env.AUTH0_ISSUER_BASE_URL,
-            
-        //      // domain: process.env.AUTH0_DOMAIN,
-         }
-    )
+        }),
     ]
 })
-
-// AUTH0_SECRET
-// AUTH0_BASE_URL
-// AUTH0_ISSUER_BASE_URL
-// AUTH0_CLIENT_ID
-// AUTH0_CLIENT_SECRET
