@@ -1,23 +1,16 @@
 import React from 'react';
-import {auth, signIn, signOut} from "@/auth";
-
 import Image from 'next/image';
 import Link from 'next/link';
+import { signOutAction } from '@/app/actions';
+import { auth } from '@/auth';
 
 function SignOut() {
     return (
-        <form action={
-            async () => {
-                'use server';
-                await signOut();
-                // window.location.reload();
-            }
-        }>
+        <form action={signOutAction}>
             <button type="submit">Sign Out</button>
         </form>  
     );
 }
-
 
 const Header = async () => {
     const session = await auth();

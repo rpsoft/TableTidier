@@ -2,7 +2,6 @@ import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import Auth0Provider from "next-auth/providers/auth0";
 
-
 export const {
     handlers: { GET, POST },
     auth,
@@ -20,5 +19,12 @@ export const {
              clientSecret: process.env.AUTH0_CLIENT_SECRET,           
              issuer: process.env.AUTH0_ISSUER_BASE_URL,
         }),
-    ]
+    ],
+    // callbacks: [
+    //     session({ session, token }) {
+    //         debugger
+    //         session.user.role = token.role
+    //         return session
+    //     }
+    // },
 })
