@@ -3,6 +3,7 @@
 import UploadTable from "@/components/ui/UploadTable";
 import TableContexMenu from "@/components/ui/TableContexMenu";
 import { ContextMenu } from "../../styles/styles";
+import * as cheerio from 'cheerio';
 
 import { getTable, getAllTables, uploadTable } from "./actions";
 
@@ -12,6 +13,8 @@ import { useState, useEffect } from 'react';
 // import React from "react";
 
 export default function TablePage() {
+
+    
 
     const [clicked, setClicked] = useState(false);
     const [points, setPoints] = useState({
@@ -46,10 +49,45 @@ export default function TablePage() {
         tableContent = tables
         .filter( table => {return table.fileName == tables[selectedTable].fileName})
         .map((table, tindex) => {
-            return <div key={"table_"+tindex} dangerouslySetInnerHTML={{__html: table.htmlContent}} />          
+            return table.htmlContent
         })
     }
+
+    if(tableContent && tableContent[0]) {
         
+        const $ = cheerio.load(tableContent[0]);
+
+        function traverseNodes(node) {
+            var content = []
+
+            node.children?.forEach(child => {
+                console.log(child.tagName);
+                if ( child.tagName === "td"){
+                    const childContent = $(child).text();
+                    content = [...content, childContent]
+                }
+                
+                var recContent = traverseNodes(child)
+                if ( recContent.length > 0 )
+                    content = [...content, recContent];
+            });
+            
+            return content
+        }
+
+        // This is quite awesome. All nodes sorted here in a recursive structure of arrays! if a valid table is supplied.
+        var allnodes = traverseNodes($.root()[0]);
+
+
+        // Now we can reconstruct the table with custom made React components!
+        // debugger
+
+        // And assign this to the tableContent 
+        tableContent = <div dangerouslySetInnerHTML={{__html: $.html()}} />
+    
+    }
+    
+
     return (
         <main>
         <UploadTable action={uploadTable} />
