@@ -15,7 +15,8 @@ export async function uploadTable(formData) {
 
   new Table( {
     fileName: file.name,
-    htmlContent: Buffer(buffer).toString()
+    htmlContent: (new TextDecoder("utf-8")).decode(buffer),
+
   }).save()
 
   revalidatePath("/");

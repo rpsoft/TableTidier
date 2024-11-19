@@ -1,0 +1,3021 @@
+<contents>
+<checksum>fbb1b1bde5ba154a6837cb52433aeb72</checksum>
+<session_enrollment_guid>${SESSION_ENROLLMENT_GUID}</session_enrollment_guid>
+<session_authorization_token>${SESSION_AUTHORIZATION_TOKEN}</session_authorization_token>
+<version>5614</version>
+<content>
+<network version='1' contract_state='2'>
+<name>eduroam</name>
+<licensee>University of Glasgow</licensee>
+<license>d2a589e65e13a4bf2682a1a6df3c21d5</license>
+<server_address>https://wifisetup.gla.ac.uk/enroll/UniversityofGlasgow/eduroam/wizard/3/pipe/postData.php</server_address>
+<unsupported_os_message>Your operating system is not currently supported for automated configuration, either by the network operator choice or by limitations of this application.  Please contact the support desk for manual configuration instructions.</unsupported_os_message>
+<contact>
+<message>If you have any issues with connecting to eduroam please contact the helpdesk.</message>
+<email>ithelpdesk@gla.ac.uk</email>
+<phone>+44 (0)141 330 4800</phone>
+<url>https://www.gla.ac.uk/myglasgow/it/helpdesk/</url>
+</contact>
+<network_items>
+<network_item is_default='1' login_style='2' enable_remote_upload='7' show_pre_creds='0' submit_behavior='3' conflict='2'>
+<name>eduroam</name>
+<registration_url>https://wifisetup.gla.ac.uk/enroll/UniversityofGlasgow/eduroam/wizard/3/preauth?guid=${ENROLLMENT_GUID}&amp;token=${AUTHORIZATION_TOKEN}&amp;mac=${MAC_ADDRESS}&amp;username=${USER_NAME}&amp;password=${PASSWORD}&amp;os=${FULL_OS}&amp;computer=${COMPUTER_NAME}</registration_url>
+<username_description>Username</username_description>
+<default_username>[Your Username]</default_username>
+<password_description>Password</password_description>
+<pre_credential_text>Your username and password are required to access this network.</pre_credential_text>
+<authentication_assistance>Your username and password are required to access this network.</authentication_assistance>
+<profiles>
+<profile show_pre_creds='1'>
+<name>Android 6.0 Wireless Connections</name>
+<conditions>
+<condition key='OS' operator='EQ'>Android</condition>
+<condition key='VERSION' operator='EQ'>6.0</condition>
+<condition key='TYPE' operator='EQ'>2</condition>
+</conditions>
+<sections>
+<section id='0'>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'QuoVadis Root CA 2' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'QuoVadis Root CA 2' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>ca 3a fb cf 12 40 36 4b 44 b2 16 20 88 80 48 39 19 93 7c f7</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIFtzCCA5+gAwIBAgICBQkwDQYJKoZIhvcNAQEFBQAwRTELMAkGA1UEBhMCQk0x
+GTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxGzAZBgNVBAMTElF1b1ZhZGlzIFJv
+b3QgQ0EgMjAeFw0wNjExMjQxODI3MDBaFw0zMTExMjQxODIzMzNaMEUxCzAJBgNV
+BAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBMaW1pdGVkMRswGQYDVQQDExJRdW9W
+YWRpcyBSb290IENBIDIwggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQCa
+GMpLlA0ALa8DKYrwD4HIrkwZhR0In6spRIXzL4GtMh6QRr+jhiYaHv5+HBg6XJxg
+Fyo6dIMzMH1hVBHL7avg5tKifvVrbxi3Cgst/ek+7wrGsxDp3MJGF/hd/aTa/55J
+WpzmM+Yklvc/ulsrHHo1wtZn/qtmUIttKGAr79dgw8eTvI02kfN/+NsRE8Scd3bB
+rrcCaoF6qUWD4gXmuVbBlDePSHFjIuwXZQeVikvfj8ZaCuWw419eaxGrDPmF60Tp
++ARz8un+XJiM9XOva7R+zdRcAitMOeGylZUtQofX1bOQQ7dsE/He3fbE+Ik/0XX1
+ksOR1YqI0JDs3G3eicJlcZaLDQP9nL9bFqyS2+r+eXyt66/3FsvbzSUr5R/7mp/i
+Ucw6UwxI5g69ybR2BlLmEROFcmMDBOAENisgGQLodKcftslWZvB1JdxnwQ5hYIiz
+PtGo/KPaHbDRsSNU30R2be1B2MGyIrZTHN81Hdyhdyox5C315eXbyOD/5YDXC2Og
+/zOhD7osFRXql7PSorW+8oyWHhqPHWykYTe5hnMz15eWniN9gqRMgeKh0bpnX5UH
+oycR7hYQe7xFSkyyBNKr79X9DFHOUGoIMfmR2gyPZFwDwzqLID9ujWc9Otb+fVuI
+yV77zGHcizN300QyNQliBJIWENieJ0f7OyHj+OsdWwIDAQABo4GwMIGtMA8GA1Ud
+EwEB/wQFMAMBAf8wCwYDVR0PBAQDAgEGMB0GA1UdDgQWBBQahGK8SEwzJQTU7tD2
+A8QZRtGUazBuBgNVHSMEZzBlgBQahGK8SEwzJQTU7tD2A8QZRtGUa6FJpEcwRTEL
+MAkGA1UEBhMCQk0xGTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxGzAZBgNVBAMT
+ElF1b1ZhZGlzIFJvb3QgQ0EgMoICBQkwDQYJKoZIhvcNAQEFBQADggIBAD4KFk2f
+BluornFdLwUvZ+YTRYPENvbzwCYMDbVHZF34tHLJRqUDGCdViXh9duqWNIAXINzn
+g/iN/Ae42l9NLmeyhP3ZRPx3UIHmfLTJDQtyU/h2BwdBR5YM++CCJpNVjP4iH2Bl
+fF/nJrP3MpCYUNQ3cVX2kiF495V5+vgtJodmVjB3pjd4M1IQWK4/YY7yarHvGH5K
+WWPKjaJW1acvvFYfzznB4vsKqBUsfU16Y8Zsl0Q80m/DShcK+JDSV6IZUaUtl0Ha
+B0+pUNqQjZRG4T7wlP0QADj1O+hA4bRuVhogzG9Yje0uRY/W6ZM/57Es3zrWIozc
+hLsib9D45MY56QSIPMO661V6bYCZJPVsAfv4l7CUW+v90m/xd2gNNWQjrLhVoQPR
+TUIZ3Ph1WVaj+ahJefivDrkRoHy3au000LYmYjgahwz46P0u05B/B5EqHdZ+XIWD
+mbA4CD/pXvk1B+TJYm5Xf6dQlfe6yJvmjqIBxdZmv3lh8zwc4bmCXF2gw+nYSL0Z
+ohEUGW6yhhtoPkg3Goi3XZZenMfvJ2II4pEZXNLxId26F0KCl3GBUzGpn/Z9Yr9y
+4aOTHcyKJloJONDO1w2AFrR4pTqHTI2KpdVGl/IsELm8VCLAAVBpQ570su9t+Oza
+8eOx79+Rj1QqCyXBJhnEUhAFZdWCEOrCMc0u
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: QuoVadis Root CA 2
+Thumbprint: CA3AFBCF1240364B44B216208880483919937CF7</help_link>
+</setting>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'QuoVadis Global SSL ICA G2' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'QuoVadis Global SSL ICA G2' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>d1 56 51 b2 2a 5e b8 af f1 51 3e 55 9f e4 e2 48 fb cc eb 28</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIFljCCA36gAwIBAgIUUQ5H7Gxm0zz/3sVS/YhAl4ycJz4wDQYJKoZIhvcNAQEL
+BQAwRTELMAkGA1UEBhMCQk0xGTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxGzAZ
+BgNVBAMTElF1b1ZhZGlzIFJvb3QgQ0EgMjAeFw0yMjA1MjUxOTQ3MzlaFw0yNzA1
+MjQxOTQ3MzhaME0xCzAJBgNVBAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBMaW1p
+dGVkMSMwIQYDVQQDExpRdW9WYWRpcyBHbG9iYWwgU1NMIElDQSBHMjCCASIwDQYJ
+KoZIhvcNAQEBBQADggEPADCCAQoCggEBAOHhhWmUwI9X+jT+wbho5JmQqYh6zle3
+0OS1VMIYfdDDGeipY4D3t9zSGaNasGDZdrQdMlY18WyjnEKhi4ojNZdBewVphCiO
+zh5Ni2Ak8bSI/sBQ9sKPrpd0+UCqbvaGs6Tpx190ZRT0Pdy+TqOYZF/jBmzBj7Yf
+XJmWxlfCy62UiQ6tvv+4C6W2OPu1R4HUD8oJ8Qo7Eg0cD+GFsBM2w8soffyl+Dc6
+pKtARmOClUC7EqyWP0V9953lA34kuJZlYxxdgghBTn9rWoaQw/Lr5Fn0Xgd7fYS3
+/zGhmXYvVsuAxIn8Gk+YaeoLZ8H9tUvnDD3lEHzvIsMPxqtd7IgcVaMCAwEAAaOC
+AXQwggFwMBIGA1UdEwEB/wQIMAYBAf8CAQAwHwYDVR0jBBgwFoAUGoRivEhMMyUE
+1O7Q9gPEGUbRlGswcgYIKwYBBQUHAQEEZjBkMDYGCCsGAQUFBzAChipodHRwOi8v
+dHJ1c3QucXVvdmFkaXNnbG9iYWwuY29tL3F2cmNhMi5jcnQwKgYIKwYBBQUHMAGG
+Hmh0dHA6Ly9vY3NwLnF1b3ZhZGlzZ2xvYmFsLmNvbTA8BgNVHSAENTAzMA4GDCsG
+AQQBvlgAAmQBAjAHBgVngQwBATAIBgZngQwBAgIwDgYMKwYBBAG+WAACZAEBMB0G
+A1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDATA5BgNVHR8EMjAwMC6gLKAqhiho
+dHRwOi8vY3JsLnF1b3ZhZGlzZ2xvYmFsLmNvbS9xdnJjYTIuY3JsMB0GA1UdDgQW
+BBSRGWKtWxenMPvw3jklsb2MubhRJzAOBgNVHQ8BAf8EBAMCAQYwDQYJKoZIhvcN
+AQELBQADggIBAGD4DLtUlh+MOmXTKrt8y7eP/KkhwllG859Y/VcekXPQOjztRpDa
+0d0YSPNcZoQOnYqh0qWj77sohZdDBXfDi2uRN6MA6M9f73zHQdlLBDJ47r8muv5T
+Q4825zYerBqUpx0JT/fUEJlT91doVDUkWa2YI8gS+MJxbsUo7/HdD7XxUpHntILa
+wrs/AwxlZOBVwpt7FZao1A3xlodxeBzBM9uwtgHS9dkrRIxEz7eTugtglzpdO8GR
+iB/EX8WorAX6/OVm8DV5v0/e/JxmpDFkf3klndOi7Ijz71jk3eyTGlTqS55Py6Nh
+vxdlF06e4E0l3pAohkA/KQzUFQyScjGjVn0qjBZ3Ie/FHzhGX+zsAz8FQVW8UCZy
+KlVvvkXZVKrLb+IK+crxU6ZgW5xsgGfHGaMdpTY0Lf4jIN6EmF6Opj49iL2wlWMQ
+cuHewejrEtw5pgOFRgMxo2eEfaEJs8SSOG0yh/r6YrXZWN5D3h+TJU8X0XBnAvWD
+LWu9mFQ9M/4wLpF+rcjuIrcdwE5bAUwBy1hQTIuCxi528AX4r5zlYC8sF1UeAPVf
+KnoDo5yO+MGJ2YfszxRxtERb8osZcfqTOfuLIYNacYoiQ+Qobn6ycSLMHF5awRbm
+ShUz0wLFNFMGEClbXCoWqwd3NKKKIa1OOOfbcQ4BXwxHGs/4kOaOeJOq
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: QuoVadis Global SSL ICA G2
+Thumbprint: D15651B22A5EB8AFF1513E559FE4E248FBCCEB28</help_link>
+</setting>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'AAA Certificate Services' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'AAA Certificate Services' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>d1 eb 23 a4 6d 17 d6 8f d9 25 64 c2 f1 f1 60 17 64 d8 e3 49</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIEMjCCAxqgAwIBAgIBATANBgkqhkiG9w0BAQUFADB7MQswCQYDVQQGEwJHQjEb
+MBkGA1UECAwSR3JlYXRlciBNYW5jaGVzdGVyMRAwDgYDVQQHDAdTYWxmb3JkMRow
+GAYDVQQKDBFDb21vZG8gQ0EgTGltaXRlZDEhMB8GA1UEAwwYQUFBIENlcnRpZmlj
+YXRlIFNlcnZpY2VzMB4XDTA0MDEwMTAwMDAwMFoXDTI4MTIzMTIzNTk1OVowezEL
+MAkGA1UEBhMCR0IxGzAZBgNVBAgMEkdyZWF0ZXIgTWFuY2hlc3RlcjEQMA4GA1UE
+BwwHU2FsZm9yZDEaMBgGA1UECgwRQ29tb2RvIENBIExpbWl0ZWQxITAfBgNVBAMM
+GEFBQSBDZXJ0aWZpY2F0ZSBTZXJ2aWNlczCCASIwDQYJKoZIhvcNAQEBBQADggEP
+ADCCAQoCggEBAL5AnfRu4ep2hxxNRUSOvkbIgwadwSr+GB+O5AL686tdUIoWMQua
+BtDFcCLNSS1UY8y2bmhGC1Pqy0wkwLxyTurxFa70VJoSCsN6sjNg4tqJVfMiWPPe
+3M/vg4aijJRPn2jymJBGhCfHdr/jzDUsi14HZGWCwEiwqJH5YZ92IFCokcdmtet4
+YgNW8IoaE+oxox6gmf049vYnMlhvB/VruPsUK6+3qszWY19zjNoFmag4qMsXeDZR
+rOme9Hg6jc8P2ULimAyrL58OAd7vn5lJ8S3frHRNG5i1R8XlKdH5kBjHYpy+g8cm
+ez6KJcfA3Z3mNWgQIJ2P2N7Sw4ScDV7oL8kCAwEAAaOBwDCBvTAdBgNVHQ4EFgQU
+oBEKIz6W8Qfs4q8p74Klf9AwpLQwDgYDVR0PAQH/BAQDAgEGMA8GA1UdEwEB/wQF
+MAMBAf8wewYDVR0fBHQwcjA4oDagNIYyaHR0cDovL2NybC5jb21vZG9jYS5jb20v
+QUFBQ2VydGlmaWNhdGVTZXJ2aWNlcy5jcmwwNqA0oDKGMGh0dHA6Ly9jcmwuY29t
+b2RvLm5ldC9BQUFDZXJ0aWZpY2F0ZVNlcnZpY2VzLmNybDANBgkqhkiG9w0BAQUF
+AAOCAQEACFb8AvCb6P+k+tZ7xkSAzk/ExfYAWMymtrwUSWgEdujm7l3sAg9g1o1Q
+GE8mTgHj5rCl7r+8dFRBv/38ErjHT1r0iWAFf2C3BUrz9vHCv8S5dIa2LX1rzNLz
+Rt0vxuBqw8M0Ayx9lt1awg6nCpnBBYurDC/zXDrPbDdVCYfeU0BsWO/8tqtlbgT2
+G9w84FoVxp7Z8VlIMCFlA2zs6SFz7JsDoeA3raAVGI/6ugLOpyypEBMs1OUIJqsi
+l2D4kF501KKaU73yqWjgom7C12yxow+ev+to51byrvLjKzg6CYG1a4XXvi3tPxq3
+smPi9WIsgtRqAEFQ8TmDn5XpNpaYbg==
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: AAA Certificate Services
+Thumbprint: D1EB23A46D17D68FD92564C2F1F1601764D8E349</help_link>
+</setting>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'USERTrust RSA Certification Authority' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'USERTrust RSA Certification Authority' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>d8 9e 3b d4 3d 5d 90 9b 47 a1 89 77 aa 9d 5c e3 6c ee 18 4c</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIFgTCCBGmgAwIBAgIQOXJEOvkit1HX02wQ3TE1lTANBgkqhkiG9w0BAQwFADB7
+MQswCQYDVQQGEwJHQjEbMBkGA1UECAwSR3JlYXRlciBNYW5jaGVzdGVyMRAwDgYD
+VQQHDAdTYWxmb3JkMRowGAYDVQQKDBFDb21vZG8gQ0EgTGltaXRlZDEhMB8GA1UE
+AwwYQUFBIENlcnRpZmljYXRlIFNlcnZpY2VzMB4XDTE5MDMxMjAwMDAwMFoXDTI4
+MTIzMTIzNTk1OVowgYgxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpOZXcgSmVyc2V5
+MRQwEgYDVQQHEwtKZXJzZXkgQ2l0eTEeMBwGA1UEChMVVGhlIFVTRVJUUlVTVCBO
+ZXR3b3JrMS4wLAYDVQQDEyVVU0VSVHJ1c3QgUlNBIENlcnRpZmljYXRpb24gQXV0
+aG9yaXR5MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAgBJlFzYOw9sI
+s9CsVw127c0n00ytUINh4qogTQktZAnczomfzD2p7PbPwdzx07HWezcoEStH2jnG
+vDoZtF+mvX2do2NCtnbyqTsrkfjib9DsFiCQCT7i6HTJGLSR1GJk23+jBvGIGGqQ
+Ijy8/hPwhxR79uQfjtTkUcYRZ0YIUcuGFFQ/vDP+fmyc/xadGL1RjjWmp2bIcmfb
+IWax1Jt4A8BQOujM8Ny8nkz+rwWWNR9XWrf/zvk9tyy29lTdyOcSOk2uTIq3XJq0
+tyA9yn8iNK5+O2hmAUTnAU5GU5szYPeUvlM3kHND8zLDU+/bqv50TmnHa4xgk97E
+xwzf4TKuzJM7UXiVZ4vuPVb+DNBpDxsP8yUmazNt925H+nND5X4OpWaxKXwyhGNV
+icQNwZNUMBkTrNN9N6frXTpsNVzbQdcS2qlJC9/YgIoJk2KOtWbPJYjNhLixP6Q5
+D9kCnusSTJV882sFqV4Wg8y4Z+LoE53MW4LTTLPtW//e5XOsIzstAL81VXQJSdhJ
+WBp/kjbmUZIO8yZ9HE0XvMnsQybQv0FfQKlERPSZ51eHnlAfV1SoPv10Yy+xUGUJ
+5lhCLkMaTLTwJUdZ+gQek9QmRkpQgbLevni3/GcV4clXhB4PY9bpYrrWX1Uu6lzG
+KAgEJTm4Diup8kyXHAc/DVL17e8vgg8CAwEAAaOB8jCB7zAfBgNVHSMEGDAWgBSg
+EQojPpbxB+zirynvgqV/0DCktDAdBgNVHQ4EFgQUU3m/WqorSs9UgOHYm8Cd8rID
+ZsswDgYDVR0PAQH/BAQDAgGGMA8GA1UdEwEB/wQFMAMBAf8wEQYDVR0gBAowCDAG
+BgRVHSAAMEMGA1UdHwQ8MDowOKA2oDSGMmh0dHA6Ly9jcmwuY29tb2RvY2EuY29t
+L0FBQUNlcnRpZmljYXRlU2VydmljZXMuY3JsMDQGCCsGAQUFBwEBBCgwJjAkBggr
+BgEFBQcwAYYYaHR0cDovL29jc3AuY29tb2RvY2EuY29tMA0GCSqGSIb3DQEBDAUA
+A4IBAQAYh1HcdCE9nIrgJ7cz0C7M7PDmy14R3iJvm3WOnnL+5Nb+qh+cli3vA0p+
+rvSNb3I8QzvAP+u431yqqcau8vzY7qN7Q/aGNnwU4M309z/+3ri0ivCRlv79Q2R+
+/czSAaF9ffgZGclCKxO/WIu6pKJmBHaIkU4MiRTOok3JMrO66BQavHHxW/BBC5gA
+CiIDEOUMsfnNkjcZ7Tvx5Dq2+UUTJnWvu6rvP3t3O9LEApE9GQDTF1w52z97GA1F
+zZOFli9d31kWTz9RvdVFGD/tSo7oBmF0Ixa1DVBzJ0RHfxBdiSprhTEUxOipakyA
+vGp4z7h/jnZymQyd/teRCBaho1+V
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: USERTrust RSA Certification Authority
+Thumbprint: D89E3BD43D5D909B47A18977AA9D5CE36CEE184C</help_link>
+</setting>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'GEANT OV RSA CA 4' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'GEANT OV RSA CA 4' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>c2 82 6e 26 6d 74 05 d3 4e f8 97 62 63 6a e4 b3 6e 86 cb 5e</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIG5TCCBM2gAwIBAgIRANpDvROb0li7TdYcrMTz2+AwDQYJKoZIhvcNAQEMBQAw
+gYgxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpOZXcgSmVyc2V5MRQwEgYDVQQHEwtK
+ZXJzZXkgQ2l0eTEeMBwGA1UEChMVVGhlIFVTRVJUUlVTVCBOZXR3b3JrMS4wLAYD
+VQQDEyVVU0VSVHJ1c3QgUlNBIENlcnRpZmljYXRpb24gQXV0aG9yaXR5MB4XDTIw
+MDIxODAwMDAwMFoXDTMzMDUwMTIzNTk1OVowRDELMAkGA1UEBhMCTkwxGTAXBgNV
+BAoTEEdFQU5UIFZlcmVuaWdpbmcxGjAYBgNVBAMTEUdFQU5UIE9WIFJTQSBDQSA0
+MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEApYhi1aEiPsg9ZKRMAw9Q
+r8Mthsr6R20VSfFeh7TgwtLQi6RSRLOh4or4EMG/1th8lijv7xnBMVZkTysFiPmT
+PiLOfvz+QwO1NwjvgY+Jrs7fSoVA/TQkXzcxu4Tl3WHi+qJmKLJVu/JOuHud6mOp
+LWkIbhODSzOxANJ24IGPx9h4OXDyy6/342eE6UPXCtJ8AzeumTG6Dfv5KVx24lCF
+TGUzHUB+j+g0lSKg/Sf1OzgCajJV9enmZ/84ydh48wPp6vbWf1H0O3Rd3LhpMSVn
+TqFTLKZSbQeLcx/l9DOKZfBCC9ghWxsgTqW9gQ7v3T3aIfSaVC9rnwVxO0VjmDdP
+FNbdoxnh0zYwf45nV1QQgpRwZJ93yWedhp4ch1a6Ajwqs+wv4mZzmBSjovtV0mKw
+d+CQbSToalEUP4QeJq4Udz5WNmNMI4OYP6cgrnlJ50aa0DZPlJqrKQPGL69KQQz1
+2WgxvhCuVU70y6ZWAPopBa1ykbsttpLxADZre5cH573lIuLHdjx7NjpYIXRx2+QJ
+URnX2qx37eZIxYXz8ggM+wXH6RDbU3V2o5DP67hXPHSAbA+p0orjAocpk2osxHKo
+NSE3LCjNx8WVdxnXvuQ28tKdaK69knfm3bB7xpdfsNNTPH9ElcjscWZxpeZ5Iij8
+lyrCG1z0vSWtSBsgSnUyG/sCAwEAAaOCAYswggGHMB8GA1UdIwQYMBaAFFN5v1qq
+K0rPVIDh2JvAnfKyA2bLMB0GA1UdDgQWBBRvHTVJEGwy+lmgnryK6B+VvnF6DDAO
+BgNVHQ8BAf8EBAMCAYYwEgYDVR0TAQH/BAgwBgEB/wIBADAdBgNVHSUEFjAUBggr
+BgEFBQcDAQYIKwYBBQUHAwIwOAYDVR0gBDEwLzAtBgRVHSAAMCUwIwYIKwYBBQUH
+AgEWF2h0dHBzOi8vc2VjdGlnby5jb20vQ1BTMFAGA1UdHwRJMEcwRaBDoEGGP2h0
+dHA6Ly9jcmwudXNlcnRydXN0LmNvbS9VU0VSVHJ1c3RSU0FDZXJ0aWZpY2F0aW9u
+QXV0aG9yaXR5LmNybDB2BggrBgEFBQcBAQRqMGgwPwYIKwYBBQUHMAKGM2h0dHA6
+Ly9jcnQudXNlcnRydXN0LmNvbS9VU0VSVHJ1c3RSU0FBZGRUcnVzdENBLmNydDAl
+BggrBgEFBQcwAYYZaHR0cDovL29jc3AudXNlcnRydXN0LmNvbTANBgkqhkiG9w0B
+AQwFAAOCAgEAUtlC3e0xj/1BMfPhdQhUXeLjb0xp8UE28kzWE5xDzGKbfGgnrT2R
+lw5gLIx+/cNVrad//+MrpTppMlxq59AsXYZW3xRasrvkjGfNR3vt/1RAl8iI31lG
+hIg6dfIX5N4esLkrQeN8HiyHKH6khm4966IkVVtnxz5CgUPqEYn4eQ+4eeESrWBh
+AqXaiv7HRvpsdwLYekAhnrlGpioZ/CJIT2PTTxf+GHM6cuUnNqdUzfvrQgA8kt1/
+ASXx2od/M+c8nlJqrGz29lrJveJOSEMX0c/ts02WhsfMhkYa6XujUZLmvR1Eq08r
+48/EZ4l+t5L4wt0DV8VaPbsEBF1EOFpz/YS2H6mSwcFaNJbnYqqJHIvm3PLJHkFm
+EoLXRVrQXdCT+3wgBfgU6heCV5CYBz/YkrdWES7tiiT8sVUDqXmVlTsbiRNiyLs2
+bmEWWFUl76jViIJog5fongEqN3jLIGTG/mXrJT1UyymIcobnIGrbwwRVz/mpFQo0
+vBYIi1k2ThVh0Dx88BbF9YiP84dd8Fkn5wbE6FxXYJ287qfRTgmhePecPc73Yrzt
+apdRcsKVGkOpaTIJP/l+lAHRLZxk/dUtyN95G++bOSQqnOCpVPabUGl2E/OEyFrp
+Ipwgu2L/WJclvd6g+ZA/iWkLSMcpnFb+uX6QBqvD6+RNxul1FaB5iHY=
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: GEANT OV RSA CA 4
+Thumbprint: C2826E266D7405D34EF89762636AE4B36E86CB5E</help_link>
+</setting>
+<setting id='61310' enforce_additional_value='1'>
+<incorrect_text>Root CA 'QuoVadis Root CA 2 G3' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'QuoVadis Root CA 2 G3' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>09 3c 61 f3 8b 8b dc 7d 55 df 75 38 02 05 00 e1 25 f5 c8 36</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIFYDCCA0igAwIBAgIURFc0JFuBiZs18s64KztbpybwdSgwDQYJKoZIhvcNAQEL
+BQAwSDELMAkGA1UEBhMCQk0xGTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxHjAc
+BgNVBAMTFVF1b1ZhZGlzIFJvb3QgQ0EgMiBHMzAeFw0xMjAxMTIxODU5MzJaFw00
+MjAxMTIxODU5MzJaMEgxCzAJBgNVBAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBM
+aW1pdGVkMR4wHAYDVQQDExVRdW9WYWRpcyBSb290IENBIDIgRzMwggIiMA0GCSqG
+SIb3DQEBAQUAA4ICDwAwggIKAoICAQChriWyARjcV4g/Ruv5r+LrI3HimtFhZiFf
+qq8nUeVuGxbULX1QsFN3vXg6YOJkApt8hpvWGo6t/x8Vf9WVHhLL5hSEBMHfNrMW
+n4rjyduYNM7YMxcoRvynyfDStNVNCXJJ+fKH46nafaF9a7I6JaltUkSs+L5u+9ym
+c5GQYaYDFCDy54ejiK2toIz/pgslUiXnFgHVy7g1gQyjO/Dh4fxaXc6AcW34Sas+
+O7q414AB+6XrW7PFXmAqMaCvN+ggOp+oMiwMzAkd056OXbxMmO7FGmh77FOm6RQ1
+o9/NgJ8MSPsc9PG/Srj61YxxSscfrf5BmrODXfKEVu+lV0POKa2Mq1W/xPtbAd0j
+IaFYAI7D0GoT7RPjEiuA3GfmlbLNHiJuKvhB1PLKFAeNilUSxmn1uIZoL1NesNKq
+IcGY5jDjZ1XHm26sGahVpkUG0CM62+tlXSoREfA7T8pt9DTEceT/AFr2XK4jYIVz
+8eQQsSWu1ZK7E8EM4DnatDlXtas1qnIhO4M15zHfeiFuuDIIfR0ykRVKYnLP43eh
+vNURG3YBZwjgQQvD6xVu+KQZ2aKrr+InUlYrAoosFCT5v0ICvybIxo/gbjh9Uy3l
+7ZizlWNof/k19N+IxWA1ksB8aRxhlRbQ694Lrz4EEEVlWFA4r0jyWbYW8jwNkALG
+cC4BrTwV1wIDAQABo0IwQDAPBgNVHRMBAf8EBTADAQH/MA4GA1UdDwEB/wQEAwIB
+BjAdBgNVHQ4EFgQU7edvdlq/YOxJW8ald7tyFnGbxD0wDQYJKoZIhvcNAQELBQAD
+ggIBAJHfgD9DCX5xwvfrs4iP4VGyvD11+ShdyLyZm3tdquXK4Qr36LLTn91nMX66
+AarHakE7kNQIXLJgapDwyM4DYvmL7ftuKtwGTTwpD4kWilhMSA/ohGHqPHKmd+RC
+roijQ1h5fq7KpVMNqT1wvSAZYaRsOPxDMuHBR//47PERIjKWnML2W2mWeyAMQ0Ga
+W/ZZGYjeVYg3UQt4XAoeo0L9x52ID8DyeAIkVJOviYeIyUqAHerQbj5hLja7NQ4n
+lv1mNDthcnPxFlxHBlRJAHpYErAK74X9sbgzdWqTHBLmYF5vHX/JHyPLhGGfHoJE
++V+tYlUkmlKY7VHnoX6XOuYvHxHaU4AshZ6rNRDbIl9qxV6XU/IyAgkwo1jwDQHV
+csaxfGl7w/U2Rcxhbl5MlMVerugOXou/983g7aEOGzPuVBj+D77vfoRrQ+NwmNtd
+dbINWQeFFSM51vHfqSYP1kjHs6Yi9TM3WpVHn3u6GBVv/9YUZINJ0gpnIdsPNWNg
+KCLjsZWDzYWm3S8P52dSbrsvhXz1SnPnxT7AvSESBT/8twNJAlvIJebiVDj1eYeM
+HVOyToV7BjjHLPj4sHKNJeV3UvQDHEimUF+IIDBu8oJDqz2XhOdT+yHBTw8imoa4
+WSr2Rz0ZiC3oheGe7IUIarFsNMkd7EgrO3jtZsSOeWmD3n+M
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: QuoVadis Root CA 2 G3
+Thumbprint: 093C61F38B8BDC7D55DF7538020500E125F5C836</help_link>
+</setting>
+</section>
+<section id='1'>
+<setting id='40001' enforce_additional_value='1'>
+<incorrect_text>SSID 'eduroam' needs to be configured.</incorrect_text>
+<when_repaired_text>SSID 'eduroam' was configured.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>CP:00006006:eduroam</additional_value>
+</setting>
+</section>
+<section id='2'>
+<setting id='65001'>
+<incorrect_text>EAP Type PEAP needs to be selected.</incorrect_text>
+<when_repaired_text>EAP Type PEAP was selected.</when_repaired_text>
+<required_value>PEAP</required_value>
+</setting>
+<setting id='65003'>
+<incorrect_text>PEAP Authentication Method needs to be set to EAP-MSCHAPV2.</incorrect_text>
+<when_repaired_text>PEAP Authentication Method was set to EAP-MSCHAPV2.</when_repaired_text>
+<required_value>MSCHAPV2</required_value>
+</setting>
+<setting id='65000'>
+<incorrect_text>Validate Server Certificate needs to be enabled.</incorrect_text>
+<when_repaired_text>Validate Server Certificate was enabled.</when_repaired_text>
+<required_value>1</required_value>
+</setting>
+<setting id='61416'>
+<incorrect_text>Validate server name needs to be enabled.</incorrect_text>
+<when_repaired_text>Validate server name was enabled.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>radius.gla.ac.uk;radius.gla.ac.uk</additional_value>
+</setting>
+</section>
+</sections>
+</profile>
+<profile show_pre_creds='1'>
+<name>Android 7.0 Wireless Connections</name>
+<conditions>
+<condition key='OS' operator='EQ'>Android</condition>
+<condition key='VERSION' operator='EQ'>7.0</condition>
+<condition key='TYPE' operator='EQ'>2</condition>
+</conditions>
+<sections>
+<section id='0'>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'QuoVadis Root CA 2' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'QuoVadis Root CA 2' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>ca 3a fb cf 12 40 36 4b 44 b2 16 20 88 80 48 39 19 93 7c f7</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIFtzCCA5+gAwIBAgICBQkwDQYJKoZIhvcNAQEFBQAwRTELMAkGA1UEBhMCQk0x
+GTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxGzAZBgNVBAMTElF1b1ZhZGlzIFJv
+b3QgQ0EgMjAeFw0wNjExMjQxODI3MDBaFw0zMTExMjQxODIzMzNaMEUxCzAJBgNV
+BAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBMaW1pdGVkMRswGQYDVQQDExJRdW9W
+YWRpcyBSb290IENBIDIwggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQCa
+GMpLlA0ALa8DKYrwD4HIrkwZhR0In6spRIXzL4GtMh6QRr+jhiYaHv5+HBg6XJxg
+Fyo6dIMzMH1hVBHL7avg5tKifvVrbxi3Cgst/ek+7wrGsxDp3MJGF/hd/aTa/55J
+WpzmM+Yklvc/ulsrHHo1wtZn/qtmUIttKGAr79dgw8eTvI02kfN/+NsRE8Scd3bB
+rrcCaoF6qUWD4gXmuVbBlDePSHFjIuwXZQeVikvfj8ZaCuWw419eaxGrDPmF60Tp
++ARz8un+XJiM9XOva7R+zdRcAitMOeGylZUtQofX1bOQQ7dsE/He3fbE+Ik/0XX1
+ksOR1YqI0JDs3G3eicJlcZaLDQP9nL9bFqyS2+r+eXyt66/3FsvbzSUr5R/7mp/i
+Ucw6UwxI5g69ybR2BlLmEROFcmMDBOAENisgGQLodKcftslWZvB1JdxnwQ5hYIiz
+PtGo/KPaHbDRsSNU30R2be1B2MGyIrZTHN81Hdyhdyox5C315eXbyOD/5YDXC2Og
+/zOhD7osFRXql7PSorW+8oyWHhqPHWykYTe5hnMz15eWniN9gqRMgeKh0bpnX5UH
+oycR7hYQe7xFSkyyBNKr79X9DFHOUGoIMfmR2gyPZFwDwzqLID9ujWc9Otb+fVuI
+yV77zGHcizN300QyNQliBJIWENieJ0f7OyHj+OsdWwIDAQABo4GwMIGtMA8GA1Ud
+EwEB/wQFMAMBAf8wCwYDVR0PBAQDAgEGMB0GA1UdDgQWBBQahGK8SEwzJQTU7tD2
+A8QZRtGUazBuBgNVHSMEZzBlgBQahGK8SEwzJQTU7tD2A8QZRtGUa6FJpEcwRTEL
+MAkGA1UEBhMCQk0xGTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxGzAZBgNVBAMT
+ElF1b1ZhZGlzIFJvb3QgQ0EgMoICBQkwDQYJKoZIhvcNAQEFBQADggIBAD4KFk2f
+BluornFdLwUvZ+YTRYPENvbzwCYMDbVHZF34tHLJRqUDGCdViXh9duqWNIAXINzn
+g/iN/Ae42l9NLmeyhP3ZRPx3UIHmfLTJDQtyU/h2BwdBR5YM++CCJpNVjP4iH2Bl
+fF/nJrP3MpCYUNQ3cVX2kiF495V5+vgtJodmVjB3pjd4M1IQWK4/YY7yarHvGH5K
+WWPKjaJW1acvvFYfzznB4vsKqBUsfU16Y8Zsl0Q80m/DShcK+JDSV6IZUaUtl0Ha
+B0+pUNqQjZRG4T7wlP0QADj1O+hA4bRuVhogzG9Yje0uRY/W6ZM/57Es3zrWIozc
+hLsib9D45MY56QSIPMO661V6bYCZJPVsAfv4l7CUW+v90m/xd2gNNWQjrLhVoQPR
+TUIZ3Ph1WVaj+ahJefivDrkRoHy3au000LYmYjgahwz46P0u05B/B5EqHdZ+XIWD
+mbA4CD/pXvk1B+TJYm5Xf6dQlfe6yJvmjqIBxdZmv3lh8zwc4bmCXF2gw+nYSL0Z
+ohEUGW6yhhtoPkg3Goi3XZZenMfvJ2II4pEZXNLxId26F0KCl3GBUzGpn/Z9Yr9y
+4aOTHcyKJloJONDO1w2AFrR4pTqHTI2KpdVGl/IsELm8VCLAAVBpQ570su9t+Oza
+8eOx79+Rj1QqCyXBJhnEUhAFZdWCEOrCMc0u
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: QuoVadis Root CA 2
+Thumbprint: CA3AFBCF1240364B44B216208880483919937CF7</help_link>
+</setting>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'QuoVadis Global SSL ICA G2' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'QuoVadis Global SSL ICA G2' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>d1 56 51 b2 2a 5e b8 af f1 51 3e 55 9f e4 e2 48 fb cc eb 28</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIFljCCA36gAwIBAgIUUQ5H7Gxm0zz/3sVS/YhAl4ycJz4wDQYJKoZIhvcNAQEL
+BQAwRTELMAkGA1UEBhMCQk0xGTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxGzAZ
+BgNVBAMTElF1b1ZhZGlzIFJvb3QgQ0EgMjAeFw0yMjA1MjUxOTQ3MzlaFw0yNzA1
+MjQxOTQ3MzhaME0xCzAJBgNVBAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBMaW1p
+dGVkMSMwIQYDVQQDExpRdW9WYWRpcyBHbG9iYWwgU1NMIElDQSBHMjCCASIwDQYJ
+KoZIhvcNAQEBBQADggEPADCCAQoCggEBAOHhhWmUwI9X+jT+wbho5JmQqYh6zle3
+0OS1VMIYfdDDGeipY4D3t9zSGaNasGDZdrQdMlY18WyjnEKhi4ojNZdBewVphCiO
+zh5Ni2Ak8bSI/sBQ9sKPrpd0+UCqbvaGs6Tpx190ZRT0Pdy+TqOYZF/jBmzBj7Yf
+XJmWxlfCy62UiQ6tvv+4C6W2OPu1R4HUD8oJ8Qo7Eg0cD+GFsBM2w8soffyl+Dc6
+pKtARmOClUC7EqyWP0V9953lA34kuJZlYxxdgghBTn9rWoaQw/Lr5Fn0Xgd7fYS3
+/zGhmXYvVsuAxIn8Gk+YaeoLZ8H9tUvnDD3lEHzvIsMPxqtd7IgcVaMCAwEAAaOC
+AXQwggFwMBIGA1UdEwEB/wQIMAYBAf8CAQAwHwYDVR0jBBgwFoAUGoRivEhMMyUE
+1O7Q9gPEGUbRlGswcgYIKwYBBQUHAQEEZjBkMDYGCCsGAQUFBzAChipodHRwOi8v
+dHJ1c3QucXVvdmFkaXNnbG9iYWwuY29tL3F2cmNhMi5jcnQwKgYIKwYBBQUHMAGG
+Hmh0dHA6Ly9vY3NwLnF1b3ZhZGlzZ2xvYmFsLmNvbTA8BgNVHSAENTAzMA4GDCsG
+AQQBvlgAAmQBAjAHBgVngQwBATAIBgZngQwBAgIwDgYMKwYBBAG+WAACZAEBMB0G
+A1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDATA5BgNVHR8EMjAwMC6gLKAqhiho
+dHRwOi8vY3JsLnF1b3ZhZGlzZ2xvYmFsLmNvbS9xdnJjYTIuY3JsMB0GA1UdDgQW
+BBSRGWKtWxenMPvw3jklsb2MubhRJzAOBgNVHQ8BAf8EBAMCAQYwDQYJKoZIhvcN
+AQELBQADggIBAGD4DLtUlh+MOmXTKrt8y7eP/KkhwllG859Y/VcekXPQOjztRpDa
+0d0YSPNcZoQOnYqh0qWj77sohZdDBXfDi2uRN6MA6M9f73zHQdlLBDJ47r8muv5T
+Q4825zYerBqUpx0JT/fUEJlT91doVDUkWa2YI8gS+MJxbsUo7/HdD7XxUpHntILa
+wrs/AwxlZOBVwpt7FZao1A3xlodxeBzBM9uwtgHS9dkrRIxEz7eTugtglzpdO8GR
+iB/EX8WorAX6/OVm8DV5v0/e/JxmpDFkf3klndOi7Ijz71jk3eyTGlTqS55Py6Nh
+vxdlF06e4E0l3pAohkA/KQzUFQyScjGjVn0qjBZ3Ie/FHzhGX+zsAz8FQVW8UCZy
+KlVvvkXZVKrLb+IK+crxU6ZgW5xsgGfHGaMdpTY0Lf4jIN6EmF6Opj49iL2wlWMQ
+cuHewejrEtw5pgOFRgMxo2eEfaEJs8SSOG0yh/r6YrXZWN5D3h+TJU8X0XBnAvWD
+LWu9mFQ9M/4wLpF+rcjuIrcdwE5bAUwBy1hQTIuCxi528AX4r5zlYC8sF1UeAPVf
+KnoDo5yO+MGJ2YfszxRxtERb8osZcfqTOfuLIYNacYoiQ+Qobn6ycSLMHF5awRbm
+ShUz0wLFNFMGEClbXCoWqwd3NKKKIa1OOOfbcQ4BXwxHGs/4kOaOeJOq
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: QuoVadis Global SSL ICA G2
+Thumbprint: D15651B22A5EB8AFF1513E559FE4E248FBCCEB28</help_link>
+</setting>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'AAA Certificate Services' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'AAA Certificate Services' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>d1 eb 23 a4 6d 17 d6 8f d9 25 64 c2 f1 f1 60 17 64 d8 e3 49</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIEMjCCAxqgAwIBAgIBATANBgkqhkiG9w0BAQUFADB7MQswCQYDVQQGEwJHQjEb
+MBkGA1UECAwSR3JlYXRlciBNYW5jaGVzdGVyMRAwDgYDVQQHDAdTYWxmb3JkMRow
+GAYDVQQKDBFDb21vZG8gQ0EgTGltaXRlZDEhMB8GA1UEAwwYQUFBIENlcnRpZmlj
+YXRlIFNlcnZpY2VzMB4XDTA0MDEwMTAwMDAwMFoXDTI4MTIzMTIzNTk1OVowezEL
+MAkGA1UEBhMCR0IxGzAZBgNVBAgMEkdyZWF0ZXIgTWFuY2hlc3RlcjEQMA4GA1UE
+BwwHU2FsZm9yZDEaMBgGA1UECgwRQ29tb2RvIENBIExpbWl0ZWQxITAfBgNVBAMM
+GEFBQSBDZXJ0aWZpY2F0ZSBTZXJ2aWNlczCCASIwDQYJKoZIhvcNAQEBBQADggEP
+ADCCAQoCggEBAL5AnfRu4ep2hxxNRUSOvkbIgwadwSr+GB+O5AL686tdUIoWMQua
+BtDFcCLNSS1UY8y2bmhGC1Pqy0wkwLxyTurxFa70VJoSCsN6sjNg4tqJVfMiWPPe
+3M/vg4aijJRPn2jymJBGhCfHdr/jzDUsi14HZGWCwEiwqJH5YZ92IFCokcdmtet4
+YgNW8IoaE+oxox6gmf049vYnMlhvB/VruPsUK6+3qszWY19zjNoFmag4qMsXeDZR
+rOme9Hg6jc8P2ULimAyrL58OAd7vn5lJ8S3frHRNG5i1R8XlKdH5kBjHYpy+g8cm
+ez6KJcfA3Z3mNWgQIJ2P2N7Sw4ScDV7oL8kCAwEAAaOBwDCBvTAdBgNVHQ4EFgQU
+oBEKIz6W8Qfs4q8p74Klf9AwpLQwDgYDVR0PAQH/BAQDAgEGMA8GA1UdEwEB/wQF
+MAMBAf8wewYDVR0fBHQwcjA4oDagNIYyaHR0cDovL2NybC5jb21vZG9jYS5jb20v
+QUFBQ2VydGlmaWNhdGVTZXJ2aWNlcy5jcmwwNqA0oDKGMGh0dHA6Ly9jcmwuY29t
+b2RvLm5ldC9BQUFDZXJ0aWZpY2F0ZVNlcnZpY2VzLmNybDANBgkqhkiG9w0BAQUF
+AAOCAQEACFb8AvCb6P+k+tZ7xkSAzk/ExfYAWMymtrwUSWgEdujm7l3sAg9g1o1Q
+GE8mTgHj5rCl7r+8dFRBv/38ErjHT1r0iWAFf2C3BUrz9vHCv8S5dIa2LX1rzNLz
+Rt0vxuBqw8M0Ayx9lt1awg6nCpnBBYurDC/zXDrPbDdVCYfeU0BsWO/8tqtlbgT2
+G9w84FoVxp7Z8VlIMCFlA2zs6SFz7JsDoeA3raAVGI/6ugLOpyypEBMs1OUIJqsi
+l2D4kF501KKaU73yqWjgom7C12yxow+ev+to51byrvLjKzg6CYG1a4XXvi3tPxq3
+smPi9WIsgtRqAEFQ8TmDn5XpNpaYbg==
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: AAA Certificate Services
+Thumbprint: D1EB23A46D17D68FD92564C2F1F1601764D8E349</help_link>
+</setting>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'USERTrust RSA Certification Authority' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'USERTrust RSA Certification Authority' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>d8 9e 3b d4 3d 5d 90 9b 47 a1 89 77 aa 9d 5c e3 6c ee 18 4c</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIFgTCCBGmgAwIBAgIQOXJEOvkit1HX02wQ3TE1lTANBgkqhkiG9w0BAQwFADB7
+MQswCQYDVQQGEwJHQjEbMBkGA1UECAwSR3JlYXRlciBNYW5jaGVzdGVyMRAwDgYD
+VQQHDAdTYWxmb3JkMRowGAYDVQQKDBFDb21vZG8gQ0EgTGltaXRlZDEhMB8GA1UE
+AwwYQUFBIENlcnRpZmljYXRlIFNlcnZpY2VzMB4XDTE5MDMxMjAwMDAwMFoXDTI4
+MTIzMTIzNTk1OVowgYgxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpOZXcgSmVyc2V5
+MRQwEgYDVQQHEwtKZXJzZXkgQ2l0eTEeMBwGA1UEChMVVGhlIFVTRVJUUlVTVCBO
+ZXR3b3JrMS4wLAYDVQQDEyVVU0VSVHJ1c3QgUlNBIENlcnRpZmljYXRpb24gQXV0
+aG9yaXR5MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAgBJlFzYOw9sI
+s9CsVw127c0n00ytUINh4qogTQktZAnczomfzD2p7PbPwdzx07HWezcoEStH2jnG
+vDoZtF+mvX2do2NCtnbyqTsrkfjib9DsFiCQCT7i6HTJGLSR1GJk23+jBvGIGGqQ
+Ijy8/hPwhxR79uQfjtTkUcYRZ0YIUcuGFFQ/vDP+fmyc/xadGL1RjjWmp2bIcmfb
+IWax1Jt4A8BQOujM8Ny8nkz+rwWWNR9XWrf/zvk9tyy29lTdyOcSOk2uTIq3XJq0
+tyA9yn8iNK5+O2hmAUTnAU5GU5szYPeUvlM3kHND8zLDU+/bqv50TmnHa4xgk97E
+xwzf4TKuzJM7UXiVZ4vuPVb+DNBpDxsP8yUmazNt925H+nND5X4OpWaxKXwyhGNV
+icQNwZNUMBkTrNN9N6frXTpsNVzbQdcS2qlJC9/YgIoJk2KOtWbPJYjNhLixP6Q5
+D9kCnusSTJV882sFqV4Wg8y4Z+LoE53MW4LTTLPtW//e5XOsIzstAL81VXQJSdhJ
+WBp/kjbmUZIO8yZ9HE0XvMnsQybQv0FfQKlERPSZ51eHnlAfV1SoPv10Yy+xUGUJ
+5lhCLkMaTLTwJUdZ+gQek9QmRkpQgbLevni3/GcV4clXhB4PY9bpYrrWX1Uu6lzG
+KAgEJTm4Diup8kyXHAc/DVL17e8vgg8CAwEAAaOB8jCB7zAfBgNVHSMEGDAWgBSg
+EQojPpbxB+zirynvgqV/0DCktDAdBgNVHQ4EFgQUU3m/WqorSs9UgOHYm8Cd8rID
+ZsswDgYDVR0PAQH/BAQDAgGGMA8GA1UdEwEB/wQFMAMBAf8wEQYDVR0gBAowCDAG
+BgRVHSAAMEMGA1UdHwQ8MDowOKA2oDSGMmh0dHA6Ly9jcmwuY29tb2RvY2EuY29t
+L0FBQUNlcnRpZmljYXRlU2VydmljZXMuY3JsMDQGCCsGAQUFBwEBBCgwJjAkBggr
+BgEFBQcwAYYYaHR0cDovL29jc3AuY29tb2RvY2EuY29tMA0GCSqGSIb3DQEBDAUA
+A4IBAQAYh1HcdCE9nIrgJ7cz0C7M7PDmy14R3iJvm3WOnnL+5Nb+qh+cli3vA0p+
+rvSNb3I8QzvAP+u431yqqcau8vzY7qN7Q/aGNnwU4M309z/+3ri0ivCRlv79Q2R+
+/czSAaF9ffgZGclCKxO/WIu6pKJmBHaIkU4MiRTOok3JMrO66BQavHHxW/BBC5gA
+CiIDEOUMsfnNkjcZ7Tvx5Dq2+UUTJnWvu6rvP3t3O9LEApE9GQDTF1w52z97GA1F
+zZOFli9d31kWTz9RvdVFGD/tSo7oBmF0Ixa1DVBzJ0RHfxBdiSprhTEUxOipakyA
+vGp4z7h/jnZymQyd/teRCBaho1+V
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: USERTrust RSA Certification Authority
+Thumbprint: D89E3BD43D5D909B47A18977AA9D5CE36CEE184C</help_link>
+</setting>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'GEANT OV RSA CA 4' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'GEANT OV RSA CA 4' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>c2 82 6e 26 6d 74 05 d3 4e f8 97 62 63 6a e4 b3 6e 86 cb 5e</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIG5TCCBM2gAwIBAgIRANpDvROb0li7TdYcrMTz2+AwDQYJKoZIhvcNAQEMBQAw
+gYgxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpOZXcgSmVyc2V5MRQwEgYDVQQHEwtK
+ZXJzZXkgQ2l0eTEeMBwGA1UEChMVVGhlIFVTRVJUUlVTVCBOZXR3b3JrMS4wLAYD
+VQQDEyVVU0VSVHJ1c3QgUlNBIENlcnRpZmljYXRpb24gQXV0aG9yaXR5MB4XDTIw
+MDIxODAwMDAwMFoXDTMzMDUwMTIzNTk1OVowRDELMAkGA1UEBhMCTkwxGTAXBgNV
+BAoTEEdFQU5UIFZlcmVuaWdpbmcxGjAYBgNVBAMTEUdFQU5UIE9WIFJTQSBDQSA0
+MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEApYhi1aEiPsg9ZKRMAw9Q
+r8Mthsr6R20VSfFeh7TgwtLQi6RSRLOh4or4EMG/1th8lijv7xnBMVZkTysFiPmT
+PiLOfvz+QwO1NwjvgY+Jrs7fSoVA/TQkXzcxu4Tl3WHi+qJmKLJVu/JOuHud6mOp
+LWkIbhODSzOxANJ24IGPx9h4OXDyy6/342eE6UPXCtJ8AzeumTG6Dfv5KVx24lCF
+TGUzHUB+j+g0lSKg/Sf1OzgCajJV9enmZ/84ydh48wPp6vbWf1H0O3Rd3LhpMSVn
+TqFTLKZSbQeLcx/l9DOKZfBCC9ghWxsgTqW9gQ7v3T3aIfSaVC9rnwVxO0VjmDdP
+FNbdoxnh0zYwf45nV1QQgpRwZJ93yWedhp4ch1a6Ajwqs+wv4mZzmBSjovtV0mKw
+d+CQbSToalEUP4QeJq4Udz5WNmNMI4OYP6cgrnlJ50aa0DZPlJqrKQPGL69KQQz1
+2WgxvhCuVU70y6ZWAPopBa1ykbsttpLxADZre5cH573lIuLHdjx7NjpYIXRx2+QJ
+URnX2qx37eZIxYXz8ggM+wXH6RDbU3V2o5DP67hXPHSAbA+p0orjAocpk2osxHKo
+NSE3LCjNx8WVdxnXvuQ28tKdaK69knfm3bB7xpdfsNNTPH9ElcjscWZxpeZ5Iij8
+lyrCG1z0vSWtSBsgSnUyG/sCAwEAAaOCAYswggGHMB8GA1UdIwQYMBaAFFN5v1qq
+K0rPVIDh2JvAnfKyA2bLMB0GA1UdDgQWBBRvHTVJEGwy+lmgnryK6B+VvnF6DDAO
+BgNVHQ8BAf8EBAMCAYYwEgYDVR0TAQH/BAgwBgEB/wIBADAdBgNVHSUEFjAUBggr
+BgEFBQcDAQYIKwYBBQUHAwIwOAYDVR0gBDEwLzAtBgRVHSAAMCUwIwYIKwYBBQUH
+AgEWF2h0dHBzOi8vc2VjdGlnby5jb20vQ1BTMFAGA1UdHwRJMEcwRaBDoEGGP2h0
+dHA6Ly9jcmwudXNlcnRydXN0LmNvbS9VU0VSVHJ1c3RSU0FDZXJ0aWZpY2F0aW9u
+QXV0aG9yaXR5LmNybDB2BggrBgEFBQcBAQRqMGgwPwYIKwYBBQUHMAKGM2h0dHA6
+Ly9jcnQudXNlcnRydXN0LmNvbS9VU0VSVHJ1c3RSU0FBZGRUcnVzdENBLmNydDAl
+BggrBgEFBQcwAYYZaHR0cDovL29jc3AudXNlcnRydXN0LmNvbTANBgkqhkiG9w0B
+AQwFAAOCAgEAUtlC3e0xj/1BMfPhdQhUXeLjb0xp8UE28kzWE5xDzGKbfGgnrT2R
+lw5gLIx+/cNVrad//+MrpTppMlxq59AsXYZW3xRasrvkjGfNR3vt/1RAl8iI31lG
+hIg6dfIX5N4esLkrQeN8HiyHKH6khm4966IkVVtnxz5CgUPqEYn4eQ+4eeESrWBh
+AqXaiv7HRvpsdwLYekAhnrlGpioZ/CJIT2PTTxf+GHM6cuUnNqdUzfvrQgA8kt1/
+ASXx2od/M+c8nlJqrGz29lrJveJOSEMX0c/ts02WhsfMhkYa6XujUZLmvR1Eq08r
+48/EZ4l+t5L4wt0DV8VaPbsEBF1EOFpz/YS2H6mSwcFaNJbnYqqJHIvm3PLJHkFm
+EoLXRVrQXdCT+3wgBfgU6heCV5CYBz/YkrdWES7tiiT8sVUDqXmVlTsbiRNiyLs2
+bmEWWFUl76jViIJog5fongEqN3jLIGTG/mXrJT1UyymIcobnIGrbwwRVz/mpFQo0
+vBYIi1k2ThVh0Dx88BbF9YiP84dd8Fkn5wbE6FxXYJ287qfRTgmhePecPc73Yrzt
+apdRcsKVGkOpaTIJP/l+lAHRLZxk/dUtyN95G++bOSQqnOCpVPabUGl2E/OEyFrp
+Ipwgu2L/WJclvd6g+ZA/iWkLSMcpnFb+uX6QBqvD6+RNxul1FaB5iHY=
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: GEANT OV RSA CA 4
+Thumbprint: C2826E266D7405D34EF89762636AE4B36E86CB5E</help_link>
+</setting>
+<setting id='61310' enforce_additional_value='1'>
+<incorrect_text>Root CA 'QuoVadis Root CA 2 G3' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'QuoVadis Root CA 2 G3' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>09 3c 61 f3 8b 8b dc 7d 55 df 75 38 02 05 00 e1 25 f5 c8 36</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIFYDCCA0igAwIBAgIURFc0JFuBiZs18s64KztbpybwdSgwDQYJKoZIhvcNAQEL
+BQAwSDELMAkGA1UEBhMCQk0xGTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxHjAc
+BgNVBAMTFVF1b1ZhZGlzIFJvb3QgQ0EgMiBHMzAeFw0xMjAxMTIxODU5MzJaFw00
+MjAxMTIxODU5MzJaMEgxCzAJBgNVBAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBM
+aW1pdGVkMR4wHAYDVQQDExVRdW9WYWRpcyBSb290IENBIDIgRzMwggIiMA0GCSqG
+SIb3DQEBAQUAA4ICDwAwggIKAoICAQChriWyARjcV4g/Ruv5r+LrI3HimtFhZiFf
+qq8nUeVuGxbULX1QsFN3vXg6YOJkApt8hpvWGo6t/x8Vf9WVHhLL5hSEBMHfNrMW
+n4rjyduYNM7YMxcoRvynyfDStNVNCXJJ+fKH46nafaF9a7I6JaltUkSs+L5u+9ym
+c5GQYaYDFCDy54ejiK2toIz/pgslUiXnFgHVy7g1gQyjO/Dh4fxaXc6AcW34Sas+
+O7q414AB+6XrW7PFXmAqMaCvN+ggOp+oMiwMzAkd056OXbxMmO7FGmh77FOm6RQ1
+o9/NgJ8MSPsc9PG/Srj61YxxSscfrf5BmrODXfKEVu+lV0POKa2Mq1W/xPtbAd0j
+IaFYAI7D0GoT7RPjEiuA3GfmlbLNHiJuKvhB1PLKFAeNilUSxmn1uIZoL1NesNKq
+IcGY5jDjZ1XHm26sGahVpkUG0CM62+tlXSoREfA7T8pt9DTEceT/AFr2XK4jYIVz
+8eQQsSWu1ZK7E8EM4DnatDlXtas1qnIhO4M15zHfeiFuuDIIfR0ykRVKYnLP43eh
+vNURG3YBZwjgQQvD6xVu+KQZ2aKrr+InUlYrAoosFCT5v0ICvybIxo/gbjh9Uy3l
+7ZizlWNof/k19N+IxWA1ksB8aRxhlRbQ694Lrz4EEEVlWFA4r0jyWbYW8jwNkALG
+cC4BrTwV1wIDAQABo0IwQDAPBgNVHRMBAf8EBTADAQH/MA4GA1UdDwEB/wQEAwIB
+BjAdBgNVHQ4EFgQU7edvdlq/YOxJW8ald7tyFnGbxD0wDQYJKoZIhvcNAQELBQAD
+ggIBAJHfgD9DCX5xwvfrs4iP4VGyvD11+ShdyLyZm3tdquXK4Qr36LLTn91nMX66
+AarHakE7kNQIXLJgapDwyM4DYvmL7ftuKtwGTTwpD4kWilhMSA/ohGHqPHKmd+RC
+roijQ1h5fq7KpVMNqT1wvSAZYaRsOPxDMuHBR//47PERIjKWnML2W2mWeyAMQ0Ga
+W/ZZGYjeVYg3UQt4XAoeo0L9x52ID8DyeAIkVJOviYeIyUqAHerQbj5hLja7NQ4n
+lv1mNDthcnPxFlxHBlRJAHpYErAK74X9sbgzdWqTHBLmYF5vHX/JHyPLhGGfHoJE
++V+tYlUkmlKY7VHnoX6XOuYvHxHaU4AshZ6rNRDbIl9qxV6XU/IyAgkwo1jwDQHV
+csaxfGl7w/U2Rcxhbl5MlMVerugOXou/983g7aEOGzPuVBj+D77vfoRrQ+NwmNtd
+dbINWQeFFSM51vHfqSYP1kjHs6Yi9TM3WpVHn3u6GBVv/9YUZINJ0gpnIdsPNWNg
+KCLjsZWDzYWm3S8P52dSbrsvhXz1SnPnxT7AvSESBT/8twNJAlvIJebiVDj1eYeM
+HVOyToV7BjjHLPj4sHKNJeV3UvQDHEimUF+IIDBu8oJDqz2XhOdT+yHBTw8imoa4
+WSr2Rz0ZiC3oheGe7IUIarFsNMkd7EgrO3jtZsSOeWmD3n+M
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: QuoVadis Root CA 2 G3
+Thumbprint: 093C61F38B8BDC7D55DF7538020500E125F5C836</help_link>
+</setting>
+</section>
+<section id='1'>
+<setting id='40001' enforce_additional_value='1'>
+<incorrect_text>SSID 'eduroam' needs to be configured.</incorrect_text>
+<when_repaired_text>SSID 'eduroam' was configured.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>CP:00006006:eduroam</additional_value>
+</setting>
+</section>
+<section id='2'>
+<setting id='65001'>
+<incorrect_text>EAP Type PEAP needs to be selected.</incorrect_text>
+<when_repaired_text>EAP Type PEAP was selected.</when_repaired_text>
+<required_value>PEAP</required_value>
+</setting>
+<setting id='65003'>
+<incorrect_text>PEAP Authentication Method needs to be set to EAP-MSCHAPV2.</incorrect_text>
+<when_repaired_text>PEAP Authentication Method was set to EAP-MSCHAPV2.</when_repaired_text>
+<required_value>MSCHAPV2</required_value>
+</setting>
+<setting id='65000'>
+<incorrect_text>Validate Server Certificate needs to be enabled.</incorrect_text>
+<when_repaired_text>Validate Server Certificate was enabled.</when_repaired_text>
+<required_value>1</required_value>
+</setting>
+<setting id='61416'>
+<incorrect_text>Validate server name needs to be enabled.</incorrect_text>
+<when_repaired_text>Validate server name was enabled.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>radius.gla.ac.uk;radius.gla.ac.uk</additional_value>
+</setting>
+</section>
+</sections>
+</profile>
+<profile show_pre_creds='1'>
+<name>Android 7.1 Wireless Connections</name>
+<conditions>
+<condition key='OS' operator='EQ'>Android</condition>
+<condition key='VERSION' operator='EQ'>7.1</condition>
+<condition key='TYPE' operator='EQ'>2</condition>
+</conditions>
+<sections>
+<section id='0'>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'QuoVadis Root CA 2' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'QuoVadis Root CA 2' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>ca 3a fb cf 12 40 36 4b 44 b2 16 20 88 80 48 39 19 93 7c f7</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIFtzCCA5+gAwIBAgICBQkwDQYJKoZIhvcNAQEFBQAwRTELMAkGA1UEBhMCQk0x
+GTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxGzAZBgNVBAMTElF1b1ZhZGlzIFJv
+b3QgQ0EgMjAeFw0wNjExMjQxODI3MDBaFw0zMTExMjQxODIzMzNaMEUxCzAJBgNV
+BAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBMaW1pdGVkMRswGQYDVQQDExJRdW9W
+YWRpcyBSb290IENBIDIwggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQCa
+GMpLlA0ALa8DKYrwD4HIrkwZhR0In6spRIXzL4GtMh6QRr+jhiYaHv5+HBg6XJxg
+Fyo6dIMzMH1hVBHL7avg5tKifvVrbxi3Cgst/ek+7wrGsxDp3MJGF/hd/aTa/55J
+WpzmM+Yklvc/ulsrHHo1wtZn/qtmUIttKGAr79dgw8eTvI02kfN/+NsRE8Scd3bB
+rrcCaoF6qUWD4gXmuVbBlDePSHFjIuwXZQeVikvfj8ZaCuWw419eaxGrDPmF60Tp
++ARz8un+XJiM9XOva7R+zdRcAitMOeGylZUtQofX1bOQQ7dsE/He3fbE+Ik/0XX1
+ksOR1YqI0JDs3G3eicJlcZaLDQP9nL9bFqyS2+r+eXyt66/3FsvbzSUr5R/7mp/i
+Ucw6UwxI5g69ybR2BlLmEROFcmMDBOAENisgGQLodKcftslWZvB1JdxnwQ5hYIiz
+PtGo/KPaHbDRsSNU30R2be1B2MGyIrZTHN81Hdyhdyox5C315eXbyOD/5YDXC2Og
+/zOhD7osFRXql7PSorW+8oyWHhqPHWykYTe5hnMz15eWniN9gqRMgeKh0bpnX5UH
+oycR7hYQe7xFSkyyBNKr79X9DFHOUGoIMfmR2gyPZFwDwzqLID9ujWc9Otb+fVuI
+yV77zGHcizN300QyNQliBJIWENieJ0f7OyHj+OsdWwIDAQABo4GwMIGtMA8GA1Ud
+EwEB/wQFMAMBAf8wCwYDVR0PBAQDAgEGMB0GA1UdDgQWBBQahGK8SEwzJQTU7tD2
+A8QZRtGUazBuBgNVHSMEZzBlgBQahGK8SEwzJQTU7tD2A8QZRtGUa6FJpEcwRTEL
+MAkGA1UEBhMCQk0xGTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxGzAZBgNVBAMT
+ElF1b1ZhZGlzIFJvb3QgQ0EgMoICBQkwDQYJKoZIhvcNAQEFBQADggIBAD4KFk2f
+BluornFdLwUvZ+YTRYPENvbzwCYMDbVHZF34tHLJRqUDGCdViXh9duqWNIAXINzn
+g/iN/Ae42l9NLmeyhP3ZRPx3UIHmfLTJDQtyU/h2BwdBR5YM++CCJpNVjP4iH2Bl
+fF/nJrP3MpCYUNQ3cVX2kiF495V5+vgtJodmVjB3pjd4M1IQWK4/YY7yarHvGH5K
+WWPKjaJW1acvvFYfzznB4vsKqBUsfU16Y8Zsl0Q80m/DShcK+JDSV6IZUaUtl0Ha
+B0+pUNqQjZRG4T7wlP0QADj1O+hA4bRuVhogzG9Yje0uRY/W6ZM/57Es3zrWIozc
+hLsib9D45MY56QSIPMO661V6bYCZJPVsAfv4l7CUW+v90m/xd2gNNWQjrLhVoQPR
+TUIZ3Ph1WVaj+ahJefivDrkRoHy3au000LYmYjgahwz46P0u05B/B5EqHdZ+XIWD
+mbA4CD/pXvk1B+TJYm5Xf6dQlfe6yJvmjqIBxdZmv3lh8zwc4bmCXF2gw+nYSL0Z
+ohEUGW6yhhtoPkg3Goi3XZZenMfvJ2II4pEZXNLxId26F0KCl3GBUzGpn/Z9Yr9y
+4aOTHcyKJloJONDO1w2AFrR4pTqHTI2KpdVGl/IsELm8VCLAAVBpQ570su9t+Oza
+8eOx79+Rj1QqCyXBJhnEUhAFZdWCEOrCMc0u
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: QuoVadis Root CA 2
+Thumbprint: CA3AFBCF1240364B44B216208880483919937CF7</help_link>
+</setting>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'QuoVadis Global SSL ICA G2' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'QuoVadis Global SSL ICA G2' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>d1 56 51 b2 2a 5e b8 af f1 51 3e 55 9f e4 e2 48 fb cc eb 28</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIFljCCA36gAwIBAgIUUQ5H7Gxm0zz/3sVS/YhAl4ycJz4wDQYJKoZIhvcNAQEL
+BQAwRTELMAkGA1UEBhMCQk0xGTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxGzAZ
+BgNVBAMTElF1b1ZhZGlzIFJvb3QgQ0EgMjAeFw0yMjA1MjUxOTQ3MzlaFw0yNzA1
+MjQxOTQ3MzhaME0xCzAJBgNVBAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBMaW1p
+dGVkMSMwIQYDVQQDExpRdW9WYWRpcyBHbG9iYWwgU1NMIElDQSBHMjCCASIwDQYJ
+KoZIhvcNAQEBBQADggEPADCCAQoCggEBAOHhhWmUwI9X+jT+wbho5JmQqYh6zle3
+0OS1VMIYfdDDGeipY4D3t9zSGaNasGDZdrQdMlY18WyjnEKhi4ojNZdBewVphCiO
+zh5Ni2Ak8bSI/sBQ9sKPrpd0+UCqbvaGs6Tpx190ZRT0Pdy+TqOYZF/jBmzBj7Yf
+XJmWxlfCy62UiQ6tvv+4C6W2OPu1R4HUD8oJ8Qo7Eg0cD+GFsBM2w8soffyl+Dc6
+pKtARmOClUC7EqyWP0V9953lA34kuJZlYxxdgghBTn9rWoaQw/Lr5Fn0Xgd7fYS3
+/zGhmXYvVsuAxIn8Gk+YaeoLZ8H9tUvnDD3lEHzvIsMPxqtd7IgcVaMCAwEAAaOC
+AXQwggFwMBIGA1UdEwEB/wQIMAYBAf8CAQAwHwYDVR0jBBgwFoAUGoRivEhMMyUE
+1O7Q9gPEGUbRlGswcgYIKwYBBQUHAQEEZjBkMDYGCCsGAQUFBzAChipodHRwOi8v
+dHJ1c3QucXVvdmFkaXNnbG9iYWwuY29tL3F2cmNhMi5jcnQwKgYIKwYBBQUHMAGG
+Hmh0dHA6Ly9vY3NwLnF1b3ZhZGlzZ2xvYmFsLmNvbTA8BgNVHSAENTAzMA4GDCsG
+AQQBvlgAAmQBAjAHBgVngQwBATAIBgZngQwBAgIwDgYMKwYBBAG+WAACZAEBMB0G
+A1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDATA5BgNVHR8EMjAwMC6gLKAqhiho
+dHRwOi8vY3JsLnF1b3ZhZGlzZ2xvYmFsLmNvbS9xdnJjYTIuY3JsMB0GA1UdDgQW
+BBSRGWKtWxenMPvw3jklsb2MubhRJzAOBgNVHQ8BAf8EBAMCAQYwDQYJKoZIhvcN
+AQELBQADggIBAGD4DLtUlh+MOmXTKrt8y7eP/KkhwllG859Y/VcekXPQOjztRpDa
+0d0YSPNcZoQOnYqh0qWj77sohZdDBXfDi2uRN6MA6M9f73zHQdlLBDJ47r8muv5T
+Q4825zYerBqUpx0JT/fUEJlT91doVDUkWa2YI8gS+MJxbsUo7/HdD7XxUpHntILa
+wrs/AwxlZOBVwpt7FZao1A3xlodxeBzBM9uwtgHS9dkrRIxEz7eTugtglzpdO8GR
+iB/EX8WorAX6/OVm8DV5v0/e/JxmpDFkf3klndOi7Ijz71jk3eyTGlTqS55Py6Nh
+vxdlF06e4E0l3pAohkA/KQzUFQyScjGjVn0qjBZ3Ie/FHzhGX+zsAz8FQVW8UCZy
+KlVvvkXZVKrLb+IK+crxU6ZgW5xsgGfHGaMdpTY0Lf4jIN6EmF6Opj49iL2wlWMQ
+cuHewejrEtw5pgOFRgMxo2eEfaEJs8SSOG0yh/r6YrXZWN5D3h+TJU8X0XBnAvWD
+LWu9mFQ9M/4wLpF+rcjuIrcdwE5bAUwBy1hQTIuCxi528AX4r5zlYC8sF1UeAPVf
+KnoDo5yO+MGJ2YfszxRxtERb8osZcfqTOfuLIYNacYoiQ+Qobn6ycSLMHF5awRbm
+ShUz0wLFNFMGEClbXCoWqwd3NKKKIa1OOOfbcQ4BXwxHGs/4kOaOeJOq
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: QuoVadis Global SSL ICA G2
+Thumbprint: D15651B22A5EB8AFF1513E559FE4E248FBCCEB28</help_link>
+</setting>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'AAA Certificate Services' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'AAA Certificate Services' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>d1 eb 23 a4 6d 17 d6 8f d9 25 64 c2 f1 f1 60 17 64 d8 e3 49</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIEMjCCAxqgAwIBAgIBATANBgkqhkiG9w0BAQUFADB7MQswCQYDVQQGEwJHQjEb
+MBkGA1UECAwSR3JlYXRlciBNYW5jaGVzdGVyMRAwDgYDVQQHDAdTYWxmb3JkMRow
+GAYDVQQKDBFDb21vZG8gQ0EgTGltaXRlZDEhMB8GA1UEAwwYQUFBIENlcnRpZmlj
+YXRlIFNlcnZpY2VzMB4XDTA0MDEwMTAwMDAwMFoXDTI4MTIzMTIzNTk1OVowezEL
+MAkGA1UEBhMCR0IxGzAZBgNVBAgMEkdyZWF0ZXIgTWFuY2hlc3RlcjEQMA4GA1UE
+BwwHU2FsZm9yZDEaMBgGA1UECgwRQ29tb2RvIENBIExpbWl0ZWQxITAfBgNVBAMM
+GEFBQSBDZXJ0aWZpY2F0ZSBTZXJ2aWNlczCCASIwDQYJKoZIhvcNAQEBBQADggEP
+ADCCAQoCggEBAL5AnfRu4ep2hxxNRUSOvkbIgwadwSr+GB+O5AL686tdUIoWMQua
+BtDFcCLNSS1UY8y2bmhGC1Pqy0wkwLxyTurxFa70VJoSCsN6sjNg4tqJVfMiWPPe
+3M/vg4aijJRPn2jymJBGhCfHdr/jzDUsi14HZGWCwEiwqJH5YZ92IFCokcdmtet4
+YgNW8IoaE+oxox6gmf049vYnMlhvB/VruPsUK6+3qszWY19zjNoFmag4qMsXeDZR
+rOme9Hg6jc8P2ULimAyrL58OAd7vn5lJ8S3frHRNG5i1R8XlKdH5kBjHYpy+g8cm
+ez6KJcfA3Z3mNWgQIJ2P2N7Sw4ScDV7oL8kCAwEAAaOBwDCBvTAdBgNVHQ4EFgQU
+oBEKIz6W8Qfs4q8p74Klf9AwpLQwDgYDVR0PAQH/BAQDAgEGMA8GA1UdEwEB/wQF
+MAMBAf8wewYDVR0fBHQwcjA4oDagNIYyaHR0cDovL2NybC5jb21vZG9jYS5jb20v
+QUFBQ2VydGlmaWNhdGVTZXJ2aWNlcy5jcmwwNqA0oDKGMGh0dHA6Ly9jcmwuY29t
+b2RvLm5ldC9BQUFDZXJ0aWZpY2F0ZVNlcnZpY2VzLmNybDANBgkqhkiG9w0BAQUF
+AAOCAQEACFb8AvCb6P+k+tZ7xkSAzk/ExfYAWMymtrwUSWgEdujm7l3sAg9g1o1Q
+GE8mTgHj5rCl7r+8dFRBv/38ErjHT1r0iWAFf2C3BUrz9vHCv8S5dIa2LX1rzNLz
+Rt0vxuBqw8M0Ayx9lt1awg6nCpnBBYurDC/zXDrPbDdVCYfeU0BsWO/8tqtlbgT2
+G9w84FoVxp7Z8VlIMCFlA2zs6SFz7JsDoeA3raAVGI/6ugLOpyypEBMs1OUIJqsi
+l2D4kF501KKaU73yqWjgom7C12yxow+ev+to51byrvLjKzg6CYG1a4XXvi3tPxq3
+smPi9WIsgtRqAEFQ8TmDn5XpNpaYbg==
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: AAA Certificate Services
+Thumbprint: D1EB23A46D17D68FD92564C2F1F1601764D8E349</help_link>
+</setting>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'USERTrust RSA Certification Authority' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'USERTrust RSA Certification Authority' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>d8 9e 3b d4 3d 5d 90 9b 47 a1 89 77 aa 9d 5c e3 6c ee 18 4c</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIFgTCCBGmgAwIBAgIQOXJEOvkit1HX02wQ3TE1lTANBgkqhkiG9w0BAQwFADB7
+MQswCQYDVQQGEwJHQjEbMBkGA1UECAwSR3JlYXRlciBNYW5jaGVzdGVyMRAwDgYD
+VQQHDAdTYWxmb3JkMRowGAYDVQQKDBFDb21vZG8gQ0EgTGltaXRlZDEhMB8GA1UE
+AwwYQUFBIENlcnRpZmljYXRlIFNlcnZpY2VzMB4XDTE5MDMxMjAwMDAwMFoXDTI4
+MTIzMTIzNTk1OVowgYgxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpOZXcgSmVyc2V5
+MRQwEgYDVQQHEwtKZXJzZXkgQ2l0eTEeMBwGA1UEChMVVGhlIFVTRVJUUlVTVCBO
+ZXR3b3JrMS4wLAYDVQQDEyVVU0VSVHJ1c3QgUlNBIENlcnRpZmljYXRpb24gQXV0
+aG9yaXR5MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAgBJlFzYOw9sI
+s9CsVw127c0n00ytUINh4qogTQktZAnczomfzD2p7PbPwdzx07HWezcoEStH2jnG
+vDoZtF+mvX2do2NCtnbyqTsrkfjib9DsFiCQCT7i6HTJGLSR1GJk23+jBvGIGGqQ
+Ijy8/hPwhxR79uQfjtTkUcYRZ0YIUcuGFFQ/vDP+fmyc/xadGL1RjjWmp2bIcmfb
+IWax1Jt4A8BQOujM8Ny8nkz+rwWWNR9XWrf/zvk9tyy29lTdyOcSOk2uTIq3XJq0
+tyA9yn8iNK5+O2hmAUTnAU5GU5szYPeUvlM3kHND8zLDU+/bqv50TmnHa4xgk97E
+xwzf4TKuzJM7UXiVZ4vuPVb+DNBpDxsP8yUmazNt925H+nND5X4OpWaxKXwyhGNV
+icQNwZNUMBkTrNN9N6frXTpsNVzbQdcS2qlJC9/YgIoJk2KOtWbPJYjNhLixP6Q5
+D9kCnusSTJV882sFqV4Wg8y4Z+LoE53MW4LTTLPtW//e5XOsIzstAL81VXQJSdhJ
+WBp/kjbmUZIO8yZ9HE0XvMnsQybQv0FfQKlERPSZ51eHnlAfV1SoPv10Yy+xUGUJ
+5lhCLkMaTLTwJUdZ+gQek9QmRkpQgbLevni3/GcV4clXhB4PY9bpYrrWX1Uu6lzG
+KAgEJTm4Diup8kyXHAc/DVL17e8vgg8CAwEAAaOB8jCB7zAfBgNVHSMEGDAWgBSg
+EQojPpbxB+zirynvgqV/0DCktDAdBgNVHQ4EFgQUU3m/WqorSs9UgOHYm8Cd8rID
+ZsswDgYDVR0PAQH/BAQDAgGGMA8GA1UdEwEB/wQFMAMBAf8wEQYDVR0gBAowCDAG
+BgRVHSAAMEMGA1UdHwQ8MDowOKA2oDSGMmh0dHA6Ly9jcmwuY29tb2RvY2EuY29t
+L0FBQUNlcnRpZmljYXRlU2VydmljZXMuY3JsMDQGCCsGAQUFBwEBBCgwJjAkBggr
+BgEFBQcwAYYYaHR0cDovL29jc3AuY29tb2RvY2EuY29tMA0GCSqGSIb3DQEBDAUA
+A4IBAQAYh1HcdCE9nIrgJ7cz0C7M7PDmy14R3iJvm3WOnnL+5Nb+qh+cli3vA0p+
+rvSNb3I8QzvAP+u431yqqcau8vzY7qN7Q/aGNnwU4M309z/+3ri0ivCRlv79Q2R+
+/czSAaF9ffgZGclCKxO/WIu6pKJmBHaIkU4MiRTOok3JMrO66BQavHHxW/BBC5gA
+CiIDEOUMsfnNkjcZ7Tvx5Dq2+UUTJnWvu6rvP3t3O9LEApE9GQDTF1w52z97GA1F
+zZOFli9d31kWTz9RvdVFGD/tSo7oBmF0Ixa1DVBzJ0RHfxBdiSprhTEUxOipakyA
+vGp4z7h/jnZymQyd/teRCBaho1+V
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: USERTrust RSA Certification Authority
+Thumbprint: D89E3BD43D5D909B47A18977AA9D5CE36CEE184C</help_link>
+</setting>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'GEANT OV RSA CA 4' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'GEANT OV RSA CA 4' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>c2 82 6e 26 6d 74 05 d3 4e f8 97 62 63 6a e4 b3 6e 86 cb 5e</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIG5TCCBM2gAwIBAgIRANpDvROb0li7TdYcrMTz2+AwDQYJKoZIhvcNAQEMBQAw
+gYgxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpOZXcgSmVyc2V5MRQwEgYDVQQHEwtK
+ZXJzZXkgQ2l0eTEeMBwGA1UEChMVVGhlIFVTRVJUUlVTVCBOZXR3b3JrMS4wLAYD
+VQQDEyVVU0VSVHJ1c3QgUlNBIENlcnRpZmljYXRpb24gQXV0aG9yaXR5MB4XDTIw
+MDIxODAwMDAwMFoXDTMzMDUwMTIzNTk1OVowRDELMAkGA1UEBhMCTkwxGTAXBgNV
+BAoTEEdFQU5UIFZlcmVuaWdpbmcxGjAYBgNVBAMTEUdFQU5UIE9WIFJTQSBDQSA0
+MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEApYhi1aEiPsg9ZKRMAw9Q
+r8Mthsr6R20VSfFeh7TgwtLQi6RSRLOh4or4EMG/1th8lijv7xnBMVZkTysFiPmT
+PiLOfvz+QwO1NwjvgY+Jrs7fSoVA/TQkXzcxu4Tl3WHi+qJmKLJVu/JOuHud6mOp
+LWkIbhODSzOxANJ24IGPx9h4OXDyy6/342eE6UPXCtJ8AzeumTG6Dfv5KVx24lCF
+TGUzHUB+j+g0lSKg/Sf1OzgCajJV9enmZ/84ydh48wPp6vbWf1H0O3Rd3LhpMSVn
+TqFTLKZSbQeLcx/l9DOKZfBCC9ghWxsgTqW9gQ7v3T3aIfSaVC9rnwVxO0VjmDdP
+FNbdoxnh0zYwf45nV1QQgpRwZJ93yWedhp4ch1a6Ajwqs+wv4mZzmBSjovtV0mKw
+d+CQbSToalEUP4QeJq4Udz5WNmNMI4OYP6cgrnlJ50aa0DZPlJqrKQPGL69KQQz1
+2WgxvhCuVU70y6ZWAPopBa1ykbsttpLxADZre5cH573lIuLHdjx7NjpYIXRx2+QJ
+URnX2qx37eZIxYXz8ggM+wXH6RDbU3V2o5DP67hXPHSAbA+p0orjAocpk2osxHKo
+NSE3LCjNx8WVdxnXvuQ28tKdaK69knfm3bB7xpdfsNNTPH9ElcjscWZxpeZ5Iij8
+lyrCG1z0vSWtSBsgSnUyG/sCAwEAAaOCAYswggGHMB8GA1UdIwQYMBaAFFN5v1qq
+K0rPVIDh2JvAnfKyA2bLMB0GA1UdDgQWBBRvHTVJEGwy+lmgnryK6B+VvnF6DDAO
+BgNVHQ8BAf8EBAMCAYYwEgYDVR0TAQH/BAgwBgEB/wIBADAdBgNVHSUEFjAUBggr
+BgEFBQcDAQYIKwYBBQUHAwIwOAYDVR0gBDEwLzAtBgRVHSAAMCUwIwYIKwYBBQUH
+AgEWF2h0dHBzOi8vc2VjdGlnby5jb20vQ1BTMFAGA1UdHwRJMEcwRaBDoEGGP2h0
+dHA6Ly9jcmwudXNlcnRydXN0LmNvbS9VU0VSVHJ1c3RSU0FDZXJ0aWZpY2F0aW9u
+QXV0aG9yaXR5LmNybDB2BggrBgEFBQcBAQRqMGgwPwYIKwYBBQUHMAKGM2h0dHA6
+Ly9jcnQudXNlcnRydXN0LmNvbS9VU0VSVHJ1c3RSU0FBZGRUcnVzdENBLmNydDAl
+BggrBgEFBQcwAYYZaHR0cDovL29jc3AudXNlcnRydXN0LmNvbTANBgkqhkiG9w0B
+AQwFAAOCAgEAUtlC3e0xj/1BMfPhdQhUXeLjb0xp8UE28kzWE5xDzGKbfGgnrT2R
+lw5gLIx+/cNVrad//+MrpTppMlxq59AsXYZW3xRasrvkjGfNR3vt/1RAl8iI31lG
+hIg6dfIX5N4esLkrQeN8HiyHKH6khm4966IkVVtnxz5CgUPqEYn4eQ+4eeESrWBh
+AqXaiv7HRvpsdwLYekAhnrlGpioZ/CJIT2PTTxf+GHM6cuUnNqdUzfvrQgA8kt1/
+ASXx2od/M+c8nlJqrGz29lrJveJOSEMX0c/ts02WhsfMhkYa6XujUZLmvR1Eq08r
+48/EZ4l+t5L4wt0DV8VaPbsEBF1EOFpz/YS2H6mSwcFaNJbnYqqJHIvm3PLJHkFm
+EoLXRVrQXdCT+3wgBfgU6heCV5CYBz/YkrdWES7tiiT8sVUDqXmVlTsbiRNiyLs2
+bmEWWFUl76jViIJog5fongEqN3jLIGTG/mXrJT1UyymIcobnIGrbwwRVz/mpFQo0
+vBYIi1k2ThVh0Dx88BbF9YiP84dd8Fkn5wbE6FxXYJ287qfRTgmhePecPc73Yrzt
+apdRcsKVGkOpaTIJP/l+lAHRLZxk/dUtyN95G++bOSQqnOCpVPabUGl2E/OEyFrp
+Ipwgu2L/WJclvd6g+ZA/iWkLSMcpnFb+uX6QBqvD6+RNxul1FaB5iHY=
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: GEANT OV RSA CA 4
+Thumbprint: C2826E266D7405D34EF89762636AE4B36E86CB5E</help_link>
+</setting>
+<setting id='61310' enforce_additional_value='1'>
+<incorrect_text>Root CA 'QuoVadis Root CA 2 G3' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'QuoVadis Root CA 2 G3' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>09 3c 61 f3 8b 8b dc 7d 55 df 75 38 02 05 00 e1 25 f5 c8 36</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIFYDCCA0igAwIBAgIURFc0JFuBiZs18s64KztbpybwdSgwDQYJKoZIhvcNAQEL
+BQAwSDELMAkGA1UEBhMCQk0xGTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxHjAc
+BgNVBAMTFVF1b1ZhZGlzIFJvb3QgQ0EgMiBHMzAeFw0xMjAxMTIxODU5MzJaFw00
+MjAxMTIxODU5MzJaMEgxCzAJBgNVBAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBM
+aW1pdGVkMR4wHAYDVQQDExVRdW9WYWRpcyBSb290IENBIDIgRzMwggIiMA0GCSqG
+SIb3DQEBAQUAA4ICDwAwggIKAoICAQChriWyARjcV4g/Ruv5r+LrI3HimtFhZiFf
+qq8nUeVuGxbULX1QsFN3vXg6YOJkApt8hpvWGo6t/x8Vf9WVHhLL5hSEBMHfNrMW
+n4rjyduYNM7YMxcoRvynyfDStNVNCXJJ+fKH46nafaF9a7I6JaltUkSs+L5u+9ym
+c5GQYaYDFCDy54ejiK2toIz/pgslUiXnFgHVy7g1gQyjO/Dh4fxaXc6AcW34Sas+
+O7q414AB+6XrW7PFXmAqMaCvN+ggOp+oMiwMzAkd056OXbxMmO7FGmh77FOm6RQ1
+o9/NgJ8MSPsc9PG/Srj61YxxSscfrf5BmrODXfKEVu+lV0POKa2Mq1W/xPtbAd0j
+IaFYAI7D0GoT7RPjEiuA3GfmlbLNHiJuKvhB1PLKFAeNilUSxmn1uIZoL1NesNKq
+IcGY5jDjZ1XHm26sGahVpkUG0CM62+tlXSoREfA7T8pt9DTEceT/AFr2XK4jYIVz
+8eQQsSWu1ZK7E8EM4DnatDlXtas1qnIhO4M15zHfeiFuuDIIfR0ykRVKYnLP43eh
+vNURG3YBZwjgQQvD6xVu+KQZ2aKrr+InUlYrAoosFCT5v0ICvybIxo/gbjh9Uy3l
+7ZizlWNof/k19N+IxWA1ksB8aRxhlRbQ694Lrz4EEEVlWFA4r0jyWbYW8jwNkALG
+cC4BrTwV1wIDAQABo0IwQDAPBgNVHRMBAf8EBTADAQH/MA4GA1UdDwEB/wQEAwIB
+BjAdBgNVHQ4EFgQU7edvdlq/YOxJW8ald7tyFnGbxD0wDQYJKoZIhvcNAQELBQAD
+ggIBAJHfgD9DCX5xwvfrs4iP4VGyvD11+ShdyLyZm3tdquXK4Qr36LLTn91nMX66
+AarHakE7kNQIXLJgapDwyM4DYvmL7ftuKtwGTTwpD4kWilhMSA/ohGHqPHKmd+RC
+roijQ1h5fq7KpVMNqT1wvSAZYaRsOPxDMuHBR//47PERIjKWnML2W2mWeyAMQ0Ga
+W/ZZGYjeVYg3UQt4XAoeo0L9x52ID8DyeAIkVJOviYeIyUqAHerQbj5hLja7NQ4n
+lv1mNDthcnPxFlxHBlRJAHpYErAK74X9sbgzdWqTHBLmYF5vHX/JHyPLhGGfHoJE
++V+tYlUkmlKY7VHnoX6XOuYvHxHaU4AshZ6rNRDbIl9qxV6XU/IyAgkwo1jwDQHV
+csaxfGl7w/U2Rcxhbl5MlMVerugOXou/983g7aEOGzPuVBj+D77vfoRrQ+NwmNtd
+dbINWQeFFSM51vHfqSYP1kjHs6Yi9TM3WpVHn3u6GBVv/9YUZINJ0gpnIdsPNWNg
+KCLjsZWDzYWm3S8P52dSbrsvhXz1SnPnxT7AvSESBT/8twNJAlvIJebiVDj1eYeM
+HVOyToV7BjjHLPj4sHKNJeV3UvQDHEimUF+IIDBu8oJDqz2XhOdT+yHBTw8imoa4
+WSr2Rz0ZiC3oheGe7IUIarFsNMkd7EgrO3jtZsSOeWmD3n+M
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: QuoVadis Root CA 2 G3
+Thumbprint: 093C61F38B8BDC7D55DF7538020500E125F5C836</help_link>
+</setting>
+</section>
+<section id='1'>
+<setting id='40001' enforce_additional_value='1'>
+<incorrect_text>SSID 'eduroam' needs to be configured.</incorrect_text>
+<when_repaired_text>SSID 'eduroam' was configured.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>CP:00006006:eduroam</additional_value>
+</setting>
+</section>
+<section id='2'>
+<setting id='65001'>
+<incorrect_text>EAP Type PEAP needs to be selected.</incorrect_text>
+<when_repaired_text>EAP Type PEAP was selected.</when_repaired_text>
+<required_value>PEAP</required_value>
+</setting>
+<setting id='65003'>
+<incorrect_text>PEAP Authentication Method needs to be set to EAP-MSCHAPV2.</incorrect_text>
+<when_repaired_text>PEAP Authentication Method was set to EAP-MSCHAPV2.</when_repaired_text>
+<required_value>MSCHAPV2</required_value>
+</setting>
+<setting id='65000'>
+<incorrect_text>Validate Server Certificate needs to be enabled.</incorrect_text>
+<when_repaired_text>Validate Server Certificate was enabled.</when_repaired_text>
+<required_value>1</required_value>
+</setting>
+<setting id='61416'>
+<incorrect_text>Validate server name needs to be enabled.</incorrect_text>
+<when_repaired_text>Validate server name was enabled.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>radius.gla.ac.uk;radius.gla.ac.uk</additional_value>
+</setting>
+</section>
+</sections>
+</profile>
+<profile show_pre_creds='1'>
+<name>Android 8.0 Wireless Connections</name>
+<conditions>
+<condition key='OS' operator='EQ'>Android</condition>
+<condition key='VERSION' operator='EQ'>8.0</condition>
+<condition key='TYPE' operator='EQ'>2</condition>
+</conditions>
+<sections>
+<section id='0'>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'QuoVadis Root CA 2' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'QuoVadis Root CA 2' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>ca 3a fb cf 12 40 36 4b 44 b2 16 20 88 80 48 39 19 93 7c f7</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIFtzCCA5+gAwIBAgICBQkwDQYJKoZIhvcNAQEFBQAwRTELMAkGA1UEBhMCQk0x
+GTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxGzAZBgNVBAMTElF1b1ZhZGlzIFJv
+b3QgQ0EgMjAeFw0wNjExMjQxODI3MDBaFw0zMTExMjQxODIzMzNaMEUxCzAJBgNV
+BAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBMaW1pdGVkMRswGQYDVQQDExJRdW9W
+YWRpcyBSb290IENBIDIwggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQCa
+GMpLlA0ALa8DKYrwD4HIrkwZhR0In6spRIXzL4GtMh6QRr+jhiYaHv5+HBg6XJxg
+Fyo6dIMzMH1hVBHL7avg5tKifvVrbxi3Cgst/ek+7wrGsxDp3MJGF/hd/aTa/55J
+WpzmM+Yklvc/ulsrHHo1wtZn/qtmUIttKGAr79dgw8eTvI02kfN/+NsRE8Scd3bB
+rrcCaoF6qUWD4gXmuVbBlDePSHFjIuwXZQeVikvfj8ZaCuWw419eaxGrDPmF60Tp
++ARz8un+XJiM9XOva7R+zdRcAitMOeGylZUtQofX1bOQQ7dsE/He3fbE+Ik/0XX1
+ksOR1YqI0JDs3G3eicJlcZaLDQP9nL9bFqyS2+r+eXyt66/3FsvbzSUr5R/7mp/i
+Ucw6UwxI5g69ybR2BlLmEROFcmMDBOAENisgGQLodKcftslWZvB1JdxnwQ5hYIiz
+PtGo/KPaHbDRsSNU30R2be1B2MGyIrZTHN81Hdyhdyox5C315eXbyOD/5YDXC2Og
+/zOhD7osFRXql7PSorW+8oyWHhqPHWykYTe5hnMz15eWniN9gqRMgeKh0bpnX5UH
+oycR7hYQe7xFSkyyBNKr79X9DFHOUGoIMfmR2gyPZFwDwzqLID9ujWc9Otb+fVuI
+yV77zGHcizN300QyNQliBJIWENieJ0f7OyHj+OsdWwIDAQABo4GwMIGtMA8GA1Ud
+EwEB/wQFMAMBAf8wCwYDVR0PBAQDAgEGMB0GA1UdDgQWBBQahGK8SEwzJQTU7tD2
+A8QZRtGUazBuBgNVHSMEZzBlgBQahGK8SEwzJQTU7tD2A8QZRtGUa6FJpEcwRTEL
+MAkGA1UEBhMCQk0xGTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxGzAZBgNVBAMT
+ElF1b1ZhZGlzIFJvb3QgQ0EgMoICBQkwDQYJKoZIhvcNAQEFBQADggIBAD4KFk2f
+BluornFdLwUvZ+YTRYPENvbzwCYMDbVHZF34tHLJRqUDGCdViXh9duqWNIAXINzn
+g/iN/Ae42l9NLmeyhP3ZRPx3UIHmfLTJDQtyU/h2BwdBR5YM++CCJpNVjP4iH2Bl
+fF/nJrP3MpCYUNQ3cVX2kiF495V5+vgtJodmVjB3pjd4M1IQWK4/YY7yarHvGH5K
+WWPKjaJW1acvvFYfzznB4vsKqBUsfU16Y8Zsl0Q80m/DShcK+JDSV6IZUaUtl0Ha
+B0+pUNqQjZRG4T7wlP0QADj1O+hA4bRuVhogzG9Yje0uRY/W6ZM/57Es3zrWIozc
+hLsib9D45MY56QSIPMO661V6bYCZJPVsAfv4l7CUW+v90m/xd2gNNWQjrLhVoQPR
+TUIZ3Ph1WVaj+ahJefivDrkRoHy3au000LYmYjgahwz46P0u05B/B5EqHdZ+XIWD
+mbA4CD/pXvk1B+TJYm5Xf6dQlfe6yJvmjqIBxdZmv3lh8zwc4bmCXF2gw+nYSL0Z
+ohEUGW6yhhtoPkg3Goi3XZZenMfvJ2II4pEZXNLxId26F0KCl3GBUzGpn/Z9Yr9y
+4aOTHcyKJloJONDO1w2AFrR4pTqHTI2KpdVGl/IsELm8VCLAAVBpQ570su9t+Oza
+8eOx79+Rj1QqCyXBJhnEUhAFZdWCEOrCMc0u
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: QuoVadis Root CA 2
+Thumbprint: CA3AFBCF1240364B44B216208880483919937CF7</help_link>
+</setting>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'QuoVadis Global SSL ICA G2' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'QuoVadis Global SSL ICA G2' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>d1 56 51 b2 2a 5e b8 af f1 51 3e 55 9f e4 e2 48 fb cc eb 28</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIFljCCA36gAwIBAgIUUQ5H7Gxm0zz/3sVS/YhAl4ycJz4wDQYJKoZIhvcNAQEL
+BQAwRTELMAkGA1UEBhMCQk0xGTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxGzAZ
+BgNVBAMTElF1b1ZhZGlzIFJvb3QgQ0EgMjAeFw0yMjA1MjUxOTQ3MzlaFw0yNzA1
+MjQxOTQ3MzhaME0xCzAJBgNVBAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBMaW1p
+dGVkMSMwIQYDVQQDExpRdW9WYWRpcyBHbG9iYWwgU1NMIElDQSBHMjCCASIwDQYJ
+KoZIhvcNAQEBBQADggEPADCCAQoCggEBAOHhhWmUwI9X+jT+wbho5JmQqYh6zle3
+0OS1VMIYfdDDGeipY4D3t9zSGaNasGDZdrQdMlY18WyjnEKhi4ojNZdBewVphCiO
+zh5Ni2Ak8bSI/sBQ9sKPrpd0+UCqbvaGs6Tpx190ZRT0Pdy+TqOYZF/jBmzBj7Yf
+XJmWxlfCy62UiQ6tvv+4C6W2OPu1R4HUD8oJ8Qo7Eg0cD+GFsBM2w8soffyl+Dc6
+pKtARmOClUC7EqyWP0V9953lA34kuJZlYxxdgghBTn9rWoaQw/Lr5Fn0Xgd7fYS3
+/zGhmXYvVsuAxIn8Gk+YaeoLZ8H9tUvnDD3lEHzvIsMPxqtd7IgcVaMCAwEAAaOC
+AXQwggFwMBIGA1UdEwEB/wQIMAYBAf8CAQAwHwYDVR0jBBgwFoAUGoRivEhMMyUE
+1O7Q9gPEGUbRlGswcgYIKwYBBQUHAQEEZjBkMDYGCCsGAQUFBzAChipodHRwOi8v
+dHJ1c3QucXVvdmFkaXNnbG9iYWwuY29tL3F2cmNhMi5jcnQwKgYIKwYBBQUHMAGG
+Hmh0dHA6Ly9vY3NwLnF1b3ZhZGlzZ2xvYmFsLmNvbTA8BgNVHSAENTAzMA4GDCsG
+AQQBvlgAAmQBAjAHBgVngQwBATAIBgZngQwBAgIwDgYMKwYBBAG+WAACZAEBMB0G
+A1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDATA5BgNVHR8EMjAwMC6gLKAqhiho
+dHRwOi8vY3JsLnF1b3ZhZGlzZ2xvYmFsLmNvbS9xdnJjYTIuY3JsMB0GA1UdDgQW
+BBSRGWKtWxenMPvw3jklsb2MubhRJzAOBgNVHQ8BAf8EBAMCAQYwDQYJKoZIhvcN
+AQELBQADggIBAGD4DLtUlh+MOmXTKrt8y7eP/KkhwllG859Y/VcekXPQOjztRpDa
+0d0YSPNcZoQOnYqh0qWj77sohZdDBXfDi2uRN6MA6M9f73zHQdlLBDJ47r8muv5T
+Q4825zYerBqUpx0JT/fUEJlT91doVDUkWa2YI8gS+MJxbsUo7/HdD7XxUpHntILa
+wrs/AwxlZOBVwpt7FZao1A3xlodxeBzBM9uwtgHS9dkrRIxEz7eTugtglzpdO8GR
+iB/EX8WorAX6/OVm8DV5v0/e/JxmpDFkf3klndOi7Ijz71jk3eyTGlTqS55Py6Nh
+vxdlF06e4E0l3pAohkA/KQzUFQyScjGjVn0qjBZ3Ie/FHzhGX+zsAz8FQVW8UCZy
+KlVvvkXZVKrLb+IK+crxU6ZgW5xsgGfHGaMdpTY0Lf4jIN6EmF6Opj49iL2wlWMQ
+cuHewejrEtw5pgOFRgMxo2eEfaEJs8SSOG0yh/r6YrXZWN5D3h+TJU8X0XBnAvWD
+LWu9mFQ9M/4wLpF+rcjuIrcdwE5bAUwBy1hQTIuCxi528AX4r5zlYC8sF1UeAPVf
+KnoDo5yO+MGJ2YfszxRxtERb8osZcfqTOfuLIYNacYoiQ+Qobn6ycSLMHF5awRbm
+ShUz0wLFNFMGEClbXCoWqwd3NKKKIa1OOOfbcQ4BXwxHGs/4kOaOeJOq
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: QuoVadis Global SSL ICA G2
+Thumbprint: D15651B22A5EB8AFF1513E559FE4E248FBCCEB28</help_link>
+</setting>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'AAA Certificate Services' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'AAA Certificate Services' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>d1 eb 23 a4 6d 17 d6 8f d9 25 64 c2 f1 f1 60 17 64 d8 e3 49</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIEMjCCAxqgAwIBAgIBATANBgkqhkiG9w0BAQUFADB7MQswCQYDVQQGEwJHQjEb
+MBkGA1UECAwSR3JlYXRlciBNYW5jaGVzdGVyMRAwDgYDVQQHDAdTYWxmb3JkMRow
+GAYDVQQKDBFDb21vZG8gQ0EgTGltaXRlZDEhMB8GA1UEAwwYQUFBIENlcnRpZmlj
+YXRlIFNlcnZpY2VzMB4XDTA0MDEwMTAwMDAwMFoXDTI4MTIzMTIzNTk1OVowezEL
+MAkGA1UEBhMCR0IxGzAZBgNVBAgMEkdyZWF0ZXIgTWFuY2hlc3RlcjEQMA4GA1UE
+BwwHU2FsZm9yZDEaMBgGA1UECgwRQ29tb2RvIENBIExpbWl0ZWQxITAfBgNVBAMM
+GEFBQSBDZXJ0aWZpY2F0ZSBTZXJ2aWNlczCCASIwDQYJKoZIhvcNAQEBBQADggEP
+ADCCAQoCggEBAL5AnfRu4ep2hxxNRUSOvkbIgwadwSr+GB+O5AL686tdUIoWMQua
+BtDFcCLNSS1UY8y2bmhGC1Pqy0wkwLxyTurxFa70VJoSCsN6sjNg4tqJVfMiWPPe
+3M/vg4aijJRPn2jymJBGhCfHdr/jzDUsi14HZGWCwEiwqJH5YZ92IFCokcdmtet4
+YgNW8IoaE+oxox6gmf049vYnMlhvB/VruPsUK6+3qszWY19zjNoFmag4qMsXeDZR
+rOme9Hg6jc8P2ULimAyrL58OAd7vn5lJ8S3frHRNG5i1R8XlKdH5kBjHYpy+g8cm
+ez6KJcfA3Z3mNWgQIJ2P2N7Sw4ScDV7oL8kCAwEAAaOBwDCBvTAdBgNVHQ4EFgQU
+oBEKIz6W8Qfs4q8p74Klf9AwpLQwDgYDVR0PAQH/BAQDAgEGMA8GA1UdEwEB/wQF
+MAMBAf8wewYDVR0fBHQwcjA4oDagNIYyaHR0cDovL2NybC5jb21vZG9jYS5jb20v
+QUFBQ2VydGlmaWNhdGVTZXJ2aWNlcy5jcmwwNqA0oDKGMGh0dHA6Ly9jcmwuY29t
+b2RvLm5ldC9BQUFDZXJ0aWZpY2F0ZVNlcnZpY2VzLmNybDANBgkqhkiG9w0BAQUF
+AAOCAQEACFb8AvCb6P+k+tZ7xkSAzk/ExfYAWMymtrwUSWgEdujm7l3sAg9g1o1Q
+GE8mTgHj5rCl7r+8dFRBv/38ErjHT1r0iWAFf2C3BUrz9vHCv8S5dIa2LX1rzNLz
+Rt0vxuBqw8M0Ayx9lt1awg6nCpnBBYurDC/zXDrPbDdVCYfeU0BsWO/8tqtlbgT2
+G9w84FoVxp7Z8VlIMCFlA2zs6SFz7JsDoeA3raAVGI/6ugLOpyypEBMs1OUIJqsi
+l2D4kF501KKaU73yqWjgom7C12yxow+ev+to51byrvLjKzg6CYG1a4XXvi3tPxq3
+smPi9WIsgtRqAEFQ8TmDn5XpNpaYbg==
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: AAA Certificate Services
+Thumbprint: D1EB23A46D17D68FD92564C2F1F1601764D8E349</help_link>
+</setting>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'USERTrust RSA Certification Authority' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'USERTrust RSA Certification Authority' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>d8 9e 3b d4 3d 5d 90 9b 47 a1 89 77 aa 9d 5c e3 6c ee 18 4c</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIFgTCCBGmgAwIBAgIQOXJEOvkit1HX02wQ3TE1lTANBgkqhkiG9w0BAQwFADB7
+MQswCQYDVQQGEwJHQjEbMBkGA1UECAwSR3JlYXRlciBNYW5jaGVzdGVyMRAwDgYD
+VQQHDAdTYWxmb3JkMRowGAYDVQQKDBFDb21vZG8gQ0EgTGltaXRlZDEhMB8GA1UE
+AwwYQUFBIENlcnRpZmljYXRlIFNlcnZpY2VzMB4XDTE5MDMxMjAwMDAwMFoXDTI4
+MTIzMTIzNTk1OVowgYgxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpOZXcgSmVyc2V5
+MRQwEgYDVQQHEwtKZXJzZXkgQ2l0eTEeMBwGA1UEChMVVGhlIFVTRVJUUlVTVCBO
+ZXR3b3JrMS4wLAYDVQQDEyVVU0VSVHJ1c3QgUlNBIENlcnRpZmljYXRpb24gQXV0
+aG9yaXR5MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAgBJlFzYOw9sI
+s9CsVw127c0n00ytUINh4qogTQktZAnczomfzD2p7PbPwdzx07HWezcoEStH2jnG
+vDoZtF+mvX2do2NCtnbyqTsrkfjib9DsFiCQCT7i6HTJGLSR1GJk23+jBvGIGGqQ
+Ijy8/hPwhxR79uQfjtTkUcYRZ0YIUcuGFFQ/vDP+fmyc/xadGL1RjjWmp2bIcmfb
+IWax1Jt4A8BQOujM8Ny8nkz+rwWWNR9XWrf/zvk9tyy29lTdyOcSOk2uTIq3XJq0
+tyA9yn8iNK5+O2hmAUTnAU5GU5szYPeUvlM3kHND8zLDU+/bqv50TmnHa4xgk97E
+xwzf4TKuzJM7UXiVZ4vuPVb+DNBpDxsP8yUmazNt925H+nND5X4OpWaxKXwyhGNV
+icQNwZNUMBkTrNN9N6frXTpsNVzbQdcS2qlJC9/YgIoJk2KOtWbPJYjNhLixP6Q5
+D9kCnusSTJV882sFqV4Wg8y4Z+LoE53MW4LTTLPtW//e5XOsIzstAL81VXQJSdhJ
+WBp/kjbmUZIO8yZ9HE0XvMnsQybQv0FfQKlERPSZ51eHnlAfV1SoPv10Yy+xUGUJ
+5lhCLkMaTLTwJUdZ+gQek9QmRkpQgbLevni3/GcV4clXhB4PY9bpYrrWX1Uu6lzG
+KAgEJTm4Diup8kyXHAc/DVL17e8vgg8CAwEAAaOB8jCB7zAfBgNVHSMEGDAWgBSg
+EQojPpbxB+zirynvgqV/0DCktDAdBgNVHQ4EFgQUU3m/WqorSs9UgOHYm8Cd8rID
+ZsswDgYDVR0PAQH/BAQDAgGGMA8GA1UdEwEB/wQFMAMBAf8wEQYDVR0gBAowCDAG
+BgRVHSAAMEMGA1UdHwQ8MDowOKA2oDSGMmh0dHA6Ly9jcmwuY29tb2RvY2EuY29t
+L0FBQUNlcnRpZmljYXRlU2VydmljZXMuY3JsMDQGCCsGAQUFBwEBBCgwJjAkBggr
+BgEFBQcwAYYYaHR0cDovL29jc3AuY29tb2RvY2EuY29tMA0GCSqGSIb3DQEBDAUA
+A4IBAQAYh1HcdCE9nIrgJ7cz0C7M7PDmy14R3iJvm3WOnnL+5Nb+qh+cli3vA0p+
+rvSNb3I8QzvAP+u431yqqcau8vzY7qN7Q/aGNnwU4M309z/+3ri0ivCRlv79Q2R+
+/czSAaF9ffgZGclCKxO/WIu6pKJmBHaIkU4MiRTOok3JMrO66BQavHHxW/BBC5gA
+CiIDEOUMsfnNkjcZ7Tvx5Dq2+UUTJnWvu6rvP3t3O9LEApE9GQDTF1w52z97GA1F
+zZOFli9d31kWTz9RvdVFGD/tSo7oBmF0Ixa1DVBzJ0RHfxBdiSprhTEUxOipakyA
+vGp4z7h/jnZymQyd/teRCBaho1+V
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: USERTrust RSA Certification Authority
+Thumbprint: D89E3BD43D5D909B47A18977AA9D5CE36CEE184C</help_link>
+</setting>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'GEANT OV RSA CA 4' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'GEANT OV RSA CA 4' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>c2 82 6e 26 6d 74 05 d3 4e f8 97 62 63 6a e4 b3 6e 86 cb 5e</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIG5TCCBM2gAwIBAgIRANpDvROb0li7TdYcrMTz2+AwDQYJKoZIhvcNAQEMBQAw
+gYgxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpOZXcgSmVyc2V5MRQwEgYDVQQHEwtK
+ZXJzZXkgQ2l0eTEeMBwGA1UEChMVVGhlIFVTRVJUUlVTVCBOZXR3b3JrMS4wLAYD
+VQQDEyVVU0VSVHJ1c3QgUlNBIENlcnRpZmljYXRpb24gQXV0aG9yaXR5MB4XDTIw
+MDIxODAwMDAwMFoXDTMzMDUwMTIzNTk1OVowRDELMAkGA1UEBhMCTkwxGTAXBgNV
+BAoTEEdFQU5UIFZlcmVuaWdpbmcxGjAYBgNVBAMTEUdFQU5UIE9WIFJTQSBDQSA0
+MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEApYhi1aEiPsg9ZKRMAw9Q
+r8Mthsr6R20VSfFeh7TgwtLQi6RSRLOh4or4EMG/1th8lijv7xnBMVZkTysFiPmT
+PiLOfvz+QwO1NwjvgY+Jrs7fSoVA/TQkXzcxu4Tl3WHi+qJmKLJVu/JOuHud6mOp
+LWkIbhODSzOxANJ24IGPx9h4OXDyy6/342eE6UPXCtJ8AzeumTG6Dfv5KVx24lCF
+TGUzHUB+j+g0lSKg/Sf1OzgCajJV9enmZ/84ydh48wPp6vbWf1H0O3Rd3LhpMSVn
+TqFTLKZSbQeLcx/l9DOKZfBCC9ghWxsgTqW9gQ7v3T3aIfSaVC9rnwVxO0VjmDdP
+FNbdoxnh0zYwf45nV1QQgpRwZJ93yWedhp4ch1a6Ajwqs+wv4mZzmBSjovtV0mKw
+d+CQbSToalEUP4QeJq4Udz5WNmNMI4OYP6cgrnlJ50aa0DZPlJqrKQPGL69KQQz1
+2WgxvhCuVU70y6ZWAPopBa1ykbsttpLxADZre5cH573lIuLHdjx7NjpYIXRx2+QJ
+URnX2qx37eZIxYXz8ggM+wXH6RDbU3V2o5DP67hXPHSAbA+p0orjAocpk2osxHKo
+NSE3LCjNx8WVdxnXvuQ28tKdaK69knfm3bB7xpdfsNNTPH9ElcjscWZxpeZ5Iij8
+lyrCG1z0vSWtSBsgSnUyG/sCAwEAAaOCAYswggGHMB8GA1UdIwQYMBaAFFN5v1qq
+K0rPVIDh2JvAnfKyA2bLMB0GA1UdDgQWBBRvHTVJEGwy+lmgnryK6B+VvnF6DDAO
+BgNVHQ8BAf8EBAMCAYYwEgYDVR0TAQH/BAgwBgEB/wIBADAdBgNVHSUEFjAUBggr
+BgEFBQcDAQYIKwYBBQUHAwIwOAYDVR0gBDEwLzAtBgRVHSAAMCUwIwYIKwYBBQUH
+AgEWF2h0dHBzOi8vc2VjdGlnby5jb20vQ1BTMFAGA1UdHwRJMEcwRaBDoEGGP2h0
+dHA6Ly9jcmwudXNlcnRydXN0LmNvbS9VU0VSVHJ1c3RSU0FDZXJ0aWZpY2F0aW9u
+QXV0aG9yaXR5LmNybDB2BggrBgEFBQcBAQRqMGgwPwYIKwYBBQUHMAKGM2h0dHA6
+Ly9jcnQudXNlcnRydXN0LmNvbS9VU0VSVHJ1c3RSU0FBZGRUcnVzdENBLmNydDAl
+BggrBgEFBQcwAYYZaHR0cDovL29jc3AudXNlcnRydXN0LmNvbTANBgkqhkiG9w0B
+AQwFAAOCAgEAUtlC3e0xj/1BMfPhdQhUXeLjb0xp8UE28kzWE5xDzGKbfGgnrT2R
+lw5gLIx+/cNVrad//+MrpTppMlxq59AsXYZW3xRasrvkjGfNR3vt/1RAl8iI31lG
+hIg6dfIX5N4esLkrQeN8HiyHKH6khm4966IkVVtnxz5CgUPqEYn4eQ+4eeESrWBh
+AqXaiv7HRvpsdwLYekAhnrlGpioZ/CJIT2PTTxf+GHM6cuUnNqdUzfvrQgA8kt1/
+ASXx2od/M+c8nlJqrGz29lrJveJOSEMX0c/ts02WhsfMhkYa6XujUZLmvR1Eq08r
+48/EZ4l+t5L4wt0DV8VaPbsEBF1EOFpz/YS2H6mSwcFaNJbnYqqJHIvm3PLJHkFm
+EoLXRVrQXdCT+3wgBfgU6heCV5CYBz/YkrdWES7tiiT8sVUDqXmVlTsbiRNiyLs2
+bmEWWFUl76jViIJog5fongEqN3jLIGTG/mXrJT1UyymIcobnIGrbwwRVz/mpFQo0
+vBYIi1k2ThVh0Dx88BbF9YiP84dd8Fkn5wbE6FxXYJ287qfRTgmhePecPc73Yrzt
+apdRcsKVGkOpaTIJP/l+lAHRLZxk/dUtyN95G++bOSQqnOCpVPabUGl2E/OEyFrp
+Ipwgu2L/WJclvd6g+ZA/iWkLSMcpnFb+uX6QBqvD6+RNxul1FaB5iHY=
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: GEANT OV RSA CA 4
+Thumbprint: C2826E266D7405D34EF89762636AE4B36E86CB5E</help_link>
+</setting>
+<setting id='61310' enforce_additional_value='1'>
+<incorrect_text>Root CA 'QuoVadis Root CA 2 G3' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'QuoVadis Root CA 2 G3' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>09 3c 61 f3 8b 8b dc 7d 55 df 75 38 02 05 00 e1 25 f5 c8 36</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIFYDCCA0igAwIBAgIURFc0JFuBiZs18s64KztbpybwdSgwDQYJKoZIhvcNAQEL
+BQAwSDELMAkGA1UEBhMCQk0xGTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxHjAc
+BgNVBAMTFVF1b1ZhZGlzIFJvb3QgQ0EgMiBHMzAeFw0xMjAxMTIxODU5MzJaFw00
+MjAxMTIxODU5MzJaMEgxCzAJBgNVBAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBM
+aW1pdGVkMR4wHAYDVQQDExVRdW9WYWRpcyBSb290IENBIDIgRzMwggIiMA0GCSqG
+SIb3DQEBAQUAA4ICDwAwggIKAoICAQChriWyARjcV4g/Ruv5r+LrI3HimtFhZiFf
+qq8nUeVuGxbULX1QsFN3vXg6YOJkApt8hpvWGo6t/x8Vf9WVHhLL5hSEBMHfNrMW
+n4rjyduYNM7YMxcoRvynyfDStNVNCXJJ+fKH46nafaF9a7I6JaltUkSs+L5u+9ym
+c5GQYaYDFCDy54ejiK2toIz/pgslUiXnFgHVy7g1gQyjO/Dh4fxaXc6AcW34Sas+
+O7q414AB+6XrW7PFXmAqMaCvN+ggOp+oMiwMzAkd056OXbxMmO7FGmh77FOm6RQ1
+o9/NgJ8MSPsc9PG/Srj61YxxSscfrf5BmrODXfKEVu+lV0POKa2Mq1W/xPtbAd0j
+IaFYAI7D0GoT7RPjEiuA3GfmlbLNHiJuKvhB1PLKFAeNilUSxmn1uIZoL1NesNKq
+IcGY5jDjZ1XHm26sGahVpkUG0CM62+tlXSoREfA7T8pt9DTEceT/AFr2XK4jYIVz
+8eQQsSWu1ZK7E8EM4DnatDlXtas1qnIhO4M15zHfeiFuuDIIfR0ykRVKYnLP43eh
+vNURG3YBZwjgQQvD6xVu+KQZ2aKrr+InUlYrAoosFCT5v0ICvybIxo/gbjh9Uy3l
+7ZizlWNof/k19N+IxWA1ksB8aRxhlRbQ694Lrz4EEEVlWFA4r0jyWbYW8jwNkALG
+cC4BrTwV1wIDAQABo0IwQDAPBgNVHRMBAf8EBTADAQH/MA4GA1UdDwEB/wQEAwIB
+BjAdBgNVHQ4EFgQU7edvdlq/YOxJW8ald7tyFnGbxD0wDQYJKoZIhvcNAQELBQAD
+ggIBAJHfgD9DCX5xwvfrs4iP4VGyvD11+ShdyLyZm3tdquXK4Qr36LLTn91nMX66
+AarHakE7kNQIXLJgapDwyM4DYvmL7ftuKtwGTTwpD4kWilhMSA/ohGHqPHKmd+RC
+roijQ1h5fq7KpVMNqT1wvSAZYaRsOPxDMuHBR//47PERIjKWnML2W2mWeyAMQ0Ga
+W/ZZGYjeVYg3UQt4XAoeo0L9x52ID8DyeAIkVJOviYeIyUqAHerQbj5hLja7NQ4n
+lv1mNDthcnPxFlxHBlRJAHpYErAK74X9sbgzdWqTHBLmYF5vHX/JHyPLhGGfHoJE
++V+tYlUkmlKY7VHnoX6XOuYvHxHaU4AshZ6rNRDbIl9qxV6XU/IyAgkwo1jwDQHV
+csaxfGl7w/U2Rcxhbl5MlMVerugOXou/983g7aEOGzPuVBj+D77vfoRrQ+NwmNtd
+dbINWQeFFSM51vHfqSYP1kjHs6Yi9TM3WpVHn3u6GBVv/9YUZINJ0gpnIdsPNWNg
+KCLjsZWDzYWm3S8P52dSbrsvhXz1SnPnxT7AvSESBT/8twNJAlvIJebiVDj1eYeM
+HVOyToV7BjjHLPj4sHKNJeV3UvQDHEimUF+IIDBu8oJDqz2XhOdT+yHBTw8imoa4
+WSr2Rz0ZiC3oheGe7IUIarFsNMkd7EgrO3jtZsSOeWmD3n+M
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: QuoVadis Root CA 2 G3
+Thumbprint: 093C61F38B8BDC7D55DF7538020500E125F5C836</help_link>
+</setting>
+</section>
+<section id='1'>
+<setting id='40001' enforce_additional_value='1'>
+<incorrect_text>SSID 'eduroam' needs to be configured.</incorrect_text>
+<when_repaired_text>SSID 'eduroam' was configured.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>CP:00006006:eduroam</additional_value>
+</setting>
+</section>
+<section id='2'>
+<setting id='65001'>
+<incorrect_text>EAP Type PEAP needs to be selected.</incorrect_text>
+<when_repaired_text>EAP Type PEAP was selected.</when_repaired_text>
+<required_value>PEAP</required_value>
+</setting>
+<setting id='65003'>
+<incorrect_text>PEAP Authentication Method needs to be set to EAP-MSCHAPV2.</incorrect_text>
+<when_repaired_text>PEAP Authentication Method was set to EAP-MSCHAPV2.</when_repaired_text>
+<required_value>MSCHAPV2</required_value>
+</setting>
+<setting id='65000'>
+<incorrect_text>Validate Server Certificate needs to be enabled.</incorrect_text>
+<when_repaired_text>Validate Server Certificate was enabled.</when_repaired_text>
+<required_value>1</required_value>
+</setting>
+<setting id='61416'>
+<incorrect_text>Validate server name needs to be enabled.</incorrect_text>
+<when_repaired_text>Validate server name was enabled.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>radius.gla.ac.uk;radius.gla.ac.uk</additional_value>
+</setting>
+</section>
+</sections>
+</profile>
+<profile show_pre_creds='1'>
+<name>Android 8.1 Wireless Connections</name>
+<conditions>
+<condition key='OS' operator='EQ'>Android</condition>
+<condition key='VERSION' operator='EQ'>8.1</condition>
+<condition key='TYPE' operator='EQ'>2</condition>
+</conditions>
+<sections>
+<section id='0'>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'QuoVadis Root CA 2' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'QuoVadis Root CA 2' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>ca 3a fb cf 12 40 36 4b 44 b2 16 20 88 80 48 39 19 93 7c f7</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIFtzCCA5+gAwIBAgICBQkwDQYJKoZIhvcNAQEFBQAwRTELMAkGA1UEBhMCQk0x
+GTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxGzAZBgNVBAMTElF1b1ZhZGlzIFJv
+b3QgQ0EgMjAeFw0wNjExMjQxODI3MDBaFw0zMTExMjQxODIzMzNaMEUxCzAJBgNV
+BAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBMaW1pdGVkMRswGQYDVQQDExJRdW9W
+YWRpcyBSb290IENBIDIwggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQCa
+GMpLlA0ALa8DKYrwD4HIrkwZhR0In6spRIXzL4GtMh6QRr+jhiYaHv5+HBg6XJxg
+Fyo6dIMzMH1hVBHL7avg5tKifvVrbxi3Cgst/ek+7wrGsxDp3MJGF/hd/aTa/55J
+WpzmM+Yklvc/ulsrHHo1wtZn/qtmUIttKGAr79dgw8eTvI02kfN/+NsRE8Scd3bB
+rrcCaoF6qUWD4gXmuVbBlDePSHFjIuwXZQeVikvfj8ZaCuWw419eaxGrDPmF60Tp
++ARz8un+XJiM9XOva7R+zdRcAitMOeGylZUtQofX1bOQQ7dsE/He3fbE+Ik/0XX1
+ksOR1YqI0JDs3G3eicJlcZaLDQP9nL9bFqyS2+r+eXyt66/3FsvbzSUr5R/7mp/i
+Ucw6UwxI5g69ybR2BlLmEROFcmMDBOAENisgGQLodKcftslWZvB1JdxnwQ5hYIiz
+PtGo/KPaHbDRsSNU30R2be1B2MGyIrZTHN81Hdyhdyox5C315eXbyOD/5YDXC2Og
+/zOhD7osFRXql7PSorW+8oyWHhqPHWykYTe5hnMz15eWniN9gqRMgeKh0bpnX5UH
+oycR7hYQe7xFSkyyBNKr79X9DFHOUGoIMfmR2gyPZFwDwzqLID9ujWc9Otb+fVuI
+yV77zGHcizN300QyNQliBJIWENieJ0f7OyHj+OsdWwIDAQABo4GwMIGtMA8GA1Ud
+EwEB/wQFMAMBAf8wCwYDVR0PBAQDAgEGMB0GA1UdDgQWBBQahGK8SEwzJQTU7tD2
+A8QZRtGUazBuBgNVHSMEZzBlgBQahGK8SEwzJQTU7tD2A8QZRtGUa6FJpEcwRTEL
+MAkGA1UEBhMCQk0xGTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxGzAZBgNVBAMT
+ElF1b1ZhZGlzIFJvb3QgQ0EgMoICBQkwDQYJKoZIhvcNAQEFBQADggIBAD4KFk2f
+BluornFdLwUvZ+YTRYPENvbzwCYMDbVHZF34tHLJRqUDGCdViXh9duqWNIAXINzn
+g/iN/Ae42l9NLmeyhP3ZRPx3UIHmfLTJDQtyU/h2BwdBR5YM++CCJpNVjP4iH2Bl
+fF/nJrP3MpCYUNQ3cVX2kiF495V5+vgtJodmVjB3pjd4M1IQWK4/YY7yarHvGH5K
+WWPKjaJW1acvvFYfzznB4vsKqBUsfU16Y8Zsl0Q80m/DShcK+JDSV6IZUaUtl0Ha
+B0+pUNqQjZRG4T7wlP0QADj1O+hA4bRuVhogzG9Yje0uRY/W6ZM/57Es3zrWIozc
+hLsib9D45MY56QSIPMO661V6bYCZJPVsAfv4l7CUW+v90m/xd2gNNWQjrLhVoQPR
+TUIZ3Ph1WVaj+ahJefivDrkRoHy3au000LYmYjgahwz46P0u05B/B5EqHdZ+XIWD
+mbA4CD/pXvk1B+TJYm5Xf6dQlfe6yJvmjqIBxdZmv3lh8zwc4bmCXF2gw+nYSL0Z
+ohEUGW6yhhtoPkg3Goi3XZZenMfvJ2II4pEZXNLxId26F0KCl3GBUzGpn/Z9Yr9y
+4aOTHcyKJloJONDO1w2AFrR4pTqHTI2KpdVGl/IsELm8VCLAAVBpQ570su9t+Oza
+8eOx79+Rj1QqCyXBJhnEUhAFZdWCEOrCMc0u
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: QuoVadis Root CA 2
+Thumbprint: CA3AFBCF1240364B44B216208880483919937CF7</help_link>
+</setting>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'QuoVadis Global SSL ICA G2' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'QuoVadis Global SSL ICA G2' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>d1 56 51 b2 2a 5e b8 af f1 51 3e 55 9f e4 e2 48 fb cc eb 28</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIFljCCA36gAwIBAgIUUQ5H7Gxm0zz/3sVS/YhAl4ycJz4wDQYJKoZIhvcNAQEL
+BQAwRTELMAkGA1UEBhMCQk0xGTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxGzAZ
+BgNVBAMTElF1b1ZhZGlzIFJvb3QgQ0EgMjAeFw0yMjA1MjUxOTQ3MzlaFw0yNzA1
+MjQxOTQ3MzhaME0xCzAJBgNVBAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBMaW1p
+dGVkMSMwIQYDVQQDExpRdW9WYWRpcyBHbG9iYWwgU1NMIElDQSBHMjCCASIwDQYJ
+KoZIhvcNAQEBBQADggEPADCCAQoCggEBAOHhhWmUwI9X+jT+wbho5JmQqYh6zle3
+0OS1VMIYfdDDGeipY4D3t9zSGaNasGDZdrQdMlY18WyjnEKhi4ojNZdBewVphCiO
+zh5Ni2Ak8bSI/sBQ9sKPrpd0+UCqbvaGs6Tpx190ZRT0Pdy+TqOYZF/jBmzBj7Yf
+XJmWxlfCy62UiQ6tvv+4C6W2OPu1R4HUD8oJ8Qo7Eg0cD+GFsBM2w8soffyl+Dc6
+pKtARmOClUC7EqyWP0V9953lA34kuJZlYxxdgghBTn9rWoaQw/Lr5Fn0Xgd7fYS3
+/zGhmXYvVsuAxIn8Gk+YaeoLZ8H9tUvnDD3lEHzvIsMPxqtd7IgcVaMCAwEAAaOC
+AXQwggFwMBIGA1UdEwEB/wQIMAYBAf8CAQAwHwYDVR0jBBgwFoAUGoRivEhMMyUE
+1O7Q9gPEGUbRlGswcgYIKwYBBQUHAQEEZjBkMDYGCCsGAQUFBzAChipodHRwOi8v
+dHJ1c3QucXVvdmFkaXNnbG9iYWwuY29tL3F2cmNhMi5jcnQwKgYIKwYBBQUHMAGG
+Hmh0dHA6Ly9vY3NwLnF1b3ZhZGlzZ2xvYmFsLmNvbTA8BgNVHSAENTAzMA4GDCsG
+AQQBvlgAAmQBAjAHBgVngQwBATAIBgZngQwBAgIwDgYMKwYBBAG+WAACZAEBMB0G
+A1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDATA5BgNVHR8EMjAwMC6gLKAqhiho
+dHRwOi8vY3JsLnF1b3ZhZGlzZ2xvYmFsLmNvbS9xdnJjYTIuY3JsMB0GA1UdDgQW
+BBSRGWKtWxenMPvw3jklsb2MubhRJzAOBgNVHQ8BAf8EBAMCAQYwDQYJKoZIhvcN
+AQELBQADggIBAGD4DLtUlh+MOmXTKrt8y7eP/KkhwllG859Y/VcekXPQOjztRpDa
+0d0YSPNcZoQOnYqh0qWj77sohZdDBXfDi2uRN6MA6M9f73zHQdlLBDJ47r8muv5T
+Q4825zYerBqUpx0JT/fUEJlT91doVDUkWa2YI8gS+MJxbsUo7/HdD7XxUpHntILa
+wrs/AwxlZOBVwpt7FZao1A3xlodxeBzBM9uwtgHS9dkrRIxEz7eTugtglzpdO8GR
+iB/EX8WorAX6/OVm8DV5v0/e/JxmpDFkf3klndOi7Ijz71jk3eyTGlTqS55Py6Nh
+vxdlF06e4E0l3pAohkA/KQzUFQyScjGjVn0qjBZ3Ie/FHzhGX+zsAz8FQVW8UCZy
+KlVvvkXZVKrLb+IK+crxU6ZgW5xsgGfHGaMdpTY0Lf4jIN6EmF6Opj49iL2wlWMQ
+cuHewejrEtw5pgOFRgMxo2eEfaEJs8SSOG0yh/r6YrXZWN5D3h+TJU8X0XBnAvWD
+LWu9mFQ9M/4wLpF+rcjuIrcdwE5bAUwBy1hQTIuCxi528AX4r5zlYC8sF1UeAPVf
+KnoDo5yO+MGJ2YfszxRxtERb8osZcfqTOfuLIYNacYoiQ+Qobn6ycSLMHF5awRbm
+ShUz0wLFNFMGEClbXCoWqwd3NKKKIa1OOOfbcQ4BXwxHGs/4kOaOeJOq
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: QuoVadis Global SSL ICA G2
+Thumbprint: D15651B22A5EB8AFF1513E559FE4E248FBCCEB28</help_link>
+</setting>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'AAA Certificate Services' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'AAA Certificate Services' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>d1 eb 23 a4 6d 17 d6 8f d9 25 64 c2 f1 f1 60 17 64 d8 e3 49</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIEMjCCAxqgAwIBAgIBATANBgkqhkiG9w0BAQUFADB7MQswCQYDVQQGEwJHQjEb
+MBkGA1UECAwSR3JlYXRlciBNYW5jaGVzdGVyMRAwDgYDVQQHDAdTYWxmb3JkMRow
+GAYDVQQKDBFDb21vZG8gQ0EgTGltaXRlZDEhMB8GA1UEAwwYQUFBIENlcnRpZmlj
+YXRlIFNlcnZpY2VzMB4XDTA0MDEwMTAwMDAwMFoXDTI4MTIzMTIzNTk1OVowezEL
+MAkGA1UEBhMCR0IxGzAZBgNVBAgMEkdyZWF0ZXIgTWFuY2hlc3RlcjEQMA4GA1UE
+BwwHU2FsZm9yZDEaMBgGA1UECgwRQ29tb2RvIENBIExpbWl0ZWQxITAfBgNVBAMM
+GEFBQSBDZXJ0aWZpY2F0ZSBTZXJ2aWNlczCCASIwDQYJKoZIhvcNAQEBBQADggEP
+ADCCAQoCggEBAL5AnfRu4ep2hxxNRUSOvkbIgwadwSr+GB+O5AL686tdUIoWMQua
+BtDFcCLNSS1UY8y2bmhGC1Pqy0wkwLxyTurxFa70VJoSCsN6sjNg4tqJVfMiWPPe
+3M/vg4aijJRPn2jymJBGhCfHdr/jzDUsi14HZGWCwEiwqJH5YZ92IFCokcdmtet4
+YgNW8IoaE+oxox6gmf049vYnMlhvB/VruPsUK6+3qszWY19zjNoFmag4qMsXeDZR
+rOme9Hg6jc8P2ULimAyrL58OAd7vn5lJ8S3frHRNG5i1R8XlKdH5kBjHYpy+g8cm
+ez6KJcfA3Z3mNWgQIJ2P2N7Sw4ScDV7oL8kCAwEAAaOBwDCBvTAdBgNVHQ4EFgQU
+oBEKIz6W8Qfs4q8p74Klf9AwpLQwDgYDVR0PAQH/BAQDAgEGMA8GA1UdEwEB/wQF
+MAMBAf8wewYDVR0fBHQwcjA4oDagNIYyaHR0cDovL2NybC5jb21vZG9jYS5jb20v
+QUFBQ2VydGlmaWNhdGVTZXJ2aWNlcy5jcmwwNqA0oDKGMGh0dHA6Ly9jcmwuY29t
+b2RvLm5ldC9BQUFDZXJ0aWZpY2F0ZVNlcnZpY2VzLmNybDANBgkqhkiG9w0BAQUF
+AAOCAQEACFb8AvCb6P+k+tZ7xkSAzk/ExfYAWMymtrwUSWgEdujm7l3sAg9g1o1Q
+GE8mTgHj5rCl7r+8dFRBv/38ErjHT1r0iWAFf2C3BUrz9vHCv8S5dIa2LX1rzNLz
+Rt0vxuBqw8M0Ayx9lt1awg6nCpnBBYurDC/zXDrPbDdVCYfeU0BsWO/8tqtlbgT2
+G9w84FoVxp7Z8VlIMCFlA2zs6SFz7JsDoeA3raAVGI/6ugLOpyypEBMs1OUIJqsi
+l2D4kF501KKaU73yqWjgom7C12yxow+ev+to51byrvLjKzg6CYG1a4XXvi3tPxq3
+smPi9WIsgtRqAEFQ8TmDn5XpNpaYbg==
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: AAA Certificate Services
+Thumbprint: D1EB23A46D17D68FD92564C2F1F1601764D8E349</help_link>
+</setting>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'USERTrust RSA Certification Authority' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'USERTrust RSA Certification Authority' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>d8 9e 3b d4 3d 5d 90 9b 47 a1 89 77 aa 9d 5c e3 6c ee 18 4c</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIFgTCCBGmgAwIBAgIQOXJEOvkit1HX02wQ3TE1lTANBgkqhkiG9w0BAQwFADB7
+MQswCQYDVQQGEwJHQjEbMBkGA1UECAwSR3JlYXRlciBNYW5jaGVzdGVyMRAwDgYD
+VQQHDAdTYWxmb3JkMRowGAYDVQQKDBFDb21vZG8gQ0EgTGltaXRlZDEhMB8GA1UE
+AwwYQUFBIENlcnRpZmljYXRlIFNlcnZpY2VzMB4XDTE5MDMxMjAwMDAwMFoXDTI4
+MTIzMTIzNTk1OVowgYgxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpOZXcgSmVyc2V5
+MRQwEgYDVQQHEwtKZXJzZXkgQ2l0eTEeMBwGA1UEChMVVGhlIFVTRVJUUlVTVCBO
+ZXR3b3JrMS4wLAYDVQQDEyVVU0VSVHJ1c3QgUlNBIENlcnRpZmljYXRpb24gQXV0
+aG9yaXR5MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAgBJlFzYOw9sI
+s9CsVw127c0n00ytUINh4qogTQktZAnczomfzD2p7PbPwdzx07HWezcoEStH2jnG
+vDoZtF+mvX2do2NCtnbyqTsrkfjib9DsFiCQCT7i6HTJGLSR1GJk23+jBvGIGGqQ
+Ijy8/hPwhxR79uQfjtTkUcYRZ0YIUcuGFFQ/vDP+fmyc/xadGL1RjjWmp2bIcmfb
+IWax1Jt4A8BQOujM8Ny8nkz+rwWWNR9XWrf/zvk9tyy29lTdyOcSOk2uTIq3XJq0
+tyA9yn8iNK5+O2hmAUTnAU5GU5szYPeUvlM3kHND8zLDU+/bqv50TmnHa4xgk97E
+xwzf4TKuzJM7UXiVZ4vuPVb+DNBpDxsP8yUmazNt925H+nND5X4OpWaxKXwyhGNV
+icQNwZNUMBkTrNN9N6frXTpsNVzbQdcS2qlJC9/YgIoJk2KOtWbPJYjNhLixP6Q5
+D9kCnusSTJV882sFqV4Wg8y4Z+LoE53MW4LTTLPtW//e5XOsIzstAL81VXQJSdhJ
+WBp/kjbmUZIO8yZ9HE0XvMnsQybQv0FfQKlERPSZ51eHnlAfV1SoPv10Yy+xUGUJ
+5lhCLkMaTLTwJUdZ+gQek9QmRkpQgbLevni3/GcV4clXhB4PY9bpYrrWX1Uu6lzG
+KAgEJTm4Diup8kyXHAc/DVL17e8vgg8CAwEAAaOB8jCB7zAfBgNVHSMEGDAWgBSg
+EQojPpbxB+zirynvgqV/0DCktDAdBgNVHQ4EFgQUU3m/WqorSs9UgOHYm8Cd8rID
+ZsswDgYDVR0PAQH/BAQDAgGGMA8GA1UdEwEB/wQFMAMBAf8wEQYDVR0gBAowCDAG
+BgRVHSAAMEMGA1UdHwQ8MDowOKA2oDSGMmh0dHA6Ly9jcmwuY29tb2RvY2EuY29t
+L0FBQUNlcnRpZmljYXRlU2VydmljZXMuY3JsMDQGCCsGAQUFBwEBBCgwJjAkBggr
+BgEFBQcwAYYYaHR0cDovL29jc3AuY29tb2RvY2EuY29tMA0GCSqGSIb3DQEBDAUA
+A4IBAQAYh1HcdCE9nIrgJ7cz0C7M7PDmy14R3iJvm3WOnnL+5Nb+qh+cli3vA0p+
+rvSNb3I8QzvAP+u431yqqcau8vzY7qN7Q/aGNnwU4M309z/+3ri0ivCRlv79Q2R+
+/czSAaF9ffgZGclCKxO/WIu6pKJmBHaIkU4MiRTOok3JMrO66BQavHHxW/BBC5gA
+CiIDEOUMsfnNkjcZ7Tvx5Dq2+UUTJnWvu6rvP3t3O9LEApE9GQDTF1w52z97GA1F
+zZOFli9d31kWTz9RvdVFGD/tSo7oBmF0Ixa1DVBzJ0RHfxBdiSprhTEUxOipakyA
+vGp4z7h/jnZymQyd/teRCBaho1+V
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: USERTrust RSA Certification Authority
+Thumbprint: D89E3BD43D5D909B47A18977AA9D5CE36CEE184C</help_link>
+</setting>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'GEANT OV RSA CA 4' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'GEANT OV RSA CA 4' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>c2 82 6e 26 6d 74 05 d3 4e f8 97 62 63 6a e4 b3 6e 86 cb 5e</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIG5TCCBM2gAwIBAgIRANpDvROb0li7TdYcrMTz2+AwDQYJKoZIhvcNAQEMBQAw
+gYgxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpOZXcgSmVyc2V5MRQwEgYDVQQHEwtK
+ZXJzZXkgQ2l0eTEeMBwGA1UEChMVVGhlIFVTRVJUUlVTVCBOZXR3b3JrMS4wLAYD
+VQQDEyVVU0VSVHJ1c3QgUlNBIENlcnRpZmljYXRpb24gQXV0aG9yaXR5MB4XDTIw
+MDIxODAwMDAwMFoXDTMzMDUwMTIzNTk1OVowRDELMAkGA1UEBhMCTkwxGTAXBgNV
+BAoTEEdFQU5UIFZlcmVuaWdpbmcxGjAYBgNVBAMTEUdFQU5UIE9WIFJTQSBDQSA0
+MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEApYhi1aEiPsg9ZKRMAw9Q
+r8Mthsr6R20VSfFeh7TgwtLQi6RSRLOh4or4EMG/1th8lijv7xnBMVZkTysFiPmT
+PiLOfvz+QwO1NwjvgY+Jrs7fSoVA/TQkXzcxu4Tl3WHi+qJmKLJVu/JOuHud6mOp
+LWkIbhODSzOxANJ24IGPx9h4OXDyy6/342eE6UPXCtJ8AzeumTG6Dfv5KVx24lCF
+TGUzHUB+j+g0lSKg/Sf1OzgCajJV9enmZ/84ydh48wPp6vbWf1H0O3Rd3LhpMSVn
+TqFTLKZSbQeLcx/l9DOKZfBCC9ghWxsgTqW9gQ7v3T3aIfSaVC9rnwVxO0VjmDdP
+FNbdoxnh0zYwf45nV1QQgpRwZJ93yWedhp4ch1a6Ajwqs+wv4mZzmBSjovtV0mKw
+d+CQbSToalEUP4QeJq4Udz5WNmNMI4OYP6cgrnlJ50aa0DZPlJqrKQPGL69KQQz1
+2WgxvhCuVU70y6ZWAPopBa1ykbsttpLxADZre5cH573lIuLHdjx7NjpYIXRx2+QJ
+URnX2qx37eZIxYXz8ggM+wXH6RDbU3V2o5DP67hXPHSAbA+p0orjAocpk2osxHKo
+NSE3LCjNx8WVdxnXvuQ28tKdaK69knfm3bB7xpdfsNNTPH9ElcjscWZxpeZ5Iij8
+lyrCG1z0vSWtSBsgSnUyG/sCAwEAAaOCAYswggGHMB8GA1UdIwQYMBaAFFN5v1qq
+K0rPVIDh2JvAnfKyA2bLMB0GA1UdDgQWBBRvHTVJEGwy+lmgnryK6B+VvnF6DDAO
+BgNVHQ8BAf8EBAMCAYYwEgYDVR0TAQH/BAgwBgEB/wIBADAdBgNVHSUEFjAUBggr
+BgEFBQcDAQYIKwYBBQUHAwIwOAYDVR0gBDEwLzAtBgRVHSAAMCUwIwYIKwYBBQUH
+AgEWF2h0dHBzOi8vc2VjdGlnby5jb20vQ1BTMFAGA1UdHwRJMEcwRaBDoEGGP2h0
+dHA6Ly9jcmwudXNlcnRydXN0LmNvbS9VU0VSVHJ1c3RSU0FDZXJ0aWZpY2F0aW9u
+QXV0aG9yaXR5LmNybDB2BggrBgEFBQcBAQRqMGgwPwYIKwYBBQUHMAKGM2h0dHA6
+Ly9jcnQudXNlcnRydXN0LmNvbS9VU0VSVHJ1c3RSU0FBZGRUcnVzdENBLmNydDAl
+BggrBgEFBQcwAYYZaHR0cDovL29jc3AudXNlcnRydXN0LmNvbTANBgkqhkiG9w0B
+AQwFAAOCAgEAUtlC3e0xj/1BMfPhdQhUXeLjb0xp8UE28kzWE5xDzGKbfGgnrT2R
+lw5gLIx+/cNVrad//+MrpTppMlxq59AsXYZW3xRasrvkjGfNR3vt/1RAl8iI31lG
+hIg6dfIX5N4esLkrQeN8HiyHKH6khm4966IkVVtnxz5CgUPqEYn4eQ+4eeESrWBh
+AqXaiv7HRvpsdwLYekAhnrlGpioZ/CJIT2PTTxf+GHM6cuUnNqdUzfvrQgA8kt1/
+ASXx2od/M+c8nlJqrGz29lrJveJOSEMX0c/ts02WhsfMhkYa6XujUZLmvR1Eq08r
+48/EZ4l+t5L4wt0DV8VaPbsEBF1EOFpz/YS2H6mSwcFaNJbnYqqJHIvm3PLJHkFm
+EoLXRVrQXdCT+3wgBfgU6heCV5CYBz/YkrdWES7tiiT8sVUDqXmVlTsbiRNiyLs2
+bmEWWFUl76jViIJog5fongEqN3jLIGTG/mXrJT1UyymIcobnIGrbwwRVz/mpFQo0
+vBYIi1k2ThVh0Dx88BbF9YiP84dd8Fkn5wbE6FxXYJ287qfRTgmhePecPc73Yrzt
+apdRcsKVGkOpaTIJP/l+lAHRLZxk/dUtyN95G++bOSQqnOCpVPabUGl2E/OEyFrp
+Ipwgu2L/WJclvd6g+ZA/iWkLSMcpnFb+uX6QBqvD6+RNxul1FaB5iHY=
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: GEANT OV RSA CA 4
+Thumbprint: C2826E266D7405D34EF89762636AE4B36E86CB5E</help_link>
+</setting>
+<setting id='61310' enforce_additional_value='1'>
+<incorrect_text>Root CA 'QuoVadis Root CA 2 G3' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'QuoVadis Root CA 2 G3' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>09 3c 61 f3 8b 8b dc 7d 55 df 75 38 02 05 00 e1 25 f5 c8 36</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIFYDCCA0igAwIBAgIURFc0JFuBiZs18s64KztbpybwdSgwDQYJKoZIhvcNAQEL
+BQAwSDELMAkGA1UEBhMCQk0xGTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxHjAc
+BgNVBAMTFVF1b1ZhZGlzIFJvb3QgQ0EgMiBHMzAeFw0xMjAxMTIxODU5MzJaFw00
+MjAxMTIxODU5MzJaMEgxCzAJBgNVBAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBM
+aW1pdGVkMR4wHAYDVQQDExVRdW9WYWRpcyBSb290IENBIDIgRzMwggIiMA0GCSqG
+SIb3DQEBAQUAA4ICDwAwggIKAoICAQChriWyARjcV4g/Ruv5r+LrI3HimtFhZiFf
+qq8nUeVuGxbULX1QsFN3vXg6YOJkApt8hpvWGo6t/x8Vf9WVHhLL5hSEBMHfNrMW
+n4rjyduYNM7YMxcoRvynyfDStNVNCXJJ+fKH46nafaF9a7I6JaltUkSs+L5u+9ym
+c5GQYaYDFCDy54ejiK2toIz/pgslUiXnFgHVy7g1gQyjO/Dh4fxaXc6AcW34Sas+
+O7q414AB+6XrW7PFXmAqMaCvN+ggOp+oMiwMzAkd056OXbxMmO7FGmh77FOm6RQ1
+o9/NgJ8MSPsc9PG/Srj61YxxSscfrf5BmrODXfKEVu+lV0POKa2Mq1W/xPtbAd0j
+IaFYAI7D0GoT7RPjEiuA3GfmlbLNHiJuKvhB1PLKFAeNilUSxmn1uIZoL1NesNKq
+IcGY5jDjZ1XHm26sGahVpkUG0CM62+tlXSoREfA7T8pt9DTEceT/AFr2XK4jYIVz
+8eQQsSWu1ZK7E8EM4DnatDlXtas1qnIhO4M15zHfeiFuuDIIfR0ykRVKYnLP43eh
+vNURG3YBZwjgQQvD6xVu+KQZ2aKrr+InUlYrAoosFCT5v0ICvybIxo/gbjh9Uy3l
+7ZizlWNof/k19N+IxWA1ksB8aRxhlRbQ694Lrz4EEEVlWFA4r0jyWbYW8jwNkALG
+cC4BrTwV1wIDAQABo0IwQDAPBgNVHRMBAf8EBTADAQH/MA4GA1UdDwEB/wQEAwIB
+BjAdBgNVHQ4EFgQU7edvdlq/YOxJW8ald7tyFnGbxD0wDQYJKoZIhvcNAQELBQAD
+ggIBAJHfgD9DCX5xwvfrs4iP4VGyvD11+ShdyLyZm3tdquXK4Qr36LLTn91nMX66
+AarHakE7kNQIXLJgapDwyM4DYvmL7ftuKtwGTTwpD4kWilhMSA/ohGHqPHKmd+RC
+roijQ1h5fq7KpVMNqT1wvSAZYaRsOPxDMuHBR//47PERIjKWnML2W2mWeyAMQ0Ga
+W/ZZGYjeVYg3UQt4XAoeo0L9x52ID8DyeAIkVJOviYeIyUqAHerQbj5hLja7NQ4n
+lv1mNDthcnPxFlxHBlRJAHpYErAK74X9sbgzdWqTHBLmYF5vHX/JHyPLhGGfHoJE
++V+tYlUkmlKY7VHnoX6XOuYvHxHaU4AshZ6rNRDbIl9qxV6XU/IyAgkwo1jwDQHV
+csaxfGl7w/U2Rcxhbl5MlMVerugOXou/983g7aEOGzPuVBj+D77vfoRrQ+NwmNtd
+dbINWQeFFSM51vHfqSYP1kjHs6Yi9TM3WpVHn3u6GBVv/9YUZINJ0gpnIdsPNWNg
+KCLjsZWDzYWm3S8P52dSbrsvhXz1SnPnxT7AvSESBT/8twNJAlvIJebiVDj1eYeM
+HVOyToV7BjjHLPj4sHKNJeV3UvQDHEimUF+IIDBu8oJDqz2XhOdT+yHBTw8imoa4
+WSr2Rz0ZiC3oheGe7IUIarFsNMkd7EgrO3jtZsSOeWmD3n+M
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: QuoVadis Root CA 2 G3
+Thumbprint: 093C61F38B8BDC7D55DF7538020500E125F5C836</help_link>
+</setting>
+</section>
+<section id='1'>
+<setting id='40001' enforce_additional_value='1'>
+<incorrect_text>SSID 'eduroam' needs to be configured.</incorrect_text>
+<when_repaired_text>SSID 'eduroam' was configured.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>CP:00006006:eduroam</additional_value>
+</setting>
+</section>
+<section id='2'>
+<setting id='65001'>
+<incorrect_text>EAP Type PEAP needs to be selected.</incorrect_text>
+<when_repaired_text>EAP Type PEAP was selected.</when_repaired_text>
+<required_value>PEAP</required_value>
+</setting>
+<setting id='65003'>
+<incorrect_text>PEAP Authentication Method needs to be set to EAP-MSCHAPV2.</incorrect_text>
+<when_repaired_text>PEAP Authentication Method was set to EAP-MSCHAPV2.</when_repaired_text>
+<required_value>MSCHAPV2</required_value>
+</setting>
+<setting id='65000'>
+<incorrect_text>Validate Server Certificate needs to be enabled.</incorrect_text>
+<when_repaired_text>Validate Server Certificate was enabled.</when_repaired_text>
+<required_value>1</required_value>
+</setting>
+<setting id='61416'>
+<incorrect_text>Validate server name needs to be enabled.</incorrect_text>
+<when_repaired_text>Validate server name was enabled.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>radius.gla.ac.uk;radius.gla.ac.uk</additional_value>
+</setting>
+</section>
+</sections>
+</profile>
+<profile show_pre_creds='1'>
+<name>Android 9.0 Wireless Connections</name>
+<conditions>
+<condition key='OS' operator='EQ'>Android</condition>
+<condition key='VERSION' operator='EQ'>9.0</condition>
+<condition key='TYPE' operator='EQ'>2</condition>
+</conditions>
+<sections>
+<section id='0'>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'QuoVadis Root CA 2' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'QuoVadis Root CA 2' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>ca 3a fb cf 12 40 36 4b 44 b2 16 20 88 80 48 39 19 93 7c f7</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIFtzCCA5+gAwIBAgICBQkwDQYJKoZIhvcNAQEFBQAwRTELMAkGA1UEBhMCQk0x
+GTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxGzAZBgNVBAMTElF1b1ZhZGlzIFJv
+b3QgQ0EgMjAeFw0wNjExMjQxODI3MDBaFw0zMTExMjQxODIzMzNaMEUxCzAJBgNV
+BAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBMaW1pdGVkMRswGQYDVQQDExJRdW9W
+YWRpcyBSb290IENBIDIwggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQCa
+GMpLlA0ALa8DKYrwD4HIrkwZhR0In6spRIXzL4GtMh6QRr+jhiYaHv5+HBg6XJxg
+Fyo6dIMzMH1hVBHL7avg5tKifvVrbxi3Cgst/ek+7wrGsxDp3MJGF/hd/aTa/55J
+WpzmM+Yklvc/ulsrHHo1wtZn/qtmUIttKGAr79dgw8eTvI02kfN/+NsRE8Scd3bB
+rrcCaoF6qUWD4gXmuVbBlDePSHFjIuwXZQeVikvfj8ZaCuWw419eaxGrDPmF60Tp
++ARz8un+XJiM9XOva7R+zdRcAitMOeGylZUtQofX1bOQQ7dsE/He3fbE+Ik/0XX1
+ksOR1YqI0JDs3G3eicJlcZaLDQP9nL9bFqyS2+r+eXyt66/3FsvbzSUr5R/7mp/i
+Ucw6UwxI5g69ybR2BlLmEROFcmMDBOAENisgGQLodKcftslWZvB1JdxnwQ5hYIiz
+PtGo/KPaHbDRsSNU30R2be1B2MGyIrZTHN81Hdyhdyox5C315eXbyOD/5YDXC2Og
+/zOhD7osFRXql7PSorW+8oyWHhqPHWykYTe5hnMz15eWniN9gqRMgeKh0bpnX5UH
+oycR7hYQe7xFSkyyBNKr79X9DFHOUGoIMfmR2gyPZFwDwzqLID9ujWc9Otb+fVuI
+yV77zGHcizN300QyNQliBJIWENieJ0f7OyHj+OsdWwIDAQABo4GwMIGtMA8GA1Ud
+EwEB/wQFMAMBAf8wCwYDVR0PBAQDAgEGMB0GA1UdDgQWBBQahGK8SEwzJQTU7tD2
+A8QZRtGUazBuBgNVHSMEZzBlgBQahGK8SEwzJQTU7tD2A8QZRtGUa6FJpEcwRTEL
+MAkGA1UEBhMCQk0xGTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxGzAZBgNVBAMT
+ElF1b1ZhZGlzIFJvb3QgQ0EgMoICBQkwDQYJKoZIhvcNAQEFBQADggIBAD4KFk2f
+BluornFdLwUvZ+YTRYPENvbzwCYMDbVHZF34tHLJRqUDGCdViXh9duqWNIAXINzn
+g/iN/Ae42l9NLmeyhP3ZRPx3UIHmfLTJDQtyU/h2BwdBR5YM++CCJpNVjP4iH2Bl
+fF/nJrP3MpCYUNQ3cVX2kiF495V5+vgtJodmVjB3pjd4M1IQWK4/YY7yarHvGH5K
+WWPKjaJW1acvvFYfzznB4vsKqBUsfU16Y8Zsl0Q80m/DShcK+JDSV6IZUaUtl0Ha
+B0+pUNqQjZRG4T7wlP0QADj1O+hA4bRuVhogzG9Yje0uRY/W6ZM/57Es3zrWIozc
+hLsib9D45MY56QSIPMO661V6bYCZJPVsAfv4l7CUW+v90m/xd2gNNWQjrLhVoQPR
+TUIZ3Ph1WVaj+ahJefivDrkRoHy3au000LYmYjgahwz46P0u05B/B5EqHdZ+XIWD
+mbA4CD/pXvk1B+TJYm5Xf6dQlfe6yJvmjqIBxdZmv3lh8zwc4bmCXF2gw+nYSL0Z
+ohEUGW6yhhtoPkg3Goi3XZZenMfvJ2II4pEZXNLxId26F0KCl3GBUzGpn/Z9Yr9y
+4aOTHcyKJloJONDO1w2AFrR4pTqHTI2KpdVGl/IsELm8VCLAAVBpQ570su9t+Oza
+8eOx79+Rj1QqCyXBJhnEUhAFZdWCEOrCMc0u
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: QuoVadis Root CA 2
+Thumbprint: CA3AFBCF1240364B44B216208880483919937CF7</help_link>
+</setting>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'QuoVadis Global SSL ICA G2' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'QuoVadis Global SSL ICA G2' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>d1 56 51 b2 2a 5e b8 af f1 51 3e 55 9f e4 e2 48 fb cc eb 28</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIFljCCA36gAwIBAgIUUQ5H7Gxm0zz/3sVS/YhAl4ycJz4wDQYJKoZIhvcNAQEL
+BQAwRTELMAkGA1UEBhMCQk0xGTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxGzAZ
+BgNVBAMTElF1b1ZhZGlzIFJvb3QgQ0EgMjAeFw0yMjA1MjUxOTQ3MzlaFw0yNzA1
+MjQxOTQ3MzhaME0xCzAJBgNVBAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBMaW1p
+dGVkMSMwIQYDVQQDExpRdW9WYWRpcyBHbG9iYWwgU1NMIElDQSBHMjCCASIwDQYJ
+KoZIhvcNAQEBBQADggEPADCCAQoCggEBAOHhhWmUwI9X+jT+wbho5JmQqYh6zle3
+0OS1VMIYfdDDGeipY4D3t9zSGaNasGDZdrQdMlY18WyjnEKhi4ojNZdBewVphCiO
+zh5Ni2Ak8bSI/sBQ9sKPrpd0+UCqbvaGs6Tpx190ZRT0Pdy+TqOYZF/jBmzBj7Yf
+XJmWxlfCy62UiQ6tvv+4C6W2OPu1R4HUD8oJ8Qo7Eg0cD+GFsBM2w8soffyl+Dc6
+pKtARmOClUC7EqyWP0V9953lA34kuJZlYxxdgghBTn9rWoaQw/Lr5Fn0Xgd7fYS3
+/zGhmXYvVsuAxIn8Gk+YaeoLZ8H9tUvnDD3lEHzvIsMPxqtd7IgcVaMCAwEAAaOC
+AXQwggFwMBIGA1UdEwEB/wQIMAYBAf8CAQAwHwYDVR0jBBgwFoAUGoRivEhMMyUE
+1O7Q9gPEGUbRlGswcgYIKwYBBQUHAQEEZjBkMDYGCCsGAQUFBzAChipodHRwOi8v
+dHJ1c3QucXVvdmFkaXNnbG9iYWwuY29tL3F2cmNhMi5jcnQwKgYIKwYBBQUHMAGG
+Hmh0dHA6Ly9vY3NwLnF1b3ZhZGlzZ2xvYmFsLmNvbTA8BgNVHSAENTAzMA4GDCsG
+AQQBvlgAAmQBAjAHBgVngQwBATAIBgZngQwBAgIwDgYMKwYBBAG+WAACZAEBMB0G
+A1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDATA5BgNVHR8EMjAwMC6gLKAqhiho
+dHRwOi8vY3JsLnF1b3ZhZGlzZ2xvYmFsLmNvbS9xdnJjYTIuY3JsMB0GA1UdDgQW
+BBSRGWKtWxenMPvw3jklsb2MubhRJzAOBgNVHQ8BAf8EBAMCAQYwDQYJKoZIhvcN
+AQELBQADggIBAGD4DLtUlh+MOmXTKrt8y7eP/KkhwllG859Y/VcekXPQOjztRpDa
+0d0YSPNcZoQOnYqh0qWj77sohZdDBXfDi2uRN6MA6M9f73zHQdlLBDJ47r8muv5T
+Q4825zYerBqUpx0JT/fUEJlT91doVDUkWa2YI8gS+MJxbsUo7/HdD7XxUpHntILa
+wrs/AwxlZOBVwpt7FZao1A3xlodxeBzBM9uwtgHS9dkrRIxEz7eTugtglzpdO8GR
+iB/EX8WorAX6/OVm8DV5v0/e/JxmpDFkf3klndOi7Ijz71jk3eyTGlTqS55Py6Nh
+vxdlF06e4E0l3pAohkA/KQzUFQyScjGjVn0qjBZ3Ie/FHzhGX+zsAz8FQVW8UCZy
+KlVvvkXZVKrLb+IK+crxU6ZgW5xsgGfHGaMdpTY0Lf4jIN6EmF6Opj49iL2wlWMQ
+cuHewejrEtw5pgOFRgMxo2eEfaEJs8SSOG0yh/r6YrXZWN5D3h+TJU8X0XBnAvWD
+LWu9mFQ9M/4wLpF+rcjuIrcdwE5bAUwBy1hQTIuCxi528AX4r5zlYC8sF1UeAPVf
+KnoDo5yO+MGJ2YfszxRxtERb8osZcfqTOfuLIYNacYoiQ+Qobn6ycSLMHF5awRbm
+ShUz0wLFNFMGEClbXCoWqwd3NKKKIa1OOOfbcQ4BXwxHGs/4kOaOeJOq
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: QuoVadis Global SSL ICA G2
+Thumbprint: D15651B22A5EB8AFF1513E559FE4E248FBCCEB28</help_link>
+</setting>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'AAA Certificate Services' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'AAA Certificate Services' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>d1 eb 23 a4 6d 17 d6 8f d9 25 64 c2 f1 f1 60 17 64 d8 e3 49</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIEMjCCAxqgAwIBAgIBATANBgkqhkiG9w0BAQUFADB7MQswCQYDVQQGEwJHQjEb
+MBkGA1UECAwSR3JlYXRlciBNYW5jaGVzdGVyMRAwDgYDVQQHDAdTYWxmb3JkMRow
+GAYDVQQKDBFDb21vZG8gQ0EgTGltaXRlZDEhMB8GA1UEAwwYQUFBIENlcnRpZmlj
+YXRlIFNlcnZpY2VzMB4XDTA0MDEwMTAwMDAwMFoXDTI4MTIzMTIzNTk1OVowezEL
+MAkGA1UEBhMCR0IxGzAZBgNVBAgMEkdyZWF0ZXIgTWFuY2hlc3RlcjEQMA4GA1UE
+BwwHU2FsZm9yZDEaMBgGA1UECgwRQ29tb2RvIENBIExpbWl0ZWQxITAfBgNVBAMM
+GEFBQSBDZXJ0aWZpY2F0ZSBTZXJ2aWNlczCCASIwDQYJKoZIhvcNAQEBBQADggEP
+ADCCAQoCggEBAL5AnfRu4ep2hxxNRUSOvkbIgwadwSr+GB+O5AL686tdUIoWMQua
+BtDFcCLNSS1UY8y2bmhGC1Pqy0wkwLxyTurxFa70VJoSCsN6sjNg4tqJVfMiWPPe
+3M/vg4aijJRPn2jymJBGhCfHdr/jzDUsi14HZGWCwEiwqJH5YZ92IFCokcdmtet4
+YgNW8IoaE+oxox6gmf049vYnMlhvB/VruPsUK6+3qszWY19zjNoFmag4qMsXeDZR
+rOme9Hg6jc8P2ULimAyrL58OAd7vn5lJ8S3frHRNG5i1R8XlKdH5kBjHYpy+g8cm
+ez6KJcfA3Z3mNWgQIJ2P2N7Sw4ScDV7oL8kCAwEAAaOBwDCBvTAdBgNVHQ4EFgQU
+oBEKIz6W8Qfs4q8p74Klf9AwpLQwDgYDVR0PAQH/BAQDAgEGMA8GA1UdEwEB/wQF
+MAMBAf8wewYDVR0fBHQwcjA4oDagNIYyaHR0cDovL2NybC5jb21vZG9jYS5jb20v
+QUFBQ2VydGlmaWNhdGVTZXJ2aWNlcy5jcmwwNqA0oDKGMGh0dHA6Ly9jcmwuY29t
+b2RvLm5ldC9BQUFDZXJ0aWZpY2F0ZVNlcnZpY2VzLmNybDANBgkqhkiG9w0BAQUF
+AAOCAQEACFb8AvCb6P+k+tZ7xkSAzk/ExfYAWMymtrwUSWgEdujm7l3sAg9g1o1Q
+GE8mTgHj5rCl7r+8dFRBv/38ErjHT1r0iWAFf2C3BUrz9vHCv8S5dIa2LX1rzNLz
+Rt0vxuBqw8M0Ayx9lt1awg6nCpnBBYurDC/zXDrPbDdVCYfeU0BsWO/8tqtlbgT2
+G9w84FoVxp7Z8VlIMCFlA2zs6SFz7JsDoeA3raAVGI/6ugLOpyypEBMs1OUIJqsi
+l2D4kF501KKaU73yqWjgom7C12yxow+ev+to51byrvLjKzg6CYG1a4XXvi3tPxq3
+smPi9WIsgtRqAEFQ8TmDn5XpNpaYbg==
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: AAA Certificate Services
+Thumbprint: D1EB23A46D17D68FD92564C2F1F1601764D8E349</help_link>
+</setting>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'USERTrust RSA Certification Authority' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'USERTrust RSA Certification Authority' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>d8 9e 3b d4 3d 5d 90 9b 47 a1 89 77 aa 9d 5c e3 6c ee 18 4c</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIFgTCCBGmgAwIBAgIQOXJEOvkit1HX02wQ3TE1lTANBgkqhkiG9w0BAQwFADB7
+MQswCQYDVQQGEwJHQjEbMBkGA1UECAwSR3JlYXRlciBNYW5jaGVzdGVyMRAwDgYD
+VQQHDAdTYWxmb3JkMRowGAYDVQQKDBFDb21vZG8gQ0EgTGltaXRlZDEhMB8GA1UE
+AwwYQUFBIENlcnRpZmljYXRlIFNlcnZpY2VzMB4XDTE5MDMxMjAwMDAwMFoXDTI4
+MTIzMTIzNTk1OVowgYgxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpOZXcgSmVyc2V5
+MRQwEgYDVQQHEwtKZXJzZXkgQ2l0eTEeMBwGA1UEChMVVGhlIFVTRVJUUlVTVCBO
+ZXR3b3JrMS4wLAYDVQQDEyVVU0VSVHJ1c3QgUlNBIENlcnRpZmljYXRpb24gQXV0
+aG9yaXR5MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAgBJlFzYOw9sI
+s9CsVw127c0n00ytUINh4qogTQktZAnczomfzD2p7PbPwdzx07HWezcoEStH2jnG
+vDoZtF+mvX2do2NCtnbyqTsrkfjib9DsFiCQCT7i6HTJGLSR1GJk23+jBvGIGGqQ
+Ijy8/hPwhxR79uQfjtTkUcYRZ0YIUcuGFFQ/vDP+fmyc/xadGL1RjjWmp2bIcmfb
+IWax1Jt4A8BQOujM8Ny8nkz+rwWWNR9XWrf/zvk9tyy29lTdyOcSOk2uTIq3XJq0
+tyA9yn8iNK5+O2hmAUTnAU5GU5szYPeUvlM3kHND8zLDU+/bqv50TmnHa4xgk97E
+xwzf4TKuzJM7UXiVZ4vuPVb+DNBpDxsP8yUmazNt925H+nND5X4OpWaxKXwyhGNV
+icQNwZNUMBkTrNN9N6frXTpsNVzbQdcS2qlJC9/YgIoJk2KOtWbPJYjNhLixP6Q5
+D9kCnusSTJV882sFqV4Wg8y4Z+LoE53MW4LTTLPtW//e5XOsIzstAL81VXQJSdhJ
+WBp/kjbmUZIO8yZ9HE0XvMnsQybQv0FfQKlERPSZ51eHnlAfV1SoPv10Yy+xUGUJ
+5lhCLkMaTLTwJUdZ+gQek9QmRkpQgbLevni3/GcV4clXhB4PY9bpYrrWX1Uu6lzG
+KAgEJTm4Diup8kyXHAc/DVL17e8vgg8CAwEAAaOB8jCB7zAfBgNVHSMEGDAWgBSg
+EQojPpbxB+zirynvgqV/0DCktDAdBgNVHQ4EFgQUU3m/WqorSs9UgOHYm8Cd8rID
+ZsswDgYDVR0PAQH/BAQDAgGGMA8GA1UdEwEB/wQFMAMBAf8wEQYDVR0gBAowCDAG
+BgRVHSAAMEMGA1UdHwQ8MDowOKA2oDSGMmh0dHA6Ly9jcmwuY29tb2RvY2EuY29t
+L0FBQUNlcnRpZmljYXRlU2VydmljZXMuY3JsMDQGCCsGAQUFBwEBBCgwJjAkBggr
+BgEFBQcwAYYYaHR0cDovL29jc3AuY29tb2RvY2EuY29tMA0GCSqGSIb3DQEBDAUA
+A4IBAQAYh1HcdCE9nIrgJ7cz0C7M7PDmy14R3iJvm3WOnnL+5Nb+qh+cli3vA0p+
+rvSNb3I8QzvAP+u431yqqcau8vzY7qN7Q/aGNnwU4M309z/+3ri0ivCRlv79Q2R+
+/czSAaF9ffgZGclCKxO/WIu6pKJmBHaIkU4MiRTOok3JMrO66BQavHHxW/BBC5gA
+CiIDEOUMsfnNkjcZ7Tvx5Dq2+UUTJnWvu6rvP3t3O9LEApE9GQDTF1w52z97GA1F
+zZOFli9d31kWTz9RvdVFGD/tSo7oBmF0Ixa1DVBzJ0RHfxBdiSprhTEUxOipakyA
+vGp4z7h/jnZymQyd/teRCBaho1+V
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: USERTrust RSA Certification Authority
+Thumbprint: D89E3BD43D5D909B47A18977AA9D5CE36CEE184C</help_link>
+</setting>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'GEANT OV RSA CA 4' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'GEANT OV RSA CA 4' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>c2 82 6e 26 6d 74 05 d3 4e f8 97 62 63 6a e4 b3 6e 86 cb 5e</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIG5TCCBM2gAwIBAgIRANpDvROb0li7TdYcrMTz2+AwDQYJKoZIhvcNAQEMBQAw
+gYgxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpOZXcgSmVyc2V5MRQwEgYDVQQHEwtK
+ZXJzZXkgQ2l0eTEeMBwGA1UEChMVVGhlIFVTRVJUUlVTVCBOZXR3b3JrMS4wLAYD
+VQQDEyVVU0VSVHJ1c3QgUlNBIENlcnRpZmljYXRpb24gQXV0aG9yaXR5MB4XDTIw
+MDIxODAwMDAwMFoXDTMzMDUwMTIzNTk1OVowRDELMAkGA1UEBhMCTkwxGTAXBgNV
+BAoTEEdFQU5UIFZlcmVuaWdpbmcxGjAYBgNVBAMTEUdFQU5UIE9WIFJTQSBDQSA0
+MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEApYhi1aEiPsg9ZKRMAw9Q
+r8Mthsr6R20VSfFeh7TgwtLQi6RSRLOh4or4EMG/1th8lijv7xnBMVZkTysFiPmT
+PiLOfvz+QwO1NwjvgY+Jrs7fSoVA/TQkXzcxu4Tl3WHi+qJmKLJVu/JOuHud6mOp
+LWkIbhODSzOxANJ24IGPx9h4OXDyy6/342eE6UPXCtJ8AzeumTG6Dfv5KVx24lCF
+TGUzHUB+j+g0lSKg/Sf1OzgCajJV9enmZ/84ydh48wPp6vbWf1H0O3Rd3LhpMSVn
+TqFTLKZSbQeLcx/l9DOKZfBCC9ghWxsgTqW9gQ7v3T3aIfSaVC9rnwVxO0VjmDdP
+FNbdoxnh0zYwf45nV1QQgpRwZJ93yWedhp4ch1a6Ajwqs+wv4mZzmBSjovtV0mKw
+d+CQbSToalEUP4QeJq4Udz5WNmNMI4OYP6cgrnlJ50aa0DZPlJqrKQPGL69KQQz1
+2WgxvhCuVU70y6ZWAPopBa1ykbsttpLxADZre5cH573lIuLHdjx7NjpYIXRx2+QJ
+URnX2qx37eZIxYXz8ggM+wXH6RDbU3V2o5DP67hXPHSAbA+p0orjAocpk2osxHKo
+NSE3LCjNx8WVdxnXvuQ28tKdaK69knfm3bB7xpdfsNNTPH9ElcjscWZxpeZ5Iij8
+lyrCG1z0vSWtSBsgSnUyG/sCAwEAAaOCAYswggGHMB8GA1UdIwQYMBaAFFN5v1qq
+K0rPVIDh2JvAnfKyA2bLMB0GA1UdDgQWBBRvHTVJEGwy+lmgnryK6B+VvnF6DDAO
+BgNVHQ8BAf8EBAMCAYYwEgYDVR0TAQH/BAgwBgEB/wIBADAdBgNVHSUEFjAUBggr
+BgEFBQcDAQYIKwYBBQUHAwIwOAYDVR0gBDEwLzAtBgRVHSAAMCUwIwYIKwYBBQUH
+AgEWF2h0dHBzOi8vc2VjdGlnby5jb20vQ1BTMFAGA1UdHwRJMEcwRaBDoEGGP2h0
+dHA6Ly9jcmwudXNlcnRydXN0LmNvbS9VU0VSVHJ1c3RSU0FDZXJ0aWZpY2F0aW9u
+QXV0aG9yaXR5LmNybDB2BggrBgEFBQcBAQRqMGgwPwYIKwYBBQUHMAKGM2h0dHA6
+Ly9jcnQudXNlcnRydXN0LmNvbS9VU0VSVHJ1c3RSU0FBZGRUcnVzdENBLmNydDAl
+BggrBgEFBQcwAYYZaHR0cDovL29jc3AudXNlcnRydXN0LmNvbTANBgkqhkiG9w0B
+AQwFAAOCAgEAUtlC3e0xj/1BMfPhdQhUXeLjb0xp8UE28kzWE5xDzGKbfGgnrT2R
+lw5gLIx+/cNVrad//+MrpTppMlxq59AsXYZW3xRasrvkjGfNR3vt/1RAl8iI31lG
+hIg6dfIX5N4esLkrQeN8HiyHKH6khm4966IkVVtnxz5CgUPqEYn4eQ+4eeESrWBh
+AqXaiv7HRvpsdwLYekAhnrlGpioZ/CJIT2PTTxf+GHM6cuUnNqdUzfvrQgA8kt1/
+ASXx2od/M+c8nlJqrGz29lrJveJOSEMX0c/ts02WhsfMhkYa6XujUZLmvR1Eq08r
+48/EZ4l+t5L4wt0DV8VaPbsEBF1EOFpz/YS2H6mSwcFaNJbnYqqJHIvm3PLJHkFm
+EoLXRVrQXdCT+3wgBfgU6heCV5CYBz/YkrdWES7tiiT8sVUDqXmVlTsbiRNiyLs2
+bmEWWFUl76jViIJog5fongEqN3jLIGTG/mXrJT1UyymIcobnIGrbwwRVz/mpFQo0
+vBYIi1k2ThVh0Dx88BbF9YiP84dd8Fkn5wbE6FxXYJ287qfRTgmhePecPc73Yrzt
+apdRcsKVGkOpaTIJP/l+lAHRLZxk/dUtyN95G++bOSQqnOCpVPabUGl2E/OEyFrp
+Ipwgu2L/WJclvd6g+ZA/iWkLSMcpnFb+uX6QBqvD6+RNxul1FaB5iHY=
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: GEANT OV RSA CA 4
+Thumbprint: C2826E266D7405D34EF89762636AE4B36E86CB5E</help_link>
+</setting>
+<setting id='61310' enforce_additional_value='1'>
+<incorrect_text>Root CA 'QuoVadis Root CA 2 G3' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'QuoVadis Root CA 2 G3' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>09 3c 61 f3 8b 8b dc 7d 55 df 75 38 02 05 00 e1 25 f5 c8 36</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIFYDCCA0igAwIBAgIURFc0JFuBiZs18s64KztbpybwdSgwDQYJKoZIhvcNAQEL
+BQAwSDELMAkGA1UEBhMCQk0xGTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxHjAc
+BgNVBAMTFVF1b1ZhZGlzIFJvb3QgQ0EgMiBHMzAeFw0xMjAxMTIxODU5MzJaFw00
+MjAxMTIxODU5MzJaMEgxCzAJBgNVBAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBM
+aW1pdGVkMR4wHAYDVQQDExVRdW9WYWRpcyBSb290IENBIDIgRzMwggIiMA0GCSqG
+SIb3DQEBAQUAA4ICDwAwggIKAoICAQChriWyARjcV4g/Ruv5r+LrI3HimtFhZiFf
+qq8nUeVuGxbULX1QsFN3vXg6YOJkApt8hpvWGo6t/x8Vf9WVHhLL5hSEBMHfNrMW
+n4rjyduYNM7YMxcoRvynyfDStNVNCXJJ+fKH46nafaF9a7I6JaltUkSs+L5u+9ym
+c5GQYaYDFCDy54ejiK2toIz/pgslUiXnFgHVy7g1gQyjO/Dh4fxaXc6AcW34Sas+
+O7q414AB+6XrW7PFXmAqMaCvN+ggOp+oMiwMzAkd056OXbxMmO7FGmh77FOm6RQ1
+o9/NgJ8MSPsc9PG/Srj61YxxSscfrf5BmrODXfKEVu+lV0POKa2Mq1W/xPtbAd0j
+IaFYAI7D0GoT7RPjEiuA3GfmlbLNHiJuKvhB1PLKFAeNilUSxmn1uIZoL1NesNKq
+IcGY5jDjZ1XHm26sGahVpkUG0CM62+tlXSoREfA7T8pt9DTEceT/AFr2XK4jYIVz
+8eQQsSWu1ZK7E8EM4DnatDlXtas1qnIhO4M15zHfeiFuuDIIfR0ykRVKYnLP43eh
+vNURG3YBZwjgQQvD6xVu+KQZ2aKrr+InUlYrAoosFCT5v0ICvybIxo/gbjh9Uy3l
+7ZizlWNof/k19N+IxWA1ksB8aRxhlRbQ694Lrz4EEEVlWFA4r0jyWbYW8jwNkALG
+cC4BrTwV1wIDAQABo0IwQDAPBgNVHRMBAf8EBTADAQH/MA4GA1UdDwEB/wQEAwIB
+BjAdBgNVHQ4EFgQU7edvdlq/YOxJW8ald7tyFnGbxD0wDQYJKoZIhvcNAQELBQAD
+ggIBAJHfgD9DCX5xwvfrs4iP4VGyvD11+ShdyLyZm3tdquXK4Qr36LLTn91nMX66
+AarHakE7kNQIXLJgapDwyM4DYvmL7ftuKtwGTTwpD4kWilhMSA/ohGHqPHKmd+RC
+roijQ1h5fq7KpVMNqT1wvSAZYaRsOPxDMuHBR//47PERIjKWnML2W2mWeyAMQ0Ga
+W/ZZGYjeVYg3UQt4XAoeo0L9x52ID8DyeAIkVJOviYeIyUqAHerQbj5hLja7NQ4n
+lv1mNDthcnPxFlxHBlRJAHpYErAK74X9sbgzdWqTHBLmYF5vHX/JHyPLhGGfHoJE
++V+tYlUkmlKY7VHnoX6XOuYvHxHaU4AshZ6rNRDbIl9qxV6XU/IyAgkwo1jwDQHV
+csaxfGl7w/U2Rcxhbl5MlMVerugOXou/983g7aEOGzPuVBj+D77vfoRrQ+NwmNtd
+dbINWQeFFSM51vHfqSYP1kjHs6Yi9TM3WpVHn3u6GBVv/9YUZINJ0gpnIdsPNWNg
+KCLjsZWDzYWm3S8P52dSbrsvhXz1SnPnxT7AvSESBT/8twNJAlvIJebiVDj1eYeM
+HVOyToV7BjjHLPj4sHKNJeV3UvQDHEimUF+IIDBu8oJDqz2XhOdT+yHBTw8imoa4
+WSr2Rz0ZiC3oheGe7IUIarFsNMkd7EgrO3jtZsSOeWmD3n+M
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: QuoVadis Root CA 2 G3
+Thumbprint: 093C61F38B8BDC7D55DF7538020500E125F5C836</help_link>
+</setting>
+</section>
+<section id='1'>
+<setting id='40001' enforce_additional_value='1'>
+<incorrect_text>SSID 'eduroam' needs to be configured.</incorrect_text>
+<when_repaired_text>SSID 'eduroam' was configured.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>CP:00006006:eduroam</additional_value>
+</setting>
+</section>
+<section id='2'>
+<setting id='65001'>
+<incorrect_text>EAP Type PEAP needs to be selected.</incorrect_text>
+<when_repaired_text>EAP Type PEAP was selected.</when_repaired_text>
+<required_value>PEAP</required_value>
+</setting>
+<setting id='65003'>
+<incorrect_text>PEAP Authentication Method needs to be set to EAP-MSCHAPV2.</incorrect_text>
+<when_repaired_text>PEAP Authentication Method was set to EAP-MSCHAPV2.</when_repaired_text>
+<required_value>MSCHAPV2</required_value>
+</setting>
+<setting id='65000'>
+<incorrect_text>Validate Server Certificate needs to be enabled.</incorrect_text>
+<when_repaired_text>Validate Server Certificate was enabled.</when_repaired_text>
+<required_value>1</required_value>
+</setting>
+<setting id='61416'>
+<incorrect_text>Validate server name needs to be enabled.</incorrect_text>
+<when_repaired_text>Validate server name was enabled.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>radius.gla.ac.uk;radius.gla.ac.uk</additional_value>
+</setting>
+</section>
+</sections>
+</profile>
+<profile show_pre_creds='1'>
+<name>Android 10.0 Wireless Connections</name>
+<conditions>
+<condition key='OS' operator='EQ'>Android</condition>
+<condition key='VERSION' operator='EQ'>10.0</condition>
+<condition key='TYPE' operator='EQ'>2</condition>
+</conditions>
+<sections>
+<section id='0'>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'QuoVadis Root CA 2' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'QuoVadis Root CA 2' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>ca 3a fb cf 12 40 36 4b 44 b2 16 20 88 80 48 39 19 93 7c f7</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIFtzCCA5+gAwIBAgICBQkwDQYJKoZIhvcNAQEFBQAwRTELMAkGA1UEBhMCQk0x
+GTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxGzAZBgNVBAMTElF1b1ZhZGlzIFJv
+b3QgQ0EgMjAeFw0wNjExMjQxODI3MDBaFw0zMTExMjQxODIzMzNaMEUxCzAJBgNV
+BAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBMaW1pdGVkMRswGQYDVQQDExJRdW9W
+YWRpcyBSb290IENBIDIwggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQCa
+GMpLlA0ALa8DKYrwD4HIrkwZhR0In6spRIXzL4GtMh6QRr+jhiYaHv5+HBg6XJxg
+Fyo6dIMzMH1hVBHL7avg5tKifvVrbxi3Cgst/ek+7wrGsxDp3MJGF/hd/aTa/55J
+WpzmM+Yklvc/ulsrHHo1wtZn/qtmUIttKGAr79dgw8eTvI02kfN/+NsRE8Scd3bB
+rrcCaoF6qUWD4gXmuVbBlDePSHFjIuwXZQeVikvfj8ZaCuWw419eaxGrDPmF60Tp
++ARz8un+XJiM9XOva7R+zdRcAitMOeGylZUtQofX1bOQQ7dsE/He3fbE+Ik/0XX1
+ksOR1YqI0JDs3G3eicJlcZaLDQP9nL9bFqyS2+r+eXyt66/3FsvbzSUr5R/7mp/i
+Ucw6UwxI5g69ybR2BlLmEROFcmMDBOAENisgGQLodKcftslWZvB1JdxnwQ5hYIiz
+PtGo/KPaHbDRsSNU30R2be1B2MGyIrZTHN81Hdyhdyox5C315eXbyOD/5YDXC2Og
+/zOhD7osFRXql7PSorW+8oyWHhqPHWykYTe5hnMz15eWniN9gqRMgeKh0bpnX5UH
+oycR7hYQe7xFSkyyBNKr79X9DFHOUGoIMfmR2gyPZFwDwzqLID9ujWc9Otb+fVuI
+yV77zGHcizN300QyNQliBJIWENieJ0f7OyHj+OsdWwIDAQABo4GwMIGtMA8GA1Ud
+EwEB/wQFMAMBAf8wCwYDVR0PBAQDAgEGMB0GA1UdDgQWBBQahGK8SEwzJQTU7tD2
+A8QZRtGUazBuBgNVHSMEZzBlgBQahGK8SEwzJQTU7tD2A8QZRtGUa6FJpEcwRTEL
+MAkGA1UEBhMCQk0xGTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxGzAZBgNVBAMT
+ElF1b1ZhZGlzIFJvb3QgQ0EgMoICBQkwDQYJKoZIhvcNAQEFBQADggIBAD4KFk2f
+BluornFdLwUvZ+YTRYPENvbzwCYMDbVHZF34tHLJRqUDGCdViXh9duqWNIAXINzn
+g/iN/Ae42l9NLmeyhP3ZRPx3UIHmfLTJDQtyU/h2BwdBR5YM++CCJpNVjP4iH2Bl
+fF/nJrP3MpCYUNQ3cVX2kiF495V5+vgtJodmVjB3pjd4M1IQWK4/YY7yarHvGH5K
+WWPKjaJW1acvvFYfzznB4vsKqBUsfU16Y8Zsl0Q80m/DShcK+JDSV6IZUaUtl0Ha
+B0+pUNqQjZRG4T7wlP0QADj1O+hA4bRuVhogzG9Yje0uRY/W6ZM/57Es3zrWIozc
+hLsib9D45MY56QSIPMO661V6bYCZJPVsAfv4l7CUW+v90m/xd2gNNWQjrLhVoQPR
+TUIZ3Ph1WVaj+ahJefivDrkRoHy3au000LYmYjgahwz46P0u05B/B5EqHdZ+XIWD
+mbA4CD/pXvk1B+TJYm5Xf6dQlfe6yJvmjqIBxdZmv3lh8zwc4bmCXF2gw+nYSL0Z
+ohEUGW6yhhtoPkg3Goi3XZZenMfvJ2II4pEZXNLxId26F0KCl3GBUzGpn/Z9Yr9y
+4aOTHcyKJloJONDO1w2AFrR4pTqHTI2KpdVGl/IsELm8VCLAAVBpQ570su9t+Oza
+8eOx79+Rj1QqCyXBJhnEUhAFZdWCEOrCMc0u
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: QuoVadis Root CA 2
+Thumbprint: CA3AFBCF1240364B44B216208880483919937CF7</help_link>
+</setting>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'QuoVadis Global SSL ICA G2' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'QuoVadis Global SSL ICA G2' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>d1 56 51 b2 2a 5e b8 af f1 51 3e 55 9f e4 e2 48 fb cc eb 28</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIFljCCA36gAwIBAgIUUQ5H7Gxm0zz/3sVS/YhAl4ycJz4wDQYJKoZIhvcNAQEL
+BQAwRTELMAkGA1UEBhMCQk0xGTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxGzAZ
+BgNVBAMTElF1b1ZhZGlzIFJvb3QgQ0EgMjAeFw0yMjA1MjUxOTQ3MzlaFw0yNzA1
+MjQxOTQ3MzhaME0xCzAJBgNVBAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBMaW1p
+dGVkMSMwIQYDVQQDExpRdW9WYWRpcyBHbG9iYWwgU1NMIElDQSBHMjCCASIwDQYJ
+KoZIhvcNAQEBBQADggEPADCCAQoCggEBAOHhhWmUwI9X+jT+wbho5JmQqYh6zle3
+0OS1VMIYfdDDGeipY4D3t9zSGaNasGDZdrQdMlY18WyjnEKhi4ojNZdBewVphCiO
+zh5Ni2Ak8bSI/sBQ9sKPrpd0+UCqbvaGs6Tpx190ZRT0Pdy+TqOYZF/jBmzBj7Yf
+XJmWxlfCy62UiQ6tvv+4C6W2OPu1R4HUD8oJ8Qo7Eg0cD+GFsBM2w8soffyl+Dc6
+pKtARmOClUC7EqyWP0V9953lA34kuJZlYxxdgghBTn9rWoaQw/Lr5Fn0Xgd7fYS3
+/zGhmXYvVsuAxIn8Gk+YaeoLZ8H9tUvnDD3lEHzvIsMPxqtd7IgcVaMCAwEAAaOC
+AXQwggFwMBIGA1UdEwEB/wQIMAYBAf8CAQAwHwYDVR0jBBgwFoAUGoRivEhMMyUE
+1O7Q9gPEGUbRlGswcgYIKwYBBQUHAQEEZjBkMDYGCCsGAQUFBzAChipodHRwOi8v
+dHJ1c3QucXVvdmFkaXNnbG9iYWwuY29tL3F2cmNhMi5jcnQwKgYIKwYBBQUHMAGG
+Hmh0dHA6Ly9vY3NwLnF1b3ZhZGlzZ2xvYmFsLmNvbTA8BgNVHSAENTAzMA4GDCsG
+AQQBvlgAAmQBAjAHBgVngQwBATAIBgZngQwBAgIwDgYMKwYBBAG+WAACZAEBMB0G
+A1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDATA5BgNVHR8EMjAwMC6gLKAqhiho
+dHRwOi8vY3JsLnF1b3ZhZGlzZ2xvYmFsLmNvbS9xdnJjYTIuY3JsMB0GA1UdDgQW
+BBSRGWKtWxenMPvw3jklsb2MubhRJzAOBgNVHQ8BAf8EBAMCAQYwDQYJKoZIhvcN
+AQELBQADggIBAGD4DLtUlh+MOmXTKrt8y7eP/KkhwllG859Y/VcekXPQOjztRpDa
+0d0YSPNcZoQOnYqh0qWj77sohZdDBXfDi2uRN6MA6M9f73zHQdlLBDJ47r8muv5T
+Q4825zYerBqUpx0JT/fUEJlT91doVDUkWa2YI8gS+MJxbsUo7/HdD7XxUpHntILa
+wrs/AwxlZOBVwpt7FZao1A3xlodxeBzBM9uwtgHS9dkrRIxEz7eTugtglzpdO8GR
+iB/EX8WorAX6/OVm8DV5v0/e/JxmpDFkf3klndOi7Ijz71jk3eyTGlTqS55Py6Nh
+vxdlF06e4E0l3pAohkA/KQzUFQyScjGjVn0qjBZ3Ie/FHzhGX+zsAz8FQVW8UCZy
+KlVvvkXZVKrLb+IK+crxU6ZgW5xsgGfHGaMdpTY0Lf4jIN6EmF6Opj49iL2wlWMQ
+cuHewejrEtw5pgOFRgMxo2eEfaEJs8SSOG0yh/r6YrXZWN5D3h+TJU8X0XBnAvWD
+LWu9mFQ9M/4wLpF+rcjuIrcdwE5bAUwBy1hQTIuCxi528AX4r5zlYC8sF1UeAPVf
+KnoDo5yO+MGJ2YfszxRxtERb8osZcfqTOfuLIYNacYoiQ+Qobn6ycSLMHF5awRbm
+ShUz0wLFNFMGEClbXCoWqwd3NKKKIa1OOOfbcQ4BXwxHGs/4kOaOeJOq
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: QuoVadis Global SSL ICA G2
+Thumbprint: D15651B22A5EB8AFF1513E559FE4E248FBCCEB28</help_link>
+</setting>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'AAA Certificate Services' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'AAA Certificate Services' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>d1 eb 23 a4 6d 17 d6 8f d9 25 64 c2 f1 f1 60 17 64 d8 e3 49</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIEMjCCAxqgAwIBAgIBATANBgkqhkiG9w0BAQUFADB7MQswCQYDVQQGEwJHQjEb
+MBkGA1UECAwSR3JlYXRlciBNYW5jaGVzdGVyMRAwDgYDVQQHDAdTYWxmb3JkMRow
+GAYDVQQKDBFDb21vZG8gQ0EgTGltaXRlZDEhMB8GA1UEAwwYQUFBIENlcnRpZmlj
+YXRlIFNlcnZpY2VzMB4XDTA0MDEwMTAwMDAwMFoXDTI4MTIzMTIzNTk1OVowezEL
+MAkGA1UEBhMCR0IxGzAZBgNVBAgMEkdyZWF0ZXIgTWFuY2hlc3RlcjEQMA4GA1UE
+BwwHU2FsZm9yZDEaMBgGA1UECgwRQ29tb2RvIENBIExpbWl0ZWQxITAfBgNVBAMM
+GEFBQSBDZXJ0aWZpY2F0ZSBTZXJ2aWNlczCCASIwDQYJKoZIhvcNAQEBBQADggEP
+ADCCAQoCggEBAL5AnfRu4ep2hxxNRUSOvkbIgwadwSr+GB+O5AL686tdUIoWMQua
+BtDFcCLNSS1UY8y2bmhGC1Pqy0wkwLxyTurxFa70VJoSCsN6sjNg4tqJVfMiWPPe
+3M/vg4aijJRPn2jymJBGhCfHdr/jzDUsi14HZGWCwEiwqJH5YZ92IFCokcdmtet4
+YgNW8IoaE+oxox6gmf049vYnMlhvB/VruPsUK6+3qszWY19zjNoFmag4qMsXeDZR
+rOme9Hg6jc8P2ULimAyrL58OAd7vn5lJ8S3frHRNG5i1R8XlKdH5kBjHYpy+g8cm
+ez6KJcfA3Z3mNWgQIJ2P2N7Sw4ScDV7oL8kCAwEAAaOBwDCBvTAdBgNVHQ4EFgQU
+oBEKIz6W8Qfs4q8p74Klf9AwpLQwDgYDVR0PAQH/BAQDAgEGMA8GA1UdEwEB/wQF
+MAMBAf8wewYDVR0fBHQwcjA4oDagNIYyaHR0cDovL2NybC5jb21vZG9jYS5jb20v
+QUFBQ2VydGlmaWNhdGVTZXJ2aWNlcy5jcmwwNqA0oDKGMGh0dHA6Ly9jcmwuY29t
+b2RvLm5ldC9BQUFDZXJ0aWZpY2F0ZVNlcnZpY2VzLmNybDANBgkqhkiG9w0BAQUF
+AAOCAQEACFb8AvCb6P+k+tZ7xkSAzk/ExfYAWMymtrwUSWgEdujm7l3sAg9g1o1Q
+GE8mTgHj5rCl7r+8dFRBv/38ErjHT1r0iWAFf2C3BUrz9vHCv8S5dIa2LX1rzNLz
+Rt0vxuBqw8M0Ayx9lt1awg6nCpnBBYurDC/zXDrPbDdVCYfeU0BsWO/8tqtlbgT2
+G9w84FoVxp7Z8VlIMCFlA2zs6SFz7JsDoeA3raAVGI/6ugLOpyypEBMs1OUIJqsi
+l2D4kF501KKaU73yqWjgom7C12yxow+ev+to51byrvLjKzg6CYG1a4XXvi3tPxq3
+smPi9WIsgtRqAEFQ8TmDn5XpNpaYbg==
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: AAA Certificate Services
+Thumbprint: D1EB23A46D17D68FD92564C2F1F1601764D8E349</help_link>
+</setting>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'USERTrust RSA Certification Authority' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'USERTrust RSA Certification Authority' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>d8 9e 3b d4 3d 5d 90 9b 47 a1 89 77 aa 9d 5c e3 6c ee 18 4c</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIFgTCCBGmgAwIBAgIQOXJEOvkit1HX02wQ3TE1lTANBgkqhkiG9w0BAQwFADB7
+MQswCQYDVQQGEwJHQjEbMBkGA1UECAwSR3JlYXRlciBNYW5jaGVzdGVyMRAwDgYD
+VQQHDAdTYWxmb3JkMRowGAYDVQQKDBFDb21vZG8gQ0EgTGltaXRlZDEhMB8GA1UE
+AwwYQUFBIENlcnRpZmljYXRlIFNlcnZpY2VzMB4XDTE5MDMxMjAwMDAwMFoXDTI4
+MTIzMTIzNTk1OVowgYgxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpOZXcgSmVyc2V5
+MRQwEgYDVQQHEwtKZXJzZXkgQ2l0eTEeMBwGA1UEChMVVGhlIFVTRVJUUlVTVCBO
+ZXR3b3JrMS4wLAYDVQQDEyVVU0VSVHJ1c3QgUlNBIENlcnRpZmljYXRpb24gQXV0
+aG9yaXR5MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAgBJlFzYOw9sI
+s9CsVw127c0n00ytUINh4qogTQktZAnczomfzD2p7PbPwdzx07HWezcoEStH2jnG
+vDoZtF+mvX2do2NCtnbyqTsrkfjib9DsFiCQCT7i6HTJGLSR1GJk23+jBvGIGGqQ
+Ijy8/hPwhxR79uQfjtTkUcYRZ0YIUcuGFFQ/vDP+fmyc/xadGL1RjjWmp2bIcmfb
+IWax1Jt4A8BQOujM8Ny8nkz+rwWWNR9XWrf/zvk9tyy29lTdyOcSOk2uTIq3XJq0
+tyA9yn8iNK5+O2hmAUTnAU5GU5szYPeUvlM3kHND8zLDU+/bqv50TmnHa4xgk97E
+xwzf4TKuzJM7UXiVZ4vuPVb+DNBpDxsP8yUmazNt925H+nND5X4OpWaxKXwyhGNV
+icQNwZNUMBkTrNN9N6frXTpsNVzbQdcS2qlJC9/YgIoJk2KOtWbPJYjNhLixP6Q5
+D9kCnusSTJV882sFqV4Wg8y4Z+LoE53MW4LTTLPtW//e5XOsIzstAL81VXQJSdhJ
+WBp/kjbmUZIO8yZ9HE0XvMnsQybQv0FfQKlERPSZ51eHnlAfV1SoPv10Yy+xUGUJ
+5lhCLkMaTLTwJUdZ+gQek9QmRkpQgbLevni3/GcV4clXhB4PY9bpYrrWX1Uu6lzG
+KAgEJTm4Diup8kyXHAc/DVL17e8vgg8CAwEAAaOB8jCB7zAfBgNVHSMEGDAWgBSg
+EQojPpbxB+zirynvgqV/0DCktDAdBgNVHQ4EFgQUU3m/WqorSs9UgOHYm8Cd8rID
+ZsswDgYDVR0PAQH/BAQDAgGGMA8GA1UdEwEB/wQFMAMBAf8wEQYDVR0gBAowCDAG
+BgRVHSAAMEMGA1UdHwQ8MDowOKA2oDSGMmh0dHA6Ly9jcmwuY29tb2RvY2EuY29t
+L0FBQUNlcnRpZmljYXRlU2VydmljZXMuY3JsMDQGCCsGAQUFBwEBBCgwJjAkBggr
+BgEFBQcwAYYYaHR0cDovL29jc3AuY29tb2RvY2EuY29tMA0GCSqGSIb3DQEBDAUA
+A4IBAQAYh1HcdCE9nIrgJ7cz0C7M7PDmy14R3iJvm3WOnnL+5Nb+qh+cli3vA0p+
+rvSNb3I8QzvAP+u431yqqcau8vzY7qN7Q/aGNnwU4M309z/+3ri0ivCRlv79Q2R+
+/czSAaF9ffgZGclCKxO/WIu6pKJmBHaIkU4MiRTOok3JMrO66BQavHHxW/BBC5gA
+CiIDEOUMsfnNkjcZ7Tvx5Dq2+UUTJnWvu6rvP3t3O9LEApE9GQDTF1w52z97GA1F
+zZOFli9d31kWTz9RvdVFGD/tSo7oBmF0Ixa1DVBzJ0RHfxBdiSprhTEUxOipakyA
+vGp4z7h/jnZymQyd/teRCBaho1+V
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: USERTrust RSA Certification Authority
+Thumbprint: D89E3BD43D5D909B47A18977AA9D5CE36CEE184C</help_link>
+</setting>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'GEANT OV RSA CA 4' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'GEANT OV RSA CA 4' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>c2 82 6e 26 6d 74 05 d3 4e f8 97 62 63 6a e4 b3 6e 86 cb 5e</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIG5TCCBM2gAwIBAgIRANpDvROb0li7TdYcrMTz2+AwDQYJKoZIhvcNAQEMBQAw
+gYgxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpOZXcgSmVyc2V5MRQwEgYDVQQHEwtK
+ZXJzZXkgQ2l0eTEeMBwGA1UEChMVVGhlIFVTRVJUUlVTVCBOZXR3b3JrMS4wLAYD
+VQQDEyVVU0VSVHJ1c3QgUlNBIENlcnRpZmljYXRpb24gQXV0aG9yaXR5MB4XDTIw
+MDIxODAwMDAwMFoXDTMzMDUwMTIzNTk1OVowRDELMAkGA1UEBhMCTkwxGTAXBgNV
+BAoTEEdFQU5UIFZlcmVuaWdpbmcxGjAYBgNVBAMTEUdFQU5UIE9WIFJTQSBDQSA0
+MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEApYhi1aEiPsg9ZKRMAw9Q
+r8Mthsr6R20VSfFeh7TgwtLQi6RSRLOh4or4EMG/1th8lijv7xnBMVZkTysFiPmT
+PiLOfvz+QwO1NwjvgY+Jrs7fSoVA/TQkXzcxu4Tl3WHi+qJmKLJVu/JOuHud6mOp
+LWkIbhODSzOxANJ24IGPx9h4OXDyy6/342eE6UPXCtJ8AzeumTG6Dfv5KVx24lCF
+TGUzHUB+j+g0lSKg/Sf1OzgCajJV9enmZ/84ydh48wPp6vbWf1H0O3Rd3LhpMSVn
+TqFTLKZSbQeLcx/l9DOKZfBCC9ghWxsgTqW9gQ7v3T3aIfSaVC9rnwVxO0VjmDdP
+FNbdoxnh0zYwf45nV1QQgpRwZJ93yWedhp4ch1a6Ajwqs+wv4mZzmBSjovtV0mKw
+d+CQbSToalEUP4QeJq4Udz5WNmNMI4OYP6cgrnlJ50aa0DZPlJqrKQPGL69KQQz1
+2WgxvhCuVU70y6ZWAPopBa1ykbsttpLxADZre5cH573lIuLHdjx7NjpYIXRx2+QJ
+URnX2qx37eZIxYXz8ggM+wXH6RDbU3V2o5DP67hXPHSAbA+p0orjAocpk2osxHKo
+NSE3LCjNx8WVdxnXvuQ28tKdaK69knfm3bB7xpdfsNNTPH9ElcjscWZxpeZ5Iij8
+lyrCG1z0vSWtSBsgSnUyG/sCAwEAAaOCAYswggGHMB8GA1UdIwQYMBaAFFN5v1qq
+K0rPVIDh2JvAnfKyA2bLMB0GA1UdDgQWBBRvHTVJEGwy+lmgnryK6B+VvnF6DDAO
+BgNVHQ8BAf8EBAMCAYYwEgYDVR0TAQH/BAgwBgEB/wIBADAdBgNVHSUEFjAUBggr
+BgEFBQcDAQYIKwYBBQUHAwIwOAYDVR0gBDEwLzAtBgRVHSAAMCUwIwYIKwYBBQUH
+AgEWF2h0dHBzOi8vc2VjdGlnby5jb20vQ1BTMFAGA1UdHwRJMEcwRaBDoEGGP2h0
+dHA6Ly9jcmwudXNlcnRydXN0LmNvbS9VU0VSVHJ1c3RSU0FDZXJ0aWZpY2F0aW9u
+QXV0aG9yaXR5LmNybDB2BggrBgEFBQcBAQRqMGgwPwYIKwYBBQUHMAKGM2h0dHA6
+Ly9jcnQudXNlcnRydXN0LmNvbS9VU0VSVHJ1c3RSU0FBZGRUcnVzdENBLmNydDAl
+BggrBgEFBQcwAYYZaHR0cDovL29jc3AudXNlcnRydXN0LmNvbTANBgkqhkiG9w0B
+AQwFAAOCAgEAUtlC3e0xj/1BMfPhdQhUXeLjb0xp8UE28kzWE5xDzGKbfGgnrT2R
+lw5gLIx+/cNVrad//+MrpTppMlxq59AsXYZW3xRasrvkjGfNR3vt/1RAl8iI31lG
+hIg6dfIX5N4esLkrQeN8HiyHKH6khm4966IkVVtnxz5CgUPqEYn4eQ+4eeESrWBh
+AqXaiv7HRvpsdwLYekAhnrlGpioZ/CJIT2PTTxf+GHM6cuUnNqdUzfvrQgA8kt1/
+ASXx2od/M+c8nlJqrGz29lrJveJOSEMX0c/ts02WhsfMhkYa6XujUZLmvR1Eq08r
+48/EZ4l+t5L4wt0DV8VaPbsEBF1EOFpz/YS2H6mSwcFaNJbnYqqJHIvm3PLJHkFm
+EoLXRVrQXdCT+3wgBfgU6heCV5CYBz/YkrdWES7tiiT8sVUDqXmVlTsbiRNiyLs2
+bmEWWFUl76jViIJog5fongEqN3jLIGTG/mXrJT1UyymIcobnIGrbwwRVz/mpFQo0
+vBYIi1k2ThVh0Dx88BbF9YiP84dd8Fkn5wbE6FxXYJ287qfRTgmhePecPc73Yrzt
+apdRcsKVGkOpaTIJP/l+lAHRLZxk/dUtyN95G++bOSQqnOCpVPabUGl2E/OEyFrp
+Ipwgu2L/WJclvd6g+ZA/iWkLSMcpnFb+uX6QBqvD6+RNxul1FaB5iHY=
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: GEANT OV RSA CA 4
+Thumbprint: C2826E266D7405D34EF89762636AE4B36E86CB5E</help_link>
+</setting>
+<setting id='61310' enforce_additional_value='1'>
+<incorrect_text>Root CA 'QuoVadis Root CA 2 G3' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'QuoVadis Root CA 2 G3' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>09 3c 61 f3 8b 8b dc 7d 55 df 75 38 02 05 00 e1 25 f5 c8 36</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIFYDCCA0igAwIBAgIURFc0JFuBiZs18s64KztbpybwdSgwDQYJKoZIhvcNAQEL
+BQAwSDELMAkGA1UEBhMCQk0xGTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxHjAc
+BgNVBAMTFVF1b1ZhZGlzIFJvb3QgQ0EgMiBHMzAeFw0xMjAxMTIxODU5MzJaFw00
+MjAxMTIxODU5MzJaMEgxCzAJBgNVBAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBM
+aW1pdGVkMR4wHAYDVQQDExVRdW9WYWRpcyBSb290IENBIDIgRzMwggIiMA0GCSqG
+SIb3DQEBAQUAA4ICDwAwggIKAoICAQChriWyARjcV4g/Ruv5r+LrI3HimtFhZiFf
+qq8nUeVuGxbULX1QsFN3vXg6YOJkApt8hpvWGo6t/x8Vf9WVHhLL5hSEBMHfNrMW
+n4rjyduYNM7YMxcoRvynyfDStNVNCXJJ+fKH46nafaF9a7I6JaltUkSs+L5u+9ym
+c5GQYaYDFCDy54ejiK2toIz/pgslUiXnFgHVy7g1gQyjO/Dh4fxaXc6AcW34Sas+
+O7q414AB+6XrW7PFXmAqMaCvN+ggOp+oMiwMzAkd056OXbxMmO7FGmh77FOm6RQ1
+o9/NgJ8MSPsc9PG/Srj61YxxSscfrf5BmrODXfKEVu+lV0POKa2Mq1W/xPtbAd0j
+IaFYAI7D0GoT7RPjEiuA3GfmlbLNHiJuKvhB1PLKFAeNilUSxmn1uIZoL1NesNKq
+IcGY5jDjZ1XHm26sGahVpkUG0CM62+tlXSoREfA7T8pt9DTEceT/AFr2XK4jYIVz
+8eQQsSWu1ZK7E8EM4DnatDlXtas1qnIhO4M15zHfeiFuuDIIfR0ykRVKYnLP43eh
+vNURG3YBZwjgQQvD6xVu+KQZ2aKrr+InUlYrAoosFCT5v0ICvybIxo/gbjh9Uy3l
+7ZizlWNof/k19N+IxWA1ksB8aRxhlRbQ694Lrz4EEEVlWFA4r0jyWbYW8jwNkALG
+cC4BrTwV1wIDAQABo0IwQDAPBgNVHRMBAf8EBTADAQH/MA4GA1UdDwEB/wQEAwIB
+BjAdBgNVHQ4EFgQU7edvdlq/YOxJW8ald7tyFnGbxD0wDQYJKoZIhvcNAQELBQAD
+ggIBAJHfgD9DCX5xwvfrs4iP4VGyvD11+ShdyLyZm3tdquXK4Qr36LLTn91nMX66
+AarHakE7kNQIXLJgapDwyM4DYvmL7ftuKtwGTTwpD4kWilhMSA/ohGHqPHKmd+RC
+roijQ1h5fq7KpVMNqT1wvSAZYaRsOPxDMuHBR//47PERIjKWnML2W2mWeyAMQ0Ga
+W/ZZGYjeVYg3UQt4XAoeo0L9x52ID8DyeAIkVJOviYeIyUqAHerQbj5hLja7NQ4n
+lv1mNDthcnPxFlxHBlRJAHpYErAK74X9sbgzdWqTHBLmYF5vHX/JHyPLhGGfHoJE
++V+tYlUkmlKY7VHnoX6XOuYvHxHaU4AshZ6rNRDbIl9qxV6XU/IyAgkwo1jwDQHV
+csaxfGl7w/U2Rcxhbl5MlMVerugOXou/983g7aEOGzPuVBj+D77vfoRrQ+NwmNtd
+dbINWQeFFSM51vHfqSYP1kjHs6Yi9TM3WpVHn3u6GBVv/9YUZINJ0gpnIdsPNWNg
+KCLjsZWDzYWm3S8P52dSbrsvhXz1SnPnxT7AvSESBT/8twNJAlvIJebiVDj1eYeM
+HVOyToV7BjjHLPj4sHKNJeV3UvQDHEimUF+IIDBu8oJDqz2XhOdT+yHBTw8imoa4
+WSr2Rz0ZiC3oheGe7IUIarFsNMkd7EgrO3jtZsSOeWmD3n+M
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: QuoVadis Root CA 2 G3
+Thumbprint: 093C61F38B8BDC7D55DF7538020500E125F5C836</help_link>
+</setting>
+</section>
+<section id='1'>
+<setting id='40001' enforce_additional_value='1'>
+<incorrect_text>SSID 'eduroam' needs to be configured.</incorrect_text>
+<when_repaired_text>SSID 'eduroam' was configured.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>CP:00006006:eduroam</additional_value>
+</setting>
+</section>
+<section id='2'>
+<setting id='65001'>
+<incorrect_text>EAP Type PEAP needs to be selected.</incorrect_text>
+<when_repaired_text>EAP Type PEAP was selected.</when_repaired_text>
+<required_value>PEAP</required_value>
+</setting>
+<setting id='65003'>
+<incorrect_text>PEAP Authentication Method needs to be set to EAP-MSCHAPV2.</incorrect_text>
+<when_repaired_text>PEAP Authentication Method was set to EAP-MSCHAPV2.</when_repaired_text>
+<required_value>MSCHAPV2</required_value>
+</setting>
+<setting id='65000'>
+<incorrect_text>Validate Server Certificate needs to be enabled.</incorrect_text>
+<when_repaired_text>Validate Server Certificate was enabled.</when_repaired_text>
+<required_value>1</required_value>
+</setting>
+<setting id='61416'>
+<incorrect_text>Validate server name needs to be enabled.</incorrect_text>
+<when_repaired_text>Validate server name was enabled.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>radius.gla.ac.uk;radius.gla.ac.uk</additional_value>
+</setting>
+</section>
+</sections>
+</profile>
+<profile show_pre_creds='1'>
+<name>Android 11.0 Wireless Connections</name>
+<conditions>
+<condition key='OS' operator='EQ'>Android</condition>
+<condition key='VERSION' operator='EQ'>11.0</condition>
+<condition key='TYPE' operator='EQ'>2</condition>
+</conditions>
+<sections>
+<section id='0'>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'QuoVadis Root CA 2' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'QuoVadis Root CA 2' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>ca 3a fb cf 12 40 36 4b 44 b2 16 20 88 80 48 39 19 93 7c f7</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIFtzCCA5+gAwIBAgICBQkwDQYJKoZIhvcNAQEFBQAwRTELMAkGA1UEBhMCQk0x
+GTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxGzAZBgNVBAMTElF1b1ZhZGlzIFJv
+b3QgQ0EgMjAeFw0wNjExMjQxODI3MDBaFw0zMTExMjQxODIzMzNaMEUxCzAJBgNV
+BAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBMaW1pdGVkMRswGQYDVQQDExJRdW9W
+YWRpcyBSb290IENBIDIwggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQCa
+GMpLlA0ALa8DKYrwD4HIrkwZhR0In6spRIXzL4GtMh6QRr+jhiYaHv5+HBg6XJxg
+Fyo6dIMzMH1hVBHL7avg5tKifvVrbxi3Cgst/ek+7wrGsxDp3MJGF/hd/aTa/55J
+WpzmM+Yklvc/ulsrHHo1wtZn/qtmUIttKGAr79dgw8eTvI02kfN/+NsRE8Scd3bB
+rrcCaoF6qUWD4gXmuVbBlDePSHFjIuwXZQeVikvfj8ZaCuWw419eaxGrDPmF60Tp
++ARz8un+XJiM9XOva7R+zdRcAitMOeGylZUtQofX1bOQQ7dsE/He3fbE+Ik/0XX1
+ksOR1YqI0JDs3G3eicJlcZaLDQP9nL9bFqyS2+r+eXyt66/3FsvbzSUr5R/7mp/i
+Ucw6UwxI5g69ybR2BlLmEROFcmMDBOAENisgGQLodKcftslWZvB1JdxnwQ5hYIiz
+PtGo/KPaHbDRsSNU30R2be1B2MGyIrZTHN81Hdyhdyox5C315eXbyOD/5YDXC2Og
+/zOhD7osFRXql7PSorW+8oyWHhqPHWykYTe5hnMz15eWniN9gqRMgeKh0bpnX5UH
+oycR7hYQe7xFSkyyBNKr79X9DFHOUGoIMfmR2gyPZFwDwzqLID9ujWc9Otb+fVuI
+yV77zGHcizN300QyNQliBJIWENieJ0f7OyHj+OsdWwIDAQABo4GwMIGtMA8GA1Ud
+EwEB/wQFMAMBAf8wCwYDVR0PBAQDAgEGMB0GA1UdDgQWBBQahGK8SEwzJQTU7tD2
+A8QZRtGUazBuBgNVHSMEZzBlgBQahGK8SEwzJQTU7tD2A8QZRtGUa6FJpEcwRTEL
+MAkGA1UEBhMCQk0xGTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxGzAZBgNVBAMT
+ElF1b1ZhZGlzIFJvb3QgQ0EgMoICBQkwDQYJKoZIhvcNAQEFBQADggIBAD4KFk2f
+BluornFdLwUvZ+YTRYPENvbzwCYMDbVHZF34tHLJRqUDGCdViXh9duqWNIAXINzn
+g/iN/Ae42l9NLmeyhP3ZRPx3UIHmfLTJDQtyU/h2BwdBR5YM++CCJpNVjP4iH2Bl
+fF/nJrP3MpCYUNQ3cVX2kiF495V5+vgtJodmVjB3pjd4M1IQWK4/YY7yarHvGH5K
+WWPKjaJW1acvvFYfzznB4vsKqBUsfU16Y8Zsl0Q80m/DShcK+JDSV6IZUaUtl0Ha
+B0+pUNqQjZRG4T7wlP0QADj1O+hA4bRuVhogzG9Yje0uRY/W6ZM/57Es3zrWIozc
+hLsib9D45MY56QSIPMO661V6bYCZJPVsAfv4l7CUW+v90m/xd2gNNWQjrLhVoQPR
+TUIZ3Ph1WVaj+ahJefivDrkRoHy3au000LYmYjgahwz46P0u05B/B5EqHdZ+XIWD
+mbA4CD/pXvk1B+TJYm5Xf6dQlfe6yJvmjqIBxdZmv3lh8zwc4bmCXF2gw+nYSL0Z
+ohEUGW6yhhtoPkg3Goi3XZZenMfvJ2II4pEZXNLxId26F0KCl3GBUzGpn/Z9Yr9y
+4aOTHcyKJloJONDO1w2AFrR4pTqHTI2KpdVGl/IsELm8VCLAAVBpQ570su9t+Oza
+8eOx79+Rj1QqCyXBJhnEUhAFZdWCEOrCMc0u
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: QuoVadis Root CA 2
+Thumbprint: CA3AFBCF1240364B44B216208880483919937CF7</help_link>
+</setting>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'QuoVadis Global SSL ICA G2' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'QuoVadis Global SSL ICA G2' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>d1 56 51 b2 2a 5e b8 af f1 51 3e 55 9f e4 e2 48 fb cc eb 28</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIFljCCA36gAwIBAgIUUQ5H7Gxm0zz/3sVS/YhAl4ycJz4wDQYJKoZIhvcNAQEL
+BQAwRTELMAkGA1UEBhMCQk0xGTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxGzAZ
+BgNVBAMTElF1b1ZhZGlzIFJvb3QgQ0EgMjAeFw0yMjA1MjUxOTQ3MzlaFw0yNzA1
+MjQxOTQ3MzhaME0xCzAJBgNVBAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBMaW1p
+dGVkMSMwIQYDVQQDExpRdW9WYWRpcyBHbG9iYWwgU1NMIElDQSBHMjCCASIwDQYJ
+KoZIhvcNAQEBBQADggEPADCCAQoCggEBAOHhhWmUwI9X+jT+wbho5JmQqYh6zle3
+0OS1VMIYfdDDGeipY4D3t9zSGaNasGDZdrQdMlY18WyjnEKhi4ojNZdBewVphCiO
+zh5Ni2Ak8bSI/sBQ9sKPrpd0+UCqbvaGs6Tpx190ZRT0Pdy+TqOYZF/jBmzBj7Yf
+XJmWxlfCy62UiQ6tvv+4C6W2OPu1R4HUD8oJ8Qo7Eg0cD+GFsBM2w8soffyl+Dc6
+pKtARmOClUC7EqyWP0V9953lA34kuJZlYxxdgghBTn9rWoaQw/Lr5Fn0Xgd7fYS3
+/zGhmXYvVsuAxIn8Gk+YaeoLZ8H9tUvnDD3lEHzvIsMPxqtd7IgcVaMCAwEAAaOC
+AXQwggFwMBIGA1UdEwEB/wQIMAYBAf8CAQAwHwYDVR0jBBgwFoAUGoRivEhMMyUE
+1O7Q9gPEGUbRlGswcgYIKwYBBQUHAQEEZjBkMDYGCCsGAQUFBzAChipodHRwOi8v
+dHJ1c3QucXVvdmFkaXNnbG9iYWwuY29tL3F2cmNhMi5jcnQwKgYIKwYBBQUHMAGG
+Hmh0dHA6Ly9vY3NwLnF1b3ZhZGlzZ2xvYmFsLmNvbTA8BgNVHSAENTAzMA4GDCsG
+AQQBvlgAAmQBAjAHBgVngQwBATAIBgZngQwBAgIwDgYMKwYBBAG+WAACZAEBMB0G
+A1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDATA5BgNVHR8EMjAwMC6gLKAqhiho
+dHRwOi8vY3JsLnF1b3ZhZGlzZ2xvYmFsLmNvbS9xdnJjYTIuY3JsMB0GA1UdDgQW
+BBSRGWKtWxenMPvw3jklsb2MubhRJzAOBgNVHQ8BAf8EBAMCAQYwDQYJKoZIhvcN
+AQELBQADggIBAGD4DLtUlh+MOmXTKrt8y7eP/KkhwllG859Y/VcekXPQOjztRpDa
+0d0YSPNcZoQOnYqh0qWj77sohZdDBXfDi2uRN6MA6M9f73zHQdlLBDJ47r8muv5T
+Q4825zYerBqUpx0JT/fUEJlT91doVDUkWa2YI8gS+MJxbsUo7/HdD7XxUpHntILa
+wrs/AwxlZOBVwpt7FZao1A3xlodxeBzBM9uwtgHS9dkrRIxEz7eTugtglzpdO8GR
+iB/EX8WorAX6/OVm8DV5v0/e/JxmpDFkf3klndOi7Ijz71jk3eyTGlTqS55Py6Nh
+vxdlF06e4E0l3pAohkA/KQzUFQyScjGjVn0qjBZ3Ie/FHzhGX+zsAz8FQVW8UCZy
+KlVvvkXZVKrLb+IK+crxU6ZgW5xsgGfHGaMdpTY0Lf4jIN6EmF6Opj49iL2wlWMQ
+cuHewejrEtw5pgOFRgMxo2eEfaEJs8SSOG0yh/r6YrXZWN5D3h+TJU8X0XBnAvWD
+LWu9mFQ9M/4wLpF+rcjuIrcdwE5bAUwBy1hQTIuCxi528AX4r5zlYC8sF1UeAPVf
+KnoDo5yO+MGJ2YfszxRxtERb8osZcfqTOfuLIYNacYoiQ+Qobn6ycSLMHF5awRbm
+ShUz0wLFNFMGEClbXCoWqwd3NKKKIa1OOOfbcQ4BXwxHGs/4kOaOeJOq
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: QuoVadis Global SSL ICA G2
+Thumbprint: D15651B22A5EB8AFF1513E559FE4E248FBCCEB28</help_link>
+</setting>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'AAA Certificate Services' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'AAA Certificate Services' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>d1 eb 23 a4 6d 17 d6 8f d9 25 64 c2 f1 f1 60 17 64 d8 e3 49</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIEMjCCAxqgAwIBAgIBATANBgkqhkiG9w0BAQUFADB7MQswCQYDVQQGEwJHQjEb
+MBkGA1UECAwSR3JlYXRlciBNYW5jaGVzdGVyMRAwDgYDVQQHDAdTYWxmb3JkMRow
+GAYDVQQKDBFDb21vZG8gQ0EgTGltaXRlZDEhMB8GA1UEAwwYQUFBIENlcnRpZmlj
+YXRlIFNlcnZpY2VzMB4XDTA0MDEwMTAwMDAwMFoXDTI4MTIzMTIzNTk1OVowezEL
+MAkGA1UEBhMCR0IxGzAZBgNVBAgMEkdyZWF0ZXIgTWFuY2hlc3RlcjEQMA4GA1UE
+BwwHU2FsZm9yZDEaMBgGA1UECgwRQ29tb2RvIENBIExpbWl0ZWQxITAfBgNVBAMM
+GEFBQSBDZXJ0aWZpY2F0ZSBTZXJ2aWNlczCCASIwDQYJKoZIhvcNAQEBBQADggEP
+ADCCAQoCggEBAL5AnfRu4ep2hxxNRUSOvkbIgwadwSr+GB+O5AL686tdUIoWMQua
+BtDFcCLNSS1UY8y2bmhGC1Pqy0wkwLxyTurxFa70VJoSCsN6sjNg4tqJVfMiWPPe
+3M/vg4aijJRPn2jymJBGhCfHdr/jzDUsi14HZGWCwEiwqJH5YZ92IFCokcdmtet4
+YgNW8IoaE+oxox6gmf049vYnMlhvB/VruPsUK6+3qszWY19zjNoFmag4qMsXeDZR
+rOme9Hg6jc8P2ULimAyrL58OAd7vn5lJ8S3frHRNG5i1R8XlKdH5kBjHYpy+g8cm
+ez6KJcfA3Z3mNWgQIJ2P2N7Sw4ScDV7oL8kCAwEAAaOBwDCBvTAdBgNVHQ4EFgQU
+oBEKIz6W8Qfs4q8p74Klf9AwpLQwDgYDVR0PAQH/BAQDAgEGMA8GA1UdEwEB/wQF
+MAMBAf8wewYDVR0fBHQwcjA4oDagNIYyaHR0cDovL2NybC5jb21vZG9jYS5jb20v
+QUFBQ2VydGlmaWNhdGVTZXJ2aWNlcy5jcmwwNqA0oDKGMGh0dHA6Ly9jcmwuY29t
+b2RvLm5ldC9BQUFDZXJ0aWZpY2F0ZVNlcnZpY2VzLmNybDANBgkqhkiG9w0BAQUF
+AAOCAQEACFb8AvCb6P+k+tZ7xkSAzk/ExfYAWMymtrwUSWgEdujm7l3sAg9g1o1Q
+GE8mTgHj5rCl7r+8dFRBv/38ErjHT1r0iWAFf2C3BUrz9vHCv8S5dIa2LX1rzNLz
+Rt0vxuBqw8M0Ayx9lt1awg6nCpnBBYurDC/zXDrPbDdVCYfeU0BsWO/8tqtlbgT2
+G9w84FoVxp7Z8VlIMCFlA2zs6SFz7JsDoeA3raAVGI/6ugLOpyypEBMs1OUIJqsi
+l2D4kF501KKaU73yqWjgom7C12yxow+ev+to51byrvLjKzg6CYG1a4XXvi3tPxq3
+smPi9WIsgtRqAEFQ8TmDn5XpNpaYbg==
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: AAA Certificate Services
+Thumbprint: D1EB23A46D17D68FD92564C2F1F1601764D8E349</help_link>
+</setting>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'USERTrust RSA Certification Authority' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'USERTrust RSA Certification Authority' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>d8 9e 3b d4 3d 5d 90 9b 47 a1 89 77 aa 9d 5c e3 6c ee 18 4c</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIFgTCCBGmgAwIBAgIQOXJEOvkit1HX02wQ3TE1lTANBgkqhkiG9w0BAQwFADB7
+MQswCQYDVQQGEwJHQjEbMBkGA1UECAwSR3JlYXRlciBNYW5jaGVzdGVyMRAwDgYD
+VQQHDAdTYWxmb3JkMRowGAYDVQQKDBFDb21vZG8gQ0EgTGltaXRlZDEhMB8GA1UE
+AwwYQUFBIENlcnRpZmljYXRlIFNlcnZpY2VzMB4XDTE5MDMxMjAwMDAwMFoXDTI4
+MTIzMTIzNTk1OVowgYgxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpOZXcgSmVyc2V5
+MRQwEgYDVQQHEwtKZXJzZXkgQ2l0eTEeMBwGA1UEChMVVGhlIFVTRVJUUlVTVCBO
+ZXR3b3JrMS4wLAYDVQQDEyVVU0VSVHJ1c3QgUlNBIENlcnRpZmljYXRpb24gQXV0
+aG9yaXR5MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAgBJlFzYOw9sI
+s9CsVw127c0n00ytUINh4qogTQktZAnczomfzD2p7PbPwdzx07HWezcoEStH2jnG
+vDoZtF+mvX2do2NCtnbyqTsrkfjib9DsFiCQCT7i6HTJGLSR1GJk23+jBvGIGGqQ
+Ijy8/hPwhxR79uQfjtTkUcYRZ0YIUcuGFFQ/vDP+fmyc/xadGL1RjjWmp2bIcmfb
+IWax1Jt4A8BQOujM8Ny8nkz+rwWWNR9XWrf/zvk9tyy29lTdyOcSOk2uTIq3XJq0
+tyA9yn8iNK5+O2hmAUTnAU5GU5szYPeUvlM3kHND8zLDU+/bqv50TmnHa4xgk97E
+xwzf4TKuzJM7UXiVZ4vuPVb+DNBpDxsP8yUmazNt925H+nND5X4OpWaxKXwyhGNV
+icQNwZNUMBkTrNN9N6frXTpsNVzbQdcS2qlJC9/YgIoJk2KOtWbPJYjNhLixP6Q5
+D9kCnusSTJV882sFqV4Wg8y4Z+LoE53MW4LTTLPtW//e5XOsIzstAL81VXQJSdhJ
+WBp/kjbmUZIO8yZ9HE0XvMnsQybQv0FfQKlERPSZ51eHnlAfV1SoPv10Yy+xUGUJ
+5lhCLkMaTLTwJUdZ+gQek9QmRkpQgbLevni3/GcV4clXhB4PY9bpYrrWX1Uu6lzG
+KAgEJTm4Diup8kyXHAc/DVL17e8vgg8CAwEAAaOB8jCB7zAfBgNVHSMEGDAWgBSg
+EQojPpbxB+zirynvgqV/0DCktDAdBgNVHQ4EFgQUU3m/WqorSs9UgOHYm8Cd8rID
+ZsswDgYDVR0PAQH/BAQDAgGGMA8GA1UdEwEB/wQFMAMBAf8wEQYDVR0gBAowCDAG
+BgRVHSAAMEMGA1UdHwQ8MDowOKA2oDSGMmh0dHA6Ly9jcmwuY29tb2RvY2EuY29t
+L0FBQUNlcnRpZmljYXRlU2VydmljZXMuY3JsMDQGCCsGAQUFBwEBBCgwJjAkBggr
+BgEFBQcwAYYYaHR0cDovL29jc3AuY29tb2RvY2EuY29tMA0GCSqGSIb3DQEBDAUA
+A4IBAQAYh1HcdCE9nIrgJ7cz0C7M7PDmy14R3iJvm3WOnnL+5Nb+qh+cli3vA0p+
+rvSNb3I8QzvAP+u431yqqcau8vzY7qN7Q/aGNnwU4M309z/+3ri0ivCRlv79Q2R+
+/czSAaF9ffgZGclCKxO/WIu6pKJmBHaIkU4MiRTOok3JMrO66BQavHHxW/BBC5gA
+CiIDEOUMsfnNkjcZ7Tvx5Dq2+UUTJnWvu6rvP3t3O9LEApE9GQDTF1w52z97GA1F
+zZOFli9d31kWTz9RvdVFGD/tSo7oBmF0Ixa1DVBzJ0RHfxBdiSprhTEUxOipakyA
+vGp4z7h/jnZymQyd/teRCBaho1+V
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: USERTrust RSA Certification Authority
+Thumbprint: D89E3BD43D5D909B47A18977AA9D5CE36CEE184C</help_link>
+</setting>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'GEANT OV RSA CA 4' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'GEANT OV RSA CA 4' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>c2 82 6e 26 6d 74 05 d3 4e f8 97 62 63 6a e4 b3 6e 86 cb 5e</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIG5TCCBM2gAwIBAgIRANpDvROb0li7TdYcrMTz2+AwDQYJKoZIhvcNAQEMBQAw
+gYgxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpOZXcgSmVyc2V5MRQwEgYDVQQHEwtK
+ZXJzZXkgQ2l0eTEeMBwGA1UEChMVVGhlIFVTRVJUUlVTVCBOZXR3b3JrMS4wLAYD
+VQQDEyVVU0VSVHJ1c3QgUlNBIENlcnRpZmljYXRpb24gQXV0aG9yaXR5MB4XDTIw
+MDIxODAwMDAwMFoXDTMzMDUwMTIzNTk1OVowRDELMAkGA1UEBhMCTkwxGTAXBgNV
+BAoTEEdFQU5UIFZlcmVuaWdpbmcxGjAYBgNVBAMTEUdFQU5UIE9WIFJTQSBDQSA0
+MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEApYhi1aEiPsg9ZKRMAw9Q
+r8Mthsr6R20VSfFeh7TgwtLQi6RSRLOh4or4EMG/1th8lijv7xnBMVZkTysFiPmT
+PiLOfvz+QwO1NwjvgY+Jrs7fSoVA/TQkXzcxu4Tl3WHi+qJmKLJVu/JOuHud6mOp
+LWkIbhODSzOxANJ24IGPx9h4OXDyy6/342eE6UPXCtJ8AzeumTG6Dfv5KVx24lCF
+TGUzHUB+j+g0lSKg/Sf1OzgCajJV9enmZ/84ydh48wPp6vbWf1H0O3Rd3LhpMSVn
+TqFTLKZSbQeLcx/l9DOKZfBCC9ghWxsgTqW9gQ7v3T3aIfSaVC9rnwVxO0VjmDdP
+FNbdoxnh0zYwf45nV1QQgpRwZJ93yWedhp4ch1a6Ajwqs+wv4mZzmBSjovtV0mKw
+d+CQbSToalEUP4QeJq4Udz5WNmNMI4OYP6cgrnlJ50aa0DZPlJqrKQPGL69KQQz1
+2WgxvhCuVU70y6ZWAPopBa1ykbsttpLxADZre5cH573lIuLHdjx7NjpYIXRx2+QJ
+URnX2qx37eZIxYXz8ggM+wXH6RDbU3V2o5DP67hXPHSAbA+p0orjAocpk2osxHKo
+NSE3LCjNx8WVdxnXvuQ28tKdaK69knfm3bB7xpdfsNNTPH9ElcjscWZxpeZ5Iij8
+lyrCG1z0vSWtSBsgSnUyG/sCAwEAAaOCAYswggGHMB8GA1UdIwQYMBaAFFN5v1qq
+K0rPVIDh2JvAnfKyA2bLMB0GA1UdDgQWBBRvHTVJEGwy+lmgnryK6B+VvnF6DDAO
+BgNVHQ8BAf8EBAMCAYYwEgYDVR0TAQH/BAgwBgEB/wIBADAdBgNVHSUEFjAUBggr
+BgEFBQcDAQYIKwYBBQUHAwIwOAYDVR0gBDEwLzAtBgRVHSAAMCUwIwYIKwYBBQUH
+AgEWF2h0dHBzOi8vc2VjdGlnby5jb20vQ1BTMFAGA1UdHwRJMEcwRaBDoEGGP2h0
+dHA6Ly9jcmwudXNlcnRydXN0LmNvbS9VU0VSVHJ1c3RSU0FDZXJ0aWZpY2F0aW9u
+QXV0aG9yaXR5LmNybDB2BggrBgEFBQcBAQRqMGgwPwYIKwYBBQUHMAKGM2h0dHA6
+Ly9jcnQudXNlcnRydXN0LmNvbS9VU0VSVHJ1c3RSU0FBZGRUcnVzdENBLmNydDAl
+BggrBgEFBQcwAYYZaHR0cDovL29jc3AudXNlcnRydXN0LmNvbTANBgkqhkiG9w0B
+AQwFAAOCAgEAUtlC3e0xj/1BMfPhdQhUXeLjb0xp8UE28kzWE5xDzGKbfGgnrT2R
+lw5gLIx+/cNVrad//+MrpTppMlxq59AsXYZW3xRasrvkjGfNR3vt/1RAl8iI31lG
+hIg6dfIX5N4esLkrQeN8HiyHKH6khm4966IkVVtnxz5CgUPqEYn4eQ+4eeESrWBh
+AqXaiv7HRvpsdwLYekAhnrlGpioZ/CJIT2PTTxf+GHM6cuUnNqdUzfvrQgA8kt1/
+ASXx2od/M+c8nlJqrGz29lrJveJOSEMX0c/ts02WhsfMhkYa6XujUZLmvR1Eq08r
+48/EZ4l+t5L4wt0DV8VaPbsEBF1EOFpz/YS2H6mSwcFaNJbnYqqJHIvm3PLJHkFm
+EoLXRVrQXdCT+3wgBfgU6heCV5CYBz/YkrdWES7tiiT8sVUDqXmVlTsbiRNiyLs2
+bmEWWFUl76jViIJog5fongEqN3jLIGTG/mXrJT1UyymIcobnIGrbwwRVz/mpFQo0
+vBYIi1k2ThVh0Dx88BbF9YiP84dd8Fkn5wbE6FxXYJ287qfRTgmhePecPc73Yrzt
+apdRcsKVGkOpaTIJP/l+lAHRLZxk/dUtyN95G++bOSQqnOCpVPabUGl2E/OEyFrp
+Ipwgu2L/WJclvd6g+ZA/iWkLSMcpnFb+uX6QBqvD6+RNxul1FaB5iHY=
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: GEANT OV RSA CA 4
+Thumbprint: C2826E266D7405D34EF89762636AE4B36E86CB5E</help_link>
+</setting>
+<setting id='61310' enforce_additional_value='1'>
+<incorrect_text>Root CA 'QuoVadis Root CA 2 G3' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'QuoVadis Root CA 2 G3' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>09 3c 61 f3 8b 8b dc 7d 55 df 75 38 02 05 00 e1 25 f5 c8 36</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIFYDCCA0igAwIBAgIURFc0JFuBiZs18s64KztbpybwdSgwDQYJKoZIhvcNAQEL
+BQAwSDELMAkGA1UEBhMCQk0xGTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxHjAc
+BgNVBAMTFVF1b1ZhZGlzIFJvb3QgQ0EgMiBHMzAeFw0xMjAxMTIxODU5MzJaFw00
+MjAxMTIxODU5MzJaMEgxCzAJBgNVBAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBM
+aW1pdGVkMR4wHAYDVQQDExVRdW9WYWRpcyBSb290IENBIDIgRzMwggIiMA0GCSqG
+SIb3DQEBAQUAA4ICDwAwggIKAoICAQChriWyARjcV4g/Ruv5r+LrI3HimtFhZiFf
+qq8nUeVuGxbULX1QsFN3vXg6YOJkApt8hpvWGo6t/x8Vf9WVHhLL5hSEBMHfNrMW
+n4rjyduYNM7YMxcoRvynyfDStNVNCXJJ+fKH46nafaF9a7I6JaltUkSs+L5u+9ym
+c5GQYaYDFCDy54ejiK2toIz/pgslUiXnFgHVy7g1gQyjO/Dh4fxaXc6AcW34Sas+
+O7q414AB+6XrW7PFXmAqMaCvN+ggOp+oMiwMzAkd056OXbxMmO7FGmh77FOm6RQ1
+o9/NgJ8MSPsc9PG/Srj61YxxSscfrf5BmrODXfKEVu+lV0POKa2Mq1W/xPtbAd0j
+IaFYAI7D0GoT7RPjEiuA3GfmlbLNHiJuKvhB1PLKFAeNilUSxmn1uIZoL1NesNKq
+IcGY5jDjZ1XHm26sGahVpkUG0CM62+tlXSoREfA7T8pt9DTEceT/AFr2XK4jYIVz
+8eQQsSWu1ZK7E8EM4DnatDlXtas1qnIhO4M15zHfeiFuuDIIfR0ykRVKYnLP43eh
+vNURG3YBZwjgQQvD6xVu+KQZ2aKrr+InUlYrAoosFCT5v0ICvybIxo/gbjh9Uy3l
+7ZizlWNof/k19N+IxWA1ksB8aRxhlRbQ694Lrz4EEEVlWFA4r0jyWbYW8jwNkALG
+cC4BrTwV1wIDAQABo0IwQDAPBgNVHRMBAf8EBTADAQH/MA4GA1UdDwEB/wQEAwIB
+BjAdBgNVHQ4EFgQU7edvdlq/YOxJW8ald7tyFnGbxD0wDQYJKoZIhvcNAQELBQAD
+ggIBAJHfgD9DCX5xwvfrs4iP4VGyvD11+ShdyLyZm3tdquXK4Qr36LLTn91nMX66
+AarHakE7kNQIXLJgapDwyM4DYvmL7ftuKtwGTTwpD4kWilhMSA/ohGHqPHKmd+RC
+roijQ1h5fq7KpVMNqT1wvSAZYaRsOPxDMuHBR//47PERIjKWnML2W2mWeyAMQ0Ga
+W/ZZGYjeVYg3UQt4XAoeo0L9x52ID8DyeAIkVJOviYeIyUqAHerQbj5hLja7NQ4n
+lv1mNDthcnPxFlxHBlRJAHpYErAK74X9sbgzdWqTHBLmYF5vHX/JHyPLhGGfHoJE
++V+tYlUkmlKY7VHnoX6XOuYvHxHaU4AshZ6rNRDbIl9qxV6XU/IyAgkwo1jwDQHV
+csaxfGl7w/U2Rcxhbl5MlMVerugOXou/983g7aEOGzPuVBj+D77vfoRrQ+NwmNtd
+dbINWQeFFSM51vHfqSYP1kjHs6Yi9TM3WpVHn3u6GBVv/9YUZINJ0gpnIdsPNWNg
+KCLjsZWDzYWm3S8P52dSbrsvhXz1SnPnxT7AvSESBT/8twNJAlvIJebiVDj1eYeM
+HVOyToV7BjjHLPj4sHKNJeV3UvQDHEimUF+IIDBu8oJDqz2XhOdT+yHBTw8imoa4
+WSr2Rz0ZiC3oheGe7IUIarFsNMkd7EgrO3jtZsSOeWmD3n+M
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: QuoVadis Root CA 2 G3
+Thumbprint: 093C61F38B8BDC7D55DF7538020500E125F5C836</help_link>
+</setting>
+</section>
+<section id='1'>
+<setting id='40001' enforce_additional_value='1'>
+<incorrect_text>SSID 'eduroam' needs to be configured.</incorrect_text>
+<when_repaired_text>SSID 'eduroam' was configured.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>CP:00006006:eduroam</additional_value>
+</setting>
+</section>
+<section id='2'>
+<setting id='65001'>
+<incorrect_text>EAP Type PEAP needs to be selected.</incorrect_text>
+<when_repaired_text>EAP Type PEAP was selected.</when_repaired_text>
+<required_value>PEAP</required_value>
+</setting>
+<setting id='65003'>
+<incorrect_text>PEAP Authentication Method needs to be set to EAP-MSCHAPV2.</incorrect_text>
+<when_repaired_text>PEAP Authentication Method was set to EAP-MSCHAPV2.</when_repaired_text>
+<required_value>MSCHAPV2</required_value>
+</setting>
+<setting id='65000'>
+<incorrect_text>Validate Server Certificate needs to be enabled.</incorrect_text>
+<when_repaired_text>Validate Server Certificate was enabled.</when_repaired_text>
+<required_value>1</required_value>
+</setting>
+<setting id='61416'>
+<incorrect_text>Validate server name needs to be enabled.</incorrect_text>
+<when_repaired_text>Validate server name was enabled.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>radius.gla.ac.uk;radius.gla.ac.uk</additional_value>
+</setting>
+</section>
+</sections>
+</profile>
+<profile show_pre_creds='1'>
+<name>Android 12.0 Wireless Connections</name>
+<conditions>
+<condition key='OS' operator='EQ'>Android</condition>
+<condition key='VERSION' operator='EQ'>12.0</condition>
+<condition key='TYPE' operator='EQ'>2</condition>
+</conditions>
+<sections>
+<section id='0'>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'QuoVadis Root CA 2' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'QuoVadis Root CA 2' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>ca 3a fb cf 12 40 36 4b 44 b2 16 20 88 80 48 39 19 93 7c f7</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIFtzCCA5+gAwIBAgICBQkwDQYJKoZIhvcNAQEFBQAwRTELMAkGA1UEBhMCQk0x
+GTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxGzAZBgNVBAMTElF1b1ZhZGlzIFJv
+b3QgQ0EgMjAeFw0wNjExMjQxODI3MDBaFw0zMTExMjQxODIzMzNaMEUxCzAJBgNV
+BAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBMaW1pdGVkMRswGQYDVQQDExJRdW9W
+YWRpcyBSb290IENBIDIwggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQCa
+GMpLlA0ALa8DKYrwD4HIrkwZhR0In6spRIXzL4GtMh6QRr+jhiYaHv5+HBg6XJxg
+Fyo6dIMzMH1hVBHL7avg5tKifvVrbxi3Cgst/ek+7wrGsxDp3MJGF/hd/aTa/55J
+WpzmM+Yklvc/ulsrHHo1wtZn/qtmUIttKGAr79dgw8eTvI02kfN/+NsRE8Scd3bB
+rrcCaoF6qUWD4gXmuVbBlDePSHFjIuwXZQeVikvfj8ZaCuWw419eaxGrDPmF60Tp
++ARz8un+XJiM9XOva7R+zdRcAitMOeGylZUtQofX1bOQQ7dsE/He3fbE+Ik/0XX1
+ksOR1YqI0JDs3G3eicJlcZaLDQP9nL9bFqyS2+r+eXyt66/3FsvbzSUr5R/7mp/i
+Ucw6UwxI5g69ybR2BlLmEROFcmMDBOAENisgGQLodKcftslWZvB1JdxnwQ5hYIiz
+PtGo/KPaHbDRsSNU30R2be1B2MGyIrZTHN81Hdyhdyox5C315eXbyOD/5YDXC2Og
+/zOhD7osFRXql7PSorW+8oyWHhqPHWykYTe5hnMz15eWniN9gqRMgeKh0bpnX5UH
+oycR7hYQe7xFSkyyBNKr79X9DFHOUGoIMfmR2gyPZFwDwzqLID9ujWc9Otb+fVuI
+yV77zGHcizN300QyNQliBJIWENieJ0f7OyHj+OsdWwIDAQABo4GwMIGtMA8GA1Ud
+EwEB/wQFMAMBAf8wCwYDVR0PBAQDAgEGMB0GA1UdDgQWBBQahGK8SEwzJQTU7tD2
+A8QZRtGUazBuBgNVHSMEZzBlgBQahGK8SEwzJQTU7tD2A8QZRtGUa6FJpEcwRTEL
+MAkGA1UEBhMCQk0xGTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxGzAZBgNVBAMT
+ElF1b1ZhZGlzIFJvb3QgQ0EgMoICBQkwDQYJKoZIhvcNAQEFBQADggIBAD4KFk2f
+BluornFdLwUvZ+YTRYPENvbzwCYMDbVHZF34tHLJRqUDGCdViXh9duqWNIAXINzn
+g/iN/Ae42l9NLmeyhP3ZRPx3UIHmfLTJDQtyU/h2BwdBR5YM++CCJpNVjP4iH2Bl
+fF/nJrP3MpCYUNQ3cVX2kiF495V5+vgtJodmVjB3pjd4M1IQWK4/YY7yarHvGH5K
+WWPKjaJW1acvvFYfzznB4vsKqBUsfU16Y8Zsl0Q80m/DShcK+JDSV6IZUaUtl0Ha
+B0+pUNqQjZRG4T7wlP0QADj1O+hA4bRuVhogzG9Yje0uRY/W6ZM/57Es3zrWIozc
+hLsib9D45MY56QSIPMO661V6bYCZJPVsAfv4l7CUW+v90m/xd2gNNWQjrLhVoQPR
+TUIZ3Ph1WVaj+ahJefivDrkRoHy3au000LYmYjgahwz46P0u05B/B5EqHdZ+XIWD
+mbA4CD/pXvk1B+TJYm5Xf6dQlfe6yJvmjqIBxdZmv3lh8zwc4bmCXF2gw+nYSL0Z
+ohEUGW6yhhtoPkg3Goi3XZZenMfvJ2II4pEZXNLxId26F0KCl3GBUzGpn/Z9Yr9y
+4aOTHcyKJloJONDO1w2AFrR4pTqHTI2KpdVGl/IsELm8VCLAAVBpQ570su9t+Oza
+8eOx79+Rj1QqCyXBJhnEUhAFZdWCEOrCMc0u
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: QuoVadis Root CA 2
+Thumbprint: CA3AFBCF1240364B44B216208880483919937CF7</help_link>
+</setting>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'QuoVadis Global SSL ICA G2' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'QuoVadis Global SSL ICA G2' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>d1 56 51 b2 2a 5e b8 af f1 51 3e 55 9f e4 e2 48 fb cc eb 28</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIFljCCA36gAwIBAgIUUQ5H7Gxm0zz/3sVS/YhAl4ycJz4wDQYJKoZIhvcNAQEL
+BQAwRTELMAkGA1UEBhMCQk0xGTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxGzAZ
+BgNVBAMTElF1b1ZhZGlzIFJvb3QgQ0EgMjAeFw0yMjA1MjUxOTQ3MzlaFw0yNzA1
+MjQxOTQ3MzhaME0xCzAJBgNVBAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBMaW1p
+dGVkMSMwIQYDVQQDExpRdW9WYWRpcyBHbG9iYWwgU1NMIElDQSBHMjCCASIwDQYJ
+KoZIhvcNAQEBBQADggEPADCCAQoCggEBAOHhhWmUwI9X+jT+wbho5JmQqYh6zle3
+0OS1VMIYfdDDGeipY4D3t9zSGaNasGDZdrQdMlY18WyjnEKhi4ojNZdBewVphCiO
+zh5Ni2Ak8bSI/sBQ9sKPrpd0+UCqbvaGs6Tpx190ZRT0Pdy+TqOYZF/jBmzBj7Yf
+XJmWxlfCy62UiQ6tvv+4C6W2OPu1R4HUD8oJ8Qo7Eg0cD+GFsBM2w8soffyl+Dc6
+pKtARmOClUC7EqyWP0V9953lA34kuJZlYxxdgghBTn9rWoaQw/Lr5Fn0Xgd7fYS3
+/zGhmXYvVsuAxIn8Gk+YaeoLZ8H9tUvnDD3lEHzvIsMPxqtd7IgcVaMCAwEAAaOC
+AXQwggFwMBIGA1UdEwEB/wQIMAYBAf8CAQAwHwYDVR0jBBgwFoAUGoRivEhMMyUE
+1O7Q9gPEGUbRlGswcgYIKwYBBQUHAQEEZjBkMDYGCCsGAQUFBzAChipodHRwOi8v
+dHJ1c3QucXVvdmFkaXNnbG9iYWwuY29tL3F2cmNhMi5jcnQwKgYIKwYBBQUHMAGG
+Hmh0dHA6Ly9vY3NwLnF1b3ZhZGlzZ2xvYmFsLmNvbTA8BgNVHSAENTAzMA4GDCsG
+AQQBvlgAAmQBAjAHBgVngQwBATAIBgZngQwBAgIwDgYMKwYBBAG+WAACZAEBMB0G
+A1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDATA5BgNVHR8EMjAwMC6gLKAqhiho
+dHRwOi8vY3JsLnF1b3ZhZGlzZ2xvYmFsLmNvbS9xdnJjYTIuY3JsMB0GA1UdDgQW
+BBSRGWKtWxenMPvw3jklsb2MubhRJzAOBgNVHQ8BAf8EBAMCAQYwDQYJKoZIhvcN
+AQELBQADggIBAGD4DLtUlh+MOmXTKrt8y7eP/KkhwllG859Y/VcekXPQOjztRpDa
+0d0YSPNcZoQOnYqh0qWj77sohZdDBXfDi2uRN6MA6M9f73zHQdlLBDJ47r8muv5T
+Q4825zYerBqUpx0JT/fUEJlT91doVDUkWa2YI8gS+MJxbsUo7/HdD7XxUpHntILa
+wrs/AwxlZOBVwpt7FZao1A3xlodxeBzBM9uwtgHS9dkrRIxEz7eTugtglzpdO8GR
+iB/EX8WorAX6/OVm8DV5v0/e/JxmpDFkf3klndOi7Ijz71jk3eyTGlTqS55Py6Nh
+vxdlF06e4E0l3pAohkA/KQzUFQyScjGjVn0qjBZ3Ie/FHzhGX+zsAz8FQVW8UCZy
+KlVvvkXZVKrLb+IK+crxU6ZgW5xsgGfHGaMdpTY0Lf4jIN6EmF6Opj49iL2wlWMQ
+cuHewejrEtw5pgOFRgMxo2eEfaEJs8SSOG0yh/r6YrXZWN5D3h+TJU8X0XBnAvWD
+LWu9mFQ9M/4wLpF+rcjuIrcdwE5bAUwBy1hQTIuCxi528AX4r5zlYC8sF1UeAPVf
+KnoDo5yO+MGJ2YfszxRxtERb8osZcfqTOfuLIYNacYoiQ+Qobn6ycSLMHF5awRbm
+ShUz0wLFNFMGEClbXCoWqwd3NKKKIa1OOOfbcQ4BXwxHGs/4kOaOeJOq
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: QuoVadis Global SSL ICA G2
+Thumbprint: D15651B22A5EB8AFF1513E559FE4E248FBCCEB28</help_link>
+</setting>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'AAA Certificate Services' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'AAA Certificate Services' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>d1 eb 23 a4 6d 17 d6 8f d9 25 64 c2 f1 f1 60 17 64 d8 e3 49</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIEMjCCAxqgAwIBAgIBATANBgkqhkiG9w0BAQUFADB7MQswCQYDVQQGEwJHQjEb
+MBkGA1UECAwSR3JlYXRlciBNYW5jaGVzdGVyMRAwDgYDVQQHDAdTYWxmb3JkMRow
+GAYDVQQKDBFDb21vZG8gQ0EgTGltaXRlZDEhMB8GA1UEAwwYQUFBIENlcnRpZmlj
+YXRlIFNlcnZpY2VzMB4XDTA0MDEwMTAwMDAwMFoXDTI4MTIzMTIzNTk1OVowezEL
+MAkGA1UEBhMCR0IxGzAZBgNVBAgMEkdyZWF0ZXIgTWFuY2hlc3RlcjEQMA4GA1UE
+BwwHU2FsZm9yZDEaMBgGA1UECgwRQ29tb2RvIENBIExpbWl0ZWQxITAfBgNVBAMM
+GEFBQSBDZXJ0aWZpY2F0ZSBTZXJ2aWNlczCCASIwDQYJKoZIhvcNAQEBBQADggEP
+ADCCAQoCggEBAL5AnfRu4ep2hxxNRUSOvkbIgwadwSr+GB+O5AL686tdUIoWMQua
+BtDFcCLNSS1UY8y2bmhGC1Pqy0wkwLxyTurxFa70VJoSCsN6sjNg4tqJVfMiWPPe
+3M/vg4aijJRPn2jymJBGhCfHdr/jzDUsi14HZGWCwEiwqJH5YZ92IFCokcdmtet4
+YgNW8IoaE+oxox6gmf049vYnMlhvB/VruPsUK6+3qszWY19zjNoFmag4qMsXeDZR
+rOme9Hg6jc8P2ULimAyrL58OAd7vn5lJ8S3frHRNG5i1R8XlKdH5kBjHYpy+g8cm
+ez6KJcfA3Z3mNWgQIJ2P2N7Sw4ScDV7oL8kCAwEAAaOBwDCBvTAdBgNVHQ4EFgQU
+oBEKIz6W8Qfs4q8p74Klf9AwpLQwDgYDVR0PAQH/BAQDAgEGMA8GA1UdEwEB/wQF
+MAMBAf8wewYDVR0fBHQwcjA4oDagNIYyaHR0cDovL2NybC5jb21vZG9jYS5jb20v
+QUFBQ2VydGlmaWNhdGVTZXJ2aWNlcy5jcmwwNqA0oDKGMGh0dHA6Ly9jcmwuY29t
+b2RvLm5ldC9BQUFDZXJ0aWZpY2F0ZVNlcnZpY2VzLmNybDANBgkqhkiG9w0BAQUF
+AAOCAQEACFb8AvCb6P+k+tZ7xkSAzk/ExfYAWMymtrwUSWgEdujm7l3sAg9g1o1Q
+GE8mTgHj5rCl7r+8dFRBv/38ErjHT1r0iWAFf2C3BUrz9vHCv8S5dIa2LX1rzNLz
+Rt0vxuBqw8M0Ayx9lt1awg6nCpnBBYurDC/zXDrPbDdVCYfeU0BsWO/8tqtlbgT2
+G9w84FoVxp7Z8VlIMCFlA2zs6SFz7JsDoeA3raAVGI/6ugLOpyypEBMs1OUIJqsi
+l2D4kF501KKaU73yqWjgom7C12yxow+ev+to51byrvLjKzg6CYG1a4XXvi3tPxq3
+smPi9WIsgtRqAEFQ8TmDn5XpNpaYbg==
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: AAA Certificate Services
+Thumbprint: D1EB23A46D17D68FD92564C2F1F1601764D8E349</help_link>
+</setting>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'USERTrust RSA Certification Authority' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'USERTrust RSA Certification Authority' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>d8 9e 3b d4 3d 5d 90 9b 47 a1 89 77 aa 9d 5c e3 6c ee 18 4c</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIFgTCCBGmgAwIBAgIQOXJEOvkit1HX02wQ3TE1lTANBgkqhkiG9w0BAQwFADB7
+MQswCQYDVQQGEwJHQjEbMBkGA1UECAwSR3JlYXRlciBNYW5jaGVzdGVyMRAwDgYD
+VQQHDAdTYWxmb3JkMRowGAYDVQQKDBFDb21vZG8gQ0EgTGltaXRlZDEhMB8GA1UE
+AwwYQUFBIENlcnRpZmljYXRlIFNlcnZpY2VzMB4XDTE5MDMxMjAwMDAwMFoXDTI4
+MTIzMTIzNTk1OVowgYgxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpOZXcgSmVyc2V5
+MRQwEgYDVQQHEwtKZXJzZXkgQ2l0eTEeMBwGA1UEChMVVGhlIFVTRVJUUlVTVCBO
+ZXR3b3JrMS4wLAYDVQQDEyVVU0VSVHJ1c3QgUlNBIENlcnRpZmljYXRpb24gQXV0
+aG9yaXR5MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAgBJlFzYOw9sI
+s9CsVw127c0n00ytUINh4qogTQktZAnczomfzD2p7PbPwdzx07HWezcoEStH2jnG
+vDoZtF+mvX2do2NCtnbyqTsrkfjib9DsFiCQCT7i6HTJGLSR1GJk23+jBvGIGGqQ
+Ijy8/hPwhxR79uQfjtTkUcYRZ0YIUcuGFFQ/vDP+fmyc/xadGL1RjjWmp2bIcmfb
+IWax1Jt4A8BQOujM8Ny8nkz+rwWWNR9XWrf/zvk9tyy29lTdyOcSOk2uTIq3XJq0
+tyA9yn8iNK5+O2hmAUTnAU5GU5szYPeUvlM3kHND8zLDU+/bqv50TmnHa4xgk97E
+xwzf4TKuzJM7UXiVZ4vuPVb+DNBpDxsP8yUmazNt925H+nND5X4OpWaxKXwyhGNV
+icQNwZNUMBkTrNN9N6frXTpsNVzbQdcS2qlJC9/YgIoJk2KOtWbPJYjNhLixP6Q5
+D9kCnusSTJV882sFqV4Wg8y4Z+LoE53MW4LTTLPtW//e5XOsIzstAL81VXQJSdhJ
+WBp/kjbmUZIO8yZ9HE0XvMnsQybQv0FfQKlERPSZ51eHnlAfV1SoPv10Yy+xUGUJ
+5lhCLkMaTLTwJUdZ+gQek9QmRkpQgbLevni3/GcV4clXhB4PY9bpYrrWX1Uu6lzG
+KAgEJTm4Diup8kyXHAc/DVL17e8vgg8CAwEAAaOB8jCB7zAfBgNVHSMEGDAWgBSg
+EQojPpbxB+zirynvgqV/0DCktDAdBgNVHQ4EFgQUU3m/WqorSs9UgOHYm8Cd8rID
+ZsswDgYDVR0PAQH/BAQDAgGGMA8GA1UdEwEB/wQFMAMBAf8wEQYDVR0gBAowCDAG
+BgRVHSAAMEMGA1UdHwQ8MDowOKA2oDSGMmh0dHA6Ly9jcmwuY29tb2RvY2EuY29t
+L0FBQUNlcnRpZmljYXRlU2VydmljZXMuY3JsMDQGCCsGAQUFBwEBBCgwJjAkBggr
+BgEFBQcwAYYYaHR0cDovL29jc3AuY29tb2RvY2EuY29tMA0GCSqGSIb3DQEBDAUA
+A4IBAQAYh1HcdCE9nIrgJ7cz0C7M7PDmy14R3iJvm3WOnnL+5Nb+qh+cli3vA0p+
+rvSNb3I8QzvAP+u431yqqcau8vzY7qN7Q/aGNnwU4M309z/+3ri0ivCRlv79Q2R+
+/czSAaF9ffgZGclCKxO/WIu6pKJmBHaIkU4MiRTOok3JMrO66BQavHHxW/BBC5gA
+CiIDEOUMsfnNkjcZ7Tvx5Dq2+UUTJnWvu6rvP3t3O9LEApE9GQDTF1w52z97GA1F
+zZOFli9d31kWTz9RvdVFGD/tSo7oBmF0Ixa1DVBzJ0RHfxBdiSprhTEUxOipakyA
+vGp4z7h/jnZymQyd/teRCBaho1+V
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: USERTrust RSA Certification Authority
+Thumbprint: D89E3BD43D5D909B47A18977AA9D5CE36CEE184C</help_link>
+</setting>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'GEANT OV RSA CA 4' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'GEANT OV RSA CA 4' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>c2 82 6e 26 6d 74 05 d3 4e f8 97 62 63 6a e4 b3 6e 86 cb 5e</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIG5TCCBM2gAwIBAgIRANpDvROb0li7TdYcrMTz2+AwDQYJKoZIhvcNAQEMBQAw
+gYgxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpOZXcgSmVyc2V5MRQwEgYDVQQHEwtK
+ZXJzZXkgQ2l0eTEeMBwGA1UEChMVVGhlIFVTRVJUUlVTVCBOZXR3b3JrMS4wLAYD
+VQQDEyVVU0VSVHJ1c3QgUlNBIENlcnRpZmljYXRpb24gQXV0aG9yaXR5MB4XDTIw
+MDIxODAwMDAwMFoXDTMzMDUwMTIzNTk1OVowRDELMAkGA1UEBhMCTkwxGTAXBgNV
+BAoTEEdFQU5UIFZlcmVuaWdpbmcxGjAYBgNVBAMTEUdFQU5UIE9WIFJTQSBDQSA0
+MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEApYhi1aEiPsg9ZKRMAw9Q
+r8Mthsr6R20VSfFeh7TgwtLQi6RSRLOh4or4EMG/1th8lijv7xnBMVZkTysFiPmT
+PiLOfvz+QwO1NwjvgY+Jrs7fSoVA/TQkXzcxu4Tl3WHi+qJmKLJVu/JOuHud6mOp
+LWkIbhODSzOxANJ24IGPx9h4OXDyy6/342eE6UPXCtJ8AzeumTG6Dfv5KVx24lCF
+TGUzHUB+j+g0lSKg/Sf1OzgCajJV9enmZ/84ydh48wPp6vbWf1H0O3Rd3LhpMSVn
+TqFTLKZSbQeLcx/l9DOKZfBCC9ghWxsgTqW9gQ7v3T3aIfSaVC9rnwVxO0VjmDdP
+FNbdoxnh0zYwf45nV1QQgpRwZJ93yWedhp4ch1a6Ajwqs+wv4mZzmBSjovtV0mKw
+d+CQbSToalEUP4QeJq4Udz5WNmNMI4OYP6cgrnlJ50aa0DZPlJqrKQPGL69KQQz1
+2WgxvhCuVU70y6ZWAPopBa1ykbsttpLxADZre5cH573lIuLHdjx7NjpYIXRx2+QJ
+URnX2qx37eZIxYXz8ggM+wXH6RDbU3V2o5DP67hXPHSAbA+p0orjAocpk2osxHKo
+NSE3LCjNx8WVdxnXvuQ28tKdaK69knfm3bB7xpdfsNNTPH9ElcjscWZxpeZ5Iij8
+lyrCG1z0vSWtSBsgSnUyG/sCAwEAAaOCAYswggGHMB8GA1UdIwQYMBaAFFN5v1qq
+K0rPVIDh2JvAnfKyA2bLMB0GA1UdDgQWBBRvHTVJEGwy+lmgnryK6B+VvnF6DDAO
+BgNVHQ8BAf8EBAMCAYYwEgYDVR0TAQH/BAgwBgEB/wIBADAdBgNVHSUEFjAUBggr
+BgEFBQcDAQYIKwYBBQUHAwIwOAYDVR0gBDEwLzAtBgRVHSAAMCUwIwYIKwYBBQUH
+AgEWF2h0dHBzOi8vc2VjdGlnby5jb20vQ1BTMFAGA1UdHwRJMEcwRaBDoEGGP2h0
+dHA6Ly9jcmwudXNlcnRydXN0LmNvbS9VU0VSVHJ1c3RSU0FDZXJ0aWZpY2F0aW9u
+QXV0aG9yaXR5LmNybDB2BggrBgEFBQcBAQRqMGgwPwYIKwYBBQUHMAKGM2h0dHA6
+Ly9jcnQudXNlcnRydXN0LmNvbS9VU0VSVHJ1c3RSU0FBZGRUcnVzdENBLmNydDAl
+BggrBgEFBQcwAYYZaHR0cDovL29jc3AudXNlcnRydXN0LmNvbTANBgkqhkiG9w0B
+AQwFAAOCAgEAUtlC3e0xj/1BMfPhdQhUXeLjb0xp8UE28kzWE5xDzGKbfGgnrT2R
+lw5gLIx+/cNVrad//+MrpTppMlxq59AsXYZW3xRasrvkjGfNR3vt/1RAl8iI31lG
+hIg6dfIX5N4esLkrQeN8HiyHKH6khm4966IkVVtnxz5CgUPqEYn4eQ+4eeESrWBh
+AqXaiv7HRvpsdwLYekAhnrlGpioZ/CJIT2PTTxf+GHM6cuUnNqdUzfvrQgA8kt1/
+ASXx2od/M+c8nlJqrGz29lrJveJOSEMX0c/ts02WhsfMhkYa6XujUZLmvR1Eq08r
+48/EZ4l+t5L4wt0DV8VaPbsEBF1EOFpz/YS2H6mSwcFaNJbnYqqJHIvm3PLJHkFm
+EoLXRVrQXdCT+3wgBfgU6heCV5CYBz/YkrdWES7tiiT8sVUDqXmVlTsbiRNiyLs2
+bmEWWFUl76jViIJog5fongEqN3jLIGTG/mXrJT1UyymIcobnIGrbwwRVz/mpFQo0
+vBYIi1k2ThVh0Dx88BbF9YiP84dd8Fkn5wbE6FxXYJ287qfRTgmhePecPc73Yrzt
+apdRcsKVGkOpaTIJP/l+lAHRLZxk/dUtyN95G++bOSQqnOCpVPabUGl2E/OEyFrp
+Ipwgu2L/WJclvd6g+ZA/iWkLSMcpnFb+uX6QBqvD6+RNxul1FaB5iHY=
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: GEANT OV RSA CA 4
+Thumbprint: C2826E266D7405D34EF89762636AE4B36E86CB5E</help_link>
+</setting>
+<setting id='61310' enforce_additional_value='1'>
+<incorrect_text>Root CA 'QuoVadis Root CA 2 G3' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'QuoVadis Root CA 2 G3' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>09 3c 61 f3 8b 8b dc 7d 55 df 75 38 02 05 00 e1 25 f5 c8 36</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIFYDCCA0igAwIBAgIURFc0JFuBiZs18s64KztbpybwdSgwDQYJKoZIhvcNAQEL
+BQAwSDELMAkGA1UEBhMCQk0xGTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxHjAc
+BgNVBAMTFVF1b1ZhZGlzIFJvb3QgQ0EgMiBHMzAeFw0xMjAxMTIxODU5MzJaFw00
+MjAxMTIxODU5MzJaMEgxCzAJBgNVBAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBM
+aW1pdGVkMR4wHAYDVQQDExVRdW9WYWRpcyBSb290IENBIDIgRzMwggIiMA0GCSqG
+SIb3DQEBAQUAA4ICDwAwggIKAoICAQChriWyARjcV4g/Ruv5r+LrI3HimtFhZiFf
+qq8nUeVuGxbULX1QsFN3vXg6YOJkApt8hpvWGo6t/x8Vf9WVHhLL5hSEBMHfNrMW
+n4rjyduYNM7YMxcoRvynyfDStNVNCXJJ+fKH46nafaF9a7I6JaltUkSs+L5u+9ym
+c5GQYaYDFCDy54ejiK2toIz/pgslUiXnFgHVy7g1gQyjO/Dh4fxaXc6AcW34Sas+
+O7q414AB+6XrW7PFXmAqMaCvN+ggOp+oMiwMzAkd056OXbxMmO7FGmh77FOm6RQ1
+o9/NgJ8MSPsc9PG/Srj61YxxSscfrf5BmrODXfKEVu+lV0POKa2Mq1W/xPtbAd0j
+IaFYAI7D0GoT7RPjEiuA3GfmlbLNHiJuKvhB1PLKFAeNilUSxmn1uIZoL1NesNKq
+IcGY5jDjZ1XHm26sGahVpkUG0CM62+tlXSoREfA7T8pt9DTEceT/AFr2XK4jYIVz
+8eQQsSWu1ZK7E8EM4DnatDlXtas1qnIhO4M15zHfeiFuuDIIfR0ykRVKYnLP43eh
+vNURG3YBZwjgQQvD6xVu+KQZ2aKrr+InUlYrAoosFCT5v0ICvybIxo/gbjh9Uy3l
+7ZizlWNof/k19N+IxWA1ksB8aRxhlRbQ694Lrz4EEEVlWFA4r0jyWbYW8jwNkALG
+cC4BrTwV1wIDAQABo0IwQDAPBgNVHRMBAf8EBTADAQH/MA4GA1UdDwEB/wQEAwIB
+BjAdBgNVHQ4EFgQU7edvdlq/YOxJW8ald7tyFnGbxD0wDQYJKoZIhvcNAQELBQAD
+ggIBAJHfgD9DCX5xwvfrs4iP4VGyvD11+ShdyLyZm3tdquXK4Qr36LLTn91nMX66
+AarHakE7kNQIXLJgapDwyM4DYvmL7ftuKtwGTTwpD4kWilhMSA/ohGHqPHKmd+RC
+roijQ1h5fq7KpVMNqT1wvSAZYaRsOPxDMuHBR//47PERIjKWnML2W2mWeyAMQ0Ga
+W/ZZGYjeVYg3UQt4XAoeo0L9x52ID8DyeAIkVJOviYeIyUqAHerQbj5hLja7NQ4n
+lv1mNDthcnPxFlxHBlRJAHpYErAK74X9sbgzdWqTHBLmYF5vHX/JHyPLhGGfHoJE
++V+tYlUkmlKY7VHnoX6XOuYvHxHaU4AshZ6rNRDbIl9qxV6XU/IyAgkwo1jwDQHV
+csaxfGl7w/U2Rcxhbl5MlMVerugOXou/983g7aEOGzPuVBj+D77vfoRrQ+NwmNtd
+dbINWQeFFSM51vHfqSYP1kjHs6Yi9TM3WpVHn3u6GBVv/9YUZINJ0gpnIdsPNWNg
+KCLjsZWDzYWm3S8P52dSbrsvhXz1SnPnxT7AvSESBT/8twNJAlvIJebiVDj1eYeM
+HVOyToV7BjjHLPj4sHKNJeV3UvQDHEimUF+IIDBu8oJDqz2XhOdT+yHBTw8imoa4
+WSr2Rz0ZiC3oheGe7IUIarFsNMkd7EgrO3jtZsSOeWmD3n+M
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: QuoVadis Root CA 2 G3
+Thumbprint: 093C61F38B8BDC7D55DF7538020500E125F5C836</help_link>
+</setting>
+</section>
+<section id='1'>
+<setting id='40001' enforce_additional_value='1'>
+<incorrect_text>SSID 'eduroam' needs to be configured.</incorrect_text>
+<when_repaired_text>SSID 'eduroam' was configured.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>CP:00006006:eduroam</additional_value>
+</setting>
+</section>
+<section id='2'>
+<setting id='65001'>
+<incorrect_text>EAP Type PEAP needs to be selected.</incorrect_text>
+<when_repaired_text>EAP Type PEAP was selected.</when_repaired_text>
+<required_value>PEAP</required_value>
+</setting>
+<setting id='65003'>
+<incorrect_text>PEAP Authentication Method needs to be set to EAP-MSCHAPV2.</incorrect_text>
+<when_repaired_text>PEAP Authentication Method was set to EAP-MSCHAPV2.</when_repaired_text>
+<required_value>MSCHAPV2</required_value>
+</setting>
+<setting id='65000'>
+<incorrect_text>Validate Server Certificate needs to be enabled.</incorrect_text>
+<when_repaired_text>Validate Server Certificate was enabled.</when_repaired_text>
+<required_value>1</required_value>
+</setting>
+<setting id='61416'>
+<incorrect_text>Validate server name needs to be enabled.</incorrect_text>
+<when_repaired_text>Validate server name was enabled.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>radius.gla.ac.uk;radius.gla.ac.uk</additional_value>
+</setting>
+</section>
+</sections>
+</profile>
+<profile show_pre_creds='1'>
+<name>Android 13.0 Wireless Connections</name>
+<conditions>
+<condition key='OS' operator='EQ'>Android</condition>
+<condition key='VERSION' operator='GE'>13.0</condition>
+<condition key='TYPE' operator='EQ'>2</condition>
+</conditions>
+<sections>
+<section id='0'>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'QuoVadis Root CA 2' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'QuoVadis Root CA 2' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>ca 3a fb cf 12 40 36 4b 44 b2 16 20 88 80 48 39 19 93 7c f7</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIFtzCCA5+gAwIBAgICBQkwDQYJKoZIhvcNAQEFBQAwRTELMAkGA1UEBhMCQk0x
+GTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxGzAZBgNVBAMTElF1b1ZhZGlzIFJv
+b3QgQ0EgMjAeFw0wNjExMjQxODI3MDBaFw0zMTExMjQxODIzMzNaMEUxCzAJBgNV
+BAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBMaW1pdGVkMRswGQYDVQQDExJRdW9W
+YWRpcyBSb290IENBIDIwggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQCa
+GMpLlA0ALa8DKYrwD4HIrkwZhR0In6spRIXzL4GtMh6QRr+jhiYaHv5+HBg6XJxg
+Fyo6dIMzMH1hVBHL7avg5tKifvVrbxi3Cgst/ek+7wrGsxDp3MJGF/hd/aTa/55J
+WpzmM+Yklvc/ulsrHHo1wtZn/qtmUIttKGAr79dgw8eTvI02kfN/+NsRE8Scd3bB
+rrcCaoF6qUWD4gXmuVbBlDePSHFjIuwXZQeVikvfj8ZaCuWw419eaxGrDPmF60Tp
++ARz8un+XJiM9XOva7R+zdRcAitMOeGylZUtQofX1bOQQ7dsE/He3fbE+Ik/0XX1
+ksOR1YqI0JDs3G3eicJlcZaLDQP9nL9bFqyS2+r+eXyt66/3FsvbzSUr5R/7mp/i
+Ucw6UwxI5g69ybR2BlLmEROFcmMDBOAENisgGQLodKcftslWZvB1JdxnwQ5hYIiz
+PtGo/KPaHbDRsSNU30R2be1B2MGyIrZTHN81Hdyhdyox5C315eXbyOD/5YDXC2Og
+/zOhD7osFRXql7PSorW+8oyWHhqPHWykYTe5hnMz15eWniN9gqRMgeKh0bpnX5UH
+oycR7hYQe7xFSkyyBNKr79X9DFHOUGoIMfmR2gyPZFwDwzqLID9ujWc9Otb+fVuI
+yV77zGHcizN300QyNQliBJIWENieJ0f7OyHj+OsdWwIDAQABo4GwMIGtMA8GA1Ud
+EwEB/wQFMAMBAf8wCwYDVR0PBAQDAgEGMB0GA1UdDgQWBBQahGK8SEwzJQTU7tD2
+A8QZRtGUazBuBgNVHSMEZzBlgBQahGK8SEwzJQTU7tD2A8QZRtGUa6FJpEcwRTEL
+MAkGA1UEBhMCQk0xGTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxGzAZBgNVBAMT
+ElF1b1ZhZGlzIFJvb3QgQ0EgMoICBQkwDQYJKoZIhvcNAQEFBQADggIBAD4KFk2f
+BluornFdLwUvZ+YTRYPENvbzwCYMDbVHZF34tHLJRqUDGCdViXh9duqWNIAXINzn
+g/iN/Ae42l9NLmeyhP3ZRPx3UIHmfLTJDQtyU/h2BwdBR5YM++CCJpNVjP4iH2Bl
+fF/nJrP3MpCYUNQ3cVX2kiF495V5+vgtJodmVjB3pjd4M1IQWK4/YY7yarHvGH5K
+WWPKjaJW1acvvFYfzznB4vsKqBUsfU16Y8Zsl0Q80m/DShcK+JDSV6IZUaUtl0Ha
+B0+pUNqQjZRG4T7wlP0QADj1O+hA4bRuVhogzG9Yje0uRY/W6ZM/57Es3zrWIozc
+hLsib9D45MY56QSIPMO661V6bYCZJPVsAfv4l7CUW+v90m/xd2gNNWQjrLhVoQPR
+TUIZ3Ph1WVaj+ahJefivDrkRoHy3au000LYmYjgahwz46P0u05B/B5EqHdZ+XIWD
+mbA4CD/pXvk1B+TJYm5Xf6dQlfe6yJvmjqIBxdZmv3lh8zwc4bmCXF2gw+nYSL0Z
+ohEUGW6yhhtoPkg3Goi3XZZenMfvJ2II4pEZXNLxId26F0KCl3GBUzGpn/Z9Yr9y
+4aOTHcyKJloJONDO1w2AFrR4pTqHTI2KpdVGl/IsELm8VCLAAVBpQ570su9t+Oza
+8eOx79+Rj1QqCyXBJhnEUhAFZdWCEOrCMc0u
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: QuoVadis Root CA 2
+Thumbprint: CA3AFBCF1240364B44B216208880483919937CF7</help_link>
+</setting>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'QuoVadis Global SSL ICA G2' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'QuoVadis Global SSL ICA G2' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>d1 56 51 b2 2a 5e b8 af f1 51 3e 55 9f e4 e2 48 fb cc eb 28</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIFljCCA36gAwIBAgIUUQ5H7Gxm0zz/3sVS/YhAl4ycJz4wDQYJKoZIhvcNAQEL
+BQAwRTELMAkGA1UEBhMCQk0xGTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxGzAZ
+BgNVBAMTElF1b1ZhZGlzIFJvb3QgQ0EgMjAeFw0yMjA1MjUxOTQ3MzlaFw0yNzA1
+MjQxOTQ3MzhaME0xCzAJBgNVBAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBMaW1p
+dGVkMSMwIQYDVQQDExpRdW9WYWRpcyBHbG9iYWwgU1NMIElDQSBHMjCCASIwDQYJ
+KoZIhvcNAQEBBQADggEPADCCAQoCggEBAOHhhWmUwI9X+jT+wbho5JmQqYh6zle3
+0OS1VMIYfdDDGeipY4D3t9zSGaNasGDZdrQdMlY18WyjnEKhi4ojNZdBewVphCiO
+zh5Ni2Ak8bSI/sBQ9sKPrpd0+UCqbvaGs6Tpx190ZRT0Pdy+TqOYZF/jBmzBj7Yf
+XJmWxlfCy62UiQ6tvv+4C6W2OPu1R4HUD8oJ8Qo7Eg0cD+GFsBM2w8soffyl+Dc6
+pKtARmOClUC7EqyWP0V9953lA34kuJZlYxxdgghBTn9rWoaQw/Lr5Fn0Xgd7fYS3
+/zGhmXYvVsuAxIn8Gk+YaeoLZ8H9tUvnDD3lEHzvIsMPxqtd7IgcVaMCAwEAAaOC
+AXQwggFwMBIGA1UdEwEB/wQIMAYBAf8CAQAwHwYDVR0jBBgwFoAUGoRivEhMMyUE
+1O7Q9gPEGUbRlGswcgYIKwYBBQUHAQEEZjBkMDYGCCsGAQUFBzAChipodHRwOi8v
+dHJ1c3QucXVvdmFkaXNnbG9iYWwuY29tL3F2cmNhMi5jcnQwKgYIKwYBBQUHMAGG
+Hmh0dHA6Ly9vY3NwLnF1b3ZhZGlzZ2xvYmFsLmNvbTA8BgNVHSAENTAzMA4GDCsG
+AQQBvlgAAmQBAjAHBgVngQwBATAIBgZngQwBAgIwDgYMKwYBBAG+WAACZAEBMB0G
+A1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDATA5BgNVHR8EMjAwMC6gLKAqhiho
+dHRwOi8vY3JsLnF1b3ZhZGlzZ2xvYmFsLmNvbS9xdnJjYTIuY3JsMB0GA1UdDgQW
+BBSRGWKtWxenMPvw3jklsb2MubhRJzAOBgNVHQ8BAf8EBAMCAQYwDQYJKoZIhvcN
+AQELBQADggIBAGD4DLtUlh+MOmXTKrt8y7eP/KkhwllG859Y/VcekXPQOjztRpDa
+0d0YSPNcZoQOnYqh0qWj77sohZdDBXfDi2uRN6MA6M9f73zHQdlLBDJ47r8muv5T
+Q4825zYerBqUpx0JT/fUEJlT91doVDUkWa2YI8gS+MJxbsUo7/HdD7XxUpHntILa
+wrs/AwxlZOBVwpt7FZao1A3xlodxeBzBM9uwtgHS9dkrRIxEz7eTugtglzpdO8GR
+iB/EX8WorAX6/OVm8DV5v0/e/JxmpDFkf3klndOi7Ijz71jk3eyTGlTqS55Py6Nh
+vxdlF06e4E0l3pAohkA/KQzUFQyScjGjVn0qjBZ3Ie/FHzhGX+zsAz8FQVW8UCZy
+KlVvvkXZVKrLb+IK+crxU6ZgW5xsgGfHGaMdpTY0Lf4jIN6EmF6Opj49iL2wlWMQ
+cuHewejrEtw5pgOFRgMxo2eEfaEJs8SSOG0yh/r6YrXZWN5D3h+TJU8X0XBnAvWD
+LWu9mFQ9M/4wLpF+rcjuIrcdwE5bAUwBy1hQTIuCxi528AX4r5zlYC8sF1UeAPVf
+KnoDo5yO+MGJ2YfszxRxtERb8osZcfqTOfuLIYNacYoiQ+Qobn6ycSLMHF5awRbm
+ShUz0wLFNFMGEClbXCoWqwd3NKKKIa1OOOfbcQ4BXwxHGs/4kOaOeJOq
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: QuoVadis Global SSL ICA G2
+Thumbprint: D15651B22A5EB8AFF1513E559FE4E248FBCCEB28</help_link>
+</setting>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'AAA Certificate Services' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'AAA Certificate Services' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>d1 eb 23 a4 6d 17 d6 8f d9 25 64 c2 f1 f1 60 17 64 d8 e3 49</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIEMjCCAxqgAwIBAgIBATANBgkqhkiG9w0BAQUFADB7MQswCQYDVQQGEwJHQjEb
+MBkGA1UECAwSR3JlYXRlciBNYW5jaGVzdGVyMRAwDgYDVQQHDAdTYWxmb3JkMRow
+GAYDVQQKDBFDb21vZG8gQ0EgTGltaXRlZDEhMB8GA1UEAwwYQUFBIENlcnRpZmlj
+YXRlIFNlcnZpY2VzMB4XDTA0MDEwMTAwMDAwMFoXDTI4MTIzMTIzNTk1OVowezEL
+MAkGA1UEBhMCR0IxGzAZBgNVBAgMEkdyZWF0ZXIgTWFuY2hlc3RlcjEQMA4GA1UE
+BwwHU2FsZm9yZDEaMBgGA1UECgwRQ29tb2RvIENBIExpbWl0ZWQxITAfBgNVBAMM
+GEFBQSBDZXJ0aWZpY2F0ZSBTZXJ2aWNlczCCASIwDQYJKoZIhvcNAQEBBQADggEP
+ADCCAQoCggEBAL5AnfRu4ep2hxxNRUSOvkbIgwadwSr+GB+O5AL686tdUIoWMQua
+BtDFcCLNSS1UY8y2bmhGC1Pqy0wkwLxyTurxFa70VJoSCsN6sjNg4tqJVfMiWPPe
+3M/vg4aijJRPn2jymJBGhCfHdr/jzDUsi14HZGWCwEiwqJH5YZ92IFCokcdmtet4
+YgNW8IoaE+oxox6gmf049vYnMlhvB/VruPsUK6+3qszWY19zjNoFmag4qMsXeDZR
+rOme9Hg6jc8P2ULimAyrL58OAd7vn5lJ8S3frHRNG5i1R8XlKdH5kBjHYpy+g8cm
+ez6KJcfA3Z3mNWgQIJ2P2N7Sw4ScDV7oL8kCAwEAAaOBwDCBvTAdBgNVHQ4EFgQU
+oBEKIz6W8Qfs4q8p74Klf9AwpLQwDgYDVR0PAQH/BAQDAgEGMA8GA1UdEwEB/wQF
+MAMBAf8wewYDVR0fBHQwcjA4oDagNIYyaHR0cDovL2NybC5jb21vZG9jYS5jb20v
+QUFBQ2VydGlmaWNhdGVTZXJ2aWNlcy5jcmwwNqA0oDKGMGh0dHA6Ly9jcmwuY29t
+b2RvLm5ldC9BQUFDZXJ0aWZpY2F0ZVNlcnZpY2VzLmNybDANBgkqhkiG9w0BAQUF
+AAOCAQEACFb8AvCb6P+k+tZ7xkSAzk/ExfYAWMymtrwUSWgEdujm7l3sAg9g1o1Q
+GE8mTgHj5rCl7r+8dFRBv/38ErjHT1r0iWAFf2C3BUrz9vHCv8S5dIa2LX1rzNLz
+Rt0vxuBqw8M0Ayx9lt1awg6nCpnBBYurDC/zXDrPbDdVCYfeU0BsWO/8tqtlbgT2
+G9w84FoVxp7Z8VlIMCFlA2zs6SFz7JsDoeA3raAVGI/6ugLOpyypEBMs1OUIJqsi
+l2D4kF501KKaU73yqWjgom7C12yxow+ev+to51byrvLjKzg6CYG1a4XXvi3tPxq3
+smPi9WIsgtRqAEFQ8TmDn5XpNpaYbg==
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: AAA Certificate Services
+Thumbprint: D1EB23A46D17D68FD92564C2F1F1601764D8E349</help_link>
+</setting>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'USERTrust RSA Certification Authority' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'USERTrust RSA Certification Authority' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>d8 9e 3b d4 3d 5d 90 9b 47 a1 89 77 aa 9d 5c e3 6c ee 18 4c</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIFgTCCBGmgAwIBAgIQOXJEOvkit1HX02wQ3TE1lTANBgkqhkiG9w0BAQwFADB7
+MQswCQYDVQQGEwJHQjEbMBkGA1UECAwSR3JlYXRlciBNYW5jaGVzdGVyMRAwDgYD
+VQQHDAdTYWxmb3JkMRowGAYDVQQKDBFDb21vZG8gQ0EgTGltaXRlZDEhMB8GA1UE
+AwwYQUFBIENlcnRpZmljYXRlIFNlcnZpY2VzMB4XDTE5MDMxMjAwMDAwMFoXDTI4
+MTIzMTIzNTk1OVowgYgxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpOZXcgSmVyc2V5
+MRQwEgYDVQQHEwtKZXJzZXkgQ2l0eTEeMBwGA1UEChMVVGhlIFVTRVJUUlVTVCBO
+ZXR3b3JrMS4wLAYDVQQDEyVVU0VSVHJ1c3QgUlNBIENlcnRpZmljYXRpb24gQXV0
+aG9yaXR5MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAgBJlFzYOw9sI
+s9CsVw127c0n00ytUINh4qogTQktZAnczomfzD2p7PbPwdzx07HWezcoEStH2jnG
+vDoZtF+mvX2do2NCtnbyqTsrkfjib9DsFiCQCT7i6HTJGLSR1GJk23+jBvGIGGqQ
+Ijy8/hPwhxR79uQfjtTkUcYRZ0YIUcuGFFQ/vDP+fmyc/xadGL1RjjWmp2bIcmfb
+IWax1Jt4A8BQOujM8Ny8nkz+rwWWNR9XWrf/zvk9tyy29lTdyOcSOk2uTIq3XJq0
+tyA9yn8iNK5+O2hmAUTnAU5GU5szYPeUvlM3kHND8zLDU+/bqv50TmnHa4xgk97E
+xwzf4TKuzJM7UXiVZ4vuPVb+DNBpDxsP8yUmazNt925H+nND5X4OpWaxKXwyhGNV
+icQNwZNUMBkTrNN9N6frXTpsNVzbQdcS2qlJC9/YgIoJk2KOtWbPJYjNhLixP6Q5
+D9kCnusSTJV882sFqV4Wg8y4Z+LoE53MW4LTTLPtW//e5XOsIzstAL81VXQJSdhJ
+WBp/kjbmUZIO8yZ9HE0XvMnsQybQv0FfQKlERPSZ51eHnlAfV1SoPv10Yy+xUGUJ
+5lhCLkMaTLTwJUdZ+gQek9QmRkpQgbLevni3/GcV4clXhB4PY9bpYrrWX1Uu6lzG
+KAgEJTm4Diup8kyXHAc/DVL17e8vgg8CAwEAAaOB8jCB7zAfBgNVHSMEGDAWgBSg
+EQojPpbxB+zirynvgqV/0DCktDAdBgNVHQ4EFgQUU3m/WqorSs9UgOHYm8Cd8rID
+ZsswDgYDVR0PAQH/BAQDAgGGMA8GA1UdEwEB/wQFMAMBAf8wEQYDVR0gBAowCDAG
+BgRVHSAAMEMGA1UdHwQ8MDowOKA2oDSGMmh0dHA6Ly9jcmwuY29tb2RvY2EuY29t
+L0FBQUNlcnRpZmljYXRlU2VydmljZXMuY3JsMDQGCCsGAQUFBwEBBCgwJjAkBggr
+BgEFBQcwAYYYaHR0cDovL29jc3AuY29tb2RvY2EuY29tMA0GCSqGSIb3DQEBDAUA
+A4IBAQAYh1HcdCE9nIrgJ7cz0C7M7PDmy14R3iJvm3WOnnL+5Nb+qh+cli3vA0p+
+rvSNb3I8QzvAP+u431yqqcau8vzY7qN7Q/aGNnwU4M309z/+3ri0ivCRlv79Q2R+
+/czSAaF9ffgZGclCKxO/WIu6pKJmBHaIkU4MiRTOok3JMrO66BQavHHxW/BBC5gA
+CiIDEOUMsfnNkjcZ7Tvx5Dq2+UUTJnWvu6rvP3t3O9LEApE9GQDTF1w52z97GA1F
+zZOFli9d31kWTz9RvdVFGD/tSo7oBmF0Ixa1DVBzJ0RHfxBdiSprhTEUxOipakyA
+vGp4z7h/jnZymQyd/teRCBaho1+V
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: USERTrust RSA Certification Authority
+Thumbprint: D89E3BD43D5D909B47A18977AA9D5CE36CEE184C</help_link>
+</setting>
+<setting id='61301' enforce_additional_value='1'>
+<incorrect_text>Root CA 'GEANT OV RSA CA 4' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'GEANT OV RSA CA 4' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>c2 82 6e 26 6d 74 05 d3 4e f8 97 62 63 6a e4 b3 6e 86 cb 5e</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIG5TCCBM2gAwIBAgIRANpDvROb0li7TdYcrMTz2+AwDQYJKoZIhvcNAQEMBQAw
+gYgxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpOZXcgSmVyc2V5MRQwEgYDVQQHEwtK
+ZXJzZXkgQ2l0eTEeMBwGA1UEChMVVGhlIFVTRVJUUlVTVCBOZXR3b3JrMS4wLAYD
+VQQDEyVVU0VSVHJ1c3QgUlNBIENlcnRpZmljYXRpb24gQXV0aG9yaXR5MB4XDTIw
+MDIxODAwMDAwMFoXDTMzMDUwMTIzNTk1OVowRDELMAkGA1UEBhMCTkwxGTAXBgNV
+BAoTEEdFQU5UIFZlcmVuaWdpbmcxGjAYBgNVBAMTEUdFQU5UIE9WIFJTQSBDQSA0
+MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEApYhi1aEiPsg9ZKRMAw9Q
+r8Mthsr6R20VSfFeh7TgwtLQi6RSRLOh4or4EMG/1th8lijv7xnBMVZkTysFiPmT
+PiLOfvz+QwO1NwjvgY+Jrs7fSoVA/TQkXzcxu4Tl3WHi+qJmKLJVu/JOuHud6mOp
+LWkIbhODSzOxANJ24IGPx9h4OXDyy6/342eE6UPXCtJ8AzeumTG6Dfv5KVx24lCF
+TGUzHUB+j+g0lSKg/Sf1OzgCajJV9enmZ/84ydh48wPp6vbWf1H0O3Rd3LhpMSVn
+TqFTLKZSbQeLcx/l9DOKZfBCC9ghWxsgTqW9gQ7v3T3aIfSaVC9rnwVxO0VjmDdP
+FNbdoxnh0zYwf45nV1QQgpRwZJ93yWedhp4ch1a6Ajwqs+wv4mZzmBSjovtV0mKw
+d+CQbSToalEUP4QeJq4Udz5WNmNMI4OYP6cgrnlJ50aa0DZPlJqrKQPGL69KQQz1
+2WgxvhCuVU70y6ZWAPopBa1ykbsttpLxADZre5cH573lIuLHdjx7NjpYIXRx2+QJ
+URnX2qx37eZIxYXz8ggM+wXH6RDbU3V2o5DP67hXPHSAbA+p0orjAocpk2osxHKo
+NSE3LCjNx8WVdxnXvuQ28tKdaK69knfm3bB7xpdfsNNTPH9ElcjscWZxpeZ5Iij8
+lyrCG1z0vSWtSBsgSnUyG/sCAwEAAaOCAYswggGHMB8GA1UdIwQYMBaAFFN5v1qq
+K0rPVIDh2JvAnfKyA2bLMB0GA1UdDgQWBBRvHTVJEGwy+lmgnryK6B+VvnF6DDAO
+BgNVHQ8BAf8EBAMCAYYwEgYDVR0TAQH/BAgwBgEB/wIBADAdBgNVHSUEFjAUBggr
+BgEFBQcDAQYIKwYBBQUHAwIwOAYDVR0gBDEwLzAtBgRVHSAAMCUwIwYIKwYBBQUH
+AgEWF2h0dHBzOi8vc2VjdGlnby5jb20vQ1BTMFAGA1UdHwRJMEcwRaBDoEGGP2h0
+dHA6Ly9jcmwudXNlcnRydXN0LmNvbS9VU0VSVHJ1c3RSU0FDZXJ0aWZpY2F0aW9u
+QXV0aG9yaXR5LmNybDB2BggrBgEFBQcBAQRqMGgwPwYIKwYBBQUHMAKGM2h0dHA6
+Ly9jcnQudXNlcnRydXN0LmNvbS9VU0VSVHJ1c3RSU0FBZGRUcnVzdENBLmNydDAl
+BggrBgEFBQcwAYYZaHR0cDovL29jc3AudXNlcnRydXN0LmNvbTANBgkqhkiG9w0B
+AQwFAAOCAgEAUtlC3e0xj/1BMfPhdQhUXeLjb0xp8UE28kzWE5xDzGKbfGgnrT2R
+lw5gLIx+/cNVrad//+MrpTppMlxq59AsXYZW3xRasrvkjGfNR3vt/1RAl8iI31lG
+hIg6dfIX5N4esLkrQeN8HiyHKH6khm4966IkVVtnxz5CgUPqEYn4eQ+4eeESrWBh
+AqXaiv7HRvpsdwLYekAhnrlGpioZ/CJIT2PTTxf+GHM6cuUnNqdUzfvrQgA8kt1/
+ASXx2od/M+c8nlJqrGz29lrJveJOSEMX0c/ts02WhsfMhkYa6XujUZLmvR1Eq08r
+48/EZ4l+t5L4wt0DV8VaPbsEBF1EOFpz/YS2H6mSwcFaNJbnYqqJHIvm3PLJHkFm
+EoLXRVrQXdCT+3wgBfgU6heCV5CYBz/YkrdWES7tiiT8sVUDqXmVlTsbiRNiyLs2
+bmEWWFUl76jViIJog5fongEqN3jLIGTG/mXrJT1UyymIcobnIGrbwwRVz/mpFQo0
+vBYIi1k2ThVh0Dx88BbF9YiP84dd8Fkn5wbE6FxXYJ287qfRTgmhePecPc73Yrzt
+apdRcsKVGkOpaTIJP/l+lAHRLZxk/dUtyN95G++bOSQqnOCpVPabUGl2E/OEyFrp
+Ipwgu2L/WJclvd6g+ZA/iWkLSMcpnFb+uX6QBqvD6+RNxul1FaB5iHY=
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: GEANT OV RSA CA 4
+Thumbprint: C2826E266D7405D34EF89762636AE4B36E86CB5E</help_link>
+</setting>
+<setting id='61310' enforce_additional_value='1'>
+<incorrect_text>Root CA 'QuoVadis Root CA 2 G3' needs to be installed.</incorrect_text>
+<when_repaired_text>Root CA 'QuoVadis Root CA 2 G3' was installed.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>09 3c 61 f3 8b 8b dc 7d 55 df 75 38 02 05 00 e1 25 f5 c8 36</additional_value>
+<unenforced_value>-----BEGIN CERTIFICATE-----
+MIIFYDCCA0igAwIBAgIURFc0JFuBiZs18s64KztbpybwdSgwDQYJKoZIhvcNAQEL
+BQAwSDELMAkGA1UEBhMCQk0xGTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxHjAc
+BgNVBAMTFVF1b1ZhZGlzIFJvb3QgQ0EgMiBHMzAeFw0xMjAxMTIxODU5MzJaFw00
+MjAxMTIxODU5MzJaMEgxCzAJBgNVBAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBM
+aW1pdGVkMR4wHAYDVQQDExVRdW9WYWRpcyBSb290IENBIDIgRzMwggIiMA0GCSqG
+SIb3DQEBAQUAA4ICDwAwggIKAoICAQChriWyARjcV4g/Ruv5r+LrI3HimtFhZiFf
+qq8nUeVuGxbULX1QsFN3vXg6YOJkApt8hpvWGo6t/x8Vf9WVHhLL5hSEBMHfNrMW
+n4rjyduYNM7YMxcoRvynyfDStNVNCXJJ+fKH46nafaF9a7I6JaltUkSs+L5u+9ym
+c5GQYaYDFCDy54ejiK2toIz/pgslUiXnFgHVy7g1gQyjO/Dh4fxaXc6AcW34Sas+
+O7q414AB+6XrW7PFXmAqMaCvN+ggOp+oMiwMzAkd056OXbxMmO7FGmh77FOm6RQ1
+o9/NgJ8MSPsc9PG/Srj61YxxSscfrf5BmrODXfKEVu+lV0POKa2Mq1W/xPtbAd0j
+IaFYAI7D0GoT7RPjEiuA3GfmlbLNHiJuKvhB1PLKFAeNilUSxmn1uIZoL1NesNKq
+IcGY5jDjZ1XHm26sGahVpkUG0CM62+tlXSoREfA7T8pt9DTEceT/AFr2XK4jYIVz
+8eQQsSWu1ZK7E8EM4DnatDlXtas1qnIhO4M15zHfeiFuuDIIfR0ykRVKYnLP43eh
+vNURG3YBZwjgQQvD6xVu+KQZ2aKrr+InUlYrAoosFCT5v0ICvybIxo/gbjh9Uy3l
+7ZizlWNof/k19N+IxWA1ksB8aRxhlRbQ694Lrz4EEEVlWFA4r0jyWbYW8jwNkALG
+cC4BrTwV1wIDAQABo0IwQDAPBgNVHRMBAf8EBTADAQH/MA4GA1UdDwEB/wQEAwIB
+BjAdBgNVHQ4EFgQU7edvdlq/YOxJW8ald7tyFnGbxD0wDQYJKoZIhvcNAQELBQAD
+ggIBAJHfgD9DCX5xwvfrs4iP4VGyvD11+ShdyLyZm3tdquXK4Qr36LLTn91nMX66
+AarHakE7kNQIXLJgapDwyM4DYvmL7ftuKtwGTTwpD4kWilhMSA/ohGHqPHKmd+RC
+roijQ1h5fq7KpVMNqT1wvSAZYaRsOPxDMuHBR//47PERIjKWnML2W2mWeyAMQ0Ga
+W/ZZGYjeVYg3UQt4XAoeo0L9x52ID8DyeAIkVJOviYeIyUqAHerQbj5hLja7NQ4n
+lv1mNDthcnPxFlxHBlRJAHpYErAK74X9sbgzdWqTHBLmYF5vHX/JHyPLhGGfHoJE
++V+tYlUkmlKY7VHnoX6XOuYvHxHaU4AshZ6rNRDbIl9qxV6XU/IyAgkwo1jwDQHV
+csaxfGl7w/U2Rcxhbl5MlMVerugOXou/983g7aEOGzPuVBj+D77vfoRrQ+NwmNtd
+dbINWQeFFSM51vHfqSYP1kjHs6Yi9TM3WpVHn3u6GBVv/9YUZINJ0gpnIdsPNWNg
+KCLjsZWDzYWm3S8P52dSbrsvhXz1SnPnxT7AvSESBT/8twNJAlvIJebiVDj1eYeM
+HVOyToV7BjjHLPj4sHKNJeV3UvQDHEimUF+IIDBu8oJDqz2XhOdT+yHBTw8imoa4
+WSr2Rz0ZiC3oheGe7IUIarFsNMkd7EgrO3jtZsSOeWmD3n+M
+-----END CERTIFICATE-----
+</unenforced_value>
+<help_link>The following certificate authority needs to be installed:
+Common Name: QuoVadis Root CA 2 G3
+Thumbprint: 093C61F38B8BDC7D55DF7538020500E125F5C836</help_link>
+</setting>
+</section>
+<section id='1'>
+<setting id='40001' enforce_additional_value='1'>
+<incorrect_text>SSID 'eduroam' needs to be configured.</incorrect_text>
+<when_repaired_text>SSID 'eduroam' was configured.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>CP:00006006:eduroam</additional_value>
+</setting>
+</section>
+<section id='2'>
+<setting id='65001'>
+<incorrect_text>EAP Type PEAP needs to be selected.</incorrect_text>
+<when_repaired_text>EAP Type PEAP was selected.</when_repaired_text>
+<required_value>PEAP</required_value>
+</setting>
+<setting id='65003'>
+<incorrect_text>PEAP Authentication Method needs to be set to EAP-MSCHAPV2.</incorrect_text>
+<when_repaired_text>PEAP Authentication Method was set to EAP-MSCHAPV2.</when_repaired_text>
+<required_value>MSCHAPV2</required_value>
+</setting>
+<setting id='65000'>
+<incorrect_text>Validate Server Certificate needs to be enabled.</incorrect_text>
+<when_repaired_text>Validate Server Certificate was enabled.</when_repaired_text>
+<required_value>1</required_value>
+</setting>
+<setting id='61416'>
+<incorrect_text>Validate server name needs to be enabled.</incorrect_text>
+<when_repaired_text>Validate server name was enabled.</when_repaired_text>
+<required_value>1</required_value>
+<additional_value>radius.gla.ac.uk;radius.gla.ac.uk</additional_value>
+</setting>
+</section>
+</sections>
+</profile>
+</profiles>
+</network_item>
+</network_items>
+<options>
+<option id='300'>Welcome</option>
+<option id='302'>Configure</option>
+<option id='305'>Connect To Network</option>
+<option id='306'>Authenticate</option>
+<option id='307'>Validate Connectivity</option>
+<option id='308'>Connected</option>
+<option id='310'>We are loading the configuration options for your computer.</option>
+<option id='312'>We are verifying that your computer's configuration is correct for this network.</option>
+<option id='315'>The network settings are correct.  We are now connecting to the secure network.</option>
+<option id='316'>A bubble similar to the image below may appear in the lower-right corner of the screen.  If it appears, click in the center of the bubble and enter your user name and password when prompted.</option>
+<option id='317'>We are now acquiring a network address, which will allow us to communicate on the network.</option>
+<option id='318'>Unused</option>
+<option id='330'>Wired</option>
+<option id='331'>Wireless</option>
+<option id='332'>Bridge</option>
+<option id='333'>Unknown</option>
+<option id='334'>35</option>
+<option id='336'>Your operating system is not supported by Cloudpath.</option>
+<option id='338'>To allow Cloudpath to configure your computer, please enter the user name and password for an administrative account on your computer.</option>
+<option id='340'>When prompted to allow access to the keyring, please select "Always Allow".</option>
+<option id='341'>Select the network you wish to join:</option>
+<option id='400'>Your operating system or network interface type is not supported.  If you think this is in error, click 'Retry' to reevaluate your machine.</option>
+<option id='401'>Your computer is now configured for the network, but we were unable to disconnect the network interface while attempting to reconnect.</option>
+<option id='402'>Your computer is now configured for the network, but we were unable to reconnect the network interface.  Most likely, the interface is in a disabled state.  Open 'Network Connections' and ensure that your network interface is enabled.</option>
+<option id='403'>A successful authentication did not occur during the allotted time.  This is typically caused by non-Microsoft wireless utility causing a conflict or the RADIUS server being misconfigured or offline.</option>
+<option id='404'>An IP address was not acquired within the allotted time.  Click 'Retry' to try again.</option>
+<option id='405'>We failed to verify that the connection is working properly.  Click 'Retry' to try again.  Click 'Skip' to proceed without verification.</option>
+<option id='407'>The network card '${PHYSICAL_NIC_NAME}' does not appear to support the required encryption settings.  Please check the manufacturers website for an updated driver or contact the help desk for assistance.////${NIC_DETAILS}</option>
+<option id='408'>Search For New Driver</option>
+<option id='409'>[DRIVER_SEARCH]</option>
+<option id='410'>A successful authentication did not occur.  Click 'Continue' to try again.</option>
+<option id='413'>Your computer is now properly configured for the network, but we failed to associate to the SSID '${SSID}'.  Please ensure that you are within range of the wireless network.////To connect to the network, you may either://1. Click the wireless network icon in the system tray to open the 'Choose a Wireless Network' screen.  Then, select the '${SSID}' network and click 'Connect'.//2.  Reboot your computer.  Afterwards, your computer should automatically connect to the wireless network.////If it still does not associate to the wireless network, please verify that non-Microsoft wireless utilities, particularly applications provided by '${NIC_PROVIDER}', are turned off.  If the problem persists, you may need to update the driver for your wireless card.  To try again, click 'Retry' below.</option>
+<option id='415'>The network card '${PHYSICAL_NIC_NAME}' does not appear to support the required physical type (PHY_TYPE) settings for the wireless network.  It may be necessary to purchase a new network card to access this wireless network.  Please contact the help desk for assistance.////${NIC_DETAILS}</option>
+<option id='416'>Authentication failed.</option>
+<option id='417'>The wireless network is now configured but a successful authentication was not detected.  To manually connect to the wireless network, click on the Wi-Fi icon and select '${SSID}'.</option>
+</options>
+</network>
+</content>
+</contents>
