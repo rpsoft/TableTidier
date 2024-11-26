@@ -1,16 +1,12 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import TableContexMenu from "@/components/ui/TableContexMenu";
-import { ContextMenu } from "../../styles/styles";
 
 
-export default function TableCell( { content } ) {
+
+export default function TableCell( { content, setClicked, setPoints } ) {
    
-  const [clicked, setClicked] = useState(false);
-  const [points, setPoints] = useState({
-    x: 0,
-    y: 0,
-  });
+
   useEffect(() => {
     const handleClick = () => setClicked(false);
     window.addEventListener("click", handleClick);
@@ -32,15 +28,7 @@ export default function TableCell( { content } ) {
         console.log("Right Click", e.pageX, e.pageY);
       }}>
       {content}
-      {clicked && (
-            <ContextMenu top={points.y} left={points.x}>
-            <ul>
-                <li>Edit</li>
-                <li>Copy</li>
-                <li>Delete</li>
-            </ul>
-            </ContextMenu>
-        )}
+
     </td>
   );
 }

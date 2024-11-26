@@ -3,6 +3,7 @@
 import UploadTable from "@/components/ui/UploadTable";
 
 import TableCell from "@/components/ui/TableCell";
+import { ContextMenu } from "../../styles/styles";
 
 import * as cheerio from 'cheerio';
 
@@ -14,6 +15,12 @@ import { useState, useEffect } from 'react';
 // import React from "react";
 
 export default function TablePage() {
+
+    const [cellContextOpen, setCellContextOpen] = useState(false);
+    const [cellContextPoints, setCellContextPoints] = useState({
+      x: 0,
+      y: 0,
+    });
 
     const [selectedTable, setSelectedTable] = useState(null);
     const [tables, setTables] = useState([]);
@@ -63,23 +70,36 @@ export default function TablePage() {
         // This is quite awesome. All nodes sorted here in a recursive structure of arrays! if a valid table is supplied.
         var allnodes = traverseNodes($("table")[0]).flat();
         // debugger
-        tableContent = <table>
+        tableContent = <>
+        <table>
 
-        <tbody>{
-            allnodes.map ( (row, r) => {
-               // debugger
-                return <tr>
-                    {
-                        row.map( (cell) => {
-                            //
-                            return <TableCell content={cell} ></TableCell>
-                        })
-                    }
-                </tr>
-            })
-        }</tbody>
-
+            <tbody>{
+                allnodes.map ( (row, r) => {
+                // debugger
+                    return <tr>
+                        {
+                            row.map( (cell) => {
+                                //
+                                return <TableCell content={cell} setClicked={setCellContextOpen}
+                                 setPoints={setCellContextPoints} ></TableCell>
+                            })
+                        }
+                    </tr>
+                })
+            }</tbody>
         </table>
+
+        {cellContextOpen && (
+            <ContextMenu top={cellContextPoints.y} left={cellContextPoints.x}>
+            <ul>
+                <li>Edit</li>
+                <li>Copy</li>
+                <li>Delete</li>
+            </ul>
+            </ContextMenu>
+        )}
+
+        </>
 
 
         // Now we can reconstruct the table with custom made React components!
