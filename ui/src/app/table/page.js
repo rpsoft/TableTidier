@@ -1,34 +1,19 @@
 "use client";
 
 import UploadTable from "@/components/ui/UploadTable";
-import TableContexMenu from "@/components/ui/TableContexMenu";
-import { ContextMenu } from "../../styles/styles";
+
+import TableCell from "@/components/ui/TableCell";
+
 import * as cheerio from 'cheerio';
 
 import { getTable, getAllTables, uploadTable } from "./actions";
 
-import { Select } from "antd";
+import { Select, Table } from "antd";
 import { useState, useEffect } from 'react';
 
 // import React from "react";
 
 export default function TablePage() {
-
-    
-
-    const [clicked, setClicked] = useState(false);
-    const [points, setPoints] = useState({
-      x: 0,
-      y: 0,
-    });
-    useEffect(() => {
-      const handleClick = () => setClicked(false);
-      window.addEventListener("click", handleClick);
-      return () => {
-        window.removeEventListener("click", handleClick);
-      };
-    }, []);
-
 
     const [selectedTable, setSelectedTable] = useState(null);
     const [tables, setTables] = useState([]);
@@ -76,14 +61,32 @@ export default function TablePage() {
         }
 
         // This is quite awesome. All nodes sorted here in a recursive structure of arrays! if a valid table is supplied.
-        var allnodes = traverseNodes($.root()[0]);
+        var allnodes = traverseNodes($("table")[0]).flat();
+        // debugger
+        tableContent = <table>
+
+        <tbody>{
+            allnodes.map ( (row, r) => {
+               // debugger
+                return <tr>
+                    {
+                        row.map( (cell) => {
+                            //
+                            return <TableCell content={cell} ></TableCell>
+                        })
+                    }
+                </tr>
+            })
+        }</tbody>
+
+        </table>
 
 
         // Now we can reconstruct the table with custom made React components!
         // debugger
 
         // And assign this to the tableContent 
-        tableContent = <div dangerouslySetInnerHTML={{__html: $.html()}} />
+        // tableContent = <div dangerouslySetInnerHTML={{__html: $.html()}} />
     
     }
     
@@ -102,7 +105,7 @@ export default function TablePage() {
         
         
     
-        <div className="flex flex-wrap"
+        {/* <div className="flex flex-wrap"
             onContextMenu={(e) => {
                 e.preventDefault();
                 setClicked(true);
@@ -123,8 +126,8 @@ export default function TablePage() {
                 <li>Delete</li>
             </ul>
             </ContextMenu>
-        )}
-        {/* <TableContexMenu /> */}
+        )} */}
+        {tableContent}
         
         </main>
     );
