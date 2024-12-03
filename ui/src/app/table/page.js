@@ -22,6 +22,8 @@ export default function TablePage() {
       y: 0,
     });
 
+    const [cellContent, setCellContent] = useState(null);
+
     const [selectedTable, setSelectedTable] = useState(null);
     const [tables, setTables] = useState([]);
 
@@ -80,8 +82,12 @@ export default function TablePage() {
                         {
                             row.map( (cell) => {
                                 //
-                                return <TableCell content={cell} setClicked={setCellContextOpen}
-                                 setPoints={setCellContextPoints} ></TableCell>
+                                return <TableCell 
+                                            content={cell} 
+                                            setClicked={setCellContextOpen}
+                                            setPoints={setCellContextPoints}
+                                            setCellContent={setCellContent}
+                                        ></TableCell>
                             })
                         }
                     </tr>
@@ -91,6 +97,7 @@ export default function TablePage() {
 
         {cellContextOpen && (
             <ContextMenu top={cellContextPoints.y} left={cellContextPoints.x}>
+                <div>{}</div>
             <ul>
                 <li>Edit</li>
                 <li>Copy</li>
