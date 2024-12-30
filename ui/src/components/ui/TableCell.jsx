@@ -2,11 +2,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import TableContexMenu from "@/components/ui/TableContexMenu";
 
-
-
-export default function TableCell( { content, setClicked, setPoints } ) {
-   
-
+export default function TableCell({
+  content,
+  tablePosition,
+  setClicked,
+  setPoints,
+  setCellContent,
+  setTableClickPosition,
+}) {
   useEffect(() => {
     const handleClick = () => setClicked(false);
     window.addEventListener("click", handleClick);
@@ -14,10 +17,10 @@ export default function TableCell( { content, setClicked, setPoints } ) {
       window.removeEventListener("click", handleClick);
     };
   }, []);
-  
 
   return (
     <td
+      class="cursor-pointer hover:bg-yellow-200 hover:text-black"
       onContextMenu={(e) => {
         e.preventDefault();
         setClicked(true);
@@ -25,10 +28,12 @@ export default function TableCell( { content, setClicked, setPoints } ) {
           x: e.pageX,
           y: e.pageY,
         });
-        console.log("Right Click", e.pageX, e.pageY);
-      }}>
+        setCellContent(content);
+        setTableClickPosition(tablePosition);
+        // console.log("Right Click", e.pageX, e.pageY);
+      }}
+    >
       {content}
-
     </td>
   );
 }
