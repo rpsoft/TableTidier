@@ -17,7 +17,7 @@ export const ContextMenu = styled.div`
     list-style: none;
   }
   ul li {
-    padding: 18px 12px;
+    padding: 4px 2px;
   }
   /* hover */
   ul li:hover {

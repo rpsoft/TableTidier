@@ -1,7 +1,9 @@
 // All these will modify and return a new table to be displayed/replace the previous one.
 
 const TableOperations = {
-  addColumn: (table, refColumn, before) => {},
+  addColumn: (table, refColumn, before) => {
+    debugger;
+  },
   addRow: (table, refRow, before) => {},
   removeColumn: (table, refColumn) => {},
   removeRow: (table, refRow) => {},

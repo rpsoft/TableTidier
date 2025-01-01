@@ -2,7 +2,7 @@
 
 import UploadTable from "@/components/ui/UploadTable";
 import TableCell from "@/components/ui/TableCell";
-import editTable from "./tableEdit";
+import TableOperations from "./tableEdit";
 import { ContextMenu } from "../../styles/styles";
 
 import * as cheerio from "cheerio";
@@ -102,7 +102,7 @@ export default function TablePage() {
 
         {cellContextOpen && (
           <ContextMenu top={cellContextPoints.y} left={cellContextPoints.x}>
-            <div className="p-2 text-center">{cellContent}</div>
+            <div className="text-center">{cellContent}</div>
             <div> {tableClickPosition[0] + "/" + tableClickPosition[1]} </div>
             <hr />
             <ul>
