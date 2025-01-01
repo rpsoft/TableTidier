@@ -1,6 +1,6 @@
 // All these will modify and return a new table to be displayed/replace the previous one.
 
-export default {
+const TableOperations = {
   addColumn: (table, refColumn, before) => {},
   addRow: (table, refRow, before) => {},
   removeColumn: (table, refColumn) => {},
@@ -8,3 +8,5 @@ export default {
   moveColumn: (table, refColumn, targetColumn, before) => {},
   moveRow: (table, refRow, targetRow, before) => {},
 };
+
+export default TableOperations;

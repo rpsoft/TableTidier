@@ -16,7 +16,7 @@ export default function TableCell({
     return () => {
       window.removeEventListener("click", handleClick);
     };
-  }, []);
+  }); // Interesting. This was removed:   }, []);
 
   return (
     <td
