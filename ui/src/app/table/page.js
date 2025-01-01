@@ -79,11 +79,12 @@ export default function TablePage() {
             {allnodes.map((row, r) => {
               // debugger
               return (
-                <tr>
+                <tr key={"r" + r}>
                   {row.map((cell, c) => {
                     //
                     return (
                       <TableCell
+                        key={"cell_" + r + "_" + c}
                         content={cell}
                         tablePosition={[c, r]}
                         setClicked={setCellContextOpen}
@@ -101,7 +102,7 @@ export default function TablePage() {
 
         {cellContextOpen && (
           <ContextMenu top={cellContextPoints.y} left={cellContextPoints.x}>
-            <div class="p-2 text-center">{cellContent}</div>
+            <div className="p-2 text-center">{cellContent}</div>
             <div> {tableClickPosition[0] + "/" + tableClickPosition[1]} </div>
             <hr />
             <ul>

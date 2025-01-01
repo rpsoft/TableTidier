@@ -20,7 +20,7 @@ export default function TableCell({
 
   return (
     <td
-      class="cursor-pointer hover:bg-yellow-200 hover:text-black"
+      className="cursor-pointer hover:bg-yellow-200 hover:text-black"
       onContextMenu={(e) => {
         e.preventDefault();
         setClicked(true);
