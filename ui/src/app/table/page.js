@@ -113,7 +113,13 @@ export default function TablePage() {
               <li>Delete</li>
               <li>Select Similar Column</li>
               <li>Select Similar Rows </li>
-              <li>New Column Before</li>
+              <li
+                onClick={() =>
+                  TableOperations.addColumn(table, tableClickPosition[0], true)
+                }
+              >
+                New Column Before
+              </li>
               <li>New Column After</li>
               <li>New Row Before</li>
               <li>New Row After</li>
