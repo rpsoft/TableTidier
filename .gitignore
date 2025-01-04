@@ -121,3 +121,5 @@ Server/HTML_TABLES_DELETED/
 Server/HTML_TABLES_OVERRIDE/
 
 ui/.env.production
+
+ui/public/uploads/
