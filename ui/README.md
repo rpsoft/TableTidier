@@ -15,3 +15,11 @@ Tagging, telling what the cell/rows/columns are.
 Annotating, associating cells/rows/columns with concepts based on their content.
 
 - Both can be automatised. Distinguish user assigned from machine assigned. Then we can be fancy about it. Assign auto annotations to all?
+
+
+-- ad tabs to select full row, or full column!s
+selecting rows where content is similarly formatted. We can encode continuous text, to <text>, continuous numbers to <number>,
+and compare content checking if formatting cues are sufficiently similar.
+
+-- Can we color code associations? Parent concept, less transparency, child concept more transparency?. Color indicates the grouping?.
+-- We need an infinitely big palette.

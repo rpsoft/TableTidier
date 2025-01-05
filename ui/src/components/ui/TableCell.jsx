@@ -7,8 +7,11 @@ export default function TableCell({
   tablePosition,
   setClicked,
   setPoints,
-  setCellContent,
-  setTableClickPosition,
+  handleCellClick,
+  selected,
+  // setCellContent,
+  // setTableClickPosition,
+  // addToSelection,
 }) {
   useEffect(() => {
     const handleClick = () => setClicked(false);
@@ -20,7 +23,10 @@ export default function TableCell({
 
   return (
     <td
-      className="cursor-pointer hover:bg-yellow-200 hover:text-black"
+      className={
+        "cursor-pointer hover:bg-yellow-200 hover:text-black " +
+        (selected ? "bg-yellow-300" : "")
+      }
       onContextMenu={(e) => {
         e.preventDefault();
         setClicked(true);
@@ -28,9 +34,15 @@ export default function TableCell({
           x: e.pageX,
           y: e.pageY,
         });
-        setCellContent(content);
-        setTableClickPosition(tablePosition);
+
+        handleCellClick({ content, tablePosition, e });
+        // setCellContent(content);
+        // setTableClickPosition(tablePosition);
+
         // console.log("Right Click", e.pageX, e.pageY);
+      }}
+      onClick={(e) => {
+        handleCellClick({ content, tablePosition, e });
       }}
     >
       {content}
