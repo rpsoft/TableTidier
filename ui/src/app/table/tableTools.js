@@ -37,6 +37,16 @@ const Tabletools = {
 	}
   },
 
+  selectSimilarRows : () => {
+
+  },
+
+  selectSimilarColumns : () => {
+
+  },
+
+
+
 };
 
 export default Tabletools;

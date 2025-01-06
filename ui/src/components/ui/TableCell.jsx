@@ -8,9 +8,9 @@ export default function TableCell({
   setClicked,
   setPoints,
   handleCellClick,
-  selected,
-  // setCellContent,
-  // setTableClickPosition,
+  setCellContent,
+  setTableClickPosition,
+  selectedCells
   // addToSelection,
 }) {
   useEffect(() => {
@@ -21,11 +21,19 @@ export default function TableCell({
     };
   }); // Interesting. This was removed:   }, []);
 
+  const [selected, setSelected] = useState(false)
+
+	useEffect(() => {
+		var key = tablePosition[0]+"-"+tablePosition[1]
+		setSelected(selectedCells.indexOf(key) > -1)
+	}, [selectedCells, tablePosition])
+// debugger
+
   return (
     <td
       className={
-        "cursor-pointer hover:bg-yellow-200 hover:text-black " +
-        (selected ? "bg-yellow-300" : "")
+        "cursor-pointer hover:bg-yellow-200 hover:text-black min-w-5 " +
+        (selected ? " bg-yellow-100 opacity-80 select-none text-black" : "")
       }
       onContextMenu={(e) => {
         e.preventDefault();
@@ -35,15 +43,15 @@ export default function TableCell({
           y: e.pageY,
         });
 
-        handleCellClick({ content, tablePosition, e });
-        // setCellContent(content);
-        // setTableClickPosition(tablePosition);
+        setCellContent(content)
+        setTableClickPosition(tablePosition)
 
-        // console.log("Right Click", e.pageX, e.pageY);
       }}
+
       onClick={(e) => {
         handleCellClick({ content, tablePosition, e });
       }}
+
     >
       {content}
     </td>
