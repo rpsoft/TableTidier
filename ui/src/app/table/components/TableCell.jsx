@@ -1,20 +1,22 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import TableContexMenu from "@/components/ui/TableContexMenu";
+import TableContexMenu from "./TableContexMenu";
+import { useTableContext } from "../TableContext";
 
 export default function TableCell({
   content,
   tablePosition,
-  setClicked,
-  setPoints,
   handleCellClick,
-  setCellContent,
-  setTableClickPosition,
-  selectedCells
   // addToSelection,
 }) {
+
+  const { state, setValue } = useTableContext();
+
+
+  const selectedCells = Object.keys(state.selectedCells)
+
   useEffect(() => {
-    const handleClick = () => setClicked(false);
+    const handleClick = () => setValue( "cellContextOpen", false );
     window.addEventListener("click", handleClick);
     return () => {
       window.removeEventListener("click", handleClick);
@@ -27,7 +29,6 @@ export default function TableCell({
 		var key = tablePosition[0]+"-"+tablePosition[1]
 		setSelected(selectedCells.indexOf(key) > -1)
 	}, [selectedCells, tablePosition])
-// debugger
 
   return (
     <td
@@ -36,15 +37,16 @@ export default function TableCell({
         (selected ? " bg-yellow-100 opacity-80 select-none text-black" : "")
       }
       onContextMenu={(e) => {
+
         e.preventDefault();
-        setClicked(true);
-        setPoints({
+        setValue( "clicked", true );
+        setValue( "cellContextPoints", {
           x: e.pageX,
           y: e.pageY,
-        });
+        } );
 
-        setCellContent(content)
-        setTableClickPosition(tablePosition)
+        setValue( "cellContextOpen", true )
+        setValue( "tableClickPosition", tablePosition )
 
       }}
 

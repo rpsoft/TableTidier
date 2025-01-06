@@ -23,3 +23,7 @@ and compare content checking if formatting cues are sufficiently similar.
 
 -- Can we color code associations? Parent concept, less transparency, child concept more transparency?. Color indicates the grouping?.
 -- We need an infinitely big palette.
+
+-- Select Unassigned (tab): select those headings that have not been associated in a grouping.
+
+-- operate changed on the tableNodes variable, and store this away. We can always then reset it, by re-reading the HTML into nodes.
