@@ -75,43 +75,57 @@ export default function TablePage() {
 
 	return (
 		<main>
-			<UploadTable
-				action={async (formData) => {
-					await uploadTable(formData);
-					await refreshTables();
-				}}
-			/>
-			<Select
-				className="w-[600px]"
-				options={options}
-				onChange={(value) => {
-					setValue("selectedTable", value);
-				}}
-			/>
 
-			<div>HERE { Object.keys(state.selectedCells).length }</div>
+			<div className="max-w-[500px] p-5">
+							<UploadTable
+								action={async (formData) => {
+									await uploadTable(formData);
+									await refreshTables();
+								}}
+							/>
+							<Select
+								className="w-[600px]"
+								options={options}
+								onChange={(value) => {
+									setValue("selectedTable", value);
+								}}
+							/>
+						</div>
 
-			<table>
-				<thead>
-					<tr>
-						<TableTab orientation="col" index={-1} />
-						{state.tableNodes[0]
-							? state.tableNodes[0].map((col, c) => (
-									<TableTab
-										key={"hcol-" + c}
-										orientation="col"
-										index={c}
-									/>
-								))
-							: null}
-					</tr>
-				</thead>
-				<tbody>{tbody}</tbody>
-			</table>
+			<div className="flex flex-wrap">
 
-			<TableContexMenu />
 
-			<TableAnnotator />
+
+				<div>
+					<table>
+						<thead>
+							<tr>
+								<TableTab orientation="col" index={-1} />
+								{state.tableNodes[0]
+									? state.tableNodes[0].map((col, c) => (
+											<TableTab
+												key={"hcol-" + c}
+												orientation="col"
+												index={c}
+											/>
+										))
+									: null}
+							</tr>
+						</thead>
+						<tbody>{tbody}</tbody>
+					</table>
+				</div>
+
+
+					<TableAnnotator />
+
+
+				<div>
+					<TableContexMenu />
+				</div>
+
+
+			</div>
 		</main>
 	);
 }

@@ -25,6 +25,7 @@ export const TableProvider = ({ children }) => {
     tables: [],
     tableNodes: [],
     annotations: [],
+    extractedData: []
   });
 
   // Simplify setters dynamically
