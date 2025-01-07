@@ -59,35 +59,36 @@ export default function TableAnnotator({
 
   	return (
 	    <>
-
-				<div className="shrink-0 justify-center items-center text-white m-2 border-2 rounded-md p-2 h-fit">
-					<input type="text" placeholder="characteristic" className="input input-bordered w-full max-w-xs mb-1" />
-					<div className="font-bold m-2"> Selection: </div>
-				    {
-					  	Object.keys(state.selectedCells).sort((a, b) => {
+				{
+					Object.keys(state.selectedCells).length > 0 ? <div className="shrink-0 justify-center items-center text-white m-2 border-2 rounded-md p-2 h-fit ">
+						<input type="text" placeholder="characteristic" className="input input-bordered w-full max-w-xs mb-1" />
+						<div className="font-bold m-2"> Selection: </div>
+						{
+							Object.keys(state.selectedCells).sort((a, b) => {
 								// Order by key (which is a combination of row and column numbers.)
 								var A = a.split("-")
 								var B = b.split("-")
 								return A[0] == B[0] ? A[1] >= B[1] : A[0] >= B[0]
-						}).map( key => {
-							 return <div key={"sel_"+key} className="m-4 mt-0 mb-0">{
+							}).map(key => {
+								return <div key={"sel_" + key} className="m-4 mt-0 mb-0">{
 									state.selectedCells[key].content
-									}</div>
-						})
-				    }
+								}</div>
+							})
+						}
 
-				    {
-				     	Object.keys(state.selectedCells).length > 0 ?
-				      	<>
+						{
+							Object.keys(state.selectedCells).length > 0 ?
+								<>
 
 
-						<div className="flex justify-end mt-2 border-t pt-2">
+									<div className="flex justify-end mt-2 border-t pt-2">
 
-						 <button className="btn btn-outline" onClick={groupConcepts}>Group Concepts</button>
-						</div>
-				       	</> : null
-				    }
-				</div>
+										<button className="btn btn-outline" onClick={groupConcepts}>Group Concepts</button>
+									</div>
+								</> : null
+						}
+					</div> : ""
+				}
 
 			    <SortableList
 				        onSortEnd={onSortEnd}
@@ -99,7 +100,7 @@ export default function TableAnnotator({
 				            <SortableItem key={"sortable_"+i}>
 					            <div className="shrink-0 justify-center items-center bg-blue-400
 												text-white m-2 cursor-grab border-2 rounded-md p-2 h-fit">
-									<div>{item.category}</div>
+									<div>{i+" - "+item.category}</div>
 									<hr/>
 					              	{
 										Object.values(item.concepts).map(
