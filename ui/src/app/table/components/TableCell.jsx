@@ -6,11 +6,49 @@ import { useTableContext } from "../TableContext";
 export default function TableCell({
   content,
   tablePosition,
-  handleCellClick,
   // addToSelection,
 }) {
 
   const { state, setValue } = useTableContext();
+
+
+  const handleCellClick = (selectionObject) => {
+		const { tablePosition, e, content } = selectionObject;
+		const [row, col] = tablePosition;
+		const selectionKey = `${row}-${col}`;
+		let selectionMap = { ...state.selectedCells };
+
+		if (e.ctrlKey) {
+			// Toggle the clicked cell
+			selectionMap[selectionKey]
+				? delete selectionMap[selectionKey]
+				: (selectionMap[selectionKey] = selectionObject);
+		} else if (e.shiftKey) {
+			const [startRow, startCol] = state.tableClickPosition;
+			const minR = Math.min(row, startRow);
+			const maxR = Math.max(row, startRow);
+			const minC = Math.min(col, startCol);
+			const maxC = Math.max(col, startCol);
+
+			// Select the entire range without toggling
+			for (let r = minR; r <= maxR; r++) {
+				for (let c = minC; c <= maxC; c++) {
+					const key = `${r}-${c}`;
+					selectionMap[key] = {
+						content: state.tableNodes[r][c],
+						tablePosition: [r, c],
+					};
+				}
+			}
+		} else {
+			// Clear selection and select only the clicked cell
+			selectionMap = { [selectionKey]: selectionObject };
+		}
+
+		// Update state
+		setValue("selectedCells", selectionMap);
+		setValue("tableClickPosition", tablePosition);
+	};
 
 
   const selectedCells = Object.keys(state.selectedCells)
@@ -39,7 +77,7 @@ export default function TableCell({
       onContextMenu={(e) => {
 
         e.preventDefault();
-        setValue( "clicked", true );
+
         setValue( "cellContextPoints", {
           x: e.pageX,
           y: e.pageY,

@@ -19,11 +19,12 @@ export const TableProvider = ({ children }) => {
   const [state, setState] = useState({
     cellContextOpen: false,
     cellContextPoints: { x: 0, y: 0 },
-    tableClickPosition: null,
+    tableClickPosition: [0,0],
     selectedCells: {},
     selectedTable: null,
     tables: [],
     tableNodes: [],
+    annotations: [],
   });
 
   // Simplify setters dynamically

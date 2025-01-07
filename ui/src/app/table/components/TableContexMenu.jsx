@@ -16,7 +16,7 @@ export default function TableContexMenu({
 	const tableNodes = state.tableNodes
 	const tableClickPosition = state.tableClickPosition
 
-	const cellContent = tableNodes[tableClickPosition[0]][tableClickPosition[1]]
+	const cellContent = tableNodes.length > 0 ? tableNodes[tableClickPosition[0]][tableClickPosition[1]] : ""
 
   if (!state.cellContextOpen){
   	return null
