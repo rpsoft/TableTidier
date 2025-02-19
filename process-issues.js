@@ -46,8 +46,14 @@ function processComments(content) {
         const title = titleMatch[1];
         const description = descriptionMatch[1];
 
-        console.log(`Creating issue: ${title}`);
-        await createGitHubIssue(title, description);
+        console.log(`Checking if issue exists: ${title}`);
+        const issueExists = await checkIfIssueExists(title);
+        if (!issueExists) {
+          console.log(`Creating issue: ${title}`);
+          await createGitHubIssue(title, description);
+        } else {
+          console.log(`Issue already exists: ${title}`);
+        }
       }
     }
 
@@ -61,6 +67,31 @@ function processComments(content) {
       }
     }
   });
+}
+
+// Function to check if an issue with the same title already exists
+async function checkIfIssueExists(title) {
+  try {
+    const response = await axios.get(
+      `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues`,
+      {
+        headers: {
+          Authorization: `Bearer ${GITHUB_TOKEN}`,
+          Accept: 'application/vnd.github.v3+json',
+        },
+        params: {
+          state: 'open', // Only check open issues
+          per_page: 100, // Increase the page size to reduce API calls
+        },
+      }
+    );
+
+    // Check if any issue has the same title
+    return response.data.some((issue) => issue.title === title);
+  } catch (error) {
+    console.error(`Error checking issues: ${error.message}`);
+    return false;
+  }
 }
 
 // Function to create a GitHub issue
