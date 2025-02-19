@@ -3,7 +3,7 @@ name: Issue Automation
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   create_issues:
