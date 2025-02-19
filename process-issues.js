@@ -69,7 +69,7 @@ function processComments(content) {
   });
 }
 
-// Function to check if an issue with the same title already exists
+// Function to check if an issue with the same title already exists (checks both open and closed issues)
 async function checkIfIssueExists(title) {
   try {
     const response = await axios.get(
@@ -80,8 +80,8 @@ async function checkIfIssueExists(title) {
           Accept: 'application/vnd.github.v3+json',
         },
         params: {
-          state: 'open', // Only check open issues
-          per_page: 100, // Increase the page size to reduce API calls
+          state: 'all', // Check both open and closed issues
+          per_page: 100, // Fetch up to 100 issues per page
         },
       }
     );
