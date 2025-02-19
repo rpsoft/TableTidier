@@ -42,10 +42,6 @@ global.cheerio = cheerio;
 global.CONFIG = GENERAL_CONFIG
 global.available_documents = {}
 global.abs_index = []
-// Moved to config.json file
-// global.tables_folder = "HTML_TABLES"
-// global.tables_folder_override = "HTML_TABLES_OVERRIDE"
-// global.tables_folder_deleted = "HTML_TABLES_DELETED"
 global.cssFolder = "HTML_STYLES"
 global.DOCS = [];
 global.msh_categories = {catIndex: {}, allcats: [], pmids_w_cat: []}
@@ -67,11 +63,6 @@ global.pool = pgDriver.pool
 // const privatekey = fsClassic.readFileSync('./certificates/private.pem')
 const publickey = fsClassic.readFileSync('./certificates/public.pem')
 
-// const SESSION_TOKEN_EXPIRATION_TIME = '24h'
-// const SESSION_TOKEN_EXPIRATION_TIME = '1m'
-// In miliseconds
-// const SESSION_TOKEN_REFRESH_TIME = 20*1e3
-
 // TTidier subsystems load.
 console.log("Loading Files Management")
 
@@ -89,8 +80,6 @@ console.log("Loading Table Libs")
 import {
   tableDBDriverSet,
   readyTable,
-  // prepareAvailableDocuments,
-  // refreshDocuments,
 } from "./table.js"
 // configure table with dbDriver
 tableDBDriverSet(dbDriver)
@@ -386,57 +375,6 @@ const rebuildSearchIndex = async () => {
   // )
 }
 
-const tabularFromAnnotation = async ( annotation ) => {
-  // Path to tables
-  const {
-    tables_folder,
-    tables_folder_override,
-  } = global.CONFIG
-
-  if ( annotation.length < 1 ){ // annotation not there
-    return
-  }
-
-  annotation = annotation[0]
-  const htmlFile = annotation.file_path
-
-  //If an override file exists then use it!. Overrides are those produced by the editor.
-  const file_exists = await fs.stat(path.join(
-    tables_folder_override,
-    annotation.collection_id,
-    htmlFile
-  ))
-  .then(() => true, () => false)
-
-  let htmlFolder = path.join(tables_folder, annotation.collection_id)
-  if ( file_exists ) {
-    htmlFolder = path.join(tables_folder_override, annotation.collection_id) //"HTML_TABLES_OVERRIDE/"
-  }
-
-  try {
-    const data = await fs.readFile(path.join(htmlFolder, htmlFile), {encoding: 'utf8'})
-    const ann = annotation
-    const tablePage = cheerio.load(data);
-
-    const tableData = tablePage("tr").get().map( (row) => {
-      const rowValues = cheerio(row).children().get().map(
-        (i,e) => ({
-          text : cheerio(i).text(),
-          isIndent : (cheerio(i).find('.indent1').length +
-                      cheerio(i).find('.indent2').length +
-                      cheerio(i).find('.indent3').length +
-                      cheerio(i).find('.indent').length) > 0,
-          isBold : (cheerio(i).find('.bold').length + cheerio(i).find('strong').length) > 0,
-          isItalic : (cheerio(i).find('em').length) > 0,
-        })
-      )
-      return rowValues
-    });
-  } catch (err) {
-    console.log(err)
-  }
-}
-
 // preinitialisation of components if needed.
 async function main() {
 
@@ -451,50 +389,7 @@ async function main() {
   const umls_data_buffer = await UMLSData();
   console.timeEnd('UMLSData')
 
-  // await refreshDocuments()
-
-  // var annotation = await dbDriver.annotationByIDGet("11442551", 1, 1);
-  // // var tableData = await readyTable("11442551", 1, 1, false)
-  // await tabularFromAnnotation(annotation)
 }
-
-// app.get(CONFIG.api_base_url+'/deleteTable', async function(req,res){
-//
-//   if ( req.query && req.query.docid && req.query.page ){
-//
-//     var filename = req.query.docid+"_"+req.query.page+".html"
-//
-//     var delprom = new Promise(function(resolve, reject) {
-//         fs.rename( tables_folder+'/'+ filename , tables_folder_deleted+'/'+ filename , (err) => {
-//           if (err) { reject("failed")} ;
-//           console.log('Move complete : '+filename);
-//           resolve("done");
-//         });
-//     });
-//
-//     await delprom;
-//     // await refreshDocuments();
-//
-//     res.send("table deleted")
-//   } else {
-//     res.send("table not deleted")
-//   }
-//
-// });
-//
-// app.get(CONFIG.api_base_url+'/recoverTable', async function(req,res){
-//     if ( req.query && req.query.docid && req.query.page ){
-//
-//       var filename = req.query.docid+"_"+req.query.page+".html"
-//
-//       fs.rename( tables_folder_deleted+'/'+ filename , tables_folder+'/'+ filename , (err) => {
-//         if (err) throw err;
-//           console.log('Move complete : '+filename);
-//       });
-//     }
-//
-//     res.send("table recovered")
-// });
 
 // * :-) check calls from ui
 app.get(global.CONFIG.api_base_url+'/listDeletedTables', async (req,res) => {
@@ -647,10 +542,9 @@ app.post(global.CONFIG.api_base_url+'/metadata',
     docid,
     page,
     collId,
-
     action,
     payload,
-    // sinble table
+    // single table
     tid,
     // multiple tables
     tids,
@@ -659,7 +553,6 @@ app.post(global.CONFIG.api_base_url+'/metadata',
   // Prevent invalid chars error
   docid = decodeURIComponent(docid)
 
-  // vars as number
   // collection_id
   collId = parseInt(collId)
   // page
@@ -765,19 +658,6 @@ app.post(global.CONFIG.api_base_url+'/cuis', async (req, res) => {
   }
 });
 
-// :-) moved to JWT
-// Simple validation
-// function validateUser (username, hash){
-//     var validate_user;
-//     for ( var u in global.records ) {
-//       if ( global.records[u].username == username ){
-//          var user = global.records[u]
-//          var db_hash = getUserHash(user)
-//          validate_user = hash == db_hash.hash ? user : false
-//       }
-//     }
-//     return validate_user;
-// }
 
 const getResultsRefreshed = async ( tids ) => {
    // Path to tables
@@ -1066,10 +946,6 @@ app.post(global.CONFIG.api_base_url+'/tables',
 
   const {
     action,
-    // docidList,
-    // collection_id,
-    // tablesList,
-    // targetCollectionID,
   } = req.body
 
   // collection_id as number
@@ -1796,26 +1672,6 @@ app.get(global.CONFIG.api_base_url+'/formattedResults', async function (req, res
   res.send(formattedRes)
 })
 
-// ! :-)
-// app.get('/api/abs_index',function(req,res){
-//
-//   var output = "";
-//   for (var i in abs_index){
-//
-//     output = output + i
-//               +","+abs_index[i].docid
-//               +","+abs_index[i].page
-//               +"\n";
-//
-//   }
-//
-//   res.send(output)
-// });
-
-// app.get('/api/totalTables',function(req,res){
-//   res.send({total : DOCS.length})
-// });
-
 const getMMatch = async (phrase) => {
   // Clean phrase
   phrase = phrase.trim()
@@ -2297,10 +2153,8 @@ app.post(global.CONFIG.api_base_url+'/saveAnnotation',
   
   let {
     action,
-
     page,
     collId,
-
     payload,
     tid=undefined,
   } = req?.body || {}
@@ -2495,79 +2349,6 @@ const prepareMetadata = (headerData, tableResults) => {
   return meta_concepts
 }
 
-// * :-) not used?
-
-const processAnnotationAndMetadata = async (docid, page, collId) => {
-    // ! :-) prepareAnnotationPreview needs tid
-  // const tabularData = await prepareAnnotationPreview(docid, page, collId, false)
-  const tabularData = await prepareAnnotationPreview(tid, false)
-
-  if (
-    (
-      tabularData.backAnnotation &&
-      tabularData.backAnnotation.rows.length > 0 &&
-      tabularData.backAnnotation.rows[0].annotation
-    ) == false
-  ) {
-    throw new Error('invalid tabularData')
-  }
-
-  // .annotations.map( ann => { return {head: Object.keys(ann.content).join(";"), sub: ann.subAnnotation } })
-
-  const tid = tabularData.backAnnotation.rows[0].tid
-
-  let header_data = tabularData.backAnnotation.rows[0].annotation.map( ann => { return {head: [ann.content.split("@")[0]].join(";"), sub: ann.subAnnotation } })
-
-  header_data = header_data.reduce( (acc, header,i) => {
-                          acc.count[header.head] = acc.count[header.head] ? acc.count[header.head]+1 : 1;
-                          acc.headers.push(header.head+"@"+acc.count[header.head]);
-                          acc.subs.push(header.sub);
-                          return acc;
-                        }, {count:{},headers:[],subs:[]} )
-
-  // * :-) not used?
-  var headerData = tabularData.result.reduce( (acc, item) => {
-
-    Object.keys(item).map( (head) => {
-      if ( ["col","row","docid_page","value"].indexOf(head) < 0 ){
-        var currentItem = acc[head]
-
-        if( !currentItem ){
-          currentItem = []
-        }
-
-        currentItem.push(item[head])
-
-        acc[head] = [...new Set(currentItem)]
-      }
-    })
-    return acc
-  }, {})
-
-  const headDATA = prepareMetadata(header_data, tabularData.result)
-
-  const hedDatra = await processHeaders(headDATA)
-
-  const metadata = Object.keys(hedDatra).map( (key) => {
-    const cuis = hedDatra[key].labels.map( (label) => {return label.CUI} )
-
-    return {
-      concept: hedDatra[key].concept,
-      concept_root: hedDatra[key].root,
-      concept_source: '',
-      cuis: cuis,
-      cuis_selected: cuis.slice(0,2),
-      istitle: false,
-      labeller: 'suso',
-      qualifiers: [''],
-      qualifiers_selected: [''],
-      tid: tid
-    }
-  })
-
-  const result = await setMetadata(metadata)
-}
-
 // catch events from Authentication, JWT, etc
 app.use(function (err, req, res, next) {
   if (err.code === 'permission_denied') {
@@ -2591,8 +2372,6 @@ app.use(function (err, req, res, next) {
 
   return res.status(500).json({message: err.message});
 });
-
-const myShellScript = exec(`fuser -k ${global.CONFIG.api_port}/tcp`);
 
 app.listen(global.CONFIG.api_port, '0.0.0.0', () => {
   console.log(`Table Tidier Server running on port ${
