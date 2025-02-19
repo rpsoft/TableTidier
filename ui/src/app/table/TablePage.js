@@ -16,6 +16,8 @@ import { useTableContext } from "./TableContext";
 
 // CREATE-ISSUE: Title="Fix Vue Component" Description="This Vue component needs better error handling."
 
+// What If I change it?
+
 // import React from "react";
 export default function TablePage() {
   const { state, setValue } = useTableContext();
