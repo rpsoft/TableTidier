@@ -9,10 +9,11 @@ import TableAnnotator from "./components/TableAnnotator";
 
 import Tabletools from "./tableTools";
 
-import { getTable, getAllTables, uploadTable } from "./actions";
+import { getTable, getAllTables, uploadTable, updateTable } from "./actions";
 import { useState, useEffect, useContext, createContext } from "react";
 
 import { useTableContext } from "./TableContext";
+import UpdateTableButton from "./components/UpdateTableButton";
 
 // import React from "react";
 export default function TablePage() {
@@ -20,10 +21,20 @@ export default function TablePage() {
 
   const refreshTables = async () => {
     getAllTables().then((tables) => {
-      // debugger
       setValue("tables", tables);
     });
   };
+
+  useEffect(() => {
+    const handleClick = () => {
+      setValue("cellContextOpen", false);
+      setValue("groupContextOpen", false);
+    };
+    window.addEventListener("click", handleClick);
+    return () => {
+      window.removeEventListener("click", handleClick);
+    };
+  }); // Interesting. This was removed:   }, []);
 
   useEffect(() => {
     refreshTables();
@@ -82,10 +93,24 @@ export default function TablePage() {
         <Select
           className="w-[600px]"
           options={options}
-          onChange={(value) => {
+          onChange={async (value) => {
+            // debugger;
+            if (parseInt(state.selectedTable) > -1)
+              await updateTable(state.tables[state.selectedTable].id, {
+                annotationData: {
+                  annotations: state.annotations,
+                  extractedData: state.extractedData,
+                },
+              });
+            // debugger;
             setValue("selectedTable", value);
+            setValue("annotations", []);
+            setValue("extractedData", []);
+            setValue("selectedCells", {});
           }}
         />
+
+        <UpdateTableButton />
       </div>
 
       <div className="flex flex-wrap">

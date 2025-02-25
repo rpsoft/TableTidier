@@ -10,6 +10,9 @@
   },
   "dependencies": {
     "@ant-design/nextjs-registry": "^1.0.2",
+    "@dnd-kit/accessibility": "^3.1.1",
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
     "antd": "^5.22.7",
     "cheerio": "^1.0.0",
     "mongodb": "^6.12.0",
@@ -18,7 +21,6 @@
     "next-auth": "^5.0.0-beta.25",
     "react": "19.0.0",
     "react-dom": "19.0.0",
-    "react-easy-sort": "^1.6.0",
     "styled-components": "^6.1.13",
     "uuid": "^11.0.3"
   },

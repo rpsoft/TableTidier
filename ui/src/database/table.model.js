@@ -39,6 +39,9 @@ const tableSchema = new mongoose.Schema({
     type: Number,
     required: false,
   },
+  annotationData: {
+    type: Object,
+  },
 });
 
 export const Table = mongoose
