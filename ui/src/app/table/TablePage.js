@@ -55,7 +55,27 @@ export default function TablePage() {
         });
     }
 
-    setValue("tableNodes", Tabletools.contentToNodes(tableContent));
+    const tableNodes = Tabletools.contentToNodes(tableContent);
+    setValue("tableNodes", tableNodes);
+    // debugger;
+
+    const tableData = state.tables[state.selectedTable];
+    const annotations = tableData?.annotationData?.annotations;
+
+    // debugger;
+
+    if (annotations) {
+      setValue("annotations", annotations);
+      setValue(
+        "extractedData",
+        Tabletools.annotationsToTable(tableNodes, annotations),
+      );
+    } else {
+      setValue("annotations", []);
+      setValue("extractedData", []);
+    }
+
+    setValue("selectedCells", {});
   }, [state.tables, state.selectedTable]);
 
   const options = state.tables.map((tables, t) => {
@@ -96,23 +116,11 @@ export default function TablePage() {
           className="w-[600px]"
           options={options}
           onChange={async (value) => {
-            // debugger;
-            if (parseInt(state.selectedTable) > -1)
-              await updateTable(state.tables[state.selectedTable].id, {
-                annotationData: {
-                  annotations: state.annotations,
-                  extractedData: state.extractedData,
-                },
-              });
-            // debugger;
             setValue("selectedTable", value);
-            setValue("annotations", []);
-            setValue("extractedData", []);
-            setValue("selectedCells", {});
           }}
         />
 
-        <UpdateTableButton />
+        <UpdateTableButton refreshTables={refreshTables} />
       </div>
 
       <div className="flex flex-wrap">

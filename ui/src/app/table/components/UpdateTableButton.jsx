@@ -3,18 +3,8 @@
 import { useState } from "react";
 import { useTableContext } from "@/app/table/TableContext";
 
-const UpdateTableButton = () => {
+const UpdateTableButton = ({ refreshTables }) => {
   const { state, setValue } = useTableContext();
-
-  // debugger;
-
-  // if (parseInt(state.selectedTable) > -1)
-  //   await updateTable(state.tables[state.selectedTable].id, {
-  //     annotationData: {
-  //       annotations: state.annotations,
-  //       extractedData: state.extractedData,
-  //     },
-  //   });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -42,6 +32,8 @@ const UpdateTableButton = () => {
 
       const result = await response.json();
       console.log("Updated table:", result);
+
+      refreshTables();
     } catch (err) {
       console.error(err);
       setError(err.message);

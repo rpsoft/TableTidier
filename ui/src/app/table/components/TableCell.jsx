@@ -20,7 +20,7 @@ export default function TableCell({
       // Toggle the clicked cell
       selectionMap[selectionKey]
         ? delete selectionMap[selectionKey]
-        : (selectionMap[selectionKey] = selectionObject);
+        : (selectionMap[selectionKey] = { tablePosition, content });
     } else if (e.shiftKey) {
       const [startRow, startCol] = state.tableClickPosition;
       const minR = Math.min(row, startRow);
@@ -40,7 +40,7 @@ export default function TableCell({
       }
     } else {
       // Clear selection and select only the clicked cell
-      selectionMap = { [selectionKey]: selectionObject };
+      selectionMap = { [selectionKey]: { tablePosition, content } };
     }
 
     // Update state
@@ -57,10 +57,12 @@ export default function TableCell({
     setSelected(selectedCells.indexOf(key) > -1);
   }, [selectedCells, tablePosition]);
 
+  // max-width: 200px;
+  //     overflow-wrap: normal;
   return (
     <td
       className={
-        "cursor-pointer hover:bg-yellow-200 hover:text-black min-w-5 " +
+        "max-w-[400px] cursor-pointer hover:bg-yellow-200 hover:text-black min-w-5 " +
         (selected ? " bg-yellow-100 opacity-80 select-none text-black" : "")
       }
       onContextMenu={(e) => {

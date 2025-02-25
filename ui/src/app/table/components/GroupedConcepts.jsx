@@ -8,7 +8,7 @@ export default function GroupedConcepts({
   // addToSelection,
 }) {
   const { state, setValue } = useTableContext();
-
+  // debugger;
   return (
     <div
       className="shrink-0 justify-center items-center bg-blue-400
@@ -23,6 +23,7 @@ export default function GroupedConcepts({
 
         setValue("groupContextOpen", true);
         setValue("groupContextData", item.concepts);
+        setValue("groupContextIndex", item.id);
       }}
     >
       <div>{item.category}</div>

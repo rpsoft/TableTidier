@@ -35,9 +35,29 @@ export default function GroupContexMenu({}) {
         top={state.cellContextPoints.y}
         left={state.cellContextPoints.x}
       >
-        {Object.values(groupContextData).map((concept, c) => (
+        <ul>
+          <li
+            onClick={() => {
+              var newAnnotations = state.annotations
+                .filter((ann) => ann.id !== state.groupContextIndex)
+                .map((ann, a) => {
+                  var an = ann;
+                  an.id = a;
+                  return an;
+                });
+
+              setValue("annotations", newAnnotations);
+              // console.log(state);
+
+              // debugger;
+            }}
+          >
+            Delete
+          </li>
+        </ul>
+        {/* {Object.values(groupContextData).map((concept, c) => (
           <div key={"concept" + "_" + c}>{concept.content}</div>
-        ))}
+        ))} */}
       </ContextMenu>
     </>
   );

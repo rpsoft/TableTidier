@@ -1,13 +1,10 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-// import SortableList, { SortableItem } from "react-easy-sort";
-//
 import SortableList from "./SortableList";
 
 import GroupContextMenu from "./GroupContexMenu";
 import { useTableContext } from "../TableContext";
 import Tabletools from "../tableTools";
-import GroupedConcepts from "./GroupedConcepts";
 
 export default function TableAnnotator({}) {
   const { state, setValue } = useTableContext();
@@ -27,7 +24,6 @@ export default function TableAnnotator({}) {
 
   const structuredTable = state.structuredTable;
 
-  // debugger;
   const [groupedConcepts, setGroupedConcepts] = useState([]);
 
   const groupConcepts = () => {
@@ -36,7 +32,7 @@ export default function TableAnnotator({}) {
     const newAnnotations = [
       ...annotations,
       {
-        id: annotations.length + "",
+        id: annotations.length,
         concepts,
         category: "characteristic",
       },
