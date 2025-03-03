@@ -14,13 +14,6 @@ import { useState, useEffect, useContext, createContext } from "react";
 
 import { useTableContext } from "./TableContext";
 
-// CREATE-ISSUE: Title="Fix Vue Component" Description="This Vue component needs better error handling."
-// CLOSE-ISSUE: IssueID=49
-// CLOSE-ISSUE: IssueID=51
-
-// CREATE-ISSUE: Title="This is a testing issue here" Description="That has nothing to do with this"
-// What If I change it?
-
 // import React from "react";
 export default function TablePage() {
   const { state, setValue } = useTableContext();
