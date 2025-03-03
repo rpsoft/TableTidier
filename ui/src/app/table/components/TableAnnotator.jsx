@@ -1,45 +1,43 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import SortableList, { SortableItem } from "react-easy-sort";
-import arrayMove from "array-move";
+import SortableList from "./SortableList";
 
+import GroupContextMenu from "./GroupContexMenu";
 import { useTableContext } from "../TableContext";
 import Tabletools from "../tableTools";
 
 export default function TableAnnotator({}) {
   const { state, setValue } = useTableContext();
 
-  const annotations = state.annotations.map((group) => {
+  const annotations = state.annotations.map((group, g) => {
     return {
+      id: g,
       category: group.category,
       concepts: Object.values(group.concepts).reduce((acc, ann, a) => {
-        // debugger
         if (ann.content.length > 0) {
           acc[Object.keys(group.concepts)[a]] = ann;
         }
         return acc;
-      }, []),
+      }, {}),
     };
   });
 
   const structuredTable = state.structuredTable;
 
+  const [groupedConcepts, setGroupedConcepts] = useState([]);
+
   const groupConcepts = () => {
     const concepts = state.selectedCells;
-
-    // debugger
 
     const newAnnotations = [
       ...annotations,
       {
+        id: annotations.length,
         concepts,
         category: "characteristic",
       },
     ];
     setValue("annotations", newAnnotations);
-
-    // console.log( annotations )
-
     setValue(
       "extractedData",
       Tabletools.annotationsToTable(state.tableNodes, newAnnotations),
@@ -48,9 +46,7 @@ export default function TableAnnotator({}) {
     setValue("selectedCells", {});
   };
 
-  const onSortEnd = (oldIndex, newIndex) => {
-    var newAnnotations = arrayMove(annotations, oldIndex, newIndex);
-
+  const sortAnnotations = (newAnnotations) => {
     setValue("annotations", newAnnotations);
     setValue(
       "extractedData",
@@ -98,25 +94,11 @@ export default function TableAnnotator({}) {
       )}
 
       <SortableList
-        onSortEnd={onSortEnd}
-        className="select-none flex justify-start"
-        draggedItemClassName="dragged"
-      >
-        {annotations.map((item, i) => (
-          <SortableItem key={"sortable_" + i}>
-            <div
-              className="shrink-0 justify-center items-center bg-blue-400
-												text-white m-2 cursor-grab border-2 rounded-md p-2 h-fit"
-            >
-              <div>{i + " - " + item.category}</div>
-              <hr />
-              {Object.values(item.concepts).map((concept, c) => (
-                <div key={"sortable_" + i + "_" + c}>{concept.content}</div>
-              ))}
-            </div>
-          </SortableItem>
-        ))}
-      </SortableList>
+        groupedConcepts={annotations}
+        setGroupedConcepts={sortAnnotations}
+      />
+
+      <GroupContextMenu />
 
       <div>
         <table>

@@ -9,10 +9,11 @@ import TableAnnotator from "./components/TableAnnotator";
 
 import Tabletools from "./tableTools";
 
-import { getTable, getAllTables, uploadTable } from "./actions";
+import { getTable, getAllTables, uploadTable, updateTable } from "./actions";
 import { useState, useEffect, useContext, createContext } from "react";
 
 import { useTableContext } from "./TableContext";
+import UpdateTableButton from "./components/UpdateTableButton";
 
 // CREATE-ISSUE: Title="Fix Vue Component" Description="This Vue component needs better error handling."
 
@@ -22,10 +23,20 @@ export default function TablePage() {
 
   const refreshTables = async () => {
     getAllTables().then((tables) => {
-      // debugger
       setValue("tables", tables);
     });
   };
+
+  useEffect(() => {
+    const handleClick = () => {
+      setValue("cellContextOpen", false);
+      setValue("groupContextOpen", false);
+    };
+    window.addEventListener("click", handleClick);
+    return () => {
+      window.removeEventListener("click", handleClick);
+    };
+  }); // Interesting. This was removed:   }, []);
 
   useEffect(() => {
     refreshTables();
@@ -44,7 +55,27 @@ export default function TablePage() {
         });
     }
 
-    setValue("tableNodes", Tabletools.contentToNodes(tableContent));
+    const tableNodes = Tabletools.contentToNodes(tableContent);
+    setValue("tableNodes", tableNodes);
+    // debugger;
+
+    const tableData = state.tables[state.selectedTable];
+    const annotations = tableData?.annotationData?.annotations;
+
+    // debugger;
+
+    if (annotations) {
+      setValue("annotations", annotations);
+      setValue(
+        "extractedData",
+        Tabletools.annotationsToTable(tableNodes, annotations),
+      );
+    } else {
+      setValue("annotations", []);
+      setValue("extractedData", []);
+    }
+
+    setValue("selectedCells", {});
   }, [state.tables, state.selectedTable]);
 
   const options = state.tables.map((tables, t) => {
@@ -84,10 +115,12 @@ export default function TablePage() {
         <Select
           className="w-[600px]"
           options={options}
-          onChange={(value) => {
+          onChange={async (value) => {
             setValue("selectedTable", value);
           }}
         />
+
+        <UpdateTableButton refreshTables={refreshTables} />
       </div>
 
       <div className="flex flex-wrap">
