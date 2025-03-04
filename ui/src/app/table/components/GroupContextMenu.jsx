@@ -2,10 +2,10 @@
 import { useRef } from "react";
 import React, { useState, useEffect } from "react";
 import { ContextMenu } from "@/styles/styles";
-import TableOperations from "../tableEdit";
+
 import { useTableContext } from "../TableContext";
 
-export default function GroupContexMenu({}) {
+export default function GroupContextMenu({}) {
   const { state, setValue } = useTableContext();
 
   const setTableNodes = (tableNodes) => setValue("tableNodes", tableNodes);
@@ -32,8 +32,8 @@ export default function GroupContexMenu({}) {
   return (
     <>
       <ContextMenu
-        top={state.cellContextPoints.y}
-        left={state.cellContextPoints.x}
+        $top={state.cellContextPoints.y}
+        $left={state.cellContextPoints.x}
       >
         <ul>
           <li

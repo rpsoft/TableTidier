@@ -40,6 +40,7 @@ const SortableList = ({
     ? "flex overflow-x-auto space-x-4 p-4 border rounded-md"
     : "space-y-2 p-4 border rounded-md";
 
+   // debugger
   return (
     <DndContext
       collisionDetection={closestCenter}
@@ -51,7 +52,7 @@ const SortableList = ({
         strategy={horizontalListSortingStrategy}
       >
         <div className={classOrientation}>
-          {groupedConcepts.map((item) => (
+          {groupedConcepts?.map((item) => (
             <SortableItem key={item.id} id={item.id}>
               <GroupedConcepts item={item} />
             </SortableItem>

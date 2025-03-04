@@ -31,6 +31,7 @@ export default function TablePage() {
     const handleClick = () => {
       setValue("cellContextOpen", false);
       setValue("groupContextOpen", false);
+      setValue("colourSelectGroup", null);
     };
     window.addEventListener("click", handleClick);
     return () => {
@@ -102,7 +103,7 @@ export default function TablePage() {
 
   var maxColumns = Math.max(...state.tableNodes.map((r) => r.length));
   // debugger;
-  console.log(maxColumns);
+  // console.log(maxColumns);
   return (
     <main>
       <div className="max-w-[500px] p-5">
@@ -144,10 +145,8 @@ export default function TablePage() {
         </div>
 
         <TableAnnotator />
+        <TableContexMenu />
 
-        <div>
-          <TableContexMenu />
-        </div>
       </div>
     </main>
   );

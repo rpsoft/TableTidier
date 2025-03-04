@@ -46,7 +46,7 @@ const Tabletools = {
 			var content = [];
 
 			node.children?.forEach((child) => {
-				console.log(child.tagName);
+				// console.log(child.tagName);
 				if (child.tagName === "td") {
 					const childContent = $(child).text();
 					content = [...content, childContent];

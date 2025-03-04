@@ -2,25 +2,35 @@
 import React, { useState, useEffect, useRef } from "react";
 import SortableList from "./SortableList";
 
-import GroupContextMenu from "./GroupContexMenu";
+import GroupContextMenu from "./GroupContextMenu";
+import ColourContextSelector from "./ColourContextSelector";
+
 import { useTableContext } from "../TableContext";
 import Tabletools from "../tableTools";
+import { Col } from "antd";
 
 export default function TableAnnotator({}) {
   const { state, setValue } = useTableContext();
 
-  const annotations = state.annotations.map((group, g) => {
-    return {
-      id: g,
-      category: group.category,
-      concepts: Object.values(group.concepts).reduce((acc, ann, a) => {
-        if (ann.content.length > 0) {
-          acc[Object.keys(group.concepts)[a]] = ann;
-        }
-        return acc;
-      }, {}),
-    };
-  });
+  const [ annotations, setAnnotations ] = useState( [] )
+
+  useEffect(() => {
+    setAnnotations(state.annotations.map((group, g) => {
+
+      return {
+      		... group,
+        	concepts: Object.values(group.concepts).reduce((acc, ann, a) => {
+	          if (ann.content.length > 0) {
+	            acc[Object.keys(group.concepts)[a]] = ann;
+	          }
+	          return acc;
+	        }, {})
+      };
+    }));
+
+  }, [state.annotations]);
+
+
 
   const structuredTable = state.structuredTable;
 
@@ -54,9 +64,11 @@ export default function TableAnnotator({}) {
     );
   };
 
+  const anyContentSelected = Object?.values(state.selectedCells)?.map( sel => sel.content )?.join("")?.trim()?.length > 0 || false
+
   return (
     <>
-      {Object.keys(state.selectedCells).length > 0 ? (
+      { (anyContentSelected && Object.keys(state.selectedCells).length > 0) ? (
         <div className="shrink-0 justify-center items-center text-white m-2 border-2 rounded-md p-2 h-fit ">
           <input
             type="text"
@@ -99,6 +111,7 @@ export default function TableAnnotator({}) {
       />
 
       <GroupContextMenu />
+      <ColourContextSelector />
 
       <div>
         <table>
@@ -116,7 +129,7 @@ export default function TableAnnotator({}) {
                     //  debugger
 
                     return (
-                      <td key={"ex_" + e + "_" + c}>
+                      <td key={"ex_" + e + "_" + c} className="max-w-40">
                         {cell != null &&
                         cell.concepts.length > 0 &&
                         cell.cellData.length > 0 ? (
