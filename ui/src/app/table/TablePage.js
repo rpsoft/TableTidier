@@ -14,6 +14,7 @@ import { useState, useEffect, useContext, createContext } from "react";
 
 import { useTableContext } from "./TableContext";
 import UpdateTableButton from "./components/UpdateTableButton";
+import TableHTMLEditor from "./components/TableHTMLEditor";
 
 // CREATE-ISSUE: Title="Fix Vue Component" Description="This Vue component needs better error handling."
 
@@ -104,6 +105,10 @@ export default function TablePage() {
   var maxColumns = Math.max(...state.tableNodes.map((r) => r.length));
   // debugger;
   // console.log(maxColumns);
+  //
+  //
+  var currentTableHtml = parseInt(state.selectedTable) > -1 ? state.tables[state.selectedTable].htmlContent : ""
+// debugger
   return (
     <main>
       <div className="max-w-[500px] p-5">
@@ -146,7 +151,18 @@ export default function TablePage() {
 
         <TableAnnotator />
         <TableContexMenu />
+        <div className="w-full">
+        	Editor:
+				  <TableHTMLEditor initialHtml={ currentTableHtml }
+						saveHtml={(htmlContent) => {
+							var allTables = state.tables
 
+							allTables[state.selectedTable].htmlContent = htmlContent
+
+							setValue("tables", allTables);
+
+						} } />
+        </div>
       </div>
     </main>
   );

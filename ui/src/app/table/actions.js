@@ -21,7 +21,8 @@ export async function uploadTable(formData) {
 
 export async function updateTable(id, updateData) {
   try {
-    const updatedTable = await Table.findOneAndUpdate(
+
+   const updatedTable = await Table.findOneAndUpdate(
       { id }, // Find the document by id
       { $set: updateData }, // Apply updates
       { new: true, runValidators: true }, // Return updated doc, validate schema

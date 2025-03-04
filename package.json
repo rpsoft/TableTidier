@@ -1,5 +1,11 @@
 {
   "dependencies": {
-    "react-color": "^2.19.3"
+    "@yoopta/code": "^4.9.4",
+    "@yoopta/editor": "^4.9.4",
+    "@yoopta/paragraph": "^4.9.4",
+    "@yoopta/table": "^4.9.4",
+    "react-color": "^2.19.3",
+    "slate": "^0.102.0",
+    "slate-react": "^0.102.0"
   }
 }

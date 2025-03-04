@@ -13,18 +13,20 @@ const UpdateTableButton = ({ refreshTables }) => {
     setLoading(true);
     setError(null);
 
+
+    // debugger
     try {
+
       const response = await fetch("/api/table", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           id: state.tables[state.selectedTable].id,
-          updateData: {
-            annotationData: {
-              annotations: state.annotations,
-              // extractedData: state.extractedData,
-            },
-          },
+			updateData: { ...state.tables[state.selectedTable],
+				annotationData: {
+        	      annotations: state.annotations,
+            	}
+			},
         }),
       });
 

@@ -13,7 +13,7 @@ export default function GroupedConcepts({ item }) {
 
   return (
     <div
-      className="shrink-0 justify-center items-center text-white cursor-grab rounded-md p-1 h-fit relative w-52"
+      className="shrink-0 justify-center items-center text-white  rounded-md p-1 h-fit relative w-52"
       onContextMenu={(e) => {
         e.preventDefault();
         setValue("cellContextPoints", { x: e.pageX, y: e.pageY });
