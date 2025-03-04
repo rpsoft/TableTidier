@@ -86,28 +86,41 @@ export default function TableHTMLEditor({
 	    setHTML(htmlString);
 	  };
 
-	return (
-		<div className="pl-[100px] flex flex-col justify-center items-center bg-white">
-			{/* <button  className='btn'  onClick={deserializeHTML}>Deserialize from html to content</button> */}
-      		<button  className='btn' onClick={serializeHTML}>Save Changes</button>
-		    <div ref={selectionRef}>
-			    <YooptaEditor
-			        editor={editor}
-			        plugins={plugins}
-			        tools={TOOLS}
-			        marks={MARKS}
-			        selectionBoxRoot={selectionRef}
-			        value={value}
+	return (<>
+  <button className="btn" onClick={()=>document.getElementById('my_modal_3').showModal()}>open modal</button>
 
-					onChange={handleChange}
+        <dialog id="my_modal_3" className="modal">
+          <div className="modal-box w-screen max-w-none">
+	            <form method="dialog">
+	              {/* if there is a button in form, it will close the modal */}
+	              <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+	            </form>
 
-					style={{
-				        paddingBottom: 10,
-				        color: "black",
-						width: "100%"
-			        }}
-			    />
-		    </div>
-		</div>
-	);
+	            <div className="">
+					<div className="pl-[100px] flex flex-col justify-center items-center bg-white">
+						{/* <button  className='btn'  onClick={deserializeHTML}>Deserialize from html to content</button> */}
+			      		<button  className='btn' onClick={serializeHTML}>Save Changes</button>
+					    <div ref={selectionRef}>
+						    <YooptaEditor
+						        editor={editor}
+						        plugins={plugins}
+						        tools={TOOLS}
+						        marks={MARKS}
+						        selectionBoxRoot={selectionRef}
+						        value={value}
+
+								onChange={handleChange}
+
+								style={{
+							        paddingBottom: 10,
+							        color: "black",
+									width: "100%"
+						        }}
+						    />
+					    </div>
+					</div>
+	            </div>
+          	</div>
+        </dialog>
+	</>);
 }

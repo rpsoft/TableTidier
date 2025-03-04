@@ -151,18 +151,21 @@ export default function TablePage() {
 
         <TableAnnotator />
         <TableContexMenu />
-        <div className="w-full">
-        	Editor:
-				  <TableHTMLEditor initialHtml={ currentTableHtml }
-						saveHtml={(htmlContent) => {
-							var allTables = state.tables
 
-							allTables[state.selectedTable].htmlContent = htmlContent
 
-							setValue("tables", allTables);
+          				  <TableHTMLEditor
+                				initialHtml={ currentTableHtml }
+								saveHtml={(htmlContent) => {
+									var allTables = state.tables
 
-						} } />
-        </div>
+									allTables[state.selectedTable].htmlContent = htmlContent
+
+									setValue("tables", allTables);
+
+								} }
+						/>
+
+
       </div>
     </main>
   );
