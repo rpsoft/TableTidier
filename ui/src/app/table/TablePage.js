@@ -168,22 +168,23 @@ export default function TablePage() {
 
 					var tableNodes = Tabletools.contentToNodes([htmlContent]);
 
-					var refreshedAnnotations = allTables[state.selectedTable].annotationData.annotations.map( annotation => {
-					    annotation.concepts = Object.keys(annotation.concepts).reduce( (acc, conceptKey) => {
+					if ( allTables[state.selectedTable].annotationData ){
+						var refreshedAnnotations = allTables[state.selectedTable].annotationData.annotations.map( annotation => {
+						    annotation.concepts = Object.keys(annotation.concepts).reduce( (acc, conceptKey) => {
 
-							var row = annotation.concepts[conceptKey].tablePosition[0]
-							var col = annotation.concepts[conceptKey].tablePosition[1]
-							var newContent = tableNodes[row][col]
-							annotation.concepts[conceptKey].content = newContent
-					        acc[conceptKey] = annotation.concepts[conceptKey]
+								var row = annotation.concepts[conceptKey].tablePosition[0]
+								var col = annotation.concepts[conceptKey].tablePosition[1]
+								var newContent = tableNodes[row][col]
+								annotation.concepts[conceptKey].content = newContent
+						        acc[conceptKey] = annotation.concepts[conceptKey]
 
-					        return acc
-					    }, {})
-					    return annotation
-					})
+						        return acc
+						    }, {})
+						    return annotation
+						})
 
-
-					allTables[state.selectedTable].annotationData.annotations = refreshedAnnotations;
+						allTables[state.selectedTable].annotationData.annotations = refreshedAnnotations;
+					}
 
 					setValue("tables", allTables);
 
