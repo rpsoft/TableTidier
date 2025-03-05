@@ -87,8 +87,6 @@ export default function TableHTMLEditor({
 	  };
 
 	return (<>
-  <button className="btn" onClick={()=>document.getElementById('my_modal_3').showModal()}>open modal</button>
-
         <dialog id="my_modal_3" className="modal">
           <div className="modal-box w-screen max-w-none">
 	            <form method="dialog">

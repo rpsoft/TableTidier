@@ -6,6 +6,7 @@ import { useTableContext } from "../TableContext";
 export default function TableCell({
   content,
   tablePosition,
+  colour,
   // addToSelection,
 }) {
   const { state, setValue } = useTableContext();
@@ -65,6 +66,9 @@ export default function TableCell({
         "max-w-[400px] cursor-pointer hover:bg-yellow-200 hover:text-black min-w-5 " +
         (selected ? " bg-yellow-100 opacity-80 select-none text-black" : "")
       }
+
+		  style={{ backgroundColor: colour }}
+
       onContextMenu={(e) => {
         e.preventDefault();
 

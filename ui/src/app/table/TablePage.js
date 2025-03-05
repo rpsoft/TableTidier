@@ -90,11 +90,21 @@ export default function TablePage() {
         <TableTab orientation="row" index={r} />
 
         {row.map((cell, c) => {
+
+        	// debugger
+
+          var groupsWithCell = state.annotations.map( an => Object.keys(an.concepts) ).map( groupPositions => groupPositions.indexOf(r + "-" + c) )
+
+          var colour = state.annotations.filter( (ann, a) =>
+                  groupsWithCell[a] > -1
+              ).map( g => g.color).join()
+
           return (
             <TableCell
-              key={"cell_" + r + "_" + c}
-              content={cell}
-              tablePosition={[r, c]}
+				  key={"cell_" + r + "_" + c}
+				  content={cell}
+				  tablePosition={[r, c]}
+				  colour={ colour }
             ></TableCell>
           );
         })}
@@ -129,6 +139,8 @@ export default function TablePage() {
         <UpdateTableButton refreshTables={refreshTables} />
       </div>
 
+      <button className="btn" onClick={ () => document.getElementById('my_modal_3').showModal()}>Edit Table</button>
+
       <div className="flex flex-wrap">
         <div>
           <table>
@@ -153,17 +165,17 @@ export default function TablePage() {
         <TableContexMenu />
 
 
-          				  <TableHTMLEditor
-                				initialHtml={ currentTableHtml }
-								saveHtml={(htmlContent) => {
-									var allTables = state.tables
+		  <TableHTMLEditor
+					initialHtml={ currentTableHtml }
+					saveHtml={(htmlContent) => {
+						var allTables = state.tables
 
-									allTables[state.selectedTable].htmlContent = htmlContent
+						allTables[state.selectedTable].htmlContent = htmlContent
 
-									setValue("tables", allTables);
+						setValue("tables", allTables);
 
-								} }
-						/>
+					} }
+			/>
 
 
       </div>
