@@ -60,13 +60,18 @@ export default function TableCell({
 
   // max-width: 200px;
   //     overflow-wrap: normal;
+  //
+  // debugger
   return (
     <td
       className={
         "max-w-[400px] cursor-pointer hover:bg-yellow-200 hover:text-black min-w-5 " +
         (selected ? " bg-yellow-100 opacity-80 select-none text-black" : "")
       }
-      style={{ borderLeft: "10px solid " + colour }}
+      style={{
+      		border: colour.length > 0 ? "1px solid " + colour : "",
+        	borderLeft: colour.length > 0 ? "10px solid " + colour : ""
+      }}
       onContextMenu={(e) => {
         e.preventDefault();
 

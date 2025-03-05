@@ -47,17 +47,12 @@ export default function GroupContextMenu({}) {
                 });
 
               setValue("annotations", newAnnotations);
-              // console.log(state);
 
-              // debugger;
             }}
           >
             Delete
           </li>
         </ul>
-        {/* {Object.values(groupContextData).map((concept, c) => (
-          <div key={"concept" + "_" + c}>{concept.content}</div>
-        ))} */}
       </ContextMenu>
     </>
   );

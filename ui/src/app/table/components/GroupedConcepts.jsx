@@ -13,7 +13,7 @@ export default function GroupedConcepts({ item }) {
 
   return (
     <div
-      className="shrink-0 justify-center items-center text-white  rounded-md p-1 h-fit relative w-52"
+      className="shrink-0 justify-center items-center text-white  rounded-md p-1 relative w-52"
       onContextMenu={(e) => {
         e.preventDefault();
         setValue("cellContextPoints", { x: e.pageX, y: e.pageY });
@@ -45,9 +45,11 @@ export default function GroupedConcepts({ item }) {
       </div>
 
       <hr />
-      {Object.values(item.concepts).map((concept, c) => (
-        <div key={"concept_" + c}>{concept.content}</div>
-      ))}
+      <div className=" h-52 overflow-y-scroll">
+	      {Object.values(item.concepts).map((concept, c) => (
+	        <div key={"concept_" + c}>{concept.content}</div>
+	      ))}
+      </div>
     </div>
   );
 }

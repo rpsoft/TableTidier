@@ -18,19 +18,20 @@ const SortableItem = ({ id, children }) => {
   };
 
   return (
-    <div ref={setNodeRef} style={style} className="flex flex-col items-center p-2 border rounded-md">
-      {/* Drag Handle */}
+    <div ref={setNodeRef} style={style} className="flex flex-col items-center p-2 border rounded-md ">
+
+
       <button
         {...attributes}
         {...listeners}
         className="cursor-grab "
         aria-label="Drag handle"
       >
-        <GripHorizontal className="w-4 h-4 text-gray-500" />
+        <GripHorizontal className="w-6 h-6 text-gray-500" />
 
       </button>
 
-      <div className="flex-1">{children}</div>
+      <div className="flex-1 border-t-gray-400 border-t-2 mt-2">{children}</div>
     </div>
   );
 };

@@ -28,7 +28,7 @@ export default function ColourContextSelector({}) {
         $top={state.cellContextPoints.y+15}
         $left={state.cellContextPoints.x-20}
       >
-	    <TwitterPicker color={state?.colourSelectGroup?.color || "#ffffff"} onChange={handleColourChange} />
+	    <TwitterPicker className="z-10" color={state?.colourSelectGroup?.color || "#ffffff"} onChange={handleColourChange} />
       </ContextMenu>
     </>
   );

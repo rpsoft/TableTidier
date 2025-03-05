@@ -37,7 +37,7 @@ const SortableList = ({
   };
 
   var classOrientation = horizontal
-    ? "flex overflow-x-auto space-x-4 p-4 border rounded-md"
+    ? "flex overflow-x-auto space-x-4 p-4 border rounded-md h-80"
     : "space-y-2 p-4 border rounded-md";
 
    // debugger

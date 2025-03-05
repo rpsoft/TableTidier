@@ -6,6 +6,7 @@ import TableCell from "./components/TableCell";
 import TableTab from "./components/TableTab";
 import TableContexMenu from "./components/TableContexMenu";
 import TableAnnotator from "./components/TableAnnotator";
+import TableResults from "./components/TableResults";
 
 import Tabletools from "./tableTools";
 
@@ -44,6 +45,12 @@ export default function TablePage() {
     refreshTables();
   }, []);
 
+
+
+  const [ currentTableHtml, setCurrentTableHTML ] = useState("")
+
+  const [ activeTab, setActiveTab ] = useState("dashboard")
+
   useEffect(() => {
     var tableContent;
 
@@ -64,6 +71,8 @@ export default function TablePage() {
     const tableData = state.tables[state.selectedTable];
     const annotations = tableData?.annotationData?.annotations;
 
+    var currentTableHtml = parseInt(state.selectedTable) > -1 ? state.tables[state.selectedTable].htmlContent : ""
+    setCurrentTableHTML(currentTableHtml)
     // debugger;
 
     if (annotations) {
@@ -78,6 +87,9 @@ export default function TablePage() {
     }
 
     setValue("selectedCells", {});
+
+
+
   }, [state.tables, state.selectedTable]);
 
   const options = state.tables.map((tables, t) => {
@@ -117,7 +129,54 @@ export default function TablePage() {
   // console.log(maxColumns);
   //
   //
-  var currentTableHtml = parseInt(state.selectedTable) > -1 ? state.tables[state.selectedTable].htmlContent : ""
+   const tabActive = "text-white border-b-white border-b-2"
+
+	var activeTabContent;
+
+	switch(activeTab){
+
+		case "dashboard":
+			activeTabContent = <div className="flex p-5">
+				  <div>
+					  <table>
+						  <thead>
+							  <tr>
+								  <TableTab orientation="col" index={-1} />
+								  {maxColumns
+									  ? Array.from(
+										  { length: maxColumns },
+										  (value, index) => index,
+									  ).map((col, c) => (
+										  <TableTab key={"hcol-" + c} orientation="col" index={c} />
+									  ))
+									  : null}
+							  </tr>
+						  </thead>
+						  <tbody>{tbody}</tbody>
+					  </table>
+				  </div>
+				  <TableAnnotator />
+			  	</div>
+			break
+		case "edit-table":
+			activeTabContent = <TableHTMLEditor
+				initialHtml={currentTableHtml}
+				saveHtml={(htmlContent) => {
+					var allTables = state.tables
+
+					allTables[state.selectedTable].htmlContent = htmlContent
+
+					setValue("tables", allTables);
+				}}
+			/>
+			break
+		case "results":
+			activeTabContent =  <TableResults />
+			break
+
+
+	}
+
 // debugger
   return (
     <main>
@@ -139,46 +198,23 @@ export default function TablePage() {
         <UpdateTableButton refreshTables={refreshTables} />
       </div>
 
-      <button className="btn" onClick={ () => document.getElementById('my_modal_3').showModal()}>Edit Table</button>
-
-      <div className="flex flex-wrap">
-        <div>
-          <table>
-            <thead>
-              <tr>
-                <TableTab orientation="col" index={-1} />
-                {maxColumns
-                  ? Array.from(
-                      { length: maxColumns },
-                      (value, index) => index,
-                    ).map((col, c) => (
-                      <TableTab key={"hcol-" + c} orientation="col" index={c} />
-                    ))
-                  : null}
-              </tr>
-            </thead>
-            <tbody>{tbody}</tbody>
-          </table>
-        </div>
-
-        <TableAnnotator />
-        <TableContexMenu />
 
 
-		  <TableHTMLEditor
-					initialHtml={ currentTableHtml }
-					saveHtml={(htmlContent) => {
-						var allTables = state.tables
+      <div className="flex flex-col w-full">
 
-						allTables[state.selectedTable].htmlContent = htmlContent
+	      <div role="tablist" className="tabs tabs-lift tabs-xl">
+			<a role="tab" className={"tab "+ (activeTab === "dashboard" ? tabActive : "")} onClick={() => { setActiveTab("dashboard") }}>Dashboard</a>
+			<a role="tab" className={"tab "+ (activeTab === "edit-table" ? tabActive : "")} onClick={() => { setActiveTab("edit-table") }}>Edit Table</a>
+	        <a role="tab" className={"tab "+ (activeTab === "results" ? tabActive : "")} onClick={() => { setActiveTab("results") }}>Extracted Data</a>
+	      </div>
 
-						setValue("tables", allTables);
-
-					} }
-			/>
+			  {activeTabContent}
+		</div>
 
 
-      </div>
+		<TableContexMenu />
+
+
     </main>
   );
 }
