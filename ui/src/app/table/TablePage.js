@@ -166,7 +166,28 @@ export default function TablePage() {
 
 					allTables[state.selectedTable].htmlContent = htmlContent
 
+					var tableNodes = Tabletools.contentToNodes([htmlContent]);
+
+					var refreshedAnnotations = allTables[state.selectedTable].annotationData.annotations.map( annotation => {
+					    annotation.concepts = Object.keys(annotation.concepts).reduce( (acc, conceptKey) => {
+
+							var row = annotation.concepts[conceptKey].tablePosition[0]
+							var col = annotation.concepts[conceptKey].tablePosition[1]
+							var newContent = tableNodes[row][col]
+							annotation.concepts[conceptKey].content = newContent
+					        acc[conceptKey] = annotation.concepts[conceptKey]
+
+					        return acc
+					    }, {})
+					    return annotation
+					})
+
+
+					allTables[state.selectedTable].annotationData.annotations = refreshedAnnotations;
+
 					setValue("tables", allTables);
+
+					document.getElementById("updateTableButton").click();
 				}}
 			/>
 			break
@@ -180,27 +201,28 @@ export default function TablePage() {
 // debugger
   return (
     <main>
-      <div className="max-w-[500px] p-5">
-        <UploadTable
-          action={async (formData) => {
-            await uploadTable(formData);
-            await refreshTables();
-          }}
-        />
-        <Select
-          className="w-[600px]"
-          options={options}
-          onChange={async (value) => {
-            setValue("selectedTable", value);
-          }}
-        />
+		<div className="max-w-[500px] p-5">
+			<UploadTable
+			    action={async (formData) => {
+			    await uploadTable(formData);
+			    await refreshTables();
+			    }}
+			/>
 
-        <UpdateTableButton refreshTables={refreshTables} />
-      </div>
+			<Select
+			    className="w-[600px]"
+			    options={options}
+			    onChange={async (value) => {
+			    setValue("selectedTable", value);
+			    }}
+			/>
+
+			<UpdateTableButton refreshTables={refreshTables} />
+		</div>
 
 
 
-      <div className="flex flex-col w-full">
+      	<div className="flex flex-col w-full">
 
 	      <div role="tablist" className="tabs tabs-lift tabs-xl">
 			<a role="tab" className={"tab "+ (activeTab === "dashboard" ? tabActive : "")} onClick={() => { setActiveTab("dashboard") }}>Dashboard</a>
@@ -213,7 +235,6 @@ export default function TablePage() {
 
 
 		<TableContexMenu />
-
 
     </main>
   );

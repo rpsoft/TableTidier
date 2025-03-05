@@ -58,10 +58,6 @@ export default function TableCell({
     setSelected(selectedCells.indexOf(key) > -1);
   }, [selectedCells, tablePosition]);
 
-  // max-width: 200px;
-  //     overflow-wrap: normal;
-  //
-  // debugger
   return (
     <td
       className={
