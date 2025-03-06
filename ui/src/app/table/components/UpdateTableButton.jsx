@@ -49,7 +49,7 @@ const UpdateTableButton = ({ refreshTables }) => {
       id="updateTableButton"
       onClick={updateTable}
       disabled={loading}
-      className="bg-red-400 text-white ml-2 rounded-md btn-sm"
+      className="bg-blue-400 text-white ml-2 rounded-md btn-sm"
     >
       {loading ? "Saving..." : "Save Table Changes"}
     </button>
