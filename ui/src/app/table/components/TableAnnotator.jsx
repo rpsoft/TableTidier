@@ -121,7 +121,7 @@ export default function TableAnnotator({}) {
         ""
       )}
 
-      <div className="h-48">
+      <div className="min-h-48">
 	      <SortableList
 	        groupedConcepts={annotations}
 	        setGroupedConcepts={sortAnnotations}
