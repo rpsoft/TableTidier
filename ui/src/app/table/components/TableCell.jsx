@@ -41,12 +41,20 @@ export default function TableCell({
       }
     } else {
       // Clear selection and select only the clicked cell
-      selectionMap = { [selectionKey]: { tablePosition, content } };
+
+      // selectionMap = { [selectionKey]: { tablePosition, content } };
+
+      selectionMap[selectionKey]
+        ? delete selectionMap[selectionKey]
+        : selectionMap = { [selectionKey]: { tablePosition, content } };
+
     }
 
     // Update state
     setValue("selectedCells", selectionMap);
     setValue("tableClickPosition", tablePosition);
+
+
   };
 
   const selectedCells = Object.keys(state.selectedCells);

@@ -136,11 +136,11 @@ export default function TablePage() {
 	switch(activeTab){
 
 		case "dashboard":
-			activeTabContent = <div className="flex p-5">
+			activeTabContent = <div className="flex flex-col p-5">
 				  <div>
 					  <table>
 						  <thead>
-							  <tr>
+							  <tr className="h-10">
 								  <TableTab orientation="col" index={-1} />
 								  {maxColumns
 									  ? Array.from(
@@ -202,7 +202,7 @@ export default function TablePage() {
 // debugger
   return (
     <main>
-		<div className="max-w-[500px] p-5">
+		<div className=" p-5">
 			<UploadTable
 			    action={async (formData) => {
 			    await uploadTable(formData);
