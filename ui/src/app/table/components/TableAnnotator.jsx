@@ -35,6 +35,20 @@ export default function TableAnnotator({}) {
   const structuredTable = state.structuredTable;
 
   const [groupedConcepts, setGroupedConcepts] = useState([]);
+  const [conceptsCategory, setConceptsCategory] = useState("characteristic");
+
+  const defaultConceptColors = [
+    "#FF9999", // Pastel Red
+    "#99FF99", // Pastel Green
+    "#9999FF", // Pastel Blue
+    "#FFFF99", // Pastel Yellow
+    "#FF99FF", // Pastel Magenta
+    "#99FFFF", // Pastel Cyan
+    "#D98B8B", // Pastel Maroon
+    "#D9D98B", // Pastel Olive
+    "#8BD9D9", // Pastel Teal
+    "#D98BD9"  // Pastel Purple
+  ];
 
   const groupConcepts = () => {
     const concepts = state.selectedCells;
@@ -44,7 +58,8 @@ export default function TableAnnotator({}) {
       {
         id: annotations.length,
         concepts,
-        category: "characteristic",
+        category: conceptsCategory,
+        color: defaultConceptColors[annotations.length] || "#ffffff"
       },
     ];
     setValue("annotations", newAnnotations);
@@ -72,8 +87,9 @@ export default function TableAnnotator({}) {
         <div className="shrink-0 justify-center items-center text-white m-2 border-2 rounded-md p-2 h-fit ">
           <input
             type="text"
-            placeholder="characteristic"
+            placeholder="Name this group... "
             className="input input-bordered w-full max-w-xs mb-1"
+					  onChange={(e) => { setConceptsCategory(e.target.value)}}
           />
           <div className="font-bold m-2"> Selection: </div>
           {Object.keys(state.selectedCells)

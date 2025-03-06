@@ -202,23 +202,37 @@ export default function TablePage() {
 // debugger
   return (
     <main>
-		<div className=" p-5">
-			<UploadTable
-			    action={async (formData) => {
-			    await uploadTable(formData);
-			    await refreshTables();
-			    }}
-			/>
+		<div className="flex justify-between p-5 bg-gray-800">
+			<div>
+				<button className="btn btn-sm mr-2" onClick={()=>document.getElementById('upload_table_modal').showModal()}>Upload Table</button>
+				<dialog id="upload_table_modal" className="modal">
+				  <div className="modal-box">
 
-			<Select
-			    className="w-[600px]"
-			    options={options}
-			    onChange={async (value) => {
-			    setValue("selectedTable", value);
-			    }}
-			/>
+					<UploadTable
+					    action={async (formData) => {
+					    await uploadTable(formData);
+					    await refreshTables();
+					    }}
+					/>
+				  </div>
+				  <form method="dialog" className="modal-backdrop">
+				    <button>close</button>
+				  </form>
+				</dialog>
 
-			<UpdateTableButton refreshTables={refreshTables} />
+
+				<Select
+				    className="w-[600px]"
+				    options={options}
+				    onChange={async (value) => {
+				    setValue("selectedTable", value);
+				    }}
+				/>
+			</div>
+
+			<div>
+				<UpdateTableButton refreshTables={refreshTables} />
+			</div>
 		</div>
 
 

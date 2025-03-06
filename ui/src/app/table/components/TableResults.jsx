@@ -11,8 +11,29 @@ import { Col } from "antd";
 
 export default function TableResults({ }) {
 
- 	const { state, setValue } = useTableContext();
+		const { state, setValue } = useTableContext();
 
+		const handleDownload = () => {
+						const data = JSON.stringify(
+
+							state.extractedData.filter((ex) => {
+								return ex.filter((cell) => {
+									return cell != null &&
+										cell.concepts.length > 0 &&
+										cell.cellData.trim().length > 0
+								}).length > 0
+							} )
+
+
+							, null, 2);
+						const blob = new Blob([data], { type: 'application/json' });
+						const url = URL.createObjectURL(blob);
+						const a = document.createElement('a');
+						a.href = url;
+						a.download = 'extractedData.json';
+						a.click();
+						URL.revokeObjectURL(url);
+		};
 
 	return <div>
 		<table>
@@ -25,7 +46,7 @@ export default function TableResults({ }) {
 									<td key={"ex_" + e + "_" + c} className="max-w-40">
 										{cell != null &&
 											cell.concepts.length > 0 &&
-											cell.cellData.length > 0 ? (
+											cell.cellData.trim().length > 0 ? (
 											<div className="dropdown dropdown-hover dropdown-right">
 												<div
 													tabIndex={0}
@@ -54,6 +75,7 @@ export default function TableResults({ }) {
 				})}
 			</tbody>
 		</table>
+																<button onClick={handleDownload}>Download Data</button>
 	</div>
 
 }

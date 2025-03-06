@@ -49,9 +49,9 @@ const UpdateTableButton = ({ refreshTables }) => {
       id="updateTableButton"
       onClick={updateTable}
       disabled={loading}
-      className="bg-blue-500 text-white px-4 py-2 rounded-md"
+      className="bg-red-400 text-white ml-2 rounded-md btn-sm"
     >
-      {loading ? "Updating..." : "Update Table"}
+      {loading ? "Saving..." : "Save Table Changes"}
     </button>
   );
 };

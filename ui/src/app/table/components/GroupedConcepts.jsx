@@ -25,10 +25,10 @@ export default function GroupedConcepts({ item }) {
       {/* Color Picker Container */}
       <div className="relative flex" ref={pickerRef}>
 
-      {item.category}
+
 
         <div
-          className="w-5 h-5 rounded-full border border-gray-300"
+          className="w-5 h-5 rounded-full border border-gray-300 mb-2 mr-1 mt-1"
           style={{
             backgroundColor: item.color,
             cursor: "pointer",
@@ -40,12 +40,14 @@ export default function GroupedConcepts({ item }) {
         >
 
         </div>
+
+        <div className="pt-[0.15rem]"> {item.category} </div>
         {/* {"color here: "+ state.annotations[item.id].color}
         {"color here: "+ item.color} */}
       </div>
 
       <hr />
-      <div className=" h-52 overflow-y-scroll">
+      <div className=" h-48 mt-1 overflow-y-scroll">
 	      {Object.values(item.concepts).map((concept, c) => (
 	        <div key={"concept_" + c}>{concept.content}</div>
 	      ))}

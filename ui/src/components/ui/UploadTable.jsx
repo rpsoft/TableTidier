@@ -1,17 +1,23 @@
 "use client";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 export default function UploadTable( {action} ) {
 
   const fileInput = useRef(null);
+  const [open,toggleOpen] = useState(false)
 
   return (
-    <form action={action} className="flex flex-col gap-4">
-      <label>
-        <span>Upload a Table</span>
-        <input type="file" name="file" ref={fileInput} />
-      </label>
-      <button type="submit">Submit</button>
-    </form>
-  );
+  	<>
+	    <form action={action} className="flex">
+	        <div>
+
+		            <span>Upload a Table</span>
+		            <input type="file" name="file" ref={fileInput} />
+
+	        </div>
+
+		    <button className="btn btn-sm" type="submit" onClick={() => document.getElementById('upload_table_modal').close()}>Upload Table</button>
+
+	    </form>
+   </> );
 }

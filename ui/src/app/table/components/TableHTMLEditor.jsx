@@ -98,7 +98,7 @@ export default function TableHTMLEditor({ initialHtml, saveHtml }) {
   return (
     <>
         <div className=" bg-white "  ref={selectionRef}>
-        	<button className="btn" onClick={serializeHTML}> Save Changes </button>
+        	<button className="btn float-end m-2" onClick={serializeHTML}> Save Changes </button>
             <YooptaEditor
                 editor={editor}
                 plugins={plugins}
