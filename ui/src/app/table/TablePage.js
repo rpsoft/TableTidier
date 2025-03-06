@@ -240,9 +240,9 @@ export default function TablePage() {
       	<div className="flex flex-col w-full">
 
 	      <div role="tablist" className="tabs tabs-lift tabs-xl">
-			<a role="tab" className={"tab "+ (activeTab === "dashboard" ? tabActive : "")} onClick={() => { setActiveTab("dashboard") }}>Dashboard</a>
-			<a role="tab" className={"tab "+ (activeTab === "edit-table" ? tabActive : "")} onClick={() => { setActiveTab("edit-table") }}>Edit Table</a>
-	        <a role="tab" className={"tab "+ (activeTab === "results" ? tabActive : "")} onClick={() => { setActiveTab("results") }}>Extracted Data</a>
+			<a role="tab" className={"tab h-16 "+ (activeTab === "dashboard" ? tabActive : "")} onClick={() => { setActiveTab("dashboard") }}>Annotation Dashboard</a>
+			<a role="tab" className={"tab h-16 "+ (activeTab === "edit-table" ? tabActive : "")} onClick={() => { setActiveTab("edit-table") }}>Edit Table</a>
+	        <a role="tab" className={"tab h-16 "+ (activeTab === "results" ? tabActive : "")} onClick={() => { setActiveTab("results") }}>Extracted Data</a>
 	      </div>
 
 			  {activeTabContent}
