@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  nextjs:
+    build:
+      context: .
+      dockerfile: ui/Dockerfile
+    container_name: nextjs-app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongodb
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/mydatabase
+    restart: always
+
+  mongodb:
+    image: docker.io/library/mongo:6
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    restart: always  # No authentication required
+
+volumes:
+  mongodb_data:
