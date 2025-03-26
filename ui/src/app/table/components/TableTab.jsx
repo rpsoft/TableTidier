@@ -71,9 +71,9 @@ export default function TableTab({
 
   if (index > -1){
 	  if ( orientation == "row" ) {
-	  	className = className + "w-10 rounded-l-lg"
+	  	className = className + " min-w-10 rounded-l-lg"
 	  } else {
-	  	className = className + "h-10 rounded-t-lg"
+	  	className = className + " h-10 rounded-t-lg"
 	  }
   } else {
   	className = "bg-none"

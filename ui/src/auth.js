@@ -12,11 +12,16 @@ export const {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      authorization: {
+            params: {
+            	prompt: "login", // Force re-authentication
+            },
+        },
     }),
     Auth0Provider({
-      clientId: process.env.AUTH0_CLIENT_ID,
-      clientSecret: process.env.AUTH0_CLIENT_SECRET,
-      issuer: process.env.AUTH0_ISSUER_BASE_URL,
+		clientId: process.env.AUTH0_CLIENT_ID,
+		clientSecret: process.env.AUTH0_CLIENT_SECRET,
+		issuer: process.env.AUTH0_ISSUER_BASE_URL,
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET, // Ensure this is set

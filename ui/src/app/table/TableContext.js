@@ -25,7 +25,11 @@ export const TableProvider = ({ children }) => {
     tables: [],
     tableNodes: [],
     annotations: [],
-    extractedData: []
+    extractedData: [],
+    groupContextOpen: false,
+    groupContextData: null,
+    groupContextIndex: null,
+    colourSelectGroup: false,
   });
 
   // Simplify setters dynamically

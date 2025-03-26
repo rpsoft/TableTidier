@@ -1,45 +1,68 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import SortableList, { SortableItem } from "react-easy-sort";
-import arrayMove from "array-move";
+import SortableList from "./SortableList";
+
+import GroupContextMenu from "./GroupContextMenu";
+import ColourContextSelector from "./ColourContextSelector";
 
 import { useTableContext } from "../TableContext";
 import Tabletools from "../tableTools";
+import { Col } from "antd";
 
 export default function TableAnnotator({}) {
   const { state, setValue } = useTableContext();
 
-  const annotations = state.annotations.map((group) => {
-    return {
-      category: group.category,
-      concepts: Object.values(group.concepts).reduce((acc, ann, a) => {
-        // debugger
-        if (ann.content.length > 0) {
-          acc[Object.keys(group.concepts)[a]] = ann;
-        }
-        return acc;
-      }, []),
-    };
-  });
+  const [ annotations, setAnnotations ] = useState( [] )
+
+  useEffect(() => {
+    setAnnotations(state.annotations.map((group, g) => {
+
+      return {
+      		... group,
+        	concepts: Object.values(group.concepts).reduce((acc, ann, a) => {
+	          if (ann.content.length > 0) {
+	            acc[Object.keys(group.concepts)[a]] = ann;
+	          }
+	          return acc;
+	        }, {})
+      };
+    }));
+
+  }, [state.annotations]);
+
+
 
   const structuredTable = state.structuredTable;
+
+  const [groupedConcepts, setGroupedConcepts] = useState([]);
+  const [conceptsCategory, setConceptsCategory] = useState("characteristic");
+
+  const defaultConceptColors = [
+    "#FF9999", // Pastel Red
+    "#99FF99", // Pastel Green
+    "#9999FF", // Pastel Blue
+    "#FFFF99", // Pastel Yellow
+    "#FF99FF", // Pastel Magenta
+    "#99FFFF", // Pastel Cyan
+    "#D98B8B", // Pastel Maroon
+    "#D9D98B", // Pastel Olive
+    "#8BD9D9", // Pastel Teal
+    "#D98BD9"  // Pastel Purple
+  ];
 
   const groupConcepts = () => {
     const concepts = state.selectedCells;
 
-    // debugger
-
     const newAnnotations = [
       ...annotations,
       {
+        id: annotations.length,
         concepts,
-        category: "characteristic",
+        category: conceptsCategory,
+        color: defaultConceptColors[annotations.length] || "#ffffff"
       },
     ];
     setValue("annotations", newAnnotations);
-
-    // console.log( annotations )
-
     setValue(
       "extractedData",
       Tabletools.annotationsToTable(state.tableNodes, newAnnotations),
@@ -48,9 +71,7 @@ export default function TableAnnotator({}) {
     setValue("selectedCells", {});
   };
 
-  const onSortEnd = (oldIndex, newIndex) => {
-    var newAnnotations = arrayMove(annotations, oldIndex, newIndex);
-
+  const sortAnnotations = (newAnnotations) => {
     setValue("annotations", newAnnotations);
     setValue(
       "extractedData",
@@ -58,14 +79,17 @@ export default function TableAnnotator({}) {
     );
   };
 
+  const anyContentSelected = Object?.values(state.selectedCells)?.map( sel => sel.content )?.join("")?.trim()?.length > 0 || false
+
   return (
     <>
-      {Object.keys(state.selectedCells).length > 0 ? (
+      { (anyContentSelected && Object.keys(state.selectedCells).length > 0) ? (
         <div className="shrink-0 justify-center items-center text-white m-2 border-2 rounded-md p-2 h-fit ">
           <input
             type="text"
-            placeholder="characteristic"
+            placeholder="Name this group... "
             className="input input-bordered w-full max-w-xs mb-1"
+					  onChange={(e) => { setConceptsCategory(e.target.value)}}
           />
           <div className="font-bold m-2"> Selection: </div>
           {Object.keys(state.selectedCells)
@@ -97,76 +121,16 @@ export default function TableAnnotator({}) {
         ""
       )}
 
-      <SortableList
-        onSortEnd={onSortEnd}
-        className="select-none flex justify-start"
-        draggedItemClassName="dragged"
-      >
-        {annotations.map((item, i) => (
-          <SortableItem key={"sortable_" + i}>
-            <div
-              className="shrink-0 justify-center items-center bg-blue-400
-												text-white m-2 cursor-grab border-2 rounded-md p-2 h-fit"
-            >
-              <div>{i + " - " + item.category}</div>
-              <hr />
-              {Object.values(item.concepts).map((concept, c) => (
-                <div key={"sortable_" + i + "_" + c}>{concept.content}</div>
-              ))}
-            </div>
-          </SortableItem>
-        ))}
-      </SortableList>
-
-      <div>
-        <table>
-          <tbody>
-            {state.extractedData.map((ex, e) => {
-              return (
-                <tr key={"ex_" + e}>
-                  {ex.map((cell, c) => {
-                    // debugger
-                    // if ( cell === null){
-                    // 	console.log(ex)
-                    // 	debugger
-                    // // }
-                    // if ( (cell != null) && cell.concepts.length > 0 )
-                    //  debugger
-
-                    return (
-                      <td key={"ex_" + e + "_" + c}>
-                        {cell != null &&
-                        cell.concepts.length > 0 &&
-                        cell.cellData.length > 0 ? (
-                          <div className="dropdown dropdown-hover dropdown-right">
-                            <div
-                              tabIndex={0}
-                              role="button"
-                              className="btn m-[1px] py-0 min-h-4 h-6"
-                            >
-                              {cell.cellData}
-                            </div>
-                            <ul
-                              tabIndex={0}
-                              className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
-                            >
-                              {cell.concepts.map((c, op) => (
-                                <li key={"char_" + op}>{c.content} </li>
-                              ))}
-                            </ul>
-                          </div>
-                        ) : (
-                          ""
-                        )}
-                      </td>
-                    );
-                  })}
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+      <div className="min-h-48">
+	      <SortableList
+	        groupedConcepts={annotations}
+	        setGroupedConcepts={sortAnnotations}
+	      />
       </div>
+
+      <GroupContextMenu />
+      <ColourContextSelector />
+
     </>
   );
 }

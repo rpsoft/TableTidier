@@ -39,6 +39,7 @@ const findClosestPoints = (arrayOfLists, givenPoint) => {
 const Tabletools = {
 	// This is quite awesome. All nodes sorted here in a recursive structure of arrays! if a valid table content is supplied.
   contentToNodes: (tableContent) => {
+
 	if (tableContent && tableContent[0]) {
 		const $ = cheerio.load(tableContent[0]);
 
@@ -46,7 +47,7 @@ const Tabletools = {
 			var content = [];
 
 			node.children?.forEach((child) => {
-				console.log(child.tagName);
+				// console.log(child.tagName);
 				if (child.tagName === "td") {
 					const childContent = $(child).text();
 					content = [...content, childContent];

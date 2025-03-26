@@ -6,9 +6,9 @@ export const ContextMenu = styled.div`
   background-color: #383838;
   border-radius: 5px;
   box-sizing: border-box;
-  ${({ top, left }) => css`
-    top: ${top}px;
-    left: ${left}px;
+  ${({ $top, $left }) => css`
+    top: ${$top}px;
+    left: ${$left}px;
   `}
   ul {
     box-sizing: border-box;

@@ -32,8 +32,8 @@ export default function TableContexMenu({}) {
   return (
     <>
       <ContextMenu
-        top={state.cellContextPoints.y}
-        left={state.cellContextPoints.x}
+        $top={state.cellContextPoints.y}
+        $left={state.cellContextPoints.x}
       >
         <div className="text-center">{cellContent}</div>
         <div> {tableClickPosition[0] + "/" + tableClickPosition[1]} </div>

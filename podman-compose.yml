@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  nextjs:
+    build:
+      context: .
+      dockerfile: ui/Dockerfile
+    container_name: tabletidier
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongodb
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/tabletidier
+      - NODE_ENV=production
+    restart: always
+
+  mongodb:
+    image: docker.io/library/mongo:6
+    container_name: tabletidier-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    restart: always  # No authentication required
+
+volumes:
+  mongodb_data:
