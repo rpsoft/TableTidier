@@ -1,4 +1,4 @@
-# TableTidier
+# TableTidier main
 Smart Table Data Extraction Tool originally designed to streamline the clinical systematic review process.
 
 # Development checkpoints
