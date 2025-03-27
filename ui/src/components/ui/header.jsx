@@ -36,7 +36,7 @@ const Header = () => {
             	<div className="flex w-full">
 
 	                <div className="flex justify-between w-full ">
-						<div className='self-center text-md font-bold mx-2'><a className='no-underline' href='/'>TableTidier</a></div>
+						<div className='self-center text-md font-bold mx-2'><Link className='no-underline' href='/'>TableTidier</Link></div>
 	                    {status === "authenticated" ? ( // Check if user is authenticated
                             <div className='flex items-center'>
 	                            <Image src={session?.user?.image || "/next.svg"} alt={session?.user?.name} width={32} height={32} className='border-2 rounded-full h-8 w-8 bg-white mx-2' />

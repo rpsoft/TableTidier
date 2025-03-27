@@ -13,7 +13,7 @@ import Header from "@/components/ui/header";
 import Tabletools from "./tableTools";
 
 import { getTable, getAllTables, uploadTable, updateTable } from "./actions";
-import { useState, useEffect, useContext, createContext } from "react";
+import { useState, useEffect, useContext, createContext, useCallback } from "react";
 
 import { useTableContext } from "./TableContext";
 import UpdateTableButton from "./components/UpdateTableButton";
@@ -21,7 +21,6 @@ import TableHTMLEditor from "./components/TableHTMLEditor";
 
 // CREATE-ISSUE: Title="Fix Vue Component" Description="This Vue component needs better error handling."
 
-// import React from "react";
 export default function TablePage() {
   const { state, setValue } = useTableContext();
 

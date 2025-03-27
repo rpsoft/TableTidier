@@ -31,7 +31,7 @@ import LinkTool, { DefaultLinkToolRender } from "@yoopta/link-tool";
 import * as cheerio from "cheerio";
 import parsers from "@yoopta/exports";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { WITH_EXPORTS_INIT_VALUE } from "./initValue";
 
 
@@ -76,14 +76,17 @@ export default function TableHTMLEditor({ initialHtml, saveHtml }) {
   const [value] = useState(WITH_EXPORTS_INIT_VALUE);
   const [html, setHTML] = useState("");
 
-  const deserializeHTML = (content) => {
-    const parsed_content = parsers.html.deserialize(editor, content);
-    editor.setEditorValue(parsed_content);
-  };
+  const deserializeHTML = useCallback(
+    (content) => {
+      const parsed_content = parsers.html.deserialize(editor, content);
+      editor.setEditorValue(parsed_content);
+    },
+    [editor]
+  );
 
   useEffect(() => {
     deserializeHTML(initialHtml);
-  }, [initialHtml]);
+  }, [deserializeHTML, initialHtml]);
 
   const serializeHTML = () => {
     var $ = cheerio.load(html);
