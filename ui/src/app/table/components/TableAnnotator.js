@@ -1,7 +1,9 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import SortableList, { SortableItem } from "react-easy-sort";
-import arrayMove from "array-move";
+// import arrayMove from "array-move";
+
+import { arrayMoveImmutable as arrayMove } from "array-move";
 
 import { useTableContext } from "../TableContext";
 import Tabletools from "../tableTools";
