@@ -1,5 +1,6 @@
 "use client";
 import { Select, Table } from "antd";
+import { SessionProvider } from 'next-auth/react';
 
 import UploadTable from "@/components/ui/UploadTable";
 import TableCell from "./components/TableCell";
@@ -7,6 +8,7 @@ import TableTab from "./components/TableTab";
 import TableContexMenu from "./components/TableContexMenu";
 import TableAnnotator from "./components/TableAnnotator";
 import TableResults from "./components/TableResults";
+import Header from "@/components/ui/header";
 
 import Tabletools from "./tableTools";
 
@@ -39,17 +41,14 @@ export default function TablePage() {
     return () => {
       window.removeEventListener("click", handleClick);
     };
-  }); // Interesting. This was removed:   }, []);
+  });
 
   useEffect(() => {
     refreshTables();
   }, []);
 
-
-
   const [ currentTableHtml, setCurrentTableHTML ] = useState("")
-
-  const [ activeTab, setActiveTab ] = useState("dashboard")
+  const [ activeTab, setActiveTab ] = useState("Annotation Dashboard")
 
   useEffect(() => {
     var tableContent;
@@ -66,14 +65,12 @@ export default function TablePage() {
 
     const tableNodes = Tabletools.contentToNodes(tableContent);
     setValue("tableNodes", tableNodes);
-    // debugger;
 
     const tableData = state.tables[state.selectedTable];
     const annotations = tableData?.annotationData?.annotations;
 
     var currentTableHtml = parseInt(state.selectedTable) > -1 ? state.tables[state.selectedTable].htmlContent : ""
     setCurrentTableHTML(currentTableHtml)
-    // debugger;
 
     if (annotations) {
       setValue("annotations", annotations);
@@ -89,7 +86,6 @@ export default function TablePage() {
     setValue("selectedCells", {});
 
 
-
   }, [state.tables, state.selectedTable]);
 
   const options = state.tables.map((tables, t) => {
@@ -102,8 +98,6 @@ export default function TablePage() {
         <TableTab orientation="row" index={r} />
 
         {row.map((cell, c) => {
-
-        	// debugger
 
           var groupsWithCell = state.annotations.map( an => Object.keys(an.concepts) ).map( groupPositions => groupPositions.indexOf(r + "-" + c) )
 
@@ -125,17 +119,14 @@ export default function TablePage() {
   });
 
   var maxColumns = Math.max(...state.tableNodes.map((r) => r.length));
-  // debugger;
-  // console.log(maxColumns);
-  //
-  //
-   const tabActive = "text-white border-b-white border-b-2"
+
+   const tabActive = " tab-active text-white border-b-white border-b-2"
 
 	var activeTabContent;
 
 	switch(activeTab){
 
-		case "dashboard":
+		case "Annotation Dashboard":
 			activeTabContent = <div className="flex flex-col p-5">
 				  <div>
 					  <table>
@@ -158,7 +149,7 @@ export default function TablePage() {
 				  <TableAnnotator />
 			  	</div>
 			break
-		case "edit-table":
+		case "Edit Table":
 			activeTabContent = <TableHTMLEditor
 				initialHtml={currentTableHtml}
 				saveHtml={(htmlContent) => {
@@ -192,7 +183,7 @@ export default function TablePage() {
 				}}
 			/>
 			break
-		case "results":
+		case "Extracted Data":
 			activeTabContent =  <TableResults />
 			break
 
@@ -201,7 +192,11 @@ export default function TablePage() {
 
 // debugger
   return (
+
+   <SessionProvider>
     <main>
+
+    	<Header />
 		<div className="flex justify-between p-5 bg-gray-800">
 			<div>
 				<button className="btn btn-sm mr-2" onClick={()=>document.getElementById('upload_table_modal').showModal()}>Upload Table</button>
@@ -237,20 +232,31 @@ export default function TablePage() {
 
 
 
-      	<div className="flex flex-col w-full">
+			  {
+				 state.selectedTable ?
+				  <div className="flex flex-col w-full">
 
-	      <div role="tablist" className="tabs tabs-lift tabs-xl">
-			<a role="tab" className={"tab h-16 "+ (activeTab === "dashboard" ? tabActive : "")} onClick={() => { setActiveTab("dashboard") }}>Annotation Dashboard</a>
-			<a role="tab" className={"tab h-16 "+ (activeTab === "edit-table" ? tabActive : "")} onClick={() => { setActiveTab("edit-table") }}>Edit Table</a>
-	        <a role="tab" className={"tab h-16 "+ (activeTab === "results" ? tabActive : "")} onClick={() => { setActiveTab("results") }}>Extracted Data</a>
-	      </div>
-
-			  {activeTabContent}
-		</div>
-
+					  <div role="tablist" className="tabs tabs-lift tabs-md *:bg-gray-600 mt-2">
+						  {
+							  ["Annotation Dashboard", "Edit Table", "Extracted Data"].map(
+								  t => <a role="tab"
+									  key={t}
+									  className={"tab  no-underline " + (activeTab === t ? tabActive : "")}
+									  onClick={
+										  () => { setActiveTab(t) }
+									  }>
+									  {t}
+								  </a>
+							  )
+						  }
+					  </div>
+					  {activeTabContent}
+				  </div> : <div className="p-10 font-bold"> Upload or select a table above </div>
+			  }
 
 		<TableContexMenu />
 
     </main>
+   </SessionProvider>
   );
 }
