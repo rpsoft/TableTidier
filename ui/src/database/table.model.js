@@ -35,6 +35,15 @@ const tableSchema = new mongoose.Schema({
     //     message: (props) => `${props.value} is not a valid cohort!`,
     // },
   },
+  collectionId: {
+    type: String,
+    required: true,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+    required: true,
+  },
   tid: {
     type: Number,
     required: false,

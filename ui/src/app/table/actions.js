@@ -19,41 +19,47 @@ export async function uploadTable(formData) {
   revalidatePath("/");
 }
 
-export async function updateTable(id, updateData) {
+export async function updateTable(tableData) {
   try {
-
-   const updatedTable = await Table.findOneAndUpdate(
-      { id }, // Find the document by id
-      { $set: updateData }, // Apply updates
-      { new: true, runValidators: true }, // Return updated doc, validate schema
-    );
+    let updatedTable;
+    // If tableData is an object with id and updateData properties
+    if (tableData.id && tableData.updateData) {
+      updatedTable = await Table.findOneAndUpdate(
+        { id: tableData.id },
+        { $set: tableData.updateData },
+        { new: true, runValidators: true }
+      );
+    }
+    // If tableData is the full table object
+    else {
+      updatedTable = await Table.findOneAndUpdate(
+        { id: tableData.id },
+        { $set: tableData },
+        { new: true, runValidators: true }
+      );
+    }
 
     if (!updatedTable) {
       console.log("Table not found.");
       return null;
     }
 
-    console.log("Table updated:", updatedTable);
-    return updatedTable;
+    // Convert Mongoose document to plain object and stringify/parse to remove any special types
+    const plainObject = JSON.parse(JSON.stringify(updatedTable.toObject()));
+    return plainObject;
   } catch (error) {
     console.error("Error updating table:", error);
+    throw error;
   }
-  // finally {
-  //   mongoose.connection.close();
-  // }
-
-  revalidatePath("/");
 }
 
 export async function getAllTables() {
   const allTables = await Table.find({}).lean().exec();
-
   return JSON.parse(JSON.stringify(allTables));
 }
 
 export async function getTable(filename) {
   const allTables = await Table.find({ fileName: filename }).lean().exec();
-
   return JSON.parse(JSON.stringify(allTables));
 }
 

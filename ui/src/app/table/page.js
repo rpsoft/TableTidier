@@ -1,11 +1,16 @@
-import React from 'react';
+'use client';
+import React, { useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { TableProvider } from './TableContext';
-import TablePage from './TablePage'
+import TablePage from './TablePage';
 
 const ParentComponent = () => {
+  const searchParams = useSearchParams();
+  const tableId = searchParams.get('tableId');
+
   return (
     <TableProvider>
-        <TablePage />
+      <TablePage initialTableId={tableId} />
     </TableProvider>
   );
 };
