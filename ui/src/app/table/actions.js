@@ -55,12 +55,19 @@ export async function updateTable(tableData) {
 
 export async function getAllTables() {
   const allTables = await Table.find({}).lean().exec();
-  return JSON.parse(JSON.stringify(allTables));
+  // Convert to plain objects and ensure createdAt is properly formatted
+  return allTables.map(table => {
+    const plainTable = JSON.parse(JSON.stringify(table));
+    return {
+      ...plainTable,
+      createdAt: plainTable.createdAt ? new Date(plainTable.createdAt).toISOString() : new Date().toISOString()
+    };
+  });
 }
 
 export async function getTable(filename) {
   const allTables = await Table.find({ fileName: filename }).lean().exec();
-  return JSON.parse(JSON.stringify(allTables));
+  return allTables.map(table => JSON.parse(JSON.stringify(table)));
 }
 
 // const files = await fs.readdir("./public/uploads");

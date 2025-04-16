@@ -1,7 +1,7 @@
 "use client";
 import { Select, Table } from "antd";
 import { SessionProvider } from 'next-auth/react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 import UploadTable from "@/components/ui/UploadTable";
 import TableCell from "./components/TableCell";
@@ -24,17 +24,31 @@ import TableHTMLEditor from "./components/TableHTMLEditor";
 export default function TablePage({ initialTableId }) {
   const { state, setValue } = useTableContext();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
   const [lastSavedData, setLastSavedData] = useState(null);
+  const [currentCollectionId, setCurrentCollectionId] = useState(null);
 
   const refreshTables = async () => {
     getAllTables().then((tables) => {
-      setValue("tables", tables);
+      // If we have an initial table ID, find its collection and filter tables
       if (initialTableId) {
-        const tableIndex = tables.findIndex(t => t.id === initialTableId);
-        if (tableIndex !== -1) {
-          setValue("selectedTable", tableIndex);
+        const initialTable = tables.find(t => t.id === initialTableId);
+        if (initialTable) {
+          setCurrentCollectionId(initialTable.collectionId);
+          const collectionTables = tables.filter(t => t.collectionId === initialTable.collectionId);
+          setValue("tables", collectionTables);
+          const tableIndex = collectionTables.findIndex(t => t.id === initialTableId);
+          if (tableIndex !== -1) {
+            setValue("selectedTable", tableIndex);
+          }
         }
+      } else if (currentCollectionId) {
+        // If we have a current collection, filter tables by that collection
+        const collectionTables = tables.filter(t => t.collectionId === currentCollectionId);
+        setValue("tables", collectionTables);
+      } else {
+        setValue("tables", tables);
       }
     });
   };
@@ -86,39 +100,37 @@ export default function TablePage({ initialTableId }) {
   const [activeTab, setActiveTab] = useState("Annotation Dashboard");
 
   useEffect(() => {
-    var tableContent;
-
     if (state.selectedTable != null) {
-      tableContent = state.tables
-        .filter((table) => {
-          return table.fileName == state.tables[state.selectedTable].fileName;
-        })
-        .map((table, tindex) => {
-          return table.htmlContent;
-        });
+      const tableData = state.tables[state.selectedTable];
+      if (tableData) {
+        setCurrentTableHTML(tableData.htmlContent);
+        
+        try {
+          const tableContent = [tableData.htmlContent];
+          const tableNodes = Tabletools.contentToNodes(tableContent);
+          setValue("tableNodes", tableNodes);
+
+          const annotations = tableData?.annotationData?.annotations;
+          if (annotations) {
+            setValue("annotations", annotations);
+            setValue(
+              "extractedData",
+              Tabletools.annotationsToTable(tableNodes, annotations),
+            );
+          } else {
+            setValue("annotations", []);
+            setValue("extractedData", []);
+          }
+        } catch (error) {
+          console.error('Error processing table:', error);
+          // Clear table nodes and annotations if table is invalid
+          setValue("tableNodes", []);
+          setValue("annotations", []);
+          setValue("extractedData", []);
+        }
+      }
+      setValue("selectedCells", {});
     }
-
-    const tableNodes = Tabletools.contentToNodes(tableContent);
-    setValue("tableNodes", tableNodes);
-
-    const tableData = state.tables[state.selectedTable];
-    const annotations = tableData?.annotationData?.annotations;
-
-    var currentTableHtml = parseInt(state.selectedTable) > -1 ? state.tables[state.selectedTable].htmlContent : "";
-    setCurrentTableHTML(currentTableHtml);
-
-    if (annotations) {
-      setValue("annotations", annotations);
-      setValue(
-        "extractedData",
-        Tabletools.annotationsToTable(tableNodes, annotations),
-      );
-    } else {
-      setValue("annotations", []);
-      setValue("extractedData", []);
-    }
-
-    setValue("selectedCells", {});
   }, [state.tables, state.selectedTable]);
 
   // Auto-save when table data changes
@@ -139,8 +151,8 @@ export default function TablePage({ initialTableId }) {
     }
   }, [state.annotations]);
 
-  const options = state.tables.map((tables, t) => {
-    return { value: t, label: tables.fileName };
+  const options = state.tables.map((table, t) => {
+    return { value: t, label: table.fileName };
   });
 
   var tbody = state.tableNodes.map((row, r) => {
@@ -207,22 +219,6 @@ export default function TablePage({ initialTableId }) {
           saveHtml={(htmlContent) => {
             var allTables = state.tables;
             allTables[state.selectedTable].htmlContent = htmlContent;
-            var tableNodes = Tabletools.contentToNodes([htmlContent]);
-
-            if (allTables[state.selectedTable].annotationData) {
-              var refreshedAnnotations = allTables[state.selectedTable].annotationData.annotations.map(annotation => {
-                annotation.concepts = Object.keys(annotation.concepts).reduce((acc, conceptKey) => {
-                  var row = annotation.concepts[conceptKey].tablePosition[0];
-                  var col = annotation.concepts[conceptKey].tablePosition[1];
-                  var newContent = tableNodes[row][col];
-                  annotation.concepts[conceptKey].content = newContent;
-                  acc[conceptKey] = annotation.concepts[conceptKey];
-                  return acc;
-                }, {});
-                return annotation;
-              });
-              allTables[state.selectedTable].annotationData.annotations = refreshedAnnotations;
-            }
             setValue("tables", allTables);
             saveTableChanges();
           }}
@@ -240,31 +236,62 @@ export default function TablePage({ initialTableId }) {
         <Header />
         <div className="flex justify-between p-5 bg-gray-800 border-b border-gray-700">
           <div className="flex items-center space-x-4">
-            <button 
-              className="btn btn-sm bg-blue-600 hover:bg-blue-700 text-white border-none" 
-              onClick={() => document.getElementById('upload_table_modal').showModal()}
-            >
-              Upload Table
-            </button>
-            <dialog id="upload_table_modal" className="modal">
-              <div className="modal-box bg-gray-800 text-white">
-                <UploadTable
-                  action={async (formData) => {
-                    await uploadTable(formData);
-                    await refreshTables();
-                  }}
-                />
+            {state.selectedTable !== null && state.tables[state.selectedTable] ? (
+              <div className="text-white">
+                <div className="flex items-center space-x-4">
+                  <button
+                    onClick={() => router.push(`/collections/${state.tables[state.selectedTable].collectionId}`)}
+                    className="px-4 py-2 text-sm font-medium text-white bg-gray-700 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                  >
+                    Back to Collection
+                  </button>
+                  <div>
+                    <h2 className="text-xl font-semibold">
+                      {state.tables[state.selectedTable].fileName}
+                    </h2>
+                    <div className="text-sm text-gray-300">
+                      <p>Collection: {state.tables[state.selectedTable].collectionId}</p>
+                      <p>Created: {
+                        (() => {
+                          const createdAt = state.tables[state.selectedTable].createdAt;
+                          try {
+                            const date = new Date(createdAt);
+                            if (isNaN(date.getTime())) {
+                              return 'N/A';
+                            }
+                            return date.toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            });
+                          } catch (error) {
+                            console.error('Date parsing error:', error);
+                            return 'N/A';
+                          }
+                        })()
+                      }</p>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <form method="dialog" className="modal-backdrop">
-                <button>close</button>
-              </form>
-            </dialog>
+            ) : (
+              <div className="text-white">
+                <h2 className="text-xl font-semibold">No table selected</h2>
+                <p className="text-sm text-gray-300">Select a table from the dropdown to view details</p>
+              </div>
+            )}
 
             <Select
               className="w-[600px]"
               options={options}
               onChange={async (value) => {
                 setValue("selectedTable", value);
+                // Update current collection when selecting a table
+                if (value !== null && state.tables[value]) {
+                  setCurrentCollectionId(state.tables[value].collectionId);
+                }
                 // Reset last saved data when switching tables
                 setLastSavedData(null);
               }}
@@ -281,7 +308,7 @@ export default function TablePage({ initialTableId }) {
           </div>
         </div>
 
-        {state.selectedTable ? (
+        {state.selectedTable !== null ? (
           <div className="flex flex-col w-full">
             <div role="tablist" className="tabs tabs-lift tabs-md bg-gray-800 border-b border-gray-700">
               {["Annotation Dashboard", "Edit Table", "Extracted Data"].map(
@@ -298,13 +325,64 @@ export default function TablePage({ initialTableId }) {
               )}
             </div>
             <div className="p-5">
-              {activeTabContent}
+              {activeTab === "Annotation Dashboard" && state.tableNodes.length > 0 ? (
+                <div className="flex flex-col p-5">
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="h-10">
+                          <TableTab orientation="col" index={-1} />
+                          {maxColumns
+                            ? Array.from(
+                                { length: maxColumns },
+                                (value, index) => index,
+                              ).map((col, c) => (
+                                <TableTab key={"hcol-" + c} orientation="col" index={c} />
+                              ))
+                            : null}
+                        </tr>
+                      </thead>
+                      <tbody>{tbody}</tbody>
+                    </table>
+                  </div>
+                  <TableAnnotator />
+                </div>
+              ) : activeTab === "Edit Table" ? (
+                <TableHTMLEditor
+                  initialHtml={currentTableHtml}
+                  saveHtml={(htmlContent) => {
+                    var allTables = state.tables;
+                    allTables[state.selectedTable].htmlContent = htmlContent;
+                    setValue("tables", allTables);
+                    saveTableChanges();
+                  }}
+                />
+              ) : activeTab === "Extracted Data" && state.extractedData.length > 0 ? (
+                <TableResults />
+              ) : (
+                <div className="text-center text-gray-300 p-10">
+                  <h2 className="text-xl font-semibold mb-4">
+                    {activeTab === "Annotation Dashboard" 
+                      ? "This table cannot be displayed in the annotation dashboard" 
+                      : activeTab === "Extracted Data"
+                      ? "No extracted data available"
+                      : "Edit Table"}
+                  </h2>
+                  <p className="text-sm">
+                    {activeTab === "Annotation Dashboard"
+                      ? "The table structure is not valid for annotation. Please edit the table to fix any issues."
+                      : activeTab === "Extracted Data"
+                      ? "Extract data will appear here after annotations are made"
+                      : "Use the HTML editor to modify the table content"}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         ) : (
           <div className="p-10 text-center text-gray-300">
             <h2 className="text-2xl font-bold mb-4">Welcome to TableTidier</h2>
-            <p>Upload or select a table above to get started</p>
+            <p>Select a table from the dropdown to get started</p>
           </div>
         )}
 
