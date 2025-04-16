@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import SortableList from "./SortableList";
+import { Edit2, Check } from "lucide-react";
 
 import GroupContextMenu from "./GroupContextMenu";
 import ColourContextSelector from "./ColourContextSelector";
@@ -13,10 +14,11 @@ export default function TableAnnotator({}) {
   const { state, setValue } = useTableContext();
 
   const [ annotations, setAnnotations ] = useState( [] )
+  const [ editingGroup, setEditingGroup] = useState(null);
+  const [ selectedConcepts, setSelectedConcepts] = useState(new Set());
 
   useEffect(() => {
     setAnnotations(state.annotations.map((group, g) => {
-
       return {
       		... group,
         	concepts: Object.values(group.concepts).reduce((acc, ann, a) => {
@@ -27,10 +29,7 @@ export default function TableAnnotator({}) {
 	        }, {})
       };
     }));
-
   }, [state.annotations]);
-
-
 
   const structuredTable = state.structuredTable;
 
@@ -50,16 +49,75 @@ export default function TableAnnotator({}) {
     "#D98BD9"  // Pastel Purple
   ];
 
+  const startEditingGroup = (group) => {
+    setEditingGroup(group);
+    // Move the group's concepts to the selection area
+    const newSelectedCells = {};
+    Object.entries(group.concepts).forEach(([key, concept]) => {
+      newSelectedCells[key] = {
+        ...concept,
+        isEditing: true // Add a flag to indicate this cell is being edited
+      };
+    });
+    setValue("selectedCells", newSelectedCells);
+    setConceptsCategory(group.category);
+  };
+
+  const handleSaveChanges = () => {
+    if (!editingGroup) return;
+
+    if (Object.keys(state.selectedCells).length === 0) {
+      // If no cells are selected, remove the group
+      const newAnnotations = state.annotations.filter(ann => ann.id !== editingGroup.id);
+      setValue("annotations", newAnnotations);
+      setValue(
+        "extractedData",
+        Tabletools.annotationsToTable(state.tableNodes, newAnnotations),
+      );
+    } else {
+      // Create a new group with the current selection
+      const newGroup = {
+        id: editingGroup.id,
+        concepts: state.selectedCells,
+        category: conceptsCategory,
+        color: editingGroup.color
+      };
+
+      // Update the annotations array
+      const newAnnotations = state.annotations.map(ann => 
+        ann.id === editingGroup.id ? newGroup : ann
+      );
+
+      setValue("annotations", newAnnotations);
+      setValue(
+        "extractedData",
+        Tabletools.annotationsToTable(state.tableNodes, newAnnotations),
+      );
+    }
+
+    setEditingGroup(null);
+    setValue("selectedCells", {});
+  };
+
+  const handleCancelEdit = () => {
+    setEditingGroup(null);
+    setValue("selectedCells", {});
+  };
+
   const groupConcepts = () => {
     const concepts = state.selectedCells;
+
+    // Find the first unused color
+    const usedColors = new Set(annotations.map(ann => ann.color));
+    const availableColor = defaultConceptColors.find(color => !usedColors.has(color)) || "#ffffff";
 
     const newAnnotations = [
       ...annotations,
       {
-        id: annotations.length,
+        id: Date.now(),
         concepts,
         category: conceptsCategory,
-        color: defaultConceptColors[annotations.length] || "#ffffff"
+        color: availableColor
       },
     ];
     setValue("annotations", newAnnotations);
@@ -83,18 +141,29 @@ export default function TableAnnotator({}) {
 
   return (
     <>
-      { (anyContentSelected && Object.keys(state.selectedCells).length > 0) ? (
-        <div className="shrink-0 justify-center items-center text-white m-2 border-2 rounded-md p-2 h-fit ">
-          <input
-            type="text"
-            placeholder="Name this group... "
-            className="input input-bordered w-full max-w-xs mb-1"
-					  onChange={(e) => { setConceptsCategory(e.target.value)}}
-          />
+      { ((anyContentSelected && Object.keys(state.selectedCells).length > 0) || editingGroup) ? (
+        <div 
+          className="shrink-0 justify-center items-center text-white m-2 border-2 rounded-md p-2 h-fit"
+          style={{ 
+            borderColor: editingGroup ? editingGroup.color : '',
+            backgroundColor: editingGroup ? `${editingGroup.color}0D` : ''
+          }}
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <input
+              type="text"
+              placeholder="Name this group... "
+              className="input input-bordered w-full max-w-xs"
+              onChange={(e) => { setConceptsCategory(e.target.value)}}
+              value={conceptsCategory}
+            />
+            {editingGroup && (
+              <span className="font-bold" style={{ color: editingGroup.color }}>Editing: {editingGroup.category}</span>
+            )}
+          </div>
           <div className="font-bold m-2"> Selection: </div>
           {Object.keys(state.selectedCells)
             .sort((a, b) => {
-              // Order by key (which is a combination of row and column numbers.)
               var A = a.split("-");
               var B = b.split("-");
               return A[0] == B[0] ? A[1] >= B[1] : A[0] >= B[0];
@@ -106,16 +175,36 @@ export default function TableAnnotator({}) {
                 </div>
               );
             })}
+          {Object.keys(state.selectedCells).length === 0 && editingGroup && (
+            <div className="text-gray-500 italic m-4 mt-0 mb-0">
+              No cells selected. Click on cells to add them to this group.
+            </div>
+          )}
 
-          {Object.keys(state.selectedCells).length > 0 ? (
-            <>
-              <div className="flex justify-end mt-2 border-t pt-2">
-                <button className="btn btn-outline" onClick={groupConcepts}>
-                  Group Concepts
+          <div className="flex justify-end mt-2 border-t pt-2" style={{ borderColor: editingGroup ? editingGroup.color : '' }}>
+            {editingGroup ? (
+              <>
+                <button className="btn btn-outline mr-2" onClick={handleCancelEdit}>
+                  Cancel
                 </button>
-              </div>
-            </>
-          ) : null}
+                <button 
+                  className="btn" 
+                  onClick={handleSaveChanges}
+                  style={{ 
+                    backgroundColor: editingGroup.color,
+                    borderColor: editingGroup.color,
+                    color: 'white'
+                  }}
+                >
+                  Save Changes
+                </button>
+              </>
+            ) : (
+              <button className="btn btn-outline" onClick={groupConcepts}>
+                Group Concepts
+              </button>
+            )}
+          </div>
         </div>
       ) : (
         ""
@@ -125,12 +214,13 @@ export default function TableAnnotator({}) {
 	      <SortableList
 	        groupedConcepts={annotations}
 	        setGroupedConcepts={sortAnnotations}
+          onEditGroup={startEditingGroup}
+          editingGroup={editingGroup}
 	      />
       </div>
 
       <GroupContextMenu />
       <ColourContextSelector />
-
     </>
   );
 }

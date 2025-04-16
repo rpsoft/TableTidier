@@ -39,15 +39,9 @@ export default function GroupContextMenu({}) {
           <li
             onClick={() => {
               var newAnnotations = state.annotations
-                .filter((ann) => ann.id !== state.groupContextIndex)
-                .map((ann, a) => {
-                  var an = ann;
-                  an.id = a;
-                  return an;
-                });
+                .filter((ann) => ann.id !== state.groupContextIndex);
 
               setValue("annotations", newAnnotations);
-
             }}
           >
             Delete

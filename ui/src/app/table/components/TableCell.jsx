@@ -41,20 +41,14 @@ export default function TableCell({
       }
     } else {
       // Clear selection and select only the clicked cell
-
-      // selectionMap = { [selectionKey]: { tablePosition, content } };
-
       selectionMap[selectionKey]
         ? delete selectionMap[selectionKey]
         : selectionMap = { [selectionKey]: { tablePosition, content } };
-
     }
 
     // Update state
     setValue("selectedCells", selectionMap);
     setValue("tableClickPosition", tablePosition);
-
-
   };
 
   const selectedCells = Object.keys(state.selectedCells);
@@ -73,8 +67,8 @@ export default function TableCell({
         (selected ? " bg-yellow-100 opacity-80 select-none text-black" : "")
       }
       style={{
-      		border: colour.length > 0 ? "1px solid " + colour : "",
-        	borderLeft: colour.length > 0 ? "10px solid " + colour : ""
+        border: colour.length > 0 ? "1px solid " + colour : "",
+        borderLeft: colour.length > 0 ? "10px solid " + colour : ""
       }}
       onContextMenu={(e) => {
         e.preventDefault();
