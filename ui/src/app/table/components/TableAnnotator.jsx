@@ -52,13 +52,21 @@ export default function TableAnnotator({}) {
     setEditingGroup(group);
     // Initialize selected cells with the group's current cells
     const newSelectedCells = {};
-    group.cells.forEach(([row, col]) => {
+    
+    // Check if group has cells array, if not use concepts
+    const cells = group.cells || Object.entries(group.concepts).map(([key, concept]) => {
+      const [row, col] = key.split('-').map(Number);
+      return [row, col];
+    });
+
+    cells.forEach(([row, col]) => {
       const key = `${row}-${col}`;
       newSelectedCells[key] = {
         tablePosition: [row, col],
         content: state.tableNodes[row][col]
       };
     });
+
     setValue("selectedCells", newSelectedCells);
     setConceptsCategory(group.category);
   };
