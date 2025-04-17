@@ -79,24 +79,20 @@ export default function TableAnnotator({}) {
       (cell) => cell.tablePosition
     );
 
+    let updatedAnnotations;
     if (selectedCellPositions.length === 0) {
       // If no cells are selected, delete the group
-      const updatedAnnotations = state.annotations.filter(
+      updatedAnnotations = state.annotations.filter(
         (group) => group.id !== editingGroup.id
       );
-      setValue("annotations", updatedAnnotations);
-      setValue("extractedData", {
-        ...state.extractedData,
-        annotations: updatedAnnotations,
-      });
     } else {
-      // Update the group with the new selection
-      const updatedAnnotations = state.annotations.map((group) => {
+      // Update the group with the new selection and category
+      updatedAnnotations = state.annotations.map((group) => {
         if (group.id === editingGroup.id) {
-          // Create a new group with updated cells
           return {
             ...group,
             cells: selectedCellPositions,
+            category: conceptsCategory,
             concepts: selectedCellPositions.reduce((acc, [row, col]) => {
               const key = `${row}-${col}`;
               acc[key] = {
@@ -109,12 +105,25 @@ export default function TableAnnotator({}) {
         }
         return group;
       });
+    }
 
-      setValue("annotations", updatedAnnotations);
-      setValue("extractedData", {
-        ...state.extractedData,
-        annotations: updatedAnnotations,
-      });
+    // Update the annotations state
+    setValue("annotations", updatedAnnotations);
+    setValue("extractedData", {
+      ...state.extractedData,
+      annotations: updatedAnnotations,
+    });
+
+    // Update the table data in the backend
+    if (Array.isArray(state.tables) && state.selectedTable !== null) {
+      const updatedTables = [...state.tables];
+      if (updatedTables[state.selectedTable]) {
+        updatedTables[state.selectedTable] = {
+          ...updatedTables[state.selectedTable],
+          annotationData: { annotations: updatedAnnotations }
+        };
+        setValue("tables", updatedTables);
+      }
     }
 
     // Clear editing state

@@ -167,9 +167,9 @@ export default function TablePage({ initialTableId }) {
     }
   }, [state.annotations]);
 
-  const options = state.tables.map((table, t) => {
+  const options = Array.isArray(state.tables) ? state.tables.map((table, t) => {
     return { value: t, label: table.fileName };
-  });
+  }) : [];
 
   var tbody = state.tableNodes.map((row, r) => {
     return (
