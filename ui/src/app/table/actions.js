@@ -21,20 +21,23 @@ export async function uploadTable(formData) {
 
 export async function updateTable(tableData) {
   try {
+    // Ensure we're working with a plain JavaScript object
+    const plainTableData = JSON.parse(JSON.stringify(tableData));
+    
     let updatedTable;
     // If tableData is an object with id and updateData properties
-    if (tableData.id && tableData.updateData) {
+    if (plainTableData.id && plainTableData.updateData) {
       updatedTable = await Table.findOneAndUpdate(
-        { id: tableData.id },
-        { $set: tableData.updateData },
+        { id: plainTableData.id },
+        { $set: plainTableData.updateData },
         { new: true, runValidators: true }
       );
     }
     // If tableData is the full table object
     else {
       updatedTable = await Table.findOneAndUpdate(
-        { id: tableData.id },
-        { $set: tableData },
+        { id: plainTableData.id },
+        { $set: plainTableData },
         { new: true, runValidators: true }
       );
     }
@@ -44,9 +47,8 @@ export async function updateTable(tableData) {
       return null;
     }
 
-    // Convert Mongoose document to plain object and stringify/parse to remove any special types
-    const plainObject = JSON.parse(JSON.stringify(updatedTable.toObject()));
-    return plainObject;
+    // Convert Mongoose document to plain object
+    return JSON.parse(JSON.stringify(updatedTable.toObject()));
   } catch (error) {
     console.error("Error updating table:", error);
     throw error;

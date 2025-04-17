@@ -82,9 +82,11 @@ const Tabletools = {
   },
 
   annotationsToTable : ( tableNodes, annotations ) => {
+    if (!Array.isArray(annotations)) {
+      return [];
+    }
 
-   	const conceptNodes = annotations.map( ann => Object.keys(ann.concepts))
-
+    const conceptNodes = annotations.map( ann => Object.keys(ann.concepts))
     const conceptKeys = conceptNodes.flat()
 
     const dataNodes = Array.from(new Set(tableNodes.map( (row,r) => {

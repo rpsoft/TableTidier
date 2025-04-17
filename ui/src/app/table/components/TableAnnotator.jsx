@@ -17,6 +17,10 @@ export default function TableAnnotator({}) {
   const [ selectedConcepts, setSelectedConcepts] = useState(new Set());
 
   useEffect(() => {
+    if (!Array.isArray(state.annotations)) {
+      setAnnotations([]);
+      return;
+    }
     setAnnotations(state.annotations.map((group, g) => {
       return {
       		... group,

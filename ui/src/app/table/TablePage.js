@@ -177,9 +177,10 @@ export default function TablePage({ initialTableId }) {
         <TableTab orientation="row" index={r} />
 
         {row.map((cell, c) => {
-          var groupsWithCell = state.annotations.map(an => Object.keys(an.concepts)).map(groupPositions => groupPositions.indexOf(r + "-" + c));
+          const annotations = Array.isArray(state.annotations) ? state.annotations : [];
+          var groupsWithCell = annotations.map(an => Object.keys(an.concepts)).map(groupPositions => groupPositions.indexOf(r + "-" + c));
 
-          var colour = state.annotations.filter((ann, a) =>
+          var colour = annotations.filter((ann, a) =>
             groupsWithCell[a] > -1
           ).map(g => g.color).join();
 
