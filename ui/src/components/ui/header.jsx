@@ -9,12 +9,19 @@ const AUTH0_CLIENT_ID = process.env.NEXT_PUBLIC_AUTH0_CLIENT_ID;
 const NEXT_PUBLIC_APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
 function SignOut() {
-
-    // Handle the sign out process to completely log out
     const handleSignOut = async () => {
-        await signOut({ redirect: false });
-        const auth0LogoutUrl = `${AUTH0_ISSUER_BASE_URL}/v2/logout?client_id=${AUTH0_CLIENT_ID}&returnTo=${encodeURIComponent(NEXT_PUBLIC_APP_URL || "http://localhost:3000")}`;
-        window.location.href = auth0LogoutUrl;
+        try {
+            // Sign out from NextAuth
+            await signOut({ 
+                redirect: false,
+                callbackUrl: '/'
+            });
+            
+            // Clear any remaining session data
+            window.location.href = '/';
+        } catch (error) {
+            console.error('Sign out error:', error);
+        }
     };
 
     return (
@@ -26,7 +33,14 @@ const Header = () => {
     const { data: session, status } = useSession(); // Get session data using next-auth's useSession
 
     const handleSignIn = async () => {
-        await signIn("identity-server4", { callbackUrl: '/' }, { prompt: "login" })
+        try {
+            await signIn("google", { 
+                callbackUrl: '/',
+                prompt: "select_account"
+            });
+        } catch (error) {
+            console.error('Sign in error:', error);
+        }
     };
 
     return (
