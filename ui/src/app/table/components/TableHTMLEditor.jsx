@@ -89,19 +89,35 @@ export default function TableHTMLEditor({ initialHtml, saveHtml }) {
   }, [deserializeHTML, initialHtml]);
 
   const serializeHTML = () => {
+    if (!html) {
+      console.error("No HTML content to save");
+      return;
+    }
+    
+    console.log("Current HTML state:", html);
     var $ = cheerio.load(html);
-    saveHtml($("table").parent().html() || "");
+    const tableHtml = $("table").parent().html();
+    console.log("Extracted table HTML:", tableHtml);
+    
+    if (!tableHtml) {
+      console.error("No table found in HTML content");
+      return;
+    }
+    
+    saveHtml(tableHtml);
   };
 
   const handleChange = (value) => {
+    console.log("Editor value:", value);
     const htmlString = parsers.html.serialize(editor, value);
+    console.log("Serialized HTML:", htmlString);
     setHTML(htmlString);
   };
 
   return (
     <>
-        <div className=" bg-white flex flex-col "  ref={selectionRef}>
-        	<div className=" w-full justify-end">
+        <div className="bg-white flex flex-col" ref={selectionRef}>
+        	<div className="w-full justify-end">
         		<button className="btn float-end m-2" onClick={serializeHTML}> Save Changes </button>
         	</div>
             <YooptaEditor
@@ -109,7 +125,7 @@ export default function TableHTMLEditor({ initialHtml, saveHtml }) {
                 plugins={plugins}
                 tools={TOOLS}
                 marks={MARKS}
-                selectionBoxRoot={selectionRef}
+                selectionBoxRoot={selectionRef.current}
                 value={value}
                 onChange={handleChange}
                 style={{

@@ -123,7 +123,6 @@ export default function TablePage({ initialTableId }) {
           }
         } catch (error) {
           console.error('Error processing table:', error);
-          // Clear table nodes and annotations if table is invalid
           setValue("tableNodes", []);
           setValue("annotations", []);
           setValue("extractedData", []);
@@ -132,6 +131,23 @@ export default function TablePage({ initialTableId }) {
       setValue("selectedCells", {});
     }
   }, [state.tables, state.selectedTable]);
+
+  // Add a separate effect to handle table content updates
+  useEffect(() => {
+    if (state.selectedTable != null) {
+      const tableData = state.tables[state.selectedTable];
+      if (tableData) {
+        try {
+          const tableContent = [tableData.htmlContent];
+          const tableNodes = Tabletools.contentToNodes(tableContent);
+          setValue("tableNodes", tableNodes);
+        } catch (error) {
+          console.error('Error processing table update:', error);
+          setValue("tableNodes", []);
+        }
+      }
+    }
+  }, [currentTableHtml]);
 
   // Auto-save when table data changes
   useEffect(() => {
@@ -220,6 +236,7 @@ export default function TablePage({ initialTableId }) {
             var allTables = state.tables;
             allTables[state.selectedTable].htmlContent = htmlContent;
             setValue("tables", allTables);
+            setCurrentTableHTML(htmlContent);
             saveTableChanges();
           }}
         />
@@ -354,6 +371,7 @@ export default function TablePage({ initialTableId }) {
                     var allTables = state.tables;
                     allTables[state.selectedTable].htmlContent = htmlContent;
                     setValue("tables", allTables);
+                    setCurrentTableHTML(htmlContent);
                     saveTableChanges();
                   }}
                 />

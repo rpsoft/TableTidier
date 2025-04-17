@@ -47,7 +47,10 @@ export default function TableResults() {
 				const row = item.position[0];
 				const col = item.position[1];
 				const concepts = item.concepts.join(';');
-				return [item.value, row, col, `"${concepts}"`].join(',');
+				// Check for any special characters that need quoting
+				const needsQuoting = /[,()\s]/.test(item.value);
+				const value = needsQuoting ? `"${item.value}"` : item.value;
+				return [value, row, col, `"${concepts}"`].join(',');
 			})
 		];
 		
@@ -140,23 +143,7 @@ export default function TableResults() {
 	return (
 		<div>
 			<div className="flex flex-col items-center gap-4 bg-gray-800 p-5">
-				{/* Concept Groups */}
-				<div className="flex flex-wrap gap-2 mb-4">
-					{Array.from(conceptGroups).map(group => (
-						<div 
-							key={group}
-							className="flex items-center gap-2 bg-gray-700 px-3 py-1 rounded-lg"
-						>
-							<span>{group}</span>
-							<button 
-								className="btn btn-xs"
-								onClick={() => startEditingGroup(group)}
-							>
-								<Edit2 size={14} />
-							</button>
-						</div>
-					))}
-				</div>
+							
 
 				{/* Table */}
 				<table className="w-full max-w-4xl">
