@@ -19,9 +19,11 @@ export default function TableCell({
 
     if (e.ctrlKey) {
       // Toggle the clicked cell
-      selectionMap[selectionKey]
-        ? delete selectionMap[selectionKey]
-        : (selectionMap[selectionKey] = { tablePosition, content });
+      if (selectionMap[selectionKey]) {
+        delete selectionMap[selectionKey];
+      } else {
+        selectionMap[selectionKey] = { tablePosition, content };
+      }
     } else if (e.shiftKey) {
       const [startRow, startCol] = state.tableClickPosition;
       const minR = Math.min(row, startRow);
@@ -41,9 +43,7 @@ export default function TableCell({
       }
     } else {
       // Clear selection and select only the clicked cell
-      selectionMap[selectionKey]
-        ? delete selectionMap[selectionKey]
-        : selectionMap = { [selectionKey]: { tablePosition, content } };
+      selectionMap = { [selectionKey]: { tablePosition, content } };
     }
 
     // Update state

@@ -1,9 +1,8 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import SortableList from "./SortableList";
-import { Edit2, Check } from "lucide-react";
+import { Edit2, Check, Trash2 } from "lucide-react";
 
-import GroupContextMenu from "./GroupContextMenu";
 import ColourContextSelector from "./ColourContextSelector";
 
 import { useTableContext } from "../TableContext";
@@ -51,12 +50,13 @@ export default function TableAnnotator({}) {
 
   const startEditingGroup = (group) => {
     setEditingGroup(group);
-    // Move the group's concepts to the selection area
+    // Initialize selected cells with the group's current cells
     const newSelectedCells = {};
-    Object.entries(group.concepts).forEach(([key, concept]) => {
+    group.cells.forEach(([row, col]) => {
+      const key = `${row}-${col}`;
       newSelectedCells[key] = {
-        ...concept,
-        isEditing: true // Add a flag to indicate this cell is being edited
+        tablePosition: [row, col],
+        content: state.tableNodes[row][col]
       };
     });
     setValue("selectedCells", newSelectedCells);
@@ -66,35 +66,50 @@ export default function TableAnnotator({}) {
   const handleSaveChanges = () => {
     if (!editingGroup) return;
 
-    if (Object.keys(state.selectedCells).length === 0) {
-      // If no cells are selected, remove the group
-      const newAnnotations = state.annotations.filter(ann => ann.id !== editingGroup.id);
-      setValue("annotations", newAnnotations);
-      setValue(
-        "extractedData",
-        Tabletools.annotationsToTable(state.tableNodes, newAnnotations),
+    const selectedCells = state.selectedCells;
+    const selectedCellPositions = Object.values(selectedCells).map(
+      (cell) => cell.tablePosition
+    );
+
+    if (selectedCellPositions.length === 0) {
+      // If no cells are selected, delete the group
+      const updatedAnnotations = state.annotations.filter(
+        (group) => group.id !== editingGroup.id
       );
+      setValue("annotations", updatedAnnotations);
+      setValue("extractedData", {
+        ...state.extractedData,
+        annotations: updatedAnnotations,
+      });
     } else {
-      // Create a new group with the current selection
-      const newGroup = {
-        id: editingGroup.id,
-        concepts: state.selectedCells,
-        category: conceptsCategory,
-        color: editingGroup.color
-      };
+      // Update the group with the new selection
+      const updatedAnnotations = state.annotations.map((group) => {
+        if (group.id === editingGroup.id) {
+          // Create a new group with updated cells
+          return {
+            ...group,
+            cells: selectedCellPositions,
+            concepts: selectedCellPositions.reduce((acc, [row, col]) => {
+              const key = `${row}-${col}`;
+              acc[key] = {
+                content: state.tableNodes[row][col],
+                tablePosition: [row, col]
+              };
+              return acc;
+            }, {})
+          };
+        }
+        return group;
+      });
 
-      // Update the annotations array
-      const newAnnotations = state.annotations.map(ann => 
-        ann.id === editingGroup.id ? newGroup : ann
-      );
-
-      setValue("annotations", newAnnotations);
-      setValue(
-        "extractedData",
-        Tabletools.annotationsToTable(state.tableNodes, newAnnotations),
-      );
+      setValue("annotations", updatedAnnotations);
+      setValue("extractedData", {
+        ...state.extractedData,
+        annotations: updatedAnnotations,
+      });
     }
 
+    // Clear editing state
     setEditingGroup(null);
     setValue("selectedCells", {});
   };
@@ -158,7 +173,25 @@ export default function TableAnnotator({}) {
               value={conceptsCategory}
             />
             {editingGroup && (
-              <span className="font-bold" style={{ color: editingGroup.color }}>Editing: {editingGroup.category}</span>
+              <>
+                <span className="font-bold" style={{ color: editingGroup.color }}>Editing: {editingGroup.category}</span>
+                <button 
+                  className="btn btn-ghost btn-sm ml-auto" 
+                  onClick={() => {
+                    const newAnnotations = state.annotations.filter(ann => ann.id !== editingGroup.id);
+                    setValue("annotations", newAnnotations);
+                    setValue(
+                      "extractedData",
+                      Tabletools.annotationsToTable(state.tableNodes, newAnnotations),
+                    );
+                    setEditingGroup(null);
+                    setValue("selectedCells", {});
+                  }}
+                  style={{ color: editingGroup.color }}
+                >
+                  <Trash2 size={16} />
+                </button>
+              </>
             )}
           </div>
           <div className="font-bold m-2"> Selection: </div>
@@ -219,7 +252,6 @@ export default function TableAnnotator({}) {
 	      />
       </div>
 
-      <GroupContextMenu />
       <ColourContextSelector />
     </>
   );

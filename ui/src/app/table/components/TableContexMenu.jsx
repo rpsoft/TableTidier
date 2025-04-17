@@ -29,6 +29,50 @@ export default function TableContexMenu({}) {
     return null;
   }
 
+  const selectUnassignedRow = () => {
+    const [row, col] = tableClickPosition;
+    const newSelectedCells = { ...state.selectedCells };
+    
+    // Get all cells in the current row
+    state.tableNodes[row].forEach((cell, c) => {
+      const key = `${row}-${c}`;
+      // Check if the cell is not assigned to any group
+      const isUnassigned = !state.annotations.some(ann => 
+        Object.keys(ann.concepts).includes(key)
+      );
+      if (isUnassigned) {
+        newSelectedCells[key] = {
+          content: cell,
+          tablePosition: [row, c]
+        };
+      }
+    });
+    
+    setValue("selectedCells", newSelectedCells);
+  };
+
+  const selectUnassignedColumn = () => {
+    const [row, col] = tableClickPosition;
+    const newSelectedCells = { ...state.selectedCells };
+    
+    // Get all cells in the current column
+    state.tableNodes.forEach((rowData, r) => {
+      const key = `${r}-${col}`;
+      // Check if the cell is not assigned to any group
+      const isUnassigned = !state.annotations.some(ann => 
+        Object.keys(ann.concepts).includes(key)
+      );
+      if (isUnassigned) {
+        newSelectedCells[key] = {
+          content: rowData[col],
+          tablePosition: [r, col]
+        };
+      }
+    });
+    
+    setValue("selectedCells", newSelectedCells);
+  };
+
   return (
     <>
       <ContextMenu
@@ -36,86 +80,13 @@ export default function TableContexMenu({}) {
         $left={state.cellContextPoints.x}
       >
         <div className="text-center">{cellContent}</div>
-        <div> {tableClickPosition[0] + "/" + tableClickPosition[1]} </div>
+        <div>Row {tableClickPosition[0] + 1}, Column {tableClickPosition[1] + 1}</div>
         <hr />
         <ul>
-          <li>Edit</li>
-          <li onClick={() => navigator.clipboard.writeText(state.cellContent)}>
-            Copy
-          </li>
-          <li>Undo</li>
-          <li
-            onClick={() =>
-              TableOperations.deleteColumn(
-                tableNodes,
-                setTableNodes,
-                tableClickPosition[1],
-              )
-            }
-          >
-            Delete Column
-          </li>
-          <li
-            onClick={() =>
-              TableOperations.deleteRow(
-                tableNodes,
-                setTableNodes,
-                tableClickPosition[0],
-              )
-            }
-          >
-            Delete Row
-          </li>
+          <li onClick={selectUnassignedColumn}>Select Unassigned Column</li>
+          <li onClick={selectUnassignedRow}>Select Unassigned Row</li>
           <li>Select Similar Column</li>
-          <li>Select Similar Rows </li>
-          <li
-            onClick={() =>
-              TableOperations.addColumn(
-                tableNodes,
-                setTableNodes,
-                tableClickPosition[1],
-                true,
-              )
-            }
-          >
-            New Column Before
-          </li>
-          <li
-            onClick={() =>
-              TableOperations.addColumn(
-                tableNodes,
-                setTableNodes,
-                tableClickPosition[1],
-                false,
-              )
-            }
-          >
-            New Column After
-          </li>
-          <li
-            onClick={() =>
-              TableOperations.addRow(
-                tableNodes,
-                setTableNodes,
-                tableClickPosition[0],
-                true,
-              )
-            }
-          >
-            New Row Before
-          </li>
-          <li
-            onClick={() =>
-              TableOperations.addRow(
-                tableNodes,
-                setTableNodes,
-                tableClickPosition[0],
-                false,
-              )
-            }
-          >
-            New Row After
-          </li>
+          <li>Select Similar Rows</li>
         </ul>
       </ContextMenu>
     </>
