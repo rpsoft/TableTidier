@@ -14,10 +14,56 @@ export default function TableResults() {
 				row.map((cell, colIndex) => {
 					if (!cell || !cell.concepts.length || !cell.cellData.trim()) return null;
 					
+					console.log('Cell concepts:', cell.concepts);
+					console.log('Annotations:', state.annotations);
+					
+					// Group concepts by their row assignments
+					const groupedConcepts = {};
+					cell.concepts.forEach(c => {
+						// Find the group that contains this concept
+						const group = state.annotations.find(a => {
+							console.log('Checking group:', a);
+							console.log('Looking for concept:', c.content);
+							console.log('Group concepts:', a.concepts);
+							// Check if any concept in the group matches the content
+							return Object.values(a.concepts).some(conceptObj => 
+								conceptObj.content === c.content
+							);
+						});
+						
+						console.log('Found group for concept:', c.content, group);
+						
+						if (group) {
+							const rowIndex = group.rowIndex;
+							if (!groupedConcepts[rowIndex]) {
+								groupedConcepts[rowIndex] = new Set();
+							}
+							groupedConcepts[rowIndex].add(c.content);
+						} else {
+							if (!groupedConcepts['ungrouped']) {
+								groupedConcepts['ungrouped'] = new Set();
+							}
+							groupedConcepts['ungrouped'].add(c.content);
+						}
+					});
+
+					console.log('Grouped concepts before sorting:', groupedConcepts);
+
+					// Convert Sets to arrays and sort the groups by row index
+					const sortedGroups = Object.entries(groupedConcepts)
+						.sort(([a], [b]) => {
+							if (a === 'ungrouped') return 1;
+							if (b === 'ungrouped') return -1;
+							return parseInt(a) - parseInt(b);
+						})
+						.map(([_, concepts]) => Array.from(concepts));
+
+					console.log('Final sorted groups:', sortedGroups);
+
 					return {
 						value: cell.cellData,
 						position: [rowIndex, colIndex],
-						concepts: cell.concepts.map(c => c.content)
+						concepts: sortedGroups
 					};
 				})
 			)
@@ -46,10 +92,8 @@ export default function TableResults() {
 			...transformedData.map(item => {
 				const row = item.position[0];
 				const col = item.position[1];
-				const concepts = item.concepts.join(';');
-				// Check for any special characters that need quoting
-				const needsQuoting = /[,()\s]/.test(item.value);
-				const value = needsQuoting ? `"${item.value}"` : item.value;
+				const concepts = item.concepts.map(group => group.join(';')).join(';');
+				const value = item.value;
 				return [value, row, col, `"${concepts}"`].join(',');
 			})
 		];
@@ -174,6 +218,14 @@ export default function TableResults() {
 																const conceptKey = `${e}-${c}-${concept.content}`;
 																const isSelected = selectedConcepts.has(conceptKey);
 																const isEditing = editingGroup === concept.content;
+																const group = state.annotations.find(a => a.concepts[concept.content]);
+																const rowIndex = group ? group.rowIndex : null;
+																const relatedConcepts = cell.concepts
+																	.filter(c => {
+																		const g = state.annotations.find(a => a.concepts[c.content]);
+																		return g && g.rowIndex === rowIndex;
+																	})
+																	.map(c => c.content);
 																return (
 																	<li 
 																		key={`concept_${e}_${c}_${op}`} 
@@ -182,7 +234,14 @@ export default function TableResults() {
 																		onClick={() => isEditing && handleConceptClick(concept.content, e, c)}
 																	>
 																		{isSelected ? <Check size={16} /> : null}
-																		{concept.content}
+																		<div className="flex flex-col">
+																			<span>{concept.content}</span>
+																			{relatedConcepts.length > 1 && (
+																				<span className="text-xs text-gray-500">
+																					Related: {relatedConcepts.filter(c => c !== concept.content).join(', ')}
+																				</span>
+																			)}
+																		</div>
 																	</li>
 																);
 															})}
