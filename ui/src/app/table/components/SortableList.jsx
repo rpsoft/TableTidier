@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef, useCallback, useMemo, useEffect } from "react";
+import React, { useState, useRef, useCallback, useMemo } from "react";
 import {
   DndContext,
   closestCenter,
@@ -92,6 +92,11 @@ const DroppableContainer = ({ id, children, isOver, onDeleteRow, rowIndex, canDe
     id,
   });
 
+  // Simple check for empty row
+  const isEmpty = !rowContent || rowContent.length === 0;
+
+  console.log('Row', rowIndex, 'isEmpty:', isEmpty, 'canDelete:', canDelete, 'content:', rowContent);
+
   return (
     <div className="relative">
       <div
@@ -102,7 +107,7 @@ const DroppableContainer = ({ id, children, isOver, onDeleteRow, rowIndex, canDe
       >
         {children}
       </div>
-      {canDelete && (!rowContent || rowContent.length === 0) && (
+      {canDelete && isEmpty && (
         <button
           onClick={() => onDeleteRow(rowIndex)}
           className="absolute top-2 right-2 btn btn-xs btn-error"
@@ -117,8 +122,8 @@ const DroppableContainer = ({ id, children, isOver, onDeleteRow, rowIndex, canDe
 const SortableList = ({ groupedConcepts, setGroupedConcepts, onEditGroup, editingGroup }) => {
   const [activeId, setActiveId] = useState(null);
   const [isOverDropZone, setIsOverDropZone] = useState(false);
-  const [rows, setRows] = useState([[]]); // Start with one empty row
-  const [groupRowMap, setGroupRowMap] = useState(new Map()); // Track which row each group belongs to
+  const [rows, setRows] = useState([[]]);
+  const [groupRowMap, setGroupRowMap] = useState(new Map());
   const lastOverId = useRef(null);
   const activeRowRef = useRef(null);
 
@@ -223,74 +228,47 @@ const SortableList = ({ groupedConcepts, setGroupedConcepts, onEditGroup, editin
     }
   };
 
-  // Initialize rows and groupRowMap from annotations when component mounts
-  useEffect(() => {
-    // Find the maximum row index from annotations
-    const maxRowIndex = groupedConcepts.reduce((max, group) => {
-      return Math.max(max, group.rowIndex || 0);
-    }, 0);
-
-    // Initialize rows array with the correct number of rows
-    const initialRows = Array(maxRowIndex + 1).fill().map(() => []);
-    setRows(initialRows);
-
-    // Initialize groupRowMap from annotations
-    const initialMap = new Map();
-    groupedConcepts.forEach(group => {
-      if (group.rowIndex !== undefined) {
-        initialMap.set(group.id, group.rowIndex);
-      }
-    });
-    setGroupRowMap(initialMap);
-  }, [groupedConcepts]);
-
   const addRow = () => {
-    setRows([...rows, []]);
+    setRows(prev => [...prev, []]);
   };
 
   const deleteRow = (rowIndex) => {
-    if (rows.length > 1) {
-      // Create a new rows array without the deleted row
-      const newRows = rows.filter((_, index) => index !== rowIndex);
-      
-      // Update the rows state first
-      setRows(newRows);
+    // Only allow deletion of non-last rows
+    if (rowIndex >= rows.length - 1) return;
 
-      // Update the groupRowMap to adjust row indices
-      setGroupRowMap(prev => {
-        const newMap = new Map();
-        prev.forEach((row, groupId) => {
-          if (row > rowIndex) {
-            // Move groups down one row if they were after the deleted row
-            newMap.set(groupId, row - 1);
-          } else if (row < rowIndex) {
-            // Keep groups in their current row if they were before the deleted row
-            newMap.set(groupId, row);
-          }
-          // Groups in the deleted row are not added to the new map
-        });
-        return newMap;
-      });
+    // Create a new state in one go
+    const newState = {
+      rows: [...rows],
+      groupRowMap: new Map(groupRowMap),
+      groupedConcepts: [...groupedConcepts]
+    };
 
-      // Update the annotations through the parent component's state management
-      const updatedAnnotations = groupedConcepts.map(group => {
-        const row = groupRowMap.get(group.id);
-        if (row === undefined) return group; // Skip if not in map
-        if (row > rowIndex) {
-          return { ...group, rowIndex: row - 1 };
-        } else if (row < rowIndex) {
-          return { ...group, rowIndex: row };
-        }
-        return group;
-      }).filter(group => {
-        // Remove groups that were in the deleted row
-        const row = groupRowMap.get(group.id);
-        return row !== rowIndex;
-      });
+    // Remove the row
+    newState.rows.splice(rowIndex, 1);
 
-      // Update through parent component's state management
-      setGroupedConcepts(updatedAnnotations);
+    // Update groupRowMap and collect groups to keep
+    const groupsToKeep = new Set();
+    for (let [id, r] of newState.groupRowMap.entries()) {
+      if (r === rowIndex) {
+        // Remove groups from the deleted row
+        newState.groupRowMap.delete(id);
+      } else if (r > rowIndex) {
+        // Adjust indices for groups after the deleted row
+        newState.groupRowMap.set(id, r - 1);
+        groupsToKeep.add(id);
+      } else {
+        // Keep groups from rows before the deleted row
+        groupsToKeep.add(id);
+      }
     }
+
+    // Update groupedConcepts to only keep the groups we identified
+    newState.groupedConcepts = newState.groupedConcepts.filter(group => groupsToKeep.has(group.id));
+
+    // Apply all state updates at once
+    setRows(newState.rows);
+    setGroupRowMap(newState.groupRowMap);
+    setGroupedConcepts(newState.groupedConcepts);
   };
 
   // Filter out the group being edited
@@ -334,32 +312,37 @@ const SortableList = ({ groupedConcepts, setGroupedConcepts, onEditGroup, editin
       onDragEnd={handleDragEnd}
     >
       <div className="flex flex-col space-y-4">
-        {distributedGroups.map((row, rowIndex) => (
-          <DroppableContainer 
-            key={rowIndex} 
-            id={`row-${rowIndex}`} 
-            isOver={isOverDropZone}
-            onDeleteRow={deleteRow}
-            rowIndex={rowIndex}
-            canDelete={rows.length > 1}
-            rowContent={row}
-          >
-            <SortableContext
-              items={row.map(item => item.id)}
-              strategy={horizontalListSortingStrategy}
+        {rows.map((row, rowIndex) => {
+          const rowGroups = distributedGroups[rowIndex] || [];
+          const isLastRow = rowIndex === rows.length - 1;
+          console.log('Rendering row', rowIndex, 'with groups:', rowGroups, 'isLastRow:', isLastRow);
+          return (
+            <DroppableContainer 
+              key={rowIndex} 
+              id={`row-${rowIndex}`} 
+              isOver={isOverDropZone}
+              onDeleteRow={deleteRow}
+              rowIndex={rowIndex}
+              canDelete={!isLastRow}
+              rowContent={rowGroups}
             >
-              {row.map((item) => (
-                <SortableItem
-                  key={item.id}
-                  id={item.id}
-                  item={item}
-                  onEditGroup={onEditGroup}
-                  editingGroup={editingGroup}
-                />
-              ))}
-            </SortableContext>
-          </DroppableContainer>
-        ))}
+              <SortableContext
+                items={rowGroups.map(item => item.id)}
+                strategy={horizontalListSortingStrategy}
+              >
+                {rowGroups.map((item) => (
+                  <SortableItem
+                    key={item.id}
+                    id={item.id}
+                    item={item}
+                    onEditGroup={onEditGroup}
+                    editingGroup={editingGroup}
+                  />
+                ))}
+              </SortableContext>
+            </DroppableContainer>
+          );
+        })}
         
         <button
           onClick={addRow}
