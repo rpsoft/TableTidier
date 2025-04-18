@@ -105,10 +105,12 @@ const Tabletools = {
 			var concepts = conceptPoints.map(
 				(cat, c) => {
 					// debugger
-					return annotations[c].concepts[cat]
+					return {...annotations[c].concepts[cat], rowIndex: annotations[c].rowIndex}
 				}
 			).filter( c => c != undefined)
 
+
+			concepts = Object.values(Object.groupBy( concepts, ({rowIndex}) => rowIndex))
 			return {
 				concepts,
 				cellData : col,

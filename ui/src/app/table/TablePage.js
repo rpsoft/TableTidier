@@ -2,6 +2,7 @@
 import { Select, Table } from "antd";
 import { SessionProvider } from 'next-auth/react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { Edit2 } from "lucide-react";
 
 import UploadTable from "@/components/ui/UploadTable";
 import TableCell from "./components/TableCell";
@@ -329,7 +330,7 @@ export default function TablePage({ initialTableId }) {
         {state.selectedTable !== null ? (
           <div className="flex flex-col w-full">
             <div role="tablist" className="tabs tabs-lift tabs-md bg-gray-800 border-b border-gray-700">
-              {["Annotation Dashboard", "Edit Table", "Extracted Data"].map(
+              {["Annotation Dashboard",  "Extracted Data"].map( //"Edit Table",
                 t => (
                   <a
                     role="tab"
@@ -344,7 +345,17 @@ export default function TablePage({ initialTableId }) {
             </div>
             <div className="p-5">
               {activeTab === "Annotation Dashboard" && state.tableNodes.length > 0 ? (
-                <div className="flex flex-col p-5">
+                <div className="flex flex-col p-5 pt-0">
+
+                <div className="flex justify-end">
+                  <button 
+                    className="btn btn-primary mb-4" 
+                    onClick={() => setActiveTab("Edit Table")}
+                  >
+                    <Edit2 className="mr-2" /> Edit Table HTML
+                  </button>
+                  </div>
+
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>

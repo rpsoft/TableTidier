@@ -171,18 +171,18 @@ export default function TableResults() {
 															className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
 														>
 															{cell.concepts.map((concept, op) => {
-																const conceptKey = `${e}-${c}-${concept.content}`;
+																const conceptKey = `${e}-${c}-${concept.map( con => con.content ).join(" -> ")}`;
 																const isSelected = selectedConcepts.has(conceptKey);
-																const isEditing = editingGroup === concept.content;
+																const isEditing = editingGroup === concept.map( con => con.content ).join(" -> ");
 																return (
 																	<li 
 																		key={`concept_${e}_${c}_${op}`} 
 																		className={`truncate flex items-center gap-2 ${isSelected ? 'bg-primary text-primary-content' : ''} ${isEditing ? 'cursor-pointer' : ''}`}
-																		title={concept.content}
-																		onClick={() => isEditing && handleConceptClick(concept.content, e, c)}
+																		title={concept.map( con => con.content ).join(" -> ")}
+																		onClick={() => isEditing && handleConceptClick(concept.map( con => con.content ).join(" -> "), e, c)}
 																	>
 																		{isSelected ? <Check size={16} /> : null}
-																		{concept.content}
+																		{concept.map( con => con.content ).join(" -> ")}
 																	</li>
 																);
 															})}

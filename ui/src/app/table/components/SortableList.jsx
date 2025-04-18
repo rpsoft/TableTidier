@@ -162,11 +162,8 @@ const SortableList = ({ groupedConcepts, setGroupedConcepts, onEditGroup, editin
     const { active, over } = event;
     if (!over || !over.id) return;
 
-    console.log("drag over", over)
-
     setIsOverDropZone(false);
 
-    // debugger
     // If dropping on a row container
     if (typeof over.id === 'string' && over.id.startsWith('row-')) {
       const targetRowIndex = parseInt(over.id.split('-')[1]);
@@ -178,12 +175,11 @@ const SortableList = ({ groupedConcepts, setGroupedConcepts, onEditGroup, editin
     if (active.id !== over.id) {
       const oldIndex = groupedConcepts.findIndex((item) => item.id === active.id);
       const newIndex = groupedConcepts.findIndex((item) => item.id === over.id);
-      //setGroupedConcepts(arrayMove(groupedConcepts, oldIndex, newIndex));
+      setGroupedConcepts(arrayMove(groupedConcepts, oldIndex, newIndex));
     }
   };
 
   const handleDragEnd = (event) => {
-    // debugger
     const { active, over } = event;
     setActiveId(null);
     setIsOverDropZone(false);
@@ -213,7 +209,6 @@ const SortableList = ({ groupedConcepts, setGroupedConcepts, onEditGroup, editin
           }
           return group;
         });
-        
         setGroupedConcepts(updatedAnnotations);
         return;
       }
@@ -231,19 +226,12 @@ const SortableList = ({ groupedConcepts, setGroupedConcepts, onEditGroup, editin
   // Initialize rows and groupRowMap from annotations when component mounts
   useEffect(() => {
     // Find the maximum row index from annotations
-    console.log("effect",  rows)
-    const maxRowIndex = Math.max(0,...groupedConcepts.map( gc => gc.rowIndex || 0 ), rows.length - 1)
+    const maxRowIndex = Math.max(...groupedConcepts.map(gc => gc.rowIndex || 0), 0, rows.length - 1);
 
     // Initialize rows array with the correct number of rows
-    // debugger
     const initialRows = Array(maxRowIndex + 1).fill().map(() => []);
-    // debugger
+    setRows(initialRows);
 
-    // This only to be called once at the beginning
-    // if ( rows.length == 1 && rows[0].length == 0) {
-      setRows(initialRows);
-    // }
-    
     // Initialize groupRowMap from annotations
     const initialMap = new Map();
     groupedConcepts.forEach(group => {
@@ -256,11 +244,9 @@ const SortableList = ({ groupedConcepts, setGroupedConcepts, onEditGroup, editin
 
   const addRow = () => {
     setRows([...rows, []]);
-    console.log("add row")
   };
 
   const deleteRow = (rowIndex) => {
-    console.log("delete row", rowIndex)
     if (rows.length > 1) {
       // Create a new rows array without the deleted row
       const newRows = rows.filter((_, index) => index !== rowIndex);
