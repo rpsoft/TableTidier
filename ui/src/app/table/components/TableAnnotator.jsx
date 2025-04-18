@@ -153,7 +153,8 @@ export default function TableAnnotator({}) {
         id: Date.now(),
         concepts,
         category: conceptsCategory,
-        color: availableColor
+        color: availableColor,
+        rowIndex: 0
       },
     ];
     setValue("annotations", newAnnotations);
