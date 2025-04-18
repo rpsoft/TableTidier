@@ -9,6 +9,7 @@ export default function TableList({ tables, onDelete }) {
   const [isDeleting, setIsDeleting] = useState(false);
   // State to cache processed extracted data for each table
   const [processedDataCache, setProcessedDataCache] = useState({}); 
+  const [isDownloadingAll, setIsDownloadingAll] = useState(false); // Loading state for Download All
 
   if (tables.length === 0) {
     return (
@@ -201,8 +202,80 @@ export default function TableList({ tables, onDelete }) {
     URL.revokeObjectURL(url);
   };
 
+  // Download All Handler (JSON only for now)
+  const handleDownloadAllJSON = async () => {
+    setIsDownloadingAll(true);
+    let results = [];
+    let failedTables = [];
+
+    // Use Promise.all to fetch and process data for all tables concurrently
+    results = await Promise.all(tables.map(async (table) => {
+      const processedData = await getProcessedData(table);
+      
+      // If fetching/processing failed for this table
+      if (processedData === null) {
+        failedTables.push(table.fileName);
+        return null; // Indicate failure for this table
+      }
+      
+      // If processing succeeded but yielded no data
+      if (processedData.length === 0) {
+          return { 
+              sourceTable: table.fileName, 
+              extractedData: [] // Return empty array for tables with no extracted data
+          }; 
+      }
+      
+      // Transform the successfully processed data
+      const transformedData = transformDataForDownload(processedData);
+      
+      // Return the desired structure for this table
+      return { 
+        sourceTable: table.fileName, 
+        extractedData: transformedData 
+      };
+    }));
+
+    setIsDownloadingAll(false);
+
+    // Filter out null results from failed fetches/processes
+    const successfulResults = results.filter(result => result !== null);
+
+    if (failedTables.length > 0) {
+        alert(`Failed to fetch or process data for the following tables: ${failedTables.join(', ')}. Their data will be excluded from the download.`);
+    }
+
+    if (successfulResults.length === 0) {
+      alert('No data could be extracted from any tables in this collection.');
+      return;
+    }
+    
+    // The final structure is now an array of table objects
+    const jsonData = JSON.stringify(successfulResults, null, 2);
+    const blob = new Blob([jsonData], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `all_tables_extracted.json`; 
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="overflow-x-auto">
+      {/* Add Download All button above the table */}
+      <div className="flex justify-end mb-4 mr-2">
+        <button
+          onClick={handleDownloadAllJSON}
+          disabled={isDownloadingAll || tables.length === 0}
+          className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          title="Download extracted data from all tables in this list as a single JSON file"
+        >
+          <Download size={18} />
+          {isDownloadingAll ? 'Downloading...' : 'Download All (.json)'}
+        </button>
+      </div>
+
       <table className="w-full">
         <thead className="bg-gray-800">
           <tr>
@@ -233,30 +306,29 @@ export default function TableList({ tables, onDelete }) {
                 />
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-right">
-                {/* Container for buttons */}
-                <div className="flex justify-end items-center gap-2">
-                  {/* JSON Download Button */}
+                <div className="flex justify-end items-center gap-3"> {/* Increased gap slightly */}
+                  {/* Updated JSON Download Button */}
                   <button
                     onClick={() => handleJSONDownload(table)}
-                    className="text-blue-400 hover:text-blue-300 transition-colors p-1" // Added padding for better click area
-                    title="Download Extracted Data (JSON)"
+                    className="text-blue-400 hover:text-blue-300 transition-colors p-1 flex items-center gap-1" 
+                    title={`Download ${table.fileName} Extracted Data (.json)`}
                   >
-                    <Download size={18} /> {/* Slightly larger icon */}
+                    <Download size={16} /> .json
                   </button>
-                  {/* CSV Download Button */}
+                  {/* Updated CSV Download Button */}
                   <button
                     onClick={() => handleCSVDownload(table)}
-                    className="text-green-400 hover:text-green-300 transition-colors p-1" // Different color, added padding
-                    title="Download Extracted Data (CSV)"
+                    className="text-green-400 hover:text-green-300 transition-colors p-1 flex items-center gap-1"
+                    title={`Download ${table.fileName} Extracted Data (.csv)`}
                   >
-                    <Download size={18} /> {/* Slightly larger icon */}
+                    <Download size={16} /> .csv
                   </button>
-                  {/* Delete Button */}
+                  {/* Delete Button - Unchanged text, added title */}
                   <button
                     onClick={() => handleDelete(table.id, table.collectionId)}
                     disabled={isDeleting}
-                    className="text-red-400 hover:text-red-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors p-1" // Added padding
-                    title="Delete Table" // Added tooltip
+                    className="text-red-400 hover:text-red-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors p-1 ml-2" /* Added margin */
+                    title="Delete Table"
                   >
                     Delete
                   </button>
