@@ -17,7 +17,7 @@ export default function TableResults() {
 					return {
 						value: cell.cellData,
 						position: [rowIndex, colIndex],
-						concepts: cell.concepts.map(c => c.content)
+						concepts: cell.concepts.map(c => c.map(con => con.content))
 					};
 				})
 			)
@@ -46,7 +46,8 @@ export default function TableResults() {
 			...transformedData.map(item => {
 				const row = item.position[0];
 				const col = item.position[1];
-				const concepts = item.concepts.join(';');
+				// Convert nested concepts array to string with -> separator
+				const concepts = item.concepts.map(conceptPath => conceptPath.join(' -> ')).join(';');
 				// Check for any special characters that need quoting
 				const needsQuoting = /[,()\s]/.test(item.value);
 				const value = needsQuoting ? `"${item.value}"` : item.value;
