@@ -2,9 +2,13 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { Download } from 'lucide-react';
+import Tabletools from '@/app/table/tableTools'; // Import Tabletools
 
 export default function TableList({ tables, onDelete }) {
   const [isDeleting, setIsDeleting] = useState(false);
+  // State to cache processed extracted data for each table
+  const [processedDataCache, setProcessedDataCache] = useState({}); 
 
   if (tables.length === 0) {
     return (
@@ -53,6 +57,150 @@ export default function TableList({ tables, onDelete }) {
     }
   };
 
+  // Fetch full table data
+  const fetchTableData = async (table) => {
+    if (!table || !table.id || !table.collectionId) {
+      console.error('Missing table ID or collection ID for fetching data');
+      return null;
+    }
+    const { id: tableId, collectionId } = table;
+    try {
+      const response = await fetch(`/api/collections/${collectionId}/tables/${tableId}`); 
+      if (response.ok) {
+        const tableData = await response.json();
+        return tableData;
+      }
+      console.error('Failed to fetch table data:', response.status, response.statusText);
+      return null;
+    } catch (error) {
+      console.error('Error fetching table data:', error);
+      return null;
+    }
+  };
+
+  // Process raw table data to get extracted data structure
+  const processExtractedData = (tableData) => {
+    if (!tableData?.annotationData?.annotations || !tableData.htmlContent) {
+      console.log('No annotations or HTML content found for processing');
+      return [];
+    }
+    
+    try {
+      const tableContent = [tableData.htmlContent];
+      const tableNodes = Tabletools.contentToNodes(tableContent);
+      const extracted = Tabletools.annotationsToTable(tableNodes, tableData.annotationData.annotations);
+      return extracted;
+    } catch (error) {
+      console.error('Error processing extracted data:', error);
+      return [];
+    }
+  };
+
+  // Transform processed data into the final format for download (same as in TableResults)
+  const transformDataForDownload = (data) => {
+    return data
+      .flatMap((row, rowIndex) => 
+        row.map((cell, colIndex) => {
+          // Ensure cell and concepts exist and cellData is not empty
+          if (!cell || !Array.isArray(cell.concepts) || cell.concepts.length === 0 || !cell.cellData || !cell.cellData.trim()) return null;
+          
+          // Ensure concepts have the nested structure [[{content: '...'}], ...]
+          const validConcepts = cell.concepts.map(conceptGroup => 
+            Array.isArray(conceptGroup) ? conceptGroup.map(con => con?.content).filter(Boolean) : []
+          ).filter(group => group.length > 0);
+
+          if (validConcepts.length === 0) return null;
+
+          return {
+            value: cell.cellData,
+            position: [rowIndex, colIndex],
+            // Map nested concept content
+            concepts: validConcepts 
+          };
+        })
+      )
+      .filter(item => item != null);
+  };
+
+  // Generic function to get processed data, fetching if necessary
+  const getProcessedData = async (table) => {
+    if (processedDataCache[table.id]) {
+      return processedDataCache[table.id];
+    }
+    
+    const tableData = await fetchTableData(table);
+    if (!tableData) return null;
+
+    const processedData = processExtractedData(tableData);
+    setProcessedDataCache(prev => ({ ...prev, [table.id]: processedData }));
+    return processedData;
+  };
+
+  // Download Handlers
+  const handleJSONDownload = async (table) => {
+    const processedData = await getProcessedData(table);
+    if (!processedData || processedData.length === 0) {
+      alert('No extracted data available to download.');
+      return;
+    }
+
+    const transformedData = transformDataForDownload(processedData);
+    if (transformedData.length === 0) {
+       alert('No valid data found after transformation.');
+       return;
+    }
+
+    const jsonData = JSON.stringify(transformedData, null, 2);
+    const blob = new Blob([jsonData], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${table.fileName}_extracted.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleCSVDownload = async (table) => {
+    const processedData = await getProcessedData(table);
+     if (!processedData || processedData.length === 0) {
+      alert('No extracted data available to download.');
+      return;
+    }
+
+    const transformedData = transformDataForDownload(processedData);
+     if (transformedData.length === 0) {
+       alert('No valid data found after transformation.');
+       return;
+    }
+
+    const headers = ['Value', 'Row', 'Column', 'Concepts'];
+    
+    const csvRows = [
+      headers.join(','),
+      ...transformedData.map(item => {
+        const row = item.position[0];
+        const col = item.position[1];
+        // Join nested paths with ' -> ', separate different paths with ';'
+        const concepts = item.concepts.map(conceptPath => conceptPath.join(' -> ')).join(';');
+        // Quote value if it contains comma, quotes, or whitespace
+        const needsQuotingValue = /[",\s]/.test(item.value);
+        const value = needsQuotingValue ? `"${item.value.replace(/"/g, '""')}"` : item.value;
+        // Always quote concepts as they contain -> and ;
+        const quotedConcepts = `"${concepts.replace(/"/g, '""')}"`;
+        return [value, row, col, quotedConcepts].join(',');
+      })
+    ];
+    
+    const csvContent = csvRows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${table.fileName}_extracted.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="overflow-x-auto">
       <table className="w-full">
@@ -85,13 +233,34 @@ export default function TableList({ tables, onDelete }) {
                 />
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-right">
-                <button
-                  onClick={() => handleDelete(table.id, table.collectionId)}
-                  disabled={isDeleting}
-                  className="text-red-400 hover:text-red-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  Delete
-                </button>
+                {/* Container for buttons */}
+                <div className="flex justify-end items-center gap-2">
+                  {/* JSON Download Button */}
+                  <button
+                    onClick={() => handleJSONDownload(table)}
+                    className="text-blue-400 hover:text-blue-300 transition-colors p-1" // Added padding for better click area
+                    title="Download Extracted Data (JSON)"
+                  >
+                    <Download size={18} /> {/* Slightly larger icon */}
+                  </button>
+                  {/* CSV Download Button */}
+                  <button
+                    onClick={() => handleCSVDownload(table)}
+                    className="text-green-400 hover:text-green-300 transition-colors p-1" // Different color, added padding
+                    title="Download Extracted Data (CSV)"
+                  >
+                    <Download size={18} /> {/* Slightly larger icon */}
+                  </button>
+                  {/* Delete Button */}
+                  <button
+                    onClick={() => handleDelete(table.id, table.collectionId)}
+                    disabled={isDeleting}
+                    className="text-red-400 hover:text-red-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors p-1" // Added padding
+                    title="Delete Table" // Added tooltip
+                  >
+                    Delete
+                  </button>
+                </div>
               </td>
             </tr>
           ))}
