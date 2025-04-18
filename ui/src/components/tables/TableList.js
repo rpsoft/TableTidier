@@ -9,7 +9,8 @@ export default function TableList({ tables, onDelete }) {
   const [isDeleting, setIsDeleting] = useState(false);
   // State to cache processed extracted data for each table
   const [processedDataCache, setProcessedDataCache] = useState({}); 
-  const [isDownloadingAll, setIsDownloadingAll] = useState(false); // Loading state for Download All
+  const [isDownloadingAllJSON, setIsDownloadingAllJSON] = useState(false); // Renamed state
+  const [isDownloadingAllCSV, setIsDownloadingAllCSV] = useState(false); // Added CSV loading state
 
   if (tables.length === 0) {
     return (
@@ -161,6 +162,18 @@ export default function TableList({ tables, onDelete }) {
     URL.revokeObjectURL(url);
   };
 
+  // Helper function for CSV quoting
+  const escapeCsvValue = (value) => {
+      if (value == null) return ''
+      const stringValue = String(value);
+      // If the value contains a comma, newline, or double quote, enclose it in double quotes
+      if (/[,"\n\r]/.test(stringValue)) {
+          // Escape existing double quotes by doubling them
+          return `"${stringValue.replace(/"/g, '""')}"`;
+      }
+      return stringValue;
+  };
+
   const handleCSVDownload = async (table) => {
     const processedData = await getProcessedData(table);
      if (!processedData || processedData.length === 0) {
@@ -183,12 +196,13 @@ export default function TableList({ tables, onDelete }) {
         const col = item.position[1];
         // Join nested paths with ' -> ', separate different paths with ';'
         const concepts = item.concepts.map(conceptPath => conceptPath.join(' -> ')).join(';');
-        // Quote value if it contains comma, quotes, or whitespace
-        const needsQuotingValue = /[",\s]/.test(item.value);
-        const value = needsQuotingValue ? `"${item.value.replace(/"/g, '""')}"` : item.value;
-        // Always quote concepts as they contain -> and ;
-        const quotedConcepts = `"${concepts.replace(/"/g, '""')}"`;
-        return [value, row, col, quotedConcepts].join(',');
+        // Use escapeCsvValue for all fields
+        return [
+            escapeCsvValue(item.value),
+            escapeCsvValue(row),
+            escapeCsvValue(col),
+            escapeCsvValue(concepts)
+        ].join(',');
       })
     ];
     
@@ -204,7 +218,7 @@ export default function TableList({ tables, onDelete }) {
 
   // Download All Handler (JSON only for now)
   const handleDownloadAllJSON = async () => {
-    setIsDownloadingAll(true);
+    setIsDownloadingAllJSON(true);
     let results = [];
     let failedTables = [];
 
@@ -236,7 +250,7 @@ export default function TableList({ tables, onDelete }) {
       };
     }));
 
-    setIsDownloadingAll(false);
+    setIsDownloadingAllJSON(false);
 
     // Filter out null results from failed fetches/processes
     const successfulResults = results.filter(result => result !== null);
@@ -261,18 +275,92 @@ export default function TableList({ tables, onDelete }) {
     URL.revokeObjectURL(url);
   };
 
+  const handleDownloadAllCSV = async () => {
+    setIsDownloadingAllCSV(true);
+    let results = [];
+    let failedTables = [];
+
+    // Fetch and process data (same logic as JSON version)
+    results = await Promise.all(tables.map(async (table) => {
+      const processedData = await getProcessedData(table);
+      if (processedData === null) {
+        failedTables.push(table.fileName);
+        return null; 
+      }
+       if (processedData.length === 0) {
+          // Include tables with no data, they just won't add rows to CSV
+          return { sourceTable: table.fileName, extractedData: [] }; 
+      }
+      const transformedData = transformDataForDownload(processedData);
+       // Keep the structured format for easier CSV generation
+      return { sourceTable: table.fileName, extractedData: transformedData };
+    }));
+
+    setIsDownloadingAllCSV(false);
+    const successfulResults = results.filter(result => result !== null);
+
+    if (failedTables.length > 0) {
+        alert(`Failed (CSV): ${failedTables.join(', ')}. Excluded.`);
+    }
+    if (successfulResults.length === 0 || successfulResults.every(r => r.extractedData.length === 0) ) {
+      alert('No data could be extracted (CSV).'); return;
+    }
+
+    // Generate CSV content
+    const headers = ['SourceTable', 'Value', 'Row', 'Column', 'Concepts'];
+    const csvRows = [headers.join(',')]; // Start with header row
+
+    successfulResults.forEach(tableResult => {
+        // Only add rows if there is extracted data for the table
+        if (tableResult.extractedData.length > 0) {
+            tableResult.extractedData.forEach(item => {
+                const row = item.position[0];
+                const col = item.position[1];
+                const concepts = item.concepts.map(conceptPath => conceptPath.join(' -> ')).join(';');
+                csvRows.push([
+                    escapeCsvValue(tableResult.sourceTable),
+                    escapeCsvValue(item.value),
+                    escapeCsvValue(row),
+                    escapeCsvValue(col),
+                    escapeCsvValue(concepts)
+                ].join(','));
+            });
+        }
+    });
+    
+    const csvContent = csvRows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `all_tables_extracted.csv`; 
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="overflow-x-auto">
       {/* Add Download All button above the table */}
-      <div className="flex justify-end mb-4 mr-2">
+      <div className="flex justify-end mb-4 mr-2 gap-2"> {/* Use gap for spacing */}
+        {/* Download All JSON Button */}
         <button
           onClick={handleDownloadAllJSON}
-          disabled={isDownloadingAll || tables.length === 0}
+          disabled={isDownloadingAllJSON || isDownloadingAllCSV || tables.length === 0} // Disable if either is running
           className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-          title="Download extracted data from all tables in this list as a single JSON file"
+          title="Download extracted data from all tables as a single JSON file"
         >
           <Download size={18} />
-          {isDownloadingAll ? 'Downloading...' : 'Download All (.json)'}
+          {isDownloadingAllJSON ? 'Downloading...' : 'Download All (.json)'}
+        </button>
+        {/* Download All CSV Button */}
+         <button
+          onClick={handleDownloadAllCSV}
+          disabled={isDownloadingAllCSV || isDownloadingAllJSON || tables.length === 0} // Disable if either is running
+          className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          title="Download extracted data from all tables as a single CSV file"
+        >
+          <Download size={18} />
+          {isDownloadingAllCSV ? 'Downloading...' : 'Download All (.csv)'}
         </button>
       </div>
 
