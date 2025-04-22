@@ -3,6 +3,7 @@ import { Select, Table } from "antd";
 import { SessionProvider } from 'next-auth/react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Edit2 } from "lucide-react";
+import toast, { Toaster } from 'react-hot-toast';
 
 import UploadTable from "@/components/ui/UploadTable";
 import TableCell from "./components/TableCell";
@@ -55,18 +56,20 @@ export default function TablePage({ initialTableId }) {
   };
 
   const saveTableChanges = async () => {
-    if (state.selectedTable === null || isSaving) return;
+    if (state.selectedTable === null || isSaving) return false;
     
     const currentTable = state.tables[state.selectedTable];
-    if (!currentTable) return;
+    if (!currentTable) return false;
 
     // Check if there are actual changes to save
-    if (lastSavedData && 
-        JSON.stringify(currentTable) === JSON.stringify(lastSavedData)) {
-      return;
+    const dataToCompare = lastSavedData || state.tables[state.selectedTable];
+    if (JSON.stringify(currentTable) === JSON.stringify(dataToCompare)) {
+      console.log("No changes detected to save.");
+      return true;
     }
 
     setIsSaving(true);
+    const savingToast = toast.loading('Saving table HTML...');
     try {
       // Ensure we have the latest annotations in the table data
       if (state.annotations) {
@@ -74,8 +77,12 @@ export default function TablePage({ initialTableId }) {
       }
       await updateTable(currentTable);
       setLastSavedData(JSON.parse(JSON.stringify(currentTable)));
+      toast.dismiss(savingToast);
+      return true;
     } catch (error) {
       console.error('Error saving table:', error);
+      toast.dismiss(savingToast);
+      return false;
     } finally {
       setIsSaving(false);
     }
@@ -105,6 +112,7 @@ export default function TablePage({ initialTableId }) {
       const tableData = state.tables[state.selectedTable];
       if (tableData) {
         setCurrentTableHTML(tableData.htmlContent);
+        setLastSavedData(JSON.parse(JSON.stringify(tableData)));
         
         try {
           const tableContent = [tableData.htmlContent];
@@ -127,37 +135,49 @@ export default function TablePage({ initialTableId }) {
           setValue("tableNodes", []);
           setValue("annotations", []);
           setValue("extractedData", []);
+          toast.error("Error processing table content. Check HTML structure.");
         }
+      } else {
+        setCurrentTableHTML("");
+        setValue("tableNodes", []);
+        setValue("annotations", []);
+        setValue("extractedData", []);
       }
+      setValue("selectedCells", {});
+    } else {
+      setCurrentTableHTML("");
+      setValue("tableNodes", []);
+      setValue("annotations", []);
+      setValue("extractedData", []);
       setValue("selectedCells", {});
     }
   }, [state.tables, state.selectedTable]);
 
-  // Add a separate effect to handle table content updates
   useEffect(() => {
-    if (state.selectedTable != null) {
+    if (state.selectedTable != null && state.tables[state.selectedTable]) {
       const tableData = state.tables[state.selectedTable];
-      if (tableData) {
+      if (tableData && currentTableHtml !== tableData.htmlContent) {
         try {
-          const tableContent = [tableData.htmlContent];
+          const tableContent = [currentTableHtml];
           const tableNodes = Tabletools.contentToNodes(tableContent);
           setValue("tableNodes", tableNodes);
+          setValue(
+            "extractedData",
+            Tabletools.annotationsToTable(tableNodes, state.annotations || []),
+          );
         } catch (error) {
-          console.error('Error processing table update:', error);
-          setValue("tableNodes", []);
+          console.error('Error processing table update after HTML edit:', error);
         }
       }
     }
   }, [currentTableHtml]);
 
-  // Auto-save when table data changes
   useEffect(() => {
     if (state.selectedTable !== null && state.tables[state.selectedTable]) {
       saveTableChanges();
     }
   }, [state.tables, state.selectedTable]);
 
-  // Auto-save when annotations change
   useEffect(() => {
     if (state.annotations && state.selectedTable !== null) {
       const tableData = state.tables[state.selectedTable];
@@ -207,50 +227,95 @@ export default function TablePage({ initialTableId }) {
   switch (activeTab) {
     case "Annotation Dashboard":
       activeTabContent = (
-        <div className="flex flex-col p-5">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="h-10">
-                  <TableTab orientation="col" index={-1} />
-                  {maxColumns
-                    ? Array.from(
-                        { length: maxColumns },
-                        (value, index) => index,
-                      ).map((col, c) => (
-                        <TableTab key={"hcol-" + c} orientation="col" index={c} />
-                      ))
-                    : null}
-                </tr>
-              </thead>
-              <tbody>{tbody}</tbody>
-            </table>
+        state.tableNodes.length > 0 ? (
+          <div className="flex flex-col p-5 pt-0">
+            <div className="flex justify-end">
+              <button 
+                className="btn btn-primary mb-4" 
+                onClick={() => setActiveTab("Edit Table")}
+              >
+                <Edit2 className="mr-2" /> Edit Table HTML
+              </button>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="h-10">
+                    <TableTab orientation="col" index={-1} />
+                    {maxColumns > 0 && Array.from( { length: maxColumns }, (_, index) => index).map((col, c) => (
+                      <TableTab key={"hcol-" + c} orientation="col" index={c} />
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>{tbody}</tbody>
+              </table>
+            </div>
+            <TableAnnotator />
           </div>
-          <TableAnnotator />
-        </div>
+        ) : (
+          <div className="text-center text-gray-300 p-10">
+            <h2 className="text-xl font-semibold mb-4">
+              This table cannot be displayed in the annotation dashboard
+            </h2>
+            <p className="text-sm">
+              The table structure might be invalid or empty. Please select a valid table or edit the HTML.
+            </p>
+          </div>
+        )
       );
       break;
     case "Edit Table":
       activeTabContent = (
         <TableHTMLEditor
           initialHtml={currentTableHtml}
-          saveHtml={(htmlContent) => {
-            var allTables = state.tables;
-            allTables[state.selectedTable].htmlContent = htmlContent;
-            setValue("tables", allTables);
-            setCurrentTableHTML(htmlContent);
-            saveTableChanges();
+          saveHtml={async (htmlContent) => {
+            console.log(">>> saveHtml triggered in TablePage"); // Debug Log 1
+            setCurrentTableHTML(htmlContent); // Update local state first
+
+            // Update the table data in the main context state
+            const updatedTables = [...state.tables];
+            if (updatedTables[state.selectedTable]) {
+              updatedTables[state.selectedTable].htmlContent = htmlContent;
+              setValue("tables", updatedTables); 
+            } else {
+              toast.error("Cannot save: No table selected.");
+              return; 
+            }
+
+            // Attempt to save the changes via the backend
+            const success = await saveTableChanges(); 
+            console.log(">>> saveTableChanges returned:", success); // Debug Log 2
+
+            // Handle feedback and tab change based on save result
+            if (success) {
+              console.log(">>> Success: Switching tab to Annotation Dashboard"); // Debug Log 3
+              toast.success("Table HTML saved successfully!");
+              setActiveTab("Annotation Dashboard"); // Switch tab on success
+            } else {
+              console.log(">>> Failure: Not switching tab"); // Debug Log 4
+              toast.error("Failed to save table HTML.");
+              // Optional: Revert local HTML state if save failed?
+              // setCurrentTableHTML(state.tables[state.selectedTable]?.htmlContent || ''); 
+            }
           }}
         />
       );
       break;
     case "Extracted Data":
-      activeTabContent = <TableResults />;
+      activeTabContent = state.extractedData.length > 0 ? <TableResults /> : (
+        <div className="text-center text-gray-300 p-10">
+          <h2 className="text-xl font-semibold mb-4">No extracted data available</h2>
+          <p className="text-sm">Extract data will appear here after annotations are made.</p>
+        </div>
+      );
       break;
+    default:
+      activeTabContent = <div>Select a tab</div>;
   }
 
   return (
     <SessionProvider>
+      <Toaster position="top-center" reverseOrder={false} />
       <main className="min-h-screen bg-gray-900">
         <Header />
         <div className="flex justify-between p-5 bg-gray-800 border-b border-gray-700">
@@ -307,11 +372,9 @@ export default function TablePage({ initialTableId }) {
               options={options}
               onChange={async (value) => {
                 setValue("selectedTable", value);
-                // Update current collection when selecting a table
                 if (value !== null && state.tables[value]) {
                   setCurrentCollectionId(state.tables[value].collectionId);
                 }
-                // Reset last saved data when switching tables
                 setLastSavedData(null);
               }}
               placeholder="Select a table"
@@ -329,13 +392,13 @@ export default function TablePage({ initialTableId }) {
 
         {state.selectedTable !== null ? (
           <div className="flex flex-col w-full">
-            <div role="tablist" className="tabs tabs-lift tabs-md bg-gray-800 border-b border-gray-700">
-              {["Annotation Dashboard",  "Extracted Data"].map( //"Edit Table",
+            <div role="tablist" className="tabs tabs-lifted tabs-md bg-gray-800 border-b border-gray-700">
+              {["Annotation Dashboard", "Extracted Data"].map(
                 t => (
                   <a
                     role="tab"
                     key={t}
-                    className={"tab no-underline text-gray-300 hover:text-white " + (activeTab === t ? tabActive : "")}
+                    className={`tab no-underline text-gray-300 hover:text-white ${activeTab === t ? 'tab-active bg-gray-700 text-white' : 'hover:bg-gray-700'}`}
                     onClick={() => { setActiveTab(t); }}
                   >
                     {t}
@@ -344,69 +407,7 @@ export default function TablePage({ initialTableId }) {
               )}
             </div>
             <div className="p-5">
-              {activeTab === "Annotation Dashboard" && state.tableNodes.length > 0 ? (
-                <div className="flex flex-col p-5 pt-0">
-
-                <div className="flex justify-end">
-                  <button 
-                    className="btn btn-primary mb-4" 
-                    onClick={() => setActiveTab("Edit Table")}
-                  >
-                    <Edit2 className="mr-2" /> Edit Table HTML
-                  </button>
-                  </div>
-
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="h-10">
-                          <TableTab orientation="col" index={-1} />
-                          {maxColumns
-                            ? Array.from(
-                                { length: maxColumns },
-                                (value, index) => index,
-                              ).map((col, c) => (
-                                <TableTab key={"hcol-" + c} orientation="col" index={c} />
-                              ))
-                            : null}
-                        </tr>
-                      </thead>
-                      <tbody>{tbody}</tbody>
-                    </table>
-                  </div>
-                  <TableAnnotator />
-                </div>
-              ) : activeTab === "Edit Table" ? (
-                <TableHTMLEditor
-                  initialHtml={currentTableHtml}
-                  saveHtml={(htmlContent) => {
-                    var allTables = state.tables;
-                    allTables[state.selectedTable].htmlContent = htmlContent;
-                    setValue("tables", allTables);
-                    setCurrentTableHTML(htmlContent);
-                    saveTableChanges();
-                  }}
-                />
-              ) : activeTab === "Extracted Data" && state.extractedData.length > 0 ? (
-                <TableResults />
-              ) : (
-                <div className="text-center text-gray-300 p-10">
-                  <h2 className="text-xl font-semibold mb-4">
-                    {activeTab === "Annotation Dashboard" 
-                      ? "This table cannot be displayed in the annotation dashboard" 
-                      : activeTab === "Extracted Data"
-                      ? "No extracted data available"
-                      : "Edit Table"}
-                  </h2>
-                  <p className="text-sm">
-                    {activeTab === "Annotation Dashboard"
-                      ? "The table structure is not valid for annotation. Please edit the table to fix any issues."
-                      : activeTab === "Extracted Data"
-                      ? "Extract data will appear here after annotations are made"
-                      : "Use the HTML editor to modify the table content"}
-                  </p>
-                </div>
-              )}
+              {activeTabContent}
             </div>
           </div>
         ) : (
