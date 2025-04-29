@@ -9,7 +9,8 @@ COPY ui/package.json ui/package-lock.json ./
 RUN npm install
 
 # Copy application files
-COPY ui ./
+# Copy the *contents* of the ui directory from the build context
+COPY ui/. ./
 
 # Build the Next.js application
 RUN npm run build
