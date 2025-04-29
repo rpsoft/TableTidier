@@ -2,7 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+/* @plugin "daisyui" {
+   themes: dark --default
+ } */
+/*
 :root {
+	color:white;
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
   --background-end-rgb: 255, 255, 255;
@@ -44,7 +49,7 @@ body {
     font-size: var(--text-lg);
   }
   a {
-    color: var(--color-blue-600);
+    color: white;
     text-decoration-line: underline;
   }
-}
+} */

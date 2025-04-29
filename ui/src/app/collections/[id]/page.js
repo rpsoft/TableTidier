@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter, useParams } from 'next/navigation';
 import TableList from '@/components/tables/TableList';
 import UploadTableModal from '@/components/tables/UploadTableModal';
+import Header from '@/components/ui/header';
 
 export default function CollectionPage() {
   const { data: session, status } = useSession();
@@ -79,29 +80,31 @@ export default function CollectionPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">{collection.name}</h1>
-          <p className="text-gray-500">
-            Created: {new Date(collection.createdAt).toLocaleDateString()}
-          </p>
-        </div>
-        <button
-          onClick={() => setIsUploadModalOpen(true)}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-        >
-          Upload Table
-        </button>
-      </div>
+	  <div><Header />
+	    <div className="container mx-auto px-4 py-8">
+	      <div className="flex justify-between items-center mb-6">
+	        <div>
+	          <h1 className="text-2xl font-bold">{collection.name}</h1>
+	          <p className="text-gray-500">
+	            Created: {new Date(collection.createdAt).toLocaleDateString()}
+	          </p>
+	        </div>
+	        <button
+	          onClick={() => setIsUploadModalOpen(true)}
+	          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+	        >
+	          Upload Table
+	        </button>
+	      </div>
 
-      <TableList tables={tables} onDelete={handleDeleteTable} />
+	      <TableList tables={tables} onDelete={handleDeleteTable} />
 
-      <UploadTableModal
-        isOpen={isUploadModalOpen}
-        onClose={() => setIsUploadModalOpen(false)}
-        onUpload={handleUploadTable}
-      />
-    </div>
+	      <UploadTableModal
+	        isOpen={isUploadModalOpen}
+	        onClose={() => setIsUploadModalOpen(false)}
+	        onUpload={handleUploadTable}
+	      />
+	    </div>
+	  </div>
   );
-} 
+}

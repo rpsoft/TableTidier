@@ -12,7 +12,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" data-theme="dark">
+    <html lang="en" data-theme="dark" className="dark">
       <body className={inter.className+" container mx-auto"}>
         <Providers>
           <AntdRegistry>{children}</AntdRegistry>

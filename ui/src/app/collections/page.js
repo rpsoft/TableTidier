@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import CollectionList from '@/components/collections/CollectionList';
 import CreateCollectionModal from '@/components/collections/CreateCollectionModal';
+import Header from '@/components/ui/header';
 
 export default function CollectionsPage() {
   const { data: session, status } = useSession();
@@ -60,24 +61,28 @@ export default function CollectionsPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">My Collections</h1>
-        <button
-          onClick={() => setIsCreateModalOpen(true)}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-        >
-          Create Collection
-        </button>
-      </div>
+  <div>
+	  <Header />
+	    <div className="container mx-auto px-4 py-8">
 
-      <CollectionList collections={collections} />
+	      <div className="flex justify-between items-center mb-6">
+	        <h1 className="text-2xl font-bold">My Collections</h1>
+	        <button
+	          onClick={() => setIsCreateModalOpen(true)}
+	          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+	        >
+	          Create Collection
+	        </button>
+	      </div>
 
-      <CreateCollectionModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onCreate={handleCreateCollection}
-      />
-    </div>
+	      <CollectionList collections={collections} />
+
+	      <CreateCollectionModal
+	        isOpen={isCreateModalOpen}
+	        onClose={() => setIsCreateModalOpen(false)}
+	        onCreate={handleCreateCollection}
+	      />
+	    </div>
+  </div>
   );
-} 
+}

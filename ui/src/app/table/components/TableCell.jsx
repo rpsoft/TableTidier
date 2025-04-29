@@ -63,7 +63,7 @@ export default function TableCell({
   return (
     <td
       className={
-        "max-w-[400px] cursor-pointer hover:bg-yellow-200 hover:text-black min-w-5 " +
+        "max-w-[400px] text-base-content cursor-pointer hover:bg-yellow-200 hover:text-black min-w-5 " +
         (selected ? " bg-yellow-100 opacity-80 select-none text-black" : "")
       }
       style={{
