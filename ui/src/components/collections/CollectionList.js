@@ -6,7 +6,7 @@ export default function CollectionList({ collections }) {
   if (collections.length === 0) {
     return (
       <div className="text-center py-8">
-        <p className="text-black">No collections yet. Create one to get started!</p>
+        <p className="text-white">No collections yet. Create one to get started!</p>
       </div>
     );
   }
@@ -27,4 +27,4 @@ export default function CollectionList({ collections }) {
       ))}
     </div>
   );
-} 
+}
