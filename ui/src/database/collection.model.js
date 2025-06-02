@@ -23,6 +23,10 @@ const collectionSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  description: {
+    type: String,
+    default: '',
+  },
 });
 
 export const Collection = mongoose
