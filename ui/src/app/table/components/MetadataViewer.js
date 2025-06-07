@@ -26,6 +26,7 @@ const MetadataViewer = ({ annotations }) => {
   
   const [isLoading, setIsLoading] = useState(false);
   const [currentSearch, setCurrentSearch] = useState({});
+  const [lastSelectedOption, setLastSelectedOption] = useState(null);
 
   const findRelatedConcepts = async () => {
     setIsLoading(true);
@@ -135,12 +136,37 @@ const MetadataViewer = ({ annotations }) => {
       ...metadataMappings,
       [originalTerm]: {
         ...(metadataMappings[originalTerm] || { availableOptions: [], selectedCuis: [] }),
-        // The `value` from AntD Select `multiple` mode is already de-duplicated
         selectedCuis: selectedCuis,
       },
     };
+
+    const lastSelectedCui = selectedCuis[selectedCuis.length - 1];
+    if (lastSelectedCui) {
+      let foundOption = null;
+      // Find the option in any of the availableOptions lists
+      for (const key in newMappings) {
+        const found = newMappings[key].availableOptions.find(opt => opt.cui === lastSelectedCui);
+        if (found) {
+          foundOption = found;
+          break;
+        }
+      }
+
+      if (foundOption) {
+        setLastSelectedOption(foundOption); // Set the last selected option
+        // Add this selected option to all other terms if not already present
+        for (const key in newMappings) {
+          if (key !== originalTerm) {
+            const termMapping = newMappings[key];
+            if (!termMapping.availableOptions.some(opt => opt.cui === lastSelectedCui)) {
+              termMapping.availableOptions.push(foundOption);
+            }
+          }
+        }
+      }
+    }
+
     setValue('metadataMappings', newMappings);
-    // After selection, clear the search text for that specific input
     setCurrentSearch(prev => ({ ...prev, [originalTerm]: '' }));
   };
 
@@ -238,10 +264,20 @@ const MetadataViewer = ({ annotations }) => {
                         <p className="flex-shrink-0 font-semibold">{content}</p>
                         <div className="flex-grow">
                           {mapping && (() => {
-                            const allAvailableOptions = (mapping.availableOptions || []).sort((a, b) => 
+                            let allAvailableOptions = (mapping.availableOptions || []).sort((a, b) => 
                               a.cui.localeCompare(b.cui)
                             );
                             
+                            let hasLastSelected = false;
+                            if (lastSelectedOption) {
+                              const lastIndex = allAvailableOptions.findIndex(opt => opt.cui === lastSelectedOption.cui);
+                              if (lastIndex > -1) {
+                                hasLastSelected = true;
+                                const [item] = allAvailableOptions.splice(lastIndex, 1);
+                                allAvailableOptions.unshift(item);
+                              }
+                            }
+
                             return (
                               <Select
                                 mode="multiple"
@@ -270,29 +306,42 @@ const MetadataViewer = ({ annotations }) => {
                                       style={{ color: 'black', background: '#f0f0f0', border: '1px solid #e8e8e8', borderRadius: '4px', padding: '0 4px', marginRight: '4px' }}
                                     >
                                       {option ? `${option.text} (${option.cui})` : value}
-                                      {closable && <span className="ant-select-selection-item-remove" onClick={onClose} style={{ fontSize: '14px', marginLeft: '8px' }}>×</span>}
+                                      {closable && <span className="ant-select-selection-item-remove" onClick={onClose} style={{ fontSize: '14px', marginLeft: '8px', cursor: 'pointer' }}>×</span>}
                                     </span>
                                   );
                                 }}
-                                options={allAvailableOptions.map(related => {
+                                options={allAvailableOptions.map((related) => {
                                   const isSelected = mapping.selectedCuis?.includes(related.cui);
-                                  const labelText = `${related.text} (CUI: ${related.cui}, Source: ${related.source}, Score: ${related.score.toFixed(4)}, Found by: "${related.found_by}")`;
+                                  const isLastSelected = lastSelectedOption && related.cui === lastSelectedOption.cui;
+                                  let labelText = `${related.text} (CUI: ${related.cui}, Source: ${related.source}, Score: ${related.score.toFixed(4)}, Found by: "${related.found_by}")`;
+                                  let renderedText = labelText;
+                                  if (isLastSelected) {
+                                    renderedText = `(Last Used) ${labelText}`;
+                                  }
                                   return {
                                     value: related.cui,
-                                    label: labelText,
-                                    renderedLabel: <span className={isSelected ? 'text-black font-semibold' : 'text-white'}>{labelText}</span>
+                                    label: renderedText,
+                                    renderedLabel: <span className={isSelected ? 'text-black font-semibold' : 'text-white'}>{renderedText}</span>
                                   };
                                 })}
+                                dropdownRender={(menu) => (
+                                  <div style={{ backgroundColor: '#1f2937' }}>
+                                    {hasLastSelected && menu.props.children && Array.isArray(menu.props.children) && menu.props.children.length > 1 ? (
+                                      <>
+                                        {menu.props.children[0]}
+                                        <hr className="my-1 border-gray-600" />
+                                        {menu.props.children.slice(1)}
+                                      </>
+                                    ) : (
+                                      menu
+                                    )}
+                                  </div>
+                                )}
                                 optionRender={(option) => option.data.renderedLabel}
                                 loading={isLoading && !mapping}
                                 dropdownStyle={{ backgroundColor: '#1f2937' }}
                                 className="custom-select-dropdown"
                                 tokenSeparators={[',']}
-                                dropdownRender={(menu) => (
-                                  <div style={{ backgroundColor: '#1f2937' }}>
-                                    {menu}
-                                  </div>
-                                )}
                               />
                             );
                           })()}
