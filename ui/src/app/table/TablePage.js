@@ -471,7 +471,7 @@ export default function TablePage({ initialTableId }) {
             )}
 
             <Select
-              className="w-[600px]"
+              className="w-[600px] table-select"
               options={options}
               onChange={async (value) => {
                 setValue("selectedTable", value);

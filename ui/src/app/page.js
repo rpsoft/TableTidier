@@ -67,12 +67,12 @@ function Content() {
 						>
 							View All Collections
 						</Link>
-						<Link 
+						{/* <Link 
 							href="/table" 
 							className="block w-full text-center px-6 py-3 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
 						>
 							Go to Tables Dashboard
-						</Link>
+						</Link> */}
 					</div>
 				</div>
 

@@ -25,7 +25,7 @@ const MetadataViewer = ({ annotations }) => {
   const { metadataMappings } = state;
   
   const [isLoading, setIsLoading] = useState(false);
-  const [searchInputValues, setSearchInputValues] = useState({});
+  const [currentSearch, setCurrentSearch] = useState({});
 
   const findRelatedConcepts = async () => {
     setIsLoading(true);
@@ -86,26 +86,15 @@ const MetadataViewer = ({ annotations }) => {
       },
     };
     setValue('metadataMappings', newMappings);
-
-    // Clear the search input for this specific select
-    setSearchInputValues(prev => ({
-      ...prev,
-      [originalTerm]: '',
-    }));
-  };
-
-  const handleSearchInputChange = (term, value) => {
-    setSearchInputValues(prev => ({
-      ...prev,
-      [term]: value,
-    }));
+    // After selection, clear the search text for that specific input
+    setCurrentSearch(prev => ({ ...prev, [originalTerm]: '' }));
   };
 
   const handleFreeTextSearch = async (event, originalTerm) => {
-    if (event.key !== 'Enter' || !searchInputValues[originalTerm]) return;
+    const searchTerm = currentSearch[originalTerm];
+    if (event.key !== 'Enter' || !searchTerm) return;
     
-    event.preventDefault(); // Prevent any default "Enter" behavior
-    const searchTerm = searchInputValues[originalTerm];
+    event.preventDefault();
     toast.loading(`Searching for "${searchTerm}"...`);
     
     const termsMap = { [searchTerm]: generateSubstrings(searchTerm) };
@@ -193,25 +182,20 @@ const MetadataViewer = ({ annotations }) => {
                         <div className="flex-grow">
                           {mapping && (() => {
                             const allAvailableOptions = mapping.availableOptions || [];
-                            const searchInputValue = searchInputValues[content] || '';
-
-                            const filteredOptions = searchInputValue
-                              ? allAvailableOptions.filter(opt =>
-                                  opt.text.toLowerCase().includes(searchInputValue.toLowerCase())
-                                )
-                              : allAvailableOptions;
-
+                            
                             return (
                               <Select
                                 mode="multiple"
                                 allowClear
                                 style={{ width: '100%' }}
-                                placeholder="Type to search and press Enter..."
+                                placeholder="Type to filter or search and press Enter..."
                                 value={mapping.selectedCuis || []}
-                                onSearch={(value) => handleSearchInputChange(content, value)}
+                                onSearch={(value) => setCurrentSearch(prev => ({ ...prev, [content]: value }))}
                                 onInputKeyDown={(e) => handleFreeTextSearch(e, content)}
-                                searchValue={searchInputValues[content] || ''}
-                                filterOption={false}
+                                searchValue={currentSearch[content] || ''}
+                                filterOption={(input, option) =>
+                                  (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                                }
                                 onChange={(selectedCuis) => handleSelectionChange(content, selectedCuis)}
                                 tagRender={(props) => {
                                   const { value, closable, onClose } = props;
@@ -232,16 +216,25 @@ const MetadataViewer = ({ annotations }) => {
                                     </span>
                                   );
                                 }}
-                                options={filteredOptions.map(related => {
+                                options={allAvailableOptions.map(related => {
                                   const isSelected = mapping.selectedCuis?.includes(related.cui);
+                                  const labelText = `${related.text} (Source: ${related.source}, Score: ${related.score.toFixed(4)}, Found by: "${related.found_by}")`;
                                   return {
                                     value: related.cui,
-                                    label: <span className={isSelected ? 'text-black font-semibold' : 'text-white'}>{`${related.text} (Source: ${related.source}, Score: ${related.score.toFixed(4)}, Found by: "${related.found_by}")`}</span>
+                                    label: labelText,
+                                    renderedLabel: <span className={isSelected ? 'text-black font-semibold' : 'text-white'}>{labelText}</span>
                                   };
                                 })}
+                                optionRender={(option) => option.data.renderedLabel}
                                 loading={isLoading && !mapping}
                                 dropdownStyle={{ backgroundColor: '#1f2937' }}
                                 className="custom-select-dropdown"
+                                tokenSeparators={[',']}
+                                dropdownRender={(menu) => (
+                                  <div style={{ backgroundColor: '#1f2937' }}>
+                                    {menu}
+                                  </div>
+                                )}
                               />
                             );
                           })()}

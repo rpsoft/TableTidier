@@ -53,3 +53,17 @@ body {
     text-decoration-line: underline;
   }
 } */
+
+/* .ant-select-item-option-active {
+  background-color: #007bff !important; A bright blue, or choose any color that fits your theme
+} */
+
+/* .ant-select-item-option-selected {
+  background-color: #0056b3 !important;
+} */
+
+/* Custom style for the table selector dropdown text */
+/* .table-select .ant-select-selection-item,
+.table-select .ant-select-selection-placeholder {
+  color: white !important;
+} */
