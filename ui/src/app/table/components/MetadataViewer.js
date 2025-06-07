@@ -181,7 +181,9 @@ const MetadataViewer = ({ annotations }) => {
                         <p className="flex-shrink-0 font-semibold">{content}</p>
                         <div className="flex-grow">
                           {mapping && (() => {
-                            const allAvailableOptions = mapping.availableOptions || [];
+                            const allAvailableOptions = (mapping.availableOptions || []).sort((a, b) => 
+                              a.cui.localeCompare(b.cui)
+                            );
                             
                             return (
                               <Select
@@ -211,14 +213,14 @@ const MetadataViewer = ({ annotations }) => {
                                       className="ant-select-selection-item"
                                       style={{ color: 'black', background: '#f0f0f0', border: '1px solid #e8e8e8', borderRadius: '4px', padding: '0 4px', marginRight: '4px' }}
                                     >
-                                      {option ? option.text : value}
+                                      {option ? `${option.text} (${option.cui})` : value}
                                       {closable && <span className="ant-select-selection-item-remove" onClick={onClose}>×</span>}
                                     </span>
                                   );
                                 }}
                                 options={allAvailableOptions.map(related => {
                                   const isSelected = mapping.selectedCuis?.includes(related.cui);
-                                  const labelText = `${related.text} (Source: ${related.source}, Score: ${related.score.toFixed(4)}, Found by: "${related.found_by}")`;
+                                  const labelText = `${related.text} (CUI: ${related.cui}, Source: ${related.source}, Score: ${related.score.toFixed(4)}, Found by: "${related.found_by}")`;
                                   return {
                                     value: related.cui,
                                     label: labelText,
