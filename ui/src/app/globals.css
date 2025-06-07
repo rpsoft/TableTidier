@@ -63,8 +63,37 @@ body {
 } */
 
 /* Custom style for the table selector dropdown text */
-/* .table-select .ant-select-selection-item,
 .table-select .ant-select-selection-placeholder {
   color: white !important;
-} */
+}
+
+.table-select .ant-select-selection-item {
+  color: black !important;
+}
+
+/* Custom scrollbar for AntD Select Dropdown */
+.ant-select-dropdown .rc-virtual-list-holder-inner::-webkit-scrollbar,
+.ant-select-dropdown .rc-virtual-list-holder::-webkit-scrollbar {
+  width: 8px;
+}
+
+.ant-select-dropdown .rc-virtual-list-holder-inner::-webkit-scrollbar-track,
+.ant-select-dropdown .rc-virtual-list-holder::-webkit-scrollbar-track {
+  background: #2d3748; /* A dark gray that matches the theme */
+}
+
+.ant-select-dropdown .rc-virtual-list-holder-inner::-webkit-scrollbar-thumb,
+.ant-select-dropdown .rc-virtual-list-holder::-webkit-scrollbar-thumb {
+  background: #f7fafccc; /* White */
+  border-radius: 4px;
+}
+
+.ant-select-dropdown .rc-virtual-list-holder-inner::-webkit-scrollbar-thumb:hover,
+.ant-select-dropdown .rc-virtual-list-holder::-webkit-scrollbar-thumb:hover {
+  background: #e2e8f0; /* A light gray for hover */
+}
+
+.ant-select-dropdown .rc-virtual-list-scrollbar-thumb {
+  background: #f7fafccc !important;
+}
 

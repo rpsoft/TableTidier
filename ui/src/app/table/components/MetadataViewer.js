@@ -209,12 +209,11 @@ const MetadataViewer = ({ annotations }) => {
                                   return (
                                     <span
                                       onMouseDown={onPreventMouseDown}
-                                      onClick={onClose}
                                       className="ant-select-selection-item"
                                       style={{ color: 'black', background: '#f0f0f0', border: '1px solid #e8e8e8', borderRadius: '4px', padding: '0 4px', marginRight: '4px' }}
                                     >
                                       {option ? `${option.text} (${option.cui})` : value}
-                                      {closable && <span className="ant-select-selection-item-remove" onClick={onClose}>×</span>}
+                                      {closable && <span className="ant-select-selection-item-remove" onClick={onClose} style={{ fontSize: '14px', marginLeft: '8px' }}>×</span>}
                                     </span>
                                   );
                                 }}
