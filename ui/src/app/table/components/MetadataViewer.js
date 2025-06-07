@@ -243,24 +243,24 @@ const MetadataViewer = ({ annotations }) => {
         </button>
       </div>
       <div className="space-y-4">
-        {annotations.map((annotation) => {
+        {annotations.map((annotation, annotationIndex) => {
           const conceptContents = Object.values(annotation.concepts || {}).map(
             (concept) => concept.content
           );
           const uniqueConceptContents = [...new Set(conceptContents)];
 
           return (
-            <div key={annotation.id || annotation.category} className="p-3 bg-gray-700 rounded-md">
+            <div key={annotationIndex + "_" + (annotation.id || annotation.category)} className="p-3 bg-gray-700 rounded-md">
               <h3 className="text-xl font-semibold text-cyan-400">{annotation.category}</h3>
               {uniqueConceptContents.length > 0 ? (
                 <div className="space-y-4 mt-2">
-                  {uniqueConceptContents.map((content) => {
+                  {uniqueConceptContents.map((content, contentIndex) => {
                     const cleanedContent = content.replace(/[^a-zA-Z0-9\s]/g, '').trim();
                     if (!cleanedContent) return null; // Don't render if the content is empty after cleaning
                     
                     const mapping = metadataMappings[cleanedContent];
                     return (
-                      <div key={cleanedContent} className="flex items-center gap-4">
+                      <div key={contentIndex+"_"+cleanedContent} className="flex items-center gap-4">
                         <p className="flex-shrink-0 font-semibold">{content}</p>
                         <div className="flex-grow">
                           {mapping && (() => {
