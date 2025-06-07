@@ -38,35 +38,72 @@ async function queryQdrant(embeddingVector, topK = 10) {
 
 export async function POST(request) {
   try {
-    const { terms } = await request.json();
+    const { terms_map } = await request.json();
 
-    if (!terms || !Array.isArray(terms) || terms.length === 0) {
-      return NextResponse.json({ error: 'Missing or invalid "terms" array in request body' }, { status: 400 });
+    if (!terms_map || typeof terms_map !== 'object' || Object.keys(terms_map).length === 0) {
+      return NextResponse.json({ error: 'Missing or invalid "terms_map" object in request body' }, { status: 400 });
     }
 
-    const embeddings = await getOllamaEmbeddings(terms);
+    const allSubstrings = [...new Set(Object.values(terms_map).flat())];
+    
+    if (allSubstrings.length === 0) {
+      return NextResponse.json({ results: {} });
+    }
+
+    const embeddings = await getOllamaEmbeddings(allSubstrings);
 
     if (!embeddings) {
       return NextResponse.json({ error: 'Failed to generate embeddings from Ollama' }, { status: 500 });
     }
 
-    const results = {};
-    for (let i = 0; i < terms.length; i++) {
-      const term = terms[i];
-      const embedding = embeddings[i];
-      if (embedding) {
-        const searchResult = await queryQdrant(embedding, 10);
-        results[term] = searchResult ? searchResult.map(res => ({
-          text: res.payload.text,
-          cui: res.payload.cui,
-          score: res.score,
-        })) : [];
-      } else {
-        results[term] = [];
+    const embeddingMap = allSubstrings.reduce((acc, sub, i) => {
+      if (embeddings[i]) {
+        acc[sub] = embeddings[i];
       }
+      return acc;
+    }, {});
+
+    const finalResults = {};
+    for (const originalTerm in terms_map) {
+      const substrings = terms_map[originalTerm];
+      let aggregatedForTerm = [];
+
+      for (const sub of substrings) {
+        const embeddingVector = embeddingMap[sub];
+        if (embeddingVector) {
+          const searchResult = await queryQdrant(embeddingVector, 3);
+          if (searchResult) {
+            const resultsWithSourceString = searchResult.map(res => ({
+              ...res,
+              found_by: sub
+            }));
+            aggregatedForTerm.push(...resultsWithSourceString);
+          }
+        }
+      }
+
+      const formattedResults = aggregatedForTerm.map(res => ({
+        text: res.payload.text,
+        cui: res.payload.cui,
+        score: res.score,
+        source: res.payload.sourceAbbreviation || 'N/A',
+        found_by: res.found_by
+      }));
+
+      const uniqueResults = {};
+      for (const res of formattedResults) {
+        if (!uniqueResults[res.cui] || uniqueResults[res.cui].score < res.score) {
+          uniqueResults[res.cui] = res;
+        }
+      }
+
+      const sortedAndUnique = Object.values(uniqueResults)
+        .sort((a, b) => b.score - a.score);
+
+      finalResults[originalTerm] = sortedAndUnique;
     }
 
-    return NextResponse.json({ results });
+    return NextResponse.json({ results: finalResults });
 
   } catch (error) {
     console.error('An unexpected error occurred:', error);

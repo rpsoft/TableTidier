@@ -3,6 +3,21 @@
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 
+const generateSubstrings = (text) => {
+  const cleanedText = text.replace(/[^a-zA-Z0-9]/g, ' ').replace(/\s+/g, ' ').trim();
+  const words = cleanedText.split(' ').filter(w => w);
+  if (words.length === 0) return [];
+  
+  const unigrams = words;
+  const bigrams = [];
+  if (words.length > 1) {
+    for (let i = 0; i < words.length - 1; i++) {
+      bigrams.push(`${words[i]} ${words[i+1]}`);
+    }
+  }
+  return [...new Set([...unigrams, ...bigrams])];
+};
+
 const MetadataViewer = ({ annotations }) => {
   const [relatedConcepts, setRelatedConcepts] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -16,11 +31,16 @@ const MetadataViewer = ({ annotations }) => {
     );
     const uniqueConcepts = [...new Set(allConcepts)];
 
+    const termsMap = uniqueConcepts.reduce((acc, concept) => {
+      acc[concept] = generateSubstrings(concept);
+      return acc;
+    }, {});
+
     try {
       const response = await fetch('/api/find-concepts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ terms: uniqueConcepts }),
+        body: JSON.stringify({ terms_map: termsMap }),
       });
 
       if (!response.ok) {
@@ -80,7 +100,7 @@ const MetadataViewer = ({ annotations }) => {
                         <ul className="list-decimal pl-6 mt-1 text-sm text-gray-300">
                           {relatedConcepts[content].map((related, rIndex) => (
                             <li key={rIndex}>
-                              {related.text} (CUI: {related.cui}, Score: {related.score.toFixed(4)})
+                              {related.text} (Source: {related.source}, CUI: {related.cui}, Score: {related.score.toFixed(4)}) - Found by: "{related.found_by}"
                             </li>
                           ))}
                         </ul>
