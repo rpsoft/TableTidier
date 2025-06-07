@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import toast from 'react-hot-toast';
-import { Select, Modal, Input, List, Button } from 'antd';
+import { Select } from 'antd';
 import { useTableContext } from '../TableContext';
 
 const generateSubstrings = (text) => {
@@ -25,13 +25,7 @@ const MetadataViewer = ({ annotations }) => {
   const { metadataMappings } = state;
   
   const [isLoading, setIsLoading] = useState(false);
-  const [modalState, setModalState] = useState({
-    visible: false,
-    targetTerm: null,
-    searchTerm: '',
-    results: [],
-    isLoading: false,
-  });
+  const [searchInputValues, setSearchInputValues] = useState({});
 
   const findRelatedConcepts = async () => {
     setIsLoading(true);
@@ -92,27 +86,29 @@ const MetadataViewer = ({ annotations }) => {
       },
     };
     setValue('metadataMappings', newMappings);
+
+    // Clear the search input for this specific select
+    setSearchInputValues(prev => ({
+      ...prev,
+      [originalTerm]: '',
+    }));
   };
 
-  const openCuiSearchModal = (targetTerm) => {
-    setModalState({
-      visible: true,
-      targetTerm,
-      searchTerm: '',
-      results: [],
-      isLoading: false,
-    });
+  const handleSearchInputChange = (term, value) => {
+    setSearchInputValues(prev => ({
+      ...prev,
+      [term]: value,
+    }));
   };
 
-  const closeCuiSearchModal = () => {
-    setModalState(prev => ({ ...prev, visible: false }));
-  };
-
-  const handleCuiSearch = async () => {
-    if (!modalState.searchTerm) return;
-    setModalState(prev => ({ ...prev, isLoading: true, results: [] }));
-
-    const termsMap = { [modalState.searchTerm]: generateSubstrings(modalState.searchTerm) };
+  const handleFreeTextSearch = async (event, originalTerm) => {
+    if (event.key !== 'Enter' || !searchInputValues[originalTerm]) return;
+    
+    event.preventDefault(); // Prevent any default "Enter" behavior
+    const searchTerm = searchInputValues[originalTerm];
+    toast.loading(`Searching for "${searchTerm}"...`);
+    
+    const termsMap = { [searchTerm]: generateSubstrings(searchTerm) };
 
     try {
       const response = await fetch('/api/find-concepts', {
@@ -121,40 +117,39 @@ const MetadataViewer = ({ annotations }) => {
         body: JSON.stringify({ terms_map: termsMap }),
       });
       if (!response.ok) throw new Error('Search failed');
+
       const data = await response.json();
-      setModalState(prev => ({ ...prev, results: data.results[modalState.searchTerm] || [], isLoading: false }));
+      const newOptions = data.results[searchTerm] || [];
+      toast.dismiss();
+
+      if (newOptions.length === 0) {
+        toast.error('No new concepts found.');
+        return;
+      }
+
+      const currentMapping = metadataMappings[originalTerm] || { availableOptions: [], selectedCuis: [] };
+      const combinedOptions = [...currentMapping.availableOptions, ...newOptions];
+      
+      const uniqueOptions = Object.values(combinedOptions.reduce((acc, cur) => {
+        if (cur && cur.cui) acc[cur.cui] = cur;
+        return acc;
+      }, {}));
+
+      const newMappings = {
+        ...metadataMappings,
+        [originalTerm]: {
+          ...currentMapping,
+          availableOptions: uniqueOptions,
+        },
+      };
+      setValue('metadataMappings', newMappings);
+      toast.success(`Added ${newOptions.length} new options.`);
+
     } catch (error) {
-      console.error('Failed to search for CUIs:', error);
-      toast.error('Could not fetch custom CUIs.');
-      setModalState(prev => ({ ...prev, isLoading: false }));
+      console.error('Failed to search for concepts:', error);
+      toast.dismiss();
+      toast.error('Could not fetch search results.');
     }
-  };
-  
-  const handleCuiSelection = (newConcept) => {
-    const { targetTerm } = modalState;
-    if (!targetTerm) return;
-
-    const currentMapping = metadataMappings[targetTerm] || { availableOptions: [], selectedCuis: [] };
-
-    // Add to available options (de-duplicated)
-    const newAvailableOptions = [...currentMapping.availableOptions];
-    if (!newAvailableOptions.some(opt => opt.cui === newConcept.cui)) {
-      newAvailableOptions.push(newConcept);
-    }
-
-    // Add to selected CUIs (de-duplicated using a Set)
-    const newSelectedCuis = [...new Set([...currentMapping.selectedCuis, newConcept.cui])];
-
-    const newMappings = {
-      ...metadataMappings,
-      [targetTerm]: {
-        availableOptions: newAvailableOptions,
-        selectedCuis: newSelectedCuis,
-      },
-    };
-    setValue('metadataMappings', newMappings);
-    
-    toast.success(`Added "${newConcept.text}" to selection.`);
   };
 
   if (!annotations || annotations.length === 0) {
@@ -197,18 +192,30 @@ const MetadataViewer = ({ annotations }) => {
                         <p className="flex-shrink-0 font-semibold">{content}</p>
                         <div className="flex-grow">
                           {mapping && (() => {
-                            const uniqueOptions = mapping.availableOptions || [];
+                            const allAvailableOptions = mapping.availableOptions || [];
+                            const searchInputValue = searchInputValues[content] || '';
+
+                            const filteredOptions = searchInputValue
+                              ? allAvailableOptions.filter(opt =>
+                                  opt.text.toLowerCase().includes(searchInputValue.toLowerCase())
+                                )
+                              : allAvailableOptions;
+
                             return (
                               <Select
                                 mode="multiple"
                                 allowClear
                                 style={{ width: '100%' }}
-                                placeholder="Select representative concepts..."
+                                placeholder="Type to search and press Enter..."
                                 value={mapping.selectedCuis || []}
+                                onSearch={(value) => handleSearchInputChange(content, value)}
+                                onInputKeyDown={(e) => handleFreeTextSearch(e, content)}
+                                searchValue={searchInputValues[content] || ''}
+                                filterOption={false}
                                 onChange={(selectedCuis) => handleSelectionChange(content, selectedCuis)}
                                 tagRender={(props) => {
                                   const { value, closable, onClose } = props;
-                                  const option = uniqueOptions.find(opt => opt.cui === value);
+                                  const option = allAvailableOptions.find(opt => opt.cui === value);
                                   const onPreventMouseDown = (event) => {
                                     event.preventDefault();
                                     event.stopPropagation();
@@ -225,7 +232,7 @@ const MetadataViewer = ({ annotations }) => {
                                     </span>
                                   );
                                 }}
-                                options={uniqueOptions.map(related => {
+                                options={filteredOptions.map(related => {
                                   const isSelected = mapping.selectedCuis?.includes(related.cui);
                                   return {
                                     value: related.cui,
@@ -239,12 +246,6 @@ const MetadataViewer = ({ annotations }) => {
                             );
                           })()}
                         </div>
-                        <a 
-                          onClick={() => openCuiSearchModal(content)} 
-                          className="text-cyan-400 hover:text-cyan-300 cursor-pointer text-sm flex-shrink-0 whitespace-nowrap"
-                        >
-                          Can't find the right CUI?
-                        </a>
                       </div>
                     );
                   })}
@@ -256,43 +257,6 @@ const MetadataViewer = ({ annotations }) => {
           );
         })}
       </div>
-
-      <Modal
-        title={`Find a CUI for "${modalState.targetTerm}"`}
-        visible={modalState.visible}
-        onCancel={closeCuiSearchModal}
-        footer={[
-          <Button key="close" onClick={closeCuiSearchModal}>
-            Close
-          </Button>,
-        ]}
-        width={800}
-      >
-        <p className="mb-4">Enter a search term to find related concepts. Press Enter to search.</p>
-        <Input
-          placeholder="e.g., 'blood pressure measurement'"
-          value={modalState.searchTerm}
-          onChange={e => setModalState(prev => ({ ...prev, searchTerm: e.target.value }))}
-          onPressEnter={handleCuiSearch}
-          disabled={modalState.isLoading}
-        />
-        <List
-          className="mt-4"
-          loading={modalState.isLoading}
-          dataSource={modalState.results}
-          renderItem={item => (
-            <List.Item
-              actions={[<Button onClick={() => handleCuiSelection(item)}>Add</Button>]}
-            >
-              <List.Item.Meta
-                title={item.text}
-                description={`(Source: ${item.source}, CUI: ${item.cui}, Score: ${item.score.toFixed(4)}) - Found by: "${item.found_by}"`}
-              />
-            </List.Item>
-          )}
-          locale={{ emptyText: 'No results. Try a different search term.' }}
-        />
-      </Modal>
     </div>
   );
 };
