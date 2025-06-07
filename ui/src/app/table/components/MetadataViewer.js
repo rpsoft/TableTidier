@@ -310,6 +310,13 @@ const MetadataViewer = ({ annotations }) => {
                                 tagRender={(props) => {
                                   const { value, closable, onClose } = props;
                                   const option = allAvailableOptions.find(opt => opt.cui === value);
+
+                                  const handleClose = (e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    onClose(e);
+                                  };
+
                                   return (
                                     <span
                                       className="ant-tag-custom"
@@ -324,7 +331,7 @@ const MetadataViewer = ({ annotations }) => {
                                       }}
                                     >
                                       {option ? `${option.text} (${option.cui})` : value}
-                                      {closable && <span className="ant-select-selection-item-remove" onClick={onClose} style={{ fontSize: '14px', marginLeft: '8px', cursor: 'pointer' }}>×</span>}
+                                      {closable && <span className="ant-select-selection-item-remove" onMouseDown={handleClose} style={{ fontSize: '14px', marginLeft: '8px', cursor: 'pointer' }}>×</span>}
                                     </span>
                                   );
                                 }}
