@@ -356,6 +356,7 @@ const MetadataViewer = ({ annotations }) => {
                                   minWidth: '400px'
                                 }}
                                 className="custom-select-dropdown"
+                                dropdownClassName="custom-scrollbar"
                                 tokenSeparators={[',']}
                                 dropdownRender={(menu) => (
                                   <div style={{ backgroundColor: '#1f2937' }}>

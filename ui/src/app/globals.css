@@ -37,3 +37,33 @@
   background: #f7fafccc !important;
 }
 
+.custom-select-dropdown .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+    background-color: #4a5568; /* A slightly lighter gray for selected items */
+}
+
+/* Override Ant Design's virtual scrollbar styles */
+.custom-scrollbar .rc-virtual-list-scrollbar-thumb {
+  background: white !important;
+}
+
+/* Fallback for standard browser scrollbars */
+.custom-scrollbar .rc-virtual-list-holder {
+  scrollbar-width: thin;
+  scrollbar-color: #ffffff #1f2937; /* thumb and track color for Firefox */
+}
+
+.custom-scrollbar .rc-virtual-list-holder::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.custom-scrollbar .rc-virtual-list-holder::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
+.custom-scrollbar .rc-virtual-list-holder::-webkit-scrollbar-thumb {
+  background-color: #ffffff;
+  border-radius: 4px;
+  border: 2px solid #1f2937;
+}
+
