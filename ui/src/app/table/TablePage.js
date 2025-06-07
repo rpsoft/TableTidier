@@ -12,6 +12,7 @@ import TableContexMenu from "./components/TableContexMenu";
 import TableAnnotator from "./components/TableAnnotator";
 import TableResults from "./components/TableResults";
 import Header from "@/components/ui/header";
+import MetadataViewer from "./components/MetadataViewer";
 
 import Tabletools from "./tableTools";
 
@@ -309,6 +310,9 @@ export default function TablePage({ initialTableId }) {
         </div>
       );
       break;
+    case "Metadata":
+      activeTabContent = <MetadataViewer annotations={state.annotations} />;
+      break;
     default:
       activeTabContent = <div>Select a tab</div>;
   }
@@ -393,7 +397,7 @@ export default function TablePage({ initialTableId }) {
         {state.selectedTable !== null ? (
           <div className="flex flex-col w-full">
             <div role="tablist" className="tabs tabs-lifted tabs-md bg-gray-800 border-b border-gray-700">
-              {["Annotation Dashboard", "Extracted Data"].map(
+              {["Annotation Dashboard", "Extracted Data", "Metadata"].map(
                 t => (
                   <a
                     role="tab"
