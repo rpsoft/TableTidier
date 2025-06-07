@@ -349,7 +349,12 @@ const MetadataViewer = ({ annotations }) => {
                                 })}
                                 optionRender={(option) => option.data.renderedLabel}
                                 loading={isLoading && !mapping}
-                                dropdownStyle={{ backgroundColor: '#1f2937' }}
+                                popupMatchSelectWidth={false}
+                                dropdownStyle={{ 
+                                  backgroundColor: '#1f2937',
+                                  width: 'auto',
+                                  minWidth: '400px'
+                                }}
                                 className="custom-select-dropdown"
                                 tokenSeparators={[',']}
                                 dropdownRender={(menu) => (
