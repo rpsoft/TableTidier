@@ -1,0 +1,108 @@
+## TableTidier: From Raw HTML to Enriched, Searchable Data
+
+---
+
+### Slide 1: Title
+
+**TableTidier: Intelligent Annotation and Metadata Curation**
+
+*Subtitle: From Raw HTML Tables to Enriched, Searchable Data*
+
+---
+
+### Slide 2: The Problem - The Chaos of Raw Data
+
+Tables are a fundamental way we organize information. However, the data within them, especially from sources like HTML, is often:
+- **Unstructured:** Lacking a clear, machine-readable format.
+- **Ambiguous:** The meaning of terms can be unclear without context.
+- **Disconnected:** It exists in isolation, without links to standardized knowledge bases.
+
+Manually cleaning, annotating, and giving context to this data is a slow, expensive, and error-prone nightmare.
+
+---
+
+### Slide 3: The Solution - Introducing TableTidier
+
+TableTidier is a web application designed to solve this problem. It provides an end-to-end workflow for:
+
+1.  **Uploading & Viewing:** Securely upload HTML files into distinct collections and view their contained tables in a clean, interactive UI.
+2.  **Annotating:** An "Annotation Dashboard" allows users to visually select data from the table and organize it into logical "Concept Groups."
+3.  **Curating Metadata:** A powerful "Metadata" tab uses an AI-powered search engine to link your raw concepts to a standardized medical ontology (UMLS), enriching your data with formal CUIs (Concept Unique Identifiers).
+4.  **Exporting:** Download your curated metadata as a clean, structured JSON file, ready for analysis or integration into other systems.
+
+---
+
+### Slide 4: How It Works - Step 1: Annotation
+
+The first step is giving structure to the raw table data.
+
+-   The **Annotation Dashboard** displays the raw concepts extracted from the table.
+-   You can group related concepts together under a specific category you define (e.g., "Lab Measurements," "Patient Demographics").
+-   The system automatically handles de-duplication, ensuring each concept within a group is unique.
+
+This process transforms a flat list of terms into a structured hierarchy.
+
+---
+
+### Slide 5: How It Works - Step 2: Curation with AI
+
+This is where the magic happens. The **Metadata Viewer** takes your concept groups and helps you link them to formal knowledge.
+
+-   For each concept, you can initiate a search for related CUIs.
+-   The application leverages a powerful backend system using **Ollama** and **Qdrant** to perform a semantic search.
+
+**The Search Process:**
+1.  Your search term (e.g., "Baseline mean mgdL") is cleaned and broken down into smaller, meaningful parts (unigrams & bigrams).
+2.  **Ollama** generates vector embeddings for these parts.
+3.  **Qdrant**, a vector database, performs a high-speed search to find the closest matches in the UMLS ontology.
+4.  The results are returned, ranked by relevance, and displayed in a dropdown. The best match is automatically pre-selected to accelerate your workflow.
+
+---
+
+### Slide 6: A User Experience Designed for Speed & Efficiency
+
+The entire interface is built to make the curation process as fast and intuitive as possible.
+
+-   **Integrated Search:** No need for pop-ups. Just type directly in the dropdown and press "Enter" for a custom search.
+-   **"Last Used" Shortcut:** The most recently selected CUI is always pinned to the top of every other concept's list, making it incredibly easy to reuse across your dataset. A horizontal line cleanly separates it from the main list.
+-   **Intelligent UI:** The dropdown menu automatically resizes to fit its content, and the scrollbar is styled for visibility in the dark theme.
+-   **Polished Interactions:** Small but critical details, like preventing the dropdown from opening when you remove a tag, have been carefully handled.
+
+---
+
+### Slide 7: Data Integrity & Export
+
+Your work is always safe and accessible.
+
+-   **Live Saving:** All annotations and metadata mappings are saved to the database automatically as you make changes.
+-   **Data Integrity:** The system is built to prevent data corruption, such as duplicate CUI entries, and ensures the UI state is always consistent.
+-   **One-Click Export:** A "Download Metadata" button allows you to instantly download a `metadata.json` file. This file contains a clean, simple mapping of each of your concepts to its list of selected CUIs, perfect for downstream use.
+
+---
+
+### Slide 8: The Technology Behind TableTidier
+
+TableTidier is built on a modern, robust technology stack:
+
+-   **Frontend:** Next.js & React, with Ant Design for a rich component library and Tailwind CSS for utility-first styling.
+-   **Backend:** Next.js API Routes provide the server-side logic.
+-   **AI & Search:** Ollama for text embedding generation and Qdrant for high-speed vector search.
+-   **Authentication & Database:** Secure user sessions are handled by NextAuth.js, with data stored in a relational database.
+
+---
+
+### Slide 9: Summary & Future Vision
+
+**In summary, TableTidier transforms the chaotic process of manual data annotation into an intelligent, streamlined, and user-friendly workflow.** It successfully bridges the gap between unstructured, ambiguous table data and clean, enriched, analysis-ready information.
+
+**Future Possibilities:**
+-   Support for more file formats (CSV, XLS).
+-   Batch processing and annotation of multiple tables at once.
+-   Integration with a wider range of ontologies.
+-   An advanced analytics and visualization dashboard built on top of the curated data.
+
+---
+
+### Slide 10: Thank You
+
+Any questions?
