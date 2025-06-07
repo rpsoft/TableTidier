@@ -27,9 +27,9 @@ export const TableProvider = ({ children }) => {
     annotations: [],
     extractedData: [],
     groupContextOpen: false,
-    groupContextData: null,
-    groupContextIndex: null,
-    colourSelectGroup: false,
+    groupContextPos: { x: 0, y: 0 },
+    colourSelectGroup: null,
+    metadataMappings: {},
   });
 
   // Simplify setters dynamically

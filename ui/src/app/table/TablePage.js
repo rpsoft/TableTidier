@@ -4,6 +4,7 @@ import { SessionProvider } from 'next-auth/react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Edit2 } from "lucide-react";
 import toast, { Toaster } from 'react-hot-toast';
+import { useRef, useEffect, useState } from "react";
 
 import UploadTable from "@/components/ui/UploadTable";
 import TableCell from "./components/TableCell";
@@ -17,8 +18,6 @@ import MetadataViewer from "./components/MetadataViewer";
 import Tabletools from "./tableTools";
 
 import { getTable, getAllTables, uploadTable, updateTable } from "./actions";
-import { useState, useEffect, useContext, createContext, useCallback } from "react";
-
 import { useTableContext } from "./TableContext";
 import TableHTMLEditor from "./components/TableHTMLEditor";
 
@@ -31,6 +30,9 @@ export default function TablePage({ initialTableId }) {
   const [isSaving, setIsSaving] = useState(false);
   const [lastSavedData, setLastSavedData] = useState(null);
   const [currentCollectionId, setCurrentCollectionId] = useState(null);
+
+  // Use a ref to prevent autosaving on the initial load of a table's data
+  const initialDataLoaded = useRef(true);
 
   const refreshTables = async () => {
     getAllTables().then((tables) => {
@@ -59,25 +61,35 @@ export default function TablePage({ initialTableId }) {
   const saveTableChanges = async () => {
     if (state.selectedTable === null || isSaving) return false;
     
-    const currentTable = state.tables[state.selectedTable];
+    let currentTable = state.tables[state.selectedTable];
     if (!currentTable) return false;
 
-    // Check if there are actual changes to save
-    const dataToCompare = lastSavedData || state.tables[state.selectedTable];
-    if (JSON.stringify(currentTable) === JSON.stringify(dataToCompare)) {
-      console.log("No changes detected to save.");
-      return true;
-    }
-
+    // The change detection is now handled by the useEffect that calls this.
+    // We will just construct the most up-to-date table object and save it.
+    
     setIsSaving(true);
-    const savingToast = toast.loading('Saving table HTML...');
+    const savingToast = toast.loading('Saving changes...');
+
     try {
-      // Ensure we have the latest annotations in the table data
-      if (state.annotations) {
-        currentTable.annotationData = { annotations: state.annotations };
-      }
-      await updateTable(currentTable);
-      setLastSavedData(JSON.parse(JSON.stringify(currentTable)));
+      // Create a fresh, updated version of the table to save.
+      const tableToSave = {
+        ...currentTable,
+        annotationData: {
+          annotations: state.annotations || [],
+          mappings: state.metadataMappings || {},
+        },
+      };
+
+      await updateTable(tableToSave);
+
+      // Update lastSavedData with the successfully saved version
+      setLastSavedData(JSON.parse(JSON.stringify(tableToSave)));
+      
+      // Also update the main state to ensure UI consistency without a full reload
+      const updatedTables = [...state.tables];
+      updatedTables[state.selectedTable] = tableToSave;
+      setValue("tables", updatedTables, { silent: true }); // Use a silent update if supported
+
       toast.dismiss(savingToast);
       return true;
     } catch (error) {
@@ -112,6 +124,16 @@ export default function TablePage({ initialTableId }) {
     if (state.selectedTable != null) {
       const tableData = state.tables[state.selectedTable];
       if (tableData) {
+        // Prevent re-loading state from table data if the data is what we just saved.
+        // This stops the save -> update -> reload -> overwrite loop.
+        if (lastSavedData && lastSavedData.id === tableData.id && 
+            JSON.stringify(lastSavedData.annotationData) === JSON.stringify(tableData.annotationData)) {
+          return;
+        }
+
+        // When a new table is loaded, reset the flag to prevent immediate auto-saving.
+        initialDataLoaded.current = true;
+
         setCurrentTableHTML(tableData.htmlContent);
         setLastSavedData(JSON.parse(JSON.stringify(tableData)));
         
@@ -121,6 +143,8 @@ export default function TablePage({ initialTableId }) {
           setValue("tableNodes", tableNodes);
 
           const annotations = tableData?.annotationData?.annotations;
+          const mappings = tableData?.annotationData?.mappings;
+
           if (annotations) {
             setValue("annotations", annotations);
             setValue(
@@ -131,11 +155,20 @@ export default function TablePage({ initialTableId }) {
             setValue("annotations", []);
             setValue("extractedData", []);
           }
+
+          if (mappings) {
+            setValue("metadataMappings", mappings);
+          } else {
+            setValue("metadataMappings", {});
+          }
+
         } catch (error) {
           console.error('Error processing table:', error);
           setValue("tableNodes", []);
           setValue("annotations", []);
           setValue("extractedData", []);
+          setValue("metadataMappings", {});
+          setValue("selectedCells", {});
           toast.error("Error processing table content. Check HTML structure.");
         }
       } else {
@@ -143,51 +176,117 @@ export default function TablePage({ initialTableId }) {
         setValue("tableNodes", []);
         setValue("annotations", []);
         setValue("extractedData", []);
+        setValue("metadataMappings", {});
+        setValue("selectedCells", {});
       }
-      setValue("selectedCells", {});
     } else {
       setCurrentTableHTML("");
       setValue("tableNodes", []);
       setValue("annotations", []);
       setValue("extractedData", []);
+      setValue("metadataMappings", {});
       setValue("selectedCells", {});
     }
-  }, [state.tables, state.selectedTable]);
+  }, [state.tables, state.selectedTable, lastSavedData]);
 
+  // This is the new, single auto-save effect for annotations
   useEffect(() => {
-    if (state.selectedTable != null && state.tables[state.selectedTable]) {
-      const tableData = state.tables[state.selectedTable];
-      if (tableData && currentTableHtml !== tableData.htmlContent) {
-        try {
-          const tableContent = [currentTableHtml];
-          const tableNodes = Tabletools.contentToNodes(tableContent);
-          setValue("tableNodes", tableNodes);
-          setValue(
-            "extractedData",
-            Tabletools.annotationsToTable(tableNodes, state.annotations || []),
-          );
-        } catch (error) {
-          console.error('Error processing table update after HTML edit:', error);
-        }
-      }
+    // Don't run on the very first render cycle after a table is selected.
+    if (initialDataLoaded.current) {
+      initialDataLoaded.current = false;
+      return;
     }
-  }, [currentTableHtml]);
+  
+    // Only proceed if we have a table and some data to compare.
+    if (state.selectedTable === null || !lastSavedData) {
+      return;
+    }
+
+    const newAnnotations = state.annotations || [];
+    const oldAnnotations = lastSavedData.annotationData?.annotations || [];
+    
+    // If a change is detected, trigger a save.
+    if (JSON.stringify(newAnnotations) !== JSON.stringify(oldAnnotations)) {
+      saveTableChanges();
+    }
+  }, [state.annotations]);
+
+  // A separate, simple effect to save mapping changes.
+  useEffect(() => {
+    // Don't save on initial load
+    if (initialDataLoaded.current) {
+      return;
+    }
+     if (state.selectedTable === null || !lastSavedData) {
+      return;
+    }
+
+    const newMappings = state.metadataMappings || {};
+    const oldMappings = lastSavedData.annotationData?.mappings || {};
+
+    if(JSON.stringify(newMappings) !== JSON.stringify(oldMappings)) {
+      saveTableChanges();
+    }
+  }, [state.metadataMappings]);
 
   useEffect(() => {
     if (state.selectedTable !== null && state.tables[state.selectedTable]) {
-      saveTableChanges();
-    }
-  }, [state.tables, state.selectedTable]);
-
-  useEffect(() => {
-    if (state.annotations && state.selectedTable !== null) {
       const tableData = state.tables[state.selectedTable];
       if (tableData) {
-        tableData.annotationData = { annotations: state.annotations };
-        saveTableChanges();
+        setCurrentTableHTML(tableData.htmlContent);
+        setLastSavedData(JSON.parse(JSON.stringify(tableData)));
+        
+        try {
+          const tableContent = [tableData.htmlContent];
+          const tableNodes = Tabletools.contentToNodes(tableContent);
+          setValue("tableNodes", tableNodes);
+
+          const annotations = tableData?.annotationData?.annotations;
+          const mappings = tableData?.annotationData?.mappings;
+
+          if (annotations) {
+            setValue("annotations", annotations);
+            setValue(
+              "extractedData",
+              Tabletools.annotationsToTable(tableNodes, annotations),
+            );
+          } else {
+            setValue("annotations", []);
+            setValue("extractedData", []);
+          }
+
+          if (mappings) {
+            setValue("metadataMappings", mappings);
+          } else {
+            setValue("metadataMappings", {});
+          }
+
+        } catch (error) {
+          console.error('Error processing table:', error);
+          setValue("tableNodes", []);
+          setValue("annotations", []);
+          setValue("extractedData", []);
+          setValue("metadataMappings", {});
+          setValue("selectedCells", {});
+          toast.error("Error processing table content. Check HTML structure.");
+        }
+      } else {
+        setCurrentTableHTML("");
+        setValue("tableNodes", []);
+        setValue("annotations", []);
+        setValue("extractedData", []);
+        setValue("metadataMappings", {});
+        setValue("selectedCells", {});
       }
+    } else {
+      setCurrentTableHTML("");
+      setValue("tableNodes", []);
+      setValue("annotations", []);
+      setValue("extractedData", []);
+      setValue("metadataMappings", {});
+      setValue("selectedCells", {});
     }
-  }, [state.annotations]);
+  }, [state.tables, state.selectedTable]);
 
   const options = Array.isArray(state.tables) ? state.tables.map((table, t) => {
     return { value: t, label: table.fileName };
