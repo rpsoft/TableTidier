@@ -289,7 +289,10 @@ export default function TablePage({ initialTableId }) {
   }, [state.tables, state.selectedTable]);
 
   const options = Array.isArray(state.tables) ? state.tables.map((table, t) => {
-    return { value: t, label: table.fileName };
+    return { 
+      value: t, 
+      label: <span className="text-black">{table.fileName}</span> 
+    };
   }) : [];
 
   var tbody = state.tableNodes.map((row, r) => {
@@ -471,7 +474,7 @@ export default function TablePage({ initialTableId }) {
             )}
 
             <Select
-              className="w-[600px] table-select"
+              className="w-[600px] table-select text-black"
               options={options}
               onChange={async (value) => {
                 setValue("selectedTable", value);
@@ -481,8 +484,9 @@ export default function TablePage({ initialTableId }) {
                 setLastSavedData(null);
               }}
               placeholder="Select a table"
-              dropdownStyle={{ backgroundColor: 'rgb(31, 41, 55)' }}
-              style={{ backgroundColor: 'rgb(31, 41, 55)', color: 'white' }}
+              value={state.selectedTable}
+              dropdownStyle={{ backgroundColor: 'rgb(255, 255, 255)' }}
+              style={{ backgroundColor: 'rgb(31, 41, 55)' }}
             />
           </div>
 
