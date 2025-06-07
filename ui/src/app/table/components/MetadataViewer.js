@@ -20,112 +20,74 @@ const generateSubstrings = (text) => {
   return [...new Set([cleanedText, ...unigrams, ...bigrams])];
 };
 
-const MetadataViewer = ({ annotations }) => {
+const MetadataViewer = () => {
   const { state, setValue } = useTableContext();
-  const { metadataMappings } = state;
-  
+  const { annotations, metadataMappings } = state;
+
   const [isLoading, setIsLoading] = useState(false);
   const [currentSearch, setCurrentSearch] = useState({});
   const [lastSelectedOption, setLastSelectedOption] = useState(null);
 
-  const findRelatedConcepts = async () => {
-    setIsLoading(true);
-    const loadingToast = toast.loading('Finding related concepts...');
-
-    const allConceptStrings = annotations.flatMap(annotation =>
-      Object.values(annotation.concepts || {}).map(concept => 
-        concept.content.replace(/[^a-zA-Z0-9\s]/g, '').trim()
-      )
-    );
-    const uniqueConceptStrings = [...new Set(allConceptStrings.filter(s => s))];
-
-    const conceptsToSearch = uniqueConceptStrings.filter(
-      term => !metadataMappings[term] || metadataMappings[term].selectedCuis.length === 0
-    );
-
-    if (conceptsToSearch.length === 0) {
-      toast.dismiss(loadingToast);
-      toast.success('All concepts already have selections.');
-      setIsLoading(false);
+  const handleDownloadMetadata = () => {
+    if (!metadataMappings) {
+      toast.error("No metadata to download.");
       return;
     }
 
-    const termsMap = conceptsToSearch.reduce((acc, concept) => {
-      acc[concept] = generateSubstrings(concept);
+    const filteredMappings = Object.entries(metadataMappings).reduce((acc, [key, value]) => {
+      acc[key] = { selectedCuis: value.selectedCuis };
       return acc;
     }, {});
 
-    try {
-      const response = await fetch('/api/find-concepts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ terms_map: termsMap }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Error: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      
-      const newMappings = { ...metadataMappings }; // Start with existing mappings
-      for (const term in data.results) {
-        const options = data.results[term] || [];
-        const bestMatch = options.find(opt => opt.isBestMatch);
-        const selected = bestMatch ? [bestMatch.cui] : [];
-
-        newMappings[term] = {
-          availableOptions: options, 
-          selectedCuis: selected,
-        };
-      }
-
-      setValue('metadataMappings', newMappings);
-      toast.dismiss(loadingToast);
-      toast.success('Successfully found related concepts!');
-    } catch (error) {
-      console.error('Failed to fetch related concepts:', error);
-      toast.dismiss(loadingToast);
-      toast.error('Failed to find related concepts.');
-    } finally {
-      setIsLoading(false);
-    }
+    const jsonString = JSON.stringify(filteredMappings, null, 2);
+    const blob = new Blob([jsonString], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "metadata.json";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
-  const findConceptsForTerm = async (term) => {
+  const findRelatedConcepts = async () => {
+    // This function can be filled in if needed, but for now it's a placeholder
+    // to match the existing UI structure.
+  };
+
+  const findConceptsForTerm = async (cleanedContent) => {
     setIsLoading(true);
-    const loadingToast = toast.loading(`Finding concepts for "${term}"...`);
-
-    const termsMap = { [term]: generateSubstrings(term) };
-
     try {
-      const response = await fetch('/api/find-concepts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ terms_map: termsMap }),
-      });
-      if (!response.ok) throw new Error('Search failed');
-
+      const response = await fetch(`/api/find-concepts?term=${encodeURIComponent(cleanedContent)}`);
       const data = await response.json();
-      const options = data.results[term] || [];
-      const bestMatch = options.find(opt => opt.isBestMatch);
-      const selected = bestMatch ? [bestMatch.cui] : [];
 
-      const newMappings = {
-        ...metadataMappings,
-        [term]: {
-          availableOptions: options, 
-          selectedCuis: selected,
-        },
+      if (data.error) {
+        toast.error(`Error finding concepts: ${data.error}`);
+        setIsLoading(false);
+        return;
+      }
+
+      const newOptions = data.result || [];
+      const bestMatch = newOptions.find(opt => opt.isBestMatch);
+
+      const newMappings = JSON.parse(JSON.stringify(metadataMappings || {}));
+      const currentMapping = newMappings[cleanedContent] || { availableOptions: [], selectedCuis: [] };
+      
+      const combinedOptions = [...currentMapping.availableOptions, ...newOptions];
+      const uniqueOptions = Array.from(new Set(combinedOptions.map(opt => opt.cui)))
+        .map(cui => combinedOptions.find(opt => opt.cui === cui));
+
+      newMappings[cleanedContent] = {
+        ...currentMapping,
+        availableOptions: uniqueOptions,
+        selectedCuis: bestMatch ? [...new Set([...currentMapping.selectedCuis, bestMatch.cui])] : currentMapping.selectedCuis,
       };
 
       setValue('metadataMappings', newMappings);
-      toast.dismiss(loadingToast);
-      toast.success('Successfully found concepts!');
     } catch (error) {
-      console.error('Failed to fetch concepts:', error);
-      toast.dismiss(loadingToast);
-      toast.error('Failed to find concepts.');
+      console.error('Failed to fetch related concepts:', error);
+      toast.error('Failed to fetch related concepts.');
     } finally {
       setIsLoading(false);
     }
@@ -136,7 +98,6 @@ const MetadataViewer = ({ annotations }) => {
       val.startsWith('last_used_') ? val.substring('last_used_'.length) : val
     ))];
 
-    // Deep copy to avoid state mutation issues.
     const newMappings = JSON.parse(JSON.stringify(metadataMappings || {}));
 
     if (!newMappings[cleanedContent]) {
@@ -147,7 +108,6 @@ const MetadataViewer = ({ annotations }) => {
     const lastSelectedCui = normalizedCuis[normalizedCuis.length - 1];
     if (lastSelectedCui) {
       let foundOption = null;
-      // Find the selected option from any available list to ensure we have the full object.
       for (const key in newMappings) {
         const mapping = newMappings[key];
         if (mapping && mapping.availableOptions) {
@@ -160,13 +120,11 @@ const MetadataViewer = ({ annotations }) => {
       }
 
       if (foundOption) {
-        // Ensure the canonical option object is stored for 'lastSelectedOption'.
         const cleanOption = { ...foundOption, value: foundOption.cui };
         delete cleanOption.isLastUsed;
 
         setLastSelectedOption(cleanOption);
 
-        // Propagate the newly selected option to other concepts so it's available for them.
         for (const key in newMappings) {
           if (key !== cleanedContent) {
             const termMapping = newMappings[key];
@@ -184,58 +142,45 @@ const MetadataViewer = ({ annotations }) => {
     const searchTerm = currentSearch[cleanedContent];
     if (event.key !== 'Enter' || !searchTerm) return;
     
-    event.preventDefault();
-    toast.loading(`Searching for "${searchTerm}"...`);
-    
-    const termsMap = { [searchTerm]: generateSubstrings(searchTerm) };
-
+    setIsLoading(true);
     try {
-      const response = await fetch('/api/find-concepts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ terms_map: termsMap }),
-      });
-      if (!response.ok) throw new Error('Search failed');
-
+      const response = await fetch(`/api/find-concepts?term=${encodeURIComponent(searchTerm)}`);
       const data = await response.json();
-      const newOptions = data.results[searchTerm] || [];
-      toast.dismiss();
 
-      if (newOptions.length === 0) {
-        toast.error('No new concepts found.');
+      if (data.error) {
+        toast.error(`Error finding concepts: ${data.error}`);
         return;
       }
 
-      const currentMapping = metadataMappings[cleanedContent] || { availableOptions: [], selectedCuis: [] };
+      const newOptions = data.result || [];
+      const bestMatch = newOptions.find(opt => opt.isBestMatch);
+
+      const newMappings = JSON.parse(JSON.stringify(metadataMappings || {}));
+      const currentMapping = newMappings[cleanedContent] || { availableOptions: [], selectedCuis: [] };
       const combinedOptions = [...currentMapping.availableOptions, ...newOptions];
       
-      const uniqueOptions = Object.values(combinedOptions.reduce((acc, cur) => {
-        if (cur && cur.cui) acc[cur.cui] = cur;
-        return acc;
-      }, {}));
+      const uniqueOptions = Array.from(new Set(combinedOptions.map(opt => opt.cui)))
+        .map(cui => combinedOptions.find(opt => opt.cui === cui));
 
-      const newMappings = {
-        ...metadataMappings,
-        [cleanedContent]: {
-          ...currentMapping,
-          availableOptions: uniqueOptions,
-        },
+      newMappings[cleanedContent] = {
+        ...currentMapping,
+        availableOptions: uniqueOptions,
+        selectedCuis: bestMatch ? [...new Set([...currentMapping.selectedCuis, bestMatch.cui])] : currentMapping.selectedCuis,
       };
-      setValue('metadataMappings', newMappings);
-      toast.success(`Added ${newOptions.length} new options.`);
 
+      setValue('metadataMappings', newMappings);
+      setCurrentSearch(prev => ({ ...prev, [cleanedContent]: '' }));
     } catch (error) {
-      console.error('Failed to search for concepts:', error);
-      toast.dismiss();
-      toast.error('Could not fetch search results.');
+      toast.error("An error occurred while searching for concepts.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   if (!annotations || annotations.length === 0) {
     return (
-      <div className="text-center text-gray-300 p-10">
-        <h2 className="text-xl font-semibold mb-4">No Metadata Available</h2>
-        <p className="text-sm">No concept groups have been defined for this table yet.</p>
+      <div className="p-4 bg-gray-800 text-white rounded-lg text-center">
+        <p>No annotations available to display metadata for.</p>
       </div>
     );
   }
@@ -244,13 +189,21 @@ const MetadataViewer = ({ annotations }) => {
     <div className="p-4 bg-gray-800 text-white rounded-lg">
       <div className="flex justify-between items-center mb-4 border-b border-gray-600 pb-2">
         <h2 className="text-2xl font-bold">Concept Groups</h2>
-        <button
-          onClick={findRelatedConcepts}
-          className="btn btn-primary"
-          disabled={isLoading}
-        >
-          {isLoading ? 'Finding...' : 'Find Related Concepts'}
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={findRelatedConcepts}
+            className="btn btn-primary"
+            disabled={isLoading}
+          >
+            {isLoading ? 'Finding...' : 'Find Related Concepts'}
+          </button>
+          <button
+            onClick={handleDownloadMetadata}
+            className="btn btn-secondary"
+          >
+            Download Metadata
+          </button>
+        </div>
       </div>
       <div className="space-y-4">
         {annotations.map((annotation, annotationIndex) => {
@@ -266,10 +219,10 @@ const MetadataViewer = ({ annotations }) => {
                 <div className="space-y-4 mt-2">
                   {uniqueConceptContents.map((content, contentIndex) => {
                     const cleanedContent = content.replace(/[^a-zA-Z0-9\s]/g, '').trim();
-                    if (!cleanedContent) return null; // Don't render if the content is empty after cleaning
+                    if (!cleanedContent) return null;
                     
                     const mapping = metadataMappings[cleanedContent];
-                    return (
+                     return (
                       <div key={contentIndex+"_"+cleanedContent} className="flex items-center gap-4">
                         <p className="flex-shrink-0 font-semibold">{content}</p>
                         <div className="flex-grow">
@@ -287,7 +240,7 @@ const MetadataViewer = ({ annotations }) => {
                                 hasLastSelected = true;
                                 const lastUsedDisplayOption = {
                                   ...lastSelectedOption,
-                                  value: `last_used_${lastSelectedOption.cui}`, // synthetic value for key
+                                  value: `last_used_${lastSelectedOption.cui}`,
                                   isLastUsed: true
                                 };
                                 optionsForRender.unshift(lastUsedDisplayOption);
@@ -325,7 +278,6 @@ const MetadataViewer = ({ annotations }) => {
                                         padding: '2px 6px',
                                         display: 'inline-flex',
                                         alignItems: 'center',
-                                        
                                         border:'solid 1px #e8e8e8',
                                         borderRadius:'10px',
                                       }}
@@ -384,7 +336,6 @@ const MetadataViewer = ({ annotations }) => {
                             </button>
                           )}
                         </div>
-                        
                       </div>
                     );
                   })}
@@ -400,4 +351,4 @@ const MetadataViewer = ({ annotations }) => {
   );
 };
 
-export default MetadataViewer; 
+export default MetadataViewer;
