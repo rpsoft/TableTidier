@@ -6,7 +6,7 @@ import { Select } from 'antd';
 import { useTableContext } from '../TableContext';
 
 const generateSubstrings = (text) => {
-  const cleanedText = text.replace(/[^a-zA-Z0-9]/g, ' ').replace(/\s+/g, ' ').trim();
+  const cleanedText = text.replace(/[^a-zA-Z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
   const words = cleanedText.split(' ').filter(w => w);
   if (words.length === 0) return [];
   
@@ -17,7 +17,7 @@ const generateSubstrings = (text) => {
       bigrams.push(`${words[i]} ${words[i+1]}`);
     }
   }
-  return [...new Set([...unigrams, ...bigrams])];
+  return [...new Set([cleanedText, ...unigrams, ...bigrams])];
 };
 
 const MetadataViewer = ({ annotations }) => {
@@ -31,12 +31,25 @@ const MetadataViewer = ({ annotations }) => {
     setIsLoading(true);
     const loadingToast = toast.loading('Finding related concepts...');
 
-    const allConcepts = annotations.flatMap(annotation =>
-      Object.values(annotation.concepts || {}).map(concept => concept.content)
+    const allConceptStrings = annotations.flatMap(annotation =>
+      Object.values(annotation.concepts || {}).map(concept => 
+        concept.content.replace(/[^a-zA-Z0-9\s]/g, '').trim()
+      )
     );
-    const uniqueConcepts = [...new Set(allConcepts)];
+    const uniqueConceptStrings = [...new Set(allConceptStrings.filter(s => s))];
 
-    const termsMap = uniqueConcepts.reduce((acc, concept) => {
+    const conceptsToSearch = uniqueConceptStrings.filter(
+      term => !metadataMappings[term] || metadataMappings[term].selectedCuis.length === 0
+    );
+
+    if (conceptsToSearch.length === 0) {
+      toast.dismiss(loadingToast);
+      toast.success('All concepts already have selections.');
+      setIsLoading(false);
+      return;
+    }
+
+    const termsMap = conceptsToSearch.reduce((acc, concept) => {
       acc[concept] = generateSubstrings(concept);
       return acc;
     }, {});
@@ -54,17 +67,19 @@ const MetadataViewer = ({ annotations }) => {
 
       const data = await response.json();
       
-      const newMappings = {};
+      const newMappings = { ...metadataMappings }; // Start with existing mappings
       for (const term in data.results) {
+        const options = data.results[term] || [];
+        const bestMatch = options.find(opt => opt.isBestMatch);
+        const selected = bestMatch ? [bestMatch.cui] : [];
+
         newMappings[term] = {
-          // All concepts returned from the search are the available options
-          availableOptions: data.results[term] || [], 
-          // Selections start empty
-          selectedCuis: [], 
+          availableOptions: options, 
+          selectedCuis: selected,
         };
       }
 
-      setValue('metadataMappings', newMappings); // Overwrite mappings with fresh search results
+      setValue('metadataMappings', newMappings);
       toast.dismiss(loadingToast);
       toast.success('Successfully found related concepts!');
     } catch (error) {
@@ -175,9 +190,12 @@ const MetadataViewer = ({ annotations }) => {
               {uniqueConceptContents.length > 0 ? (
                 <div className="space-y-4 mt-2">
                   {uniqueConceptContents.map((content) => {
-                    const mapping = metadataMappings[content];
+                    const cleanedContent = content.replace(/[^a-zA-Z0-9\s]/g, '').trim();
+                    if (!cleanedContent) return null; // Don't render if the content is empty after cleaning
+                    
+                    const mapping = metadataMappings[cleanedContent];
                     return (
-                      <div key={content} className="flex items-center gap-4">
+                      <div key={cleanedContent} className="flex items-center gap-4">
                         <p className="flex-shrink-0 font-semibold">{content}</p>
                         <div className="flex-grow">
                           {mapping && (() => {
@@ -192,13 +210,13 @@ const MetadataViewer = ({ annotations }) => {
                                 style={{ width: '100%' }}
                                 placeholder="Type to filter or search and press Enter..."
                                 value={mapping.selectedCuis || []}
-                                onSearch={(value) => setCurrentSearch(prev => ({ ...prev, [content]: value }))}
-                                onInputKeyDown={(e) => handleFreeTextSearch(e, content)}
-                                searchValue={currentSearch[content] || ''}
+                                onSearch={(value) => setCurrentSearch(prev => ({ ...prev, [cleanedContent]: value }))}
+                                onInputKeyDown={(e) => handleFreeTextSearch(e, cleanedContent)}
+                                searchValue={currentSearch[cleanedContent] || ''}
                                 filterOption={(input, option) =>
                                   (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                                 }
-                                onChange={(selectedCuis) => handleSelectionChange(content, selectedCuis)}
+                                onChange={(selectedCuis) => handleSelectionChange(cleanedContent, selectedCuis)}
                                 tagRender={(props) => {
                                   const { value, closable, onClose } = props;
                                   const option = allAvailableOptions.find(opt => opt.cui === value);
@@ -240,6 +258,12 @@ const MetadataViewer = ({ annotations }) => {
                             );
                           })()}
                         </div>
+                        <a 
+                          onClick={() => openCuiSearchModal(cleanedContent)} 
+                          className="text-cyan-400 hover:text-cyan-300 cursor-pointer text-sm flex-shrink-0 whitespace-nowrap"
+                        >
+                          Search
+                        </a>
                       </div>
                     );
                   })}

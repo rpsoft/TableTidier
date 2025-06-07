@@ -82,12 +82,23 @@ export async function POST(request) {
         }
       }
 
+      // Find the best match by using the longest substring as the source,
+      // which corresponds to the full, cleaned original string.
+      const bestMatchSource = substrings.reduce((a, b) => a.length > b.length ? a : b, '');
+      const fullStringMatches = aggregatedForTerm.filter(res => res.found_by === bestMatchSource);
+      
+      let bestMatchCui = null;
+      if (fullStringMatches.length > 0) {
+        bestMatchCui = fullStringMatches.sort((a,b) => b.score - a.score)[0].cui;
+      }
+
       const formattedResults = aggregatedForTerm.map(res => ({
         text: res.payload.text,
         cui: res.payload.cui,
         score: res.score,
         source: res.payload.sourceAbbreviation || 'N/A',
-        found_by: res.found_by
+        found_by: res.found_by,
+        isBestMatch: res.cui === bestMatchCui,
       }));
 
       const uniqueResults = {};
