@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
+import { Select, Modal, Input, List, Button } from 'antd';
 
 const generateSubstrings = (text) => {
   const cleanedText = text.replace(/[^a-zA-Z0-9]/g, ' ').replace(/\s+/g, ' ').trim();
@@ -21,9 +22,20 @@ const generateSubstrings = (text) => {
 const MetadataViewer = ({ annotations }) => {
   const [relatedConcepts, setRelatedConcepts] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedMappings, setSelectedMappings] = useState({});
+  
+  // State for the custom CUI search modal
+  const [modalState, setModalState] = useState({
+    visible: false,
+    targetTerm: null,
+    searchTerm: '',
+    results: [],
+    isLoading: false,
+  });
 
   const findRelatedConcepts = async () => {
     setIsLoading(true);
+    setSelectedMappings({}); // Reset selections on new search
     const loadingToast = toast.loading('Finding related concepts...');
 
     const allConcepts = annotations.flatMap(annotation =>
@@ -60,6 +72,74 @@ const MetadataViewer = ({ annotations }) => {
     }
   };
 
+  const handleSelectionChange = (originalTerm, selectedCuis) => {
+    setSelectedMappings(prev => ({
+      ...prev,
+      [originalTerm]: selectedCuis,
+    }));
+  };
+
+  // --- Modal Handlers ---
+  const openCuiSearchModal = (targetTerm) => {
+    setModalState({
+      visible: true,
+      targetTerm,
+      searchTerm: '',
+      results: [],
+      isLoading: false,
+    });
+  };
+
+  const closeCuiSearchModal = () => {
+    setModalState(prev => ({ ...prev, visible: false }));
+  };
+
+  const handleCuiSearch = async () => {
+    if (!modalState.searchTerm) return;
+    setModalState(prev => ({ ...prev, isLoading: true, results: [] }));
+
+    const termsMap = { [modalState.searchTerm]: generateSubstrings(modalState.searchTerm) };
+
+    try {
+      const response = await fetch('/api/find-concepts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ terms_map: termsMap }),
+      });
+      if (!response.ok) throw new Error('Search failed');
+      const data = await response.json();
+      setModalState(prev => ({ ...prev, results: data.results[modalState.searchTerm] || [], isLoading: false }));
+    } catch (error) {
+      console.error('Failed to search for CUIs:', error);
+      toast.error('Could not fetch custom CUIs.');
+      setModalState(prev => ({ ...prev, isLoading: false }));
+    }
+  };
+  
+  const handleCuiSelection = (newConcept) => {
+    const { targetTerm } = modalState;
+    if (!targetTerm) return;
+
+    // Add the new concept to the list of available options if it's not already there
+    setRelatedConcepts(prev => {
+      const existingOptions = prev[targetTerm] || [];
+      const isAlreadyPresent = existingOptions.some(opt => opt.cui === newConcept.cui);
+      if (isAlreadyPresent) return prev;
+      return {
+        ...prev,
+        [targetTerm]: [...existingOptions, newConcept],
+      };
+    });
+    
+    // Add the new CUI to the selected items for that term
+    setSelectedMappings(prev => ({
+      ...prev,
+      [targetTerm]: [...(prev[targetTerm] || []), newConcept.cui],
+    }));
+    
+    toast.success(`Added "${newConcept.text}" to selection.`);
+  };
+
   if (!annotations || annotations.length === 0) {
     return (
       <div className="text-center text-gray-300 p-10">
@@ -92,22 +172,60 @@ const MetadataViewer = ({ annotations }) => {
             <div key={index} className="p-3 bg-gray-700 rounded-md">
               <h3 className="text-xl font-semibold text-cyan-400">{annotation.category}</h3>
               {uniqueConceptContents.length > 0 ? (
-                <ul className="list-disc pl-6 mt-2 space-y-2">
+                <div className="space-y-4 mt-2">
                   {uniqueConceptContents.map((content, cIndex) => (
-                    <li key={cIndex} className="text-base">
-                      {content}
-                      {relatedConcepts[content] && (
-                        <ul className="list-decimal pl-6 mt-1 text-sm text-gray-300">
-                          {relatedConcepts[content].map((related, rIndex) => (
-                            <li key={rIndex}>
-                              {related.text} (Source: {related.source}, CUI: {related.cui}, Score: {related.score.toFixed(4)}) - Found by: "{related.found_by}"
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </li>
+                    <div key={cIndex} className="flex items-center gap-4">
+                      <p className="flex-shrink-0 font-semibold">{content}</p>
+                      <div className="flex-grow">
+                        {relatedConcepts[content] && (
+                          <Select
+                            mode="multiple"
+                            allowClear
+                            style={{ width: '100%' }}
+                            placeholder="Select representative concepts..."
+                            value={selectedMappings[content] || []}
+                            onChange={(selectedCuis) => handleSelectionChange(content, selectedCuis)}
+                            tagRender={(props) => {
+                              const { value, closable, onClose } = props;
+                              const option = relatedConcepts[content]?.find(opt => opt.cui === value);
+                              const onPreventMouseDown = (event) => {
+                                event.preventDefault();
+                                event.stopPropagation();
+                              };
+                              return (
+                                <span
+                                  onMouseDown={onPreventMouseDown}
+                                  onClick={onClose}
+                                  className="ant-select-selection-item"
+                                  style={{ color: 'black', background: '#f0f0f0', border: '1px solid #e8e8e8', borderRadius: '4px', padding: '0 4px', marginRight: '4px' }}
+                                >
+                                  {option ? option.text : value}
+                                  {closable && <span className="ant-select-selection-item-remove" onClick={onClose}>×</span>}
+                                </span>
+                              );
+                            }}
+                            options={relatedConcepts[content].map(related => {
+                              const isSelected = selectedMappings[content]?.includes(related.cui);
+                              return {
+                                value: related.cui,
+                                label: <span className={isSelected ? 'text-black font-semibold' : 'text-white'}>{`${related.text} (Source: ${related.source}, Score: ${related.score.toFixed(4)}, Found by: "${related.found_by}")`}</span>
+                              };
+                            })}
+                            loading={isLoading && !relatedConcepts[content]}
+                            dropdownStyle={{ backgroundColor: '#1f2937' }}
+                            className="custom-select-dropdown"
+                          />
+                        )}
+                      </div>
+                      <a 
+                        onClick={() => openCuiSearchModal(content)} 
+                        className="text-cyan-400 hover:text-cyan-300 cursor-pointer text-sm flex-shrink-0 whitespace-nowrap"
+                      >
+                        Can't find the right CUI?
+                      </a>
+                    </div>
                   ))}
-                </ul>
+                </div>
               ) : (
                 <p className="text-gray-400 italic mt-2">No concepts in this group.</p>
               )}
@@ -115,6 +233,43 @@ const MetadataViewer = ({ annotations }) => {
           );
         })}
       </div>
+
+      <Modal
+        title={`Find a CUI for "${modalState.targetTerm}"`}
+        visible={modalState.visible}
+        onCancel={closeCuiSearchModal}
+        footer={[
+          <Button key="close" onClick={closeCuiSearchModal}>
+            Close
+          </Button>,
+        ]}
+        width={800}
+      >
+        <p className="mb-4">Enter a search term to find related concepts. Press Enter to search.</p>
+        <Input
+          placeholder="e.g., 'blood pressure measurement'"
+          value={modalState.searchTerm}
+          onChange={e => setModalState(prev => ({ ...prev, searchTerm: e.target.value }))}
+          onPressEnter={handleCuiSearch}
+          disabled={modalState.isLoading}
+        />
+        <List
+          className="mt-4"
+          loading={modalState.isLoading}
+          dataSource={modalState.results}
+          renderItem={item => (
+            <List.Item
+              actions={[<Button onClick={() => handleCuiSelection(item)}>Add</Button>]}
+            >
+              <List.Item.Meta
+                title={item.text}
+                description={`(Source: ${item.source}, CUI: ${item.cui}, Score: ${item.score.toFixed(4)}) - Found by: "${item.found_by}"`}
+              />
+            </List.Item>
+          )}
+          locale={{ emptyText: 'No results. Try a different search term.' }}
+        />
+      </Modal>
     </div>
   );
 };
