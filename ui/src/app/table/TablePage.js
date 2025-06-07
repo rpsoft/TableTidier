@@ -489,12 +489,6 @@ export default function TablePage({ initialTableId }) {
               style={{ backgroundColor: 'rgb(31, 41, 55)' }}
             />
           </div>
-
-          <div className="flex items-center">
-            {isSaving && (
-              <span className="text-gray-300 mr-2">Saving changes...</span>
-            )}
-          </div>
         </div>
 
         {state.selectedTable !== null ? (

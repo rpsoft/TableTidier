@@ -91,6 +91,45 @@ const MetadataViewer = ({ annotations }) => {
     }
   };
 
+  const findConceptsForTerm = async (term) => {
+    setIsLoading(true);
+    const loadingToast = toast.loading(`Finding concepts for "${term}"...`);
+
+    const termsMap = { [term]: generateSubstrings(term) };
+
+    try {
+      const response = await fetch('/api/find-concepts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ terms_map: termsMap }),
+      });
+      if (!response.ok) throw new Error('Search failed');
+
+      const data = await response.json();
+      const options = data.results[term] || [];
+      const bestMatch = options.find(opt => opt.isBestMatch);
+      const selected = bestMatch ? [bestMatch.cui] : [];
+
+      const newMappings = {
+        ...metadataMappings,
+        [term]: {
+          availableOptions: options, 
+          selectedCuis: selected,
+        },
+      };
+
+      setValue('metadataMappings', newMappings);
+      toast.dismiss(loadingToast);
+      toast.success('Successfully found concepts!');
+    } catch (error) {
+      console.error('Failed to fetch concepts:', error);
+      toast.dismiss(loadingToast);
+      toast.error('Failed to find concepts.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleSelectionChange = (originalTerm, selectedCuis) => {
     const newMappings = {
       ...metadataMappings,
@@ -257,13 +296,17 @@ const MetadataViewer = ({ annotations }) => {
                               />
                             );
                           })()}
+                          {!mapping && (
+                             <button
+                              onClick={() => findConceptsForTerm(cleanedContent)}
+                              className="btn btn-sm btn-primary"
+                              disabled={isLoading}
+                            >
+                              {isLoading ? 'Finding...' : 'Find Concepts'}
+                            </button>
+                          )}
                         </div>
-                        <a 
-                          onClick={() => openCuiSearchModal(cleanedContent)} 
-                          className="text-cyan-400 hover:text-cyan-300 cursor-pointer text-sm flex-shrink-0 whitespace-nowrap"
-                        >
-                          Search
-                        </a>
+                        
                       </div>
                     );
                   })}
