@@ -125,3 +125,4 @@ ui/.env.production
 ui/public/uploads/
 umlsRAG/MRCONSO.RRF.aa.eng
 umlsRAG/MRCONSO.RRF.ab.eng
+bun.lockb

@@ -39,38 +39,64 @@ const findClosestPoints = (arrayOfLists, givenPoint) => {
 const Tabletools = {
 	// This is quite awesome. All nodes sorted here in a recursive structure of arrays! if a valid table content is supplied.
   contentToNodes: (tableContent) => {
+    if (tableContent?.[0]) {
+      const $ = cheerio.load(tableContent[0]);
+      const table = $("table");
 
-	if (tableContent && tableContent[0]) {
-		const $ = cheerio.load(tableContent[0]);
+      if (!table.length) {
+        return [
+          ["table is empty or does not include a valid html <table> tag"],
+          ["--- Here an extract of the document ---"],
+          [tableContent[0].slice(0, 300) + "..."],
+        ];
+      }
 
-		function traverseNodes(node) {
-			var content = [];
+      const matrix = [];
+      table.find("tr").each((r, tr) => {
+        $(tr)
+          .find("th, td")
+          .each((_, cell) => {
+            const $cell = $(cell);
+            const colspan = parseInt($cell.attr("colspan") || "1", 10);
+            const rowspan = parseInt($cell.attr("rowspan") || "1", 10);
+            const text = $cell.text();
 
-			node.children?.forEach((child) => {
-				// console.log(child.tagName);
-				if (child.tagName === "td") {
-					const childContent = $(child).text();
-					content = [...content, childContent];
-				}
+            if (!matrix[r]) matrix[r] = [];
+            let c = 0;
+            while (matrix[r][c]) {
+              c++;
+            }
 
-				var recContent = traverseNodes(child);
-				if (recContent.length > 0) content = [...content, recContent];
-			});
+            for (let ri = r; ri < r + rowspan; ri++) {
+              if (!matrix[ri]) {
+                matrix[ri] = [];
+              }
+              for (let ci = c; ci < c + colspan; ci++) {
+                matrix[ri][ci] = text;
+              }
+            }
+          });
+      });
 
-			return content;
-		}
+      if (matrix.length > 0) {
+        const maxCols = matrix.reduce(
+          (max, row) => Math.max(max, row ? row.length : 0),
+          0
+        );
 
-		var allnodes =  $("table")[0] ? traverseNodes($("table")[0]).flat() : [
-			["table is empty or does not include a valid html <table> tag"],
-			["--- Here an extract of the document ---"],
-			[tableContent[0].slice(0, 300)+"..."]
-		]
+        return matrix.map((row) => {
+          const newRow = row || [];
+          while (newRow.length < maxCols) {
+            newRow.push("");
+          }
+          return newRow;
+        });
+      }
 
-		return allnodes
-
-	} else {
-		return [["table is empty or does not include a valid html <table> tag"]]
-	}
+      return matrix;
+    } else {
+      return [["table is empty or does not include a valid html <table> tag"]];
+    }
   },
 
   selectSimilarRows : () => {
