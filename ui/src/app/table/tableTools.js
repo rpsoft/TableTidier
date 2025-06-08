@@ -63,7 +63,7 @@ const Tabletools = {
 
             if (!matrix[r]) matrix[r] = [];
             let c = 0;
-            while (matrix[r][c]) {
+            while (matrix[r][c] !== undefined) {
               c++;
             }
 
