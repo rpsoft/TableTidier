@@ -52,14 +52,89 @@ const MetadataViewer = () => {
   };
 
   const findRelatedConcepts = async () => {
-    // This function can be filled in if needed, but for now it's a placeholder
-    // to match the existing UI structure.
+    setIsLoading(true);
+    try {
+      const allConceptContents = annotations.flatMap(annotation =>
+        Object.values(annotation.concepts || {}).map(concept => concept.content)
+      );
+      const uniqueConceptContents = [...new Set(allConceptContents)]
+        .map(content => content.replace(/[^a-zA-Z0-9\s]/g, '').trim())
+        .filter(Boolean);
+
+      if (uniqueConceptContents.length === 0) {
+        toast.info("No concepts to find.");
+        setIsLoading(false);
+        return;
+      }
+
+      const terms_map = uniqueConceptContents.reduce((acc, content) => {
+        acc[content] = generateSubstrings(content);
+        return acc;
+      }, {});
+
+      const response = await fetch('/api/find-concepts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ terms_map }),
+      });
+
+      const data = await response.json();
+
+      if (data.error) {
+        toast.error(`Error finding related concepts: ${data.error}`);
+        setIsLoading(false);
+        return;
+      }
+      
+      if (!data.results) {
+        toast.info("No concepts found.");
+        setIsLoading(false);
+        return;
+      }
+
+      let newMappings = JSON.parse(JSON.stringify(metadataMappings || {}));
+
+      for (const term in data.results) {
+        const newOptions = data.results[term] || [];
+        if (newOptions.length === 0) continue;
+
+        const bestMatch = newOptions.find(opt => opt.isBestMatch);
+        const currentMapping = newMappings[term] || { availableOptions: [], selectedCuis: [] };
+        const combinedOptions = [...currentMapping.availableOptions, ...newOptions];
+        const uniqueOptions = Array.from(new Set(combinedOptions.map(opt => opt.cui)))
+          .map(cui => combinedOptions.find(opt => opt.cui === cui));
+
+        newMappings[term] = {
+          ...currentMapping,
+          availableOptions: uniqueOptions,
+          selectedCuis: bestMatch ? [...new Set([...currentMapping.selectedCuis, bestMatch.cui])] : currentMapping.selectedCuis,
+        };
+      }
+
+      setValue('metadataMappings', newMappings);
+      toast.success("Found and updated related concepts.");
+
+    } catch (error) {
+      console.error('Failed to fetch related concepts:', error);
+      toast.error('Failed to fetch related concepts.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const findConceptsForTerm = async (cleanedContent) => {
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/find-concepts?term=${encodeURIComponent(cleanedContent)}`);
+      const substrings = generateSubstrings(cleanedContent);
+      const terms_map = { [cleanedContent]: substrings };
+
+      const response = await fetch(`/api/find-concepts`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ terms_map }),
+      });
       const data = await response.json();
 
       if (data.error) {
@@ -68,7 +143,7 @@ const MetadataViewer = () => {
         return;
       }
 
-      const newOptions = data.result || [];
+      const newOptions = (data.results && data.results[cleanedContent]) ? data.results[cleanedContent] : [];
       const bestMatch = newOptions.find(opt => opt.isBestMatch);
 
       const newMappings = JSON.parse(JSON.stringify(metadataMappings || {}));
@@ -144,7 +219,15 @@ const MetadataViewer = () => {
     
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/find-concepts?term=${encodeURIComponent(searchTerm)}`);
+      const substrings = generateSubstrings(searchTerm);
+      const terms_map = { [searchTerm]: substrings };
+      const response = await fetch(`/api/find-concepts`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ terms_map }),
+      });
       const data = await response.json();
 
       if (data.error) {
@@ -152,7 +235,7 @@ const MetadataViewer = () => {
         return;
       }
 
-      const newOptions = data.result || [];
+      const newOptions = (data.results && data.results[searchTerm]) ? data.results[searchTerm] : [];
       const bestMatch = newOptions.find(opt => opt.isBestMatch);
 
       const newMappings = JSON.parse(JSON.stringify(metadataMappings || {}));
