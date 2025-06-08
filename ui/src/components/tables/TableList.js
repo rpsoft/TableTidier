@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { Download } from 'lucide-react';
+import { Tooltip } from 'antd';
 import Tabletools from '@/app/table/tableTools'; // Import Tabletools
 
 export default function TableList({ tables, onDelete }) {
@@ -364,36 +365,40 @@ export default function TableList({ tables, onDelete }) {
         </button>
       </div>
 
-      <table className="w-full">
+      <table className="w-full table-fixed">
         <thead className="bg-gray-800">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Table Name</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Upload Date</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Preview</th>
-            <th className="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
+            <th className="w-[20%] px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Table Name</th>
+            <th className="w-[10%] px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Upload Date</th>
+            <th className="w-[50%] px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Preview</th>
+            <th className="w-[20%] px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
           </tr>
         </thead>
         <tbody className="bg-gray-900 divide-y divide-gray-700">
           {tables.map((table) => (
             <tr key={table.id} className="hover:bg-gray-800 transition-colors">
-              <td className="px-6 py-4 whitespace-nowrap">
-                <Link
-                  href={`/table?tableId=${table.id}`}
-                  className="text-white hover:text-blue-400 transition-colors"
-                >
-                  {table.fileName}
-                </Link>
+              <td className="px-6 py-4 break-words">
+                <Tooltip title={table.fileName}>
+                  <Link
+                    href={`/table?tableId=${table.id}`}
+                    className="text-white hover:text-blue-400 transition-colors"
+                    
+                  >
+                    {table.fileName.length > 70 ? table.fileName.substring(0, 70)+"..." : table.fileName}
+                  </Link>
+                </Tooltip>
               </td>
+              
               <td className="px-6 py-4 whitespace-nowrap text-gray-300">
                 {formatDate(table.createdAt)}
               </td>
-              <td className="px-6 py-4">
+              <td className="px-8 py-4 break-words">
                 <div 
                   className="text-sm text-gray-300 overflow-hidden max-h-20"
                   dangerouslySetInnerHTML={{ __html: table.htmlContent }}
                 />
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-right">
+              <td className="px-6 py-4 text-right">
                 <div className="flex justify-end items-center gap-3"> {/* Increased gap slightly */}
                   {/* Updated JSON Download Button */}
                   <button
