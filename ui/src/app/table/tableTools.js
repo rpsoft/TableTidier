@@ -72,9 +72,10 @@ const Tabletools = {
                 matrix[ri] = [];
               }
               for (let ci = c; ci < c + colspan; ci++) {
-                matrix[ri][ci] = text;
+                matrix[ri][ci] = "";
               }
             }
+            matrix[r][c] = text;
           });
       });
 
