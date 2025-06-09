@@ -199,15 +199,6 @@ const MetadataViewer = () => {
         delete cleanOption.isLastUsed;
 
         setLastSelectedOption(cleanOption);
-
-        for (const key in newMappings) {
-          if (key !== cleanedContent) {
-            const termMapping = newMappings[key];
-            if (termMapping && termMapping.availableOptions && !termMapping.availableOptions.some(opt => opt.cui === lastSelectedCui)) {
-              termMapping.availableOptions.push(cleanOption);
-            }
-          }
-        }
       }
     }
     setValue('metadataMappings', newMappings);
@@ -318,14 +309,17 @@ const MetadataViewer = () => {
                             let hasLastSelected = false;
 
                             if (lastSelectedOption) {
-                              const isPresent = allAvailableOptions.some(opt => opt.cui === lastSelectedOption.cui);
-                              if (isPresent) {
+                              const isSelectedInCurrent = (mapping.selectedCuis || []).includes(lastSelectedOption.cui);
+
+                              if (!isSelectedInCurrent) {
                                 hasLastSelected = true;
                                 const lastUsedDisplayOption = {
                                   ...lastSelectedOption,
                                   value: `last_used_${lastSelectedOption.cui}`,
-                                  isLastUsed: true
+                                  isLastUsed: true,
                                 };
+
+                                optionsForRender = optionsForRender.filter(opt => opt.cui !== lastSelectedOption.cui);
                                 optionsForRender.unshift(lastUsedDisplayOption);
                               }
                             }
@@ -345,7 +339,10 @@ const MetadataViewer = () => {
                                 onChange={(selectedCuis) => handleSelectionChange(cleanedContent, selectedCuis)}
                                 tagRender={(props) => {
                                   const { value, closable, onClose } = props;
-                                  const option = allAvailableOptions.find(opt => opt.cui === value);
+                                  let option = allAvailableOptions.find(opt => opt.cui === value);
+                                  if (!option && lastSelectedOption && lastSelectedOption.cui === value) {
+                                    option = lastSelectedOption;
+                                  }
 
                                   const handleClose = (e) => {
                                     e.preventDefault();

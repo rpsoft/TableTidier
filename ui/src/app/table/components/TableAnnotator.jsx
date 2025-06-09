@@ -56,7 +56,7 @@ export default function TableAnnotator({}) {
     setEditingGroup(group);
     // Initialize selected cells with the group's current cells
     const newSelectedCells = {};
-    
+
     // Check if group has cells array, if not use concepts
     const cells = group.cells || Object.entries(group.concepts).map(([key, concept]) => {
       const [row, col] = key.split('-').map(Number);
@@ -179,9 +179,9 @@ export default function TableAnnotator({}) {
   return (
     <>
       { ((anyContentSelected && Object.keys(state.selectedCells).length > 0) || editingGroup) ? (
-        <div 
+        <div
           className="shrink-0 justify-center items-center text-white m-2 border-2 rounded-md p-2 h-fit"
-          style={{ 
+          style={{
             borderColor: editingGroup ? editingGroup.color : '',
             backgroundColor: editingGroup ? `${editingGroup.color}0D` : ''
           }}
@@ -197,8 +197,8 @@ export default function TableAnnotator({}) {
             {editingGroup && (
               <>
                 <span className="font-bold" style={{ color: editingGroup.color }}>Editing: {editingGroup.category}</span>
-                <button 
-                  className="btn btn-ghost btn-sm ml-auto" 
+                <button
+                  className="btn btn-ghost btn-sm ml-auto"
                   onClick={() => {
                     const newAnnotations = state.annotations.filter(ann => ann.id !== editingGroup.id);
                     setValue("annotations", newAnnotations);
@@ -242,10 +242,10 @@ export default function TableAnnotator({}) {
                 <button className="btn btn-outline mr-2" onClick={handleCancelEdit}>
                   Cancel
                 </button>
-                <button 
-                  className="btn" 
+                <button
+                  className="btn"
                   onClick={handleSaveChanges}
-                  style={{ 
+                  style={{
                     backgroundColor: editingGroup.color,
                     borderColor: editingGroup.color,
                     color: 'white'
@@ -269,8 +269,8 @@ export default function TableAnnotator({}) {
 	      <SortableList
 	        groupedConcepts={annotations}
 	        setGroupedConcepts={sortAnnotations}
-          onEditGroup={startEditingGroup}
-          editingGroup={editingGroup}
+            onEditGroup={startEditingGroup}
+            editingGroup={editingGroup}
 	      />
       </div>
 
