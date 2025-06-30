@@ -159,6 +159,12 @@ const MetadataViewer = () => {
         selectedCuis: bestMatch ? [...new Set([...currentMapping.selectedCuis, bestMatch.cui])] : currentMapping.selectedCuis,
       };
 
+      if (bestMatch) {
+        const cleanOption = { ...bestMatch, value: bestMatch.cui };
+        delete cleanOption.isBestMatch;
+        setLastSelectedOption(cleanOption);
+      }
+
       setValue('metadataMappings', newMappings);
     } catch (error) {
       console.error('Failed to fetch related concepts:', error);
@@ -241,6 +247,12 @@ const MetadataViewer = () => {
         availableOptions: uniqueOptions,
         selectedCuis: bestMatch ? [...new Set([...currentMapping.selectedCuis, bestMatch.cui])] : currentMapping.selectedCuis,
       };
+
+      if (bestMatch) {
+        const cleanOption = { ...bestMatch, value: bestMatch.cui };
+        delete cleanOption.isBestMatch;
+        setLastSelectedOption(cleanOption);
+      }
 
       setValue('metadataMappings', newMappings);
       setCurrentSearch(prev => ({ ...prev, [cleanedContent]: '' }));
