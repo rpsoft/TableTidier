@@ -1,13 +1,25 @@
 import mongoose from "mongoose";
 import { v4 as uuidv4 } from "uuid";
 
-const collectionSchema = new mongoose.Schema({
+const documentSchema = new mongoose.Schema({
   id: {
     type: String,
     default: uuidv4,
     unique: true,
   },
   name: {
+    type: String,
+    required: true,
+  },
+  fileName: {
+    type: String,
+    required: true,
+  },
+  htmlContent: {
+    type: String,
+    required: true,
+  },
+  collectionId: {
     type: String,
     required: true,
   },
@@ -27,7 +39,11 @@ const collectionSchema = new mongoose.Schema({
     type: String,
     default: '',
   },
+  tableCount: {
+    type: Number,
+    default: 0,
+  },
 });
 
 // Use the default mongoose connection instead of creating a new one
-export const Collection = mongoose.models.Collections || mongoose.model("Collections", collectionSchema); 
+export const Document = mongoose.models.Documents || mongoose.model("Documents", documentSchema); 

@@ -6,7 +6,7 @@ import { Download } from 'lucide-react';
 import { Tooltip } from 'antd';
 import Tabletools from '@/app/table/tableTools'; // Import Tabletools
 
-export default function TableList({ tables, onDelete }) {
+export default function TableList({ tables, onDelete, collectionId, documentId }) {
   const [isDeleting, setIsDeleting] = useState(false);
   // State to cache processed extracted data for each table
   const [processedDataCache, setProcessedDataCache] = useState({}); 
@@ -16,7 +16,7 @@ export default function TableList({ tables, onDelete }) {
   if (tables.length === 0) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-400">No tables in this collection yet. Upload one to get started!</p>
+        <p className="text-gray-400">No tables in this document yet. Extract tables to get started!</p>
       </div>
     );
   }
@@ -33,7 +33,7 @@ export default function TableList({ tables, onDelete }) {
     }
   };
 
-  const handleDelete = async (tableId, collectionId) => {
+  const handleDelete = async (tableId) => {
     if (isDeleting) return;
     
     if (!window.confirm('Are you sure you want to delete this table?')) {
@@ -42,7 +42,8 @@ export default function TableList({ tables, onDelete }) {
 
     setIsDeleting(true);
     try {
-      const response = await fetch(`/api/collections/${collectionId}/tables/${tableId}`, {
+      // Use the new API route for tables within documents
+      const response = await fetch(`/api/collections/${collectionId}/documents/${documentId}/tables/${tableId}`, {
         method: 'DELETE',
       });
 
@@ -62,13 +63,14 @@ export default function TableList({ tables, onDelete }) {
 
   // Fetch full table data
   const fetchTableData = async (table) => {
-    if (!table || !table.id || !table.collectionId) {
-      console.error('Missing table ID or collection ID for fetching data');
+    if (!table || !table.id || !collectionId || !documentId) {
+      console.error('Missing table ID, collection ID, or document ID for fetching data');
       return null;
     }
-    const { id: tableId, collectionId } = table;
+    const { id: tableId } = table;
     try {
-      const response = await fetch(`/api/collections/${collectionId}/tables/${tableId}`); 
+      // Use the new API route for tables within documents
+      const response = await fetch(`/api/collections/${collectionId}/documents/${documentId}/tables/${tableId}`); 
       if (response.ok) {
         const tableData = await response.json();
         return tableData;
@@ -261,7 +263,7 @@ export default function TableList({ tables, onDelete }) {
     }
 
     if (successfulResults.length === 0) {
-      alert('No data could be extracted from any tables in this collection.');
+      alert('No data could be extracted from any tables in this document.');
       return;
     }
     
@@ -309,7 +311,7 @@ export default function TableList({ tables, onDelete }) {
 
     // Generate CSV content
     const headers = ['SourceTable', 'Value', 'Row', 'Column', 'Concepts'];
-    const csvRows = [headers.join(',')]; // Start with header row
+    const csvRows = [headers.join(',')];
 
     successfulResults.forEach(tableResult => {
         // Only add rows if there is extracted data for the table
@@ -418,7 +420,7 @@ export default function TableList({ tables, onDelete }) {
                   </button>
                   {/* Delete Button - Unchanged text, added title */}
                   <button
-                    onClick={() => handleDelete(table.id, table.collectionId)}
+                    onClick={() => handleDelete(table.id)}
                     disabled={isDeleting}
                     className="text-red-400 hover:text-red-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors p-1 ml-2" /* Added margin */
                     title="Delete Table"

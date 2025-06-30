@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter, useParams } from 'next/navigation';
-import TableList from '@/components/tables/TableList';
-import UploadTableModal from '@/components/tables/UploadTableModal';
+import DocumentList from '@/components/documents/DocumentList';
+import UploadDocumentModal from '@/components/documents/UploadDocumentModal';
 import Header from '@/components/ui/header';
 import { Pencil } from 'lucide-react';
 
@@ -13,7 +13,7 @@ export default function CollectionPage() {
   const router = useRouter();
   const params = useParams();
   const [collection, setCollection] = useState(null);
-  const [tables, setTables] = useState([]);
+  const [documents, setDocuments] = useState([]);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [descriptionDraft, setDescriptionDraft] = useState('');
@@ -28,7 +28,7 @@ export default function CollectionPage() {
   useEffect(() => {
     if (session?.user?.email) {
       fetchCollection();
-      fetchTables();
+      fetchDocuments();
     }
   }, [session, params.id]);
 
@@ -50,39 +50,48 @@ export default function CollectionPage() {
     }
   };
 
-  const fetchTables = async () => {
+  const fetchDocuments = async () => {
     try {
-      const response = await fetch(`/api/collections/${params.id}/tables`);
+      const response = await fetch(`/api/collections/${params.id}/documents`);
       if (response.ok) {
         const data = await response.json();
-        setTables(data);
+        setDocuments(data);
       }
     } catch (error) {
-      console.error('Error fetching tables:', error);
+      console.error('Error fetching documents:', error);
     }
   };
 
-  const handleUploadTable = async (file) => {
+  const handleUploadDocument = async (file) => {
     try {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await fetch(`/api/collections/${params.id}/tables`, {
+      const response = await fetch(`/api/collections/${params.id}/documents`, {
         method: 'POST',
         body: formData,
       });
 
       if (response.ok) {
-        fetchTables();
+        fetchDocuments();
         setIsUploadModalOpen(false);
       }
     } catch (error) {
-      console.error('Error uploading table:', error);
+      console.error('Error uploading document:', error);
     }
   };
 
-  const handleDeleteTable = (tableId) => {
-    setTables(tables.filter(table => table.id !== tableId));
+  const handleDeleteDocument = (documentId) => {
+    setDocuments(documents.filter(document => document.id !== documentId));
+  };
+
+  const handleExtractTables = (documentId, tableCount) => {
+    // Update the document's table count in the local state
+    setDocuments(prev => prev.map(doc => 
+      doc.id === documentId 
+        ? { ...doc, tableCount: tableCount }
+        : doc
+    ));
   };
 
   const handleEditDescription = () => {
@@ -134,48 +143,49 @@ export default function CollectionPage() {
 	          onClick={() => setIsUploadModalOpen(true)}
 	          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
 	        >
-	          Upload Table
+	          Upload Document
 	        </button>
 	      </div>
 
 	      {/* Description Box */}
 	      <div className="mb-8 bg-gray-800 border border-gray-700 rounded-lg shadow-sm p-5 transition-all">
 	        <div className="flex items-start justify-between gap-2">
-	          <div className="w-full">
+	          <div className="flex-1">
 	            {isEditingDescription ? (
-	              <>
+	              <div className="space-y-3">
 	                <textarea
-	                  className="w-full border border-gray-600 rounded-md p-2 text-gray-100 bg-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm transition-all font-medium min-h-[60px] placeholder-gray-400"
-	                  rows={3}
 	                  value={descriptionDraft}
-	                  onChange={e => setDescriptionDraft(e.target.value)}
-	                  disabled={isSavingDescription}
-	                  placeholder="Add a description for this collection..."
+	                  onChange={(e) => setDescriptionDraft(e.target.value)}
+	                  className="w-full p-3 bg-gray-900 border border-gray-600 rounded-md text-white resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+	                  rows={3}
+	                  placeholder="Enter collection description..."
 	                />
-	                <div className="mt-2 flex gap-2">
+	                <div className="flex gap-2">
 	                  <button
-	                    className="bg-blue-600 text-white px-4 py-1.5 rounded-md hover:bg-blue-700 transition disabled:opacity-50 font-semibold shadow"
 	                    onClick={handleSaveDescription}
 	                    disabled={isSavingDescription}
+	                    className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
 	                  >
 	                    {isSavingDescription ? 'Saving...' : 'Save'}
 	                  </button>
 	                  <button
-	                    className="bg-gray-700 text-gray-200 px-4 py-1.5 rounded-md hover:bg-gray-600 transition font-semibold shadow"
 	                    onClick={handleCancelEdit}
-	                    disabled={isSavingDescription}
+	                    className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
 	                  >
 	                    Cancel
 	                  </button>
 	                </div>
-	              </>
+	              </div>
 	            ) : (
-	              <>
-	                <div className="text-gray-100 min-h-[1.5em] whitespace-pre-line font-medium text-base">{collection.description || <span className="italic text-gray-400">No description yet.</span>}</div>
-	              </>
+	              <div>
+	                <h3 className="text-lg font-semibold text-white mb-2">Description</h3>
+	                <p className="text-gray-300 whitespace-pre-wrap">
+	                  {collection.description || 'No description provided.'}
+	                </p>
+	              </div>
 	            )}
 	          </div>
-	          {/* Only allow editing if user is owner */}
+
 	          {session?.user?.email === collection.userId && !isEditingDescription && (
 	            <button
 	              className="ml-2 p-2 rounded-full hover:bg-blue-900 text-blue-400 transition flex items-center justify-center border border-transparent hover:border-blue-700"
@@ -188,12 +198,16 @@ export default function CollectionPage() {
 	        </div>
 	      </div>
 
-	      <TableList tables={tables} onDelete={handleDeleteTable} />
+	      <DocumentList 
+	        documents={documents} 
+	        onDelete={handleDeleteDocument}
+	        onExtractTables={handleExtractTables}
+	      />
 
-	      <UploadTableModal
+	      <UploadDocumentModal
 	        isOpen={isUploadModalOpen}
 	        onClose={() => setIsUploadModalOpen(false)}
-	        onUpload={handleUploadTable}
+	        onUpload={handleUploadDocument}
 	      />
 	    </div>
 	  </div>

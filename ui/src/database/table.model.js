@@ -35,6 +35,10 @@ const tableSchema = new mongoose.Schema({
     //     message: (props) => `${props.value} is not a valid cohort!`,
     // },
   },
+  documentId: {
+    type: String,
+    required: true,
+  },
   collectionId: {
     type: String,
     required: true,
@@ -53,8 +57,7 @@ const tableSchema = new mongoose.Schema({
   },
 });
 
-export const Table = mongoose
-  .createConnection(process.env.MONGODB_URI)
-  .model("Tables", tableSchema);
+// Use the default mongoose connection instead of creating a new one
+export const Table = mongoose.models.Tables || mongoose.model("Tables", tableSchema);
 
 // module.exports = { Table };

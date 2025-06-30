@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { Collection } from '@/database/collection.model';
+import { Document } from '@/database/document.model';
 import dbConnect from '@/database/connection';
 
 export async function GET(request, { params }) {
@@ -21,9 +22,19 @@ export async function GET(request, { params }) {
       return NextResponse.json({ error: 'Collection not found' }, { status: 404 });
     }
 
-    return NextResponse.json(collection);
+    const document = await Document.findOne({
+      id: resolvedParams.documentId,
+      collectionId: resolvedParams.id,
+      userId: session.user.email,
+    });
+
+    if (!document) {
+      return NextResponse.json({ error: 'Document not found' }, { status: 404 });
+    }
+
+    return NextResponse.json(document);
   } catch (error) {
-    console.error('Error fetching collection:', error);
+    console.error('Error fetching document:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -31,7 +42,7 @@ export async function GET(request, { params }) {
   }
 }
 
-export async function PATCH(request, { params }) {
+export async function DELETE(request, { params }) {
   try {
     await dbConnect();
     const session = await auth();
@@ -40,24 +51,28 @@ export async function PATCH(request, { params }) {
     }
 
     const resolvedParams = await params;
-    const { description } = await request.json();
-    if (typeof description !== 'string') {
-      return NextResponse.json({ error: 'Description must be a string' }, { status: 400 });
-    }
-
-    const collection = await Collection.findOneAndUpdate(
-      { id: resolvedParams.id, userId: session.user.email },
-      { description, updatedAt: new Date() },
-      { new: true }
-    );
+    const collection = await Collection.findOne({
+      id: resolvedParams.id,
+      userId: session.user.email,
+    });
 
     if (!collection) {
       return NextResponse.json({ error: 'Collection not found' }, { status: 404 });
     }
 
-    return NextResponse.json(collection);
+    const document = await Document.findOneAndDelete({
+      id: resolvedParams.documentId,
+      collectionId: resolvedParams.id,
+      userId: session.user.email,
+    });
+
+    if (!document) {
+      return NextResponse.json({ error: 'Document not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ message: 'Document deleted successfully' });
   } catch (error) {
-    console.error('Error updating collection description:', error);
+    console.error('Error deleting document:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

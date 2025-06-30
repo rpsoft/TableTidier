@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { Collection } from '@/database/collection.model';
+import dbConnect from '@/database/connection';
 
 export async function GET() {
   try {
+    await dbConnect();
     const session = await auth();
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -19,6 +21,7 @@ export async function GET() {
 
 export async function POST(request) {
   try {
+    await dbConnect();
     const session = await auth();
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
