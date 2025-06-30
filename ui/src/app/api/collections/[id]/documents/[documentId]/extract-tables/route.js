@@ -107,8 +107,8 @@ export async function POST(request, { params }) {
     const createdTables = [];
     for (const tableData of extractedTables) {
       const table = await Table.create({
-        documentId: document._id,
-        collectionId: collection._id,
+        documentId: document.id,
+        collectionId: collection.id,
         htmlContent: tableData.htmlContent,
         fileName: tableData.fileName,
         createdAt: new Date(),

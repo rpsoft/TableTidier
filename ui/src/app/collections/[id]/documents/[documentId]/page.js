@@ -132,9 +132,15 @@ export default function DocumentPage() {
         {/* Document Content Preview */}
         <div className="mb-8 bg-gray-800 border border-gray-700 rounded-lg shadow-sm p-5">
           <h3 className="text-lg font-semibold text-white mb-3">Document Content Preview</h3>
-          <div 
+          {/* <div 
             className="text-sm text-gray-300 overflow-auto max-h-96 border border-gray-600 rounded p-4 bg-gray-900"
             dangerouslySetInnerHTML={{ __html: document.htmlContent }}
+          /> */}
+          <iframe
+            srcDoc={document.htmlContent}
+            className="w-full h-96 border border-gray-600 rounded bg-white"
+            title="Document Preview"
+            sandbox="allow-same-origin"
           />
         </div>
 
