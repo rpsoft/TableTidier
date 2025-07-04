@@ -1,0 +1,15 @@
+{
+  "name": "pdf-table-extractor",
+  "version": "1.0.0",
+  "scripts": {
+    "install-python-deps": "pip install -r backend/requirements.txt",
+    "start-backend": "uvicorn backend.server:app --host 127.0.0.1 --port 8000",
+    "start:venv": "source venv/bin/activate && uvicorn backend.server:app --reload",
+    "setup": "npm run install-python-deps",
+    "start": "npm run start-backend"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "form-data": "^4.0.0"
+  }
+}

@@ -1,13 +1,44 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
-import { FileText, Table, Download, Trash2 } from 'lucide-react';
+import { useState, Fragment } from 'react';
+import { FileText, Table, Download, Trash2, ChevronRight, ChevronDown } from 'lucide-react';
 import { Tooltip } from 'antd';
+
+function TableList({ tables, collectionId, documentId }) {
+    if (!tables) {
+        return <div>Loading tables...</div>;
+    }
+    if (tables.length === 0) {
+        return <div className="px-6 py-4 text-gray-400">No tables found for this document.</div>;
+    }
+
+    // debugger
+
+    return (
+        <div className="bg-gray-800 p-4">
+            <h4 className="text-md font-semibold text-white mb-2">Extracted Tables</h4>
+            <ul className="divide-y divide-gray-700">
+                {tables.map(table => (
+                    <li key={table.id} className="py-2 flex justify-between items-center hover:bg-gray-700 px-2 rounded">
+                        <Link
+                            href={`/collections/${collectionId}/documents/${documentId}/tables/${table.id}`}
+                            className="text-blue-400 hover:text-blue-300 transition-colors"
+                        >
+                            Table from {table.fileName}
+                        </Link>
+                    </li>
+                ))}
+            </ul>
+        </div>
+    );
+}
 
 export default function DocumentList({ documents, onDelete, onExtractTables }) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [extractingTables, setExtractingTables] = useState({});
+  const [expandedDocuments, setExpandedDocuments] = useState(new Set());
+  const [tables, setTables] = useState({});
 
   if (documents.length === 0) {
     return (
@@ -27,6 +58,31 @@ export default function DocumentList({ documents, onDelete, onExtractTables }) {
       console.error('Error formatting date:', error);
       return 'Invalid date';
     }
+  };
+
+  const toggleDocumentExpansion = async (documentId, collectionId) => {
+    const newExpanded = new Set(expandedDocuments);
+    if (newExpanded.has(documentId)) {
+        newExpanded.delete(documentId);
+    } else {
+        newExpanded.add(documentId);
+        if (!tables[documentId]) {
+            // Fetch tables
+            try {
+                const response = await fetch(`/api/collections/${collectionId}/documents/${documentId}/tables`);
+                if(response.ok) {
+                    const tablesData = await response.json();
+                    setTables(prev => ({ ...prev, [documentId]: tablesData }));
+                } else {
+                    setTables(prev => ({...prev, [documentId]: []})); // no tables or error
+                }
+            } catch (error) {
+                console.error("Failed to fetch tables", error);
+                setTables(prev => ({...prev, [documentId]: []})); // error case
+            }
+        }
+    }
+    setExpandedDocuments(newExpanded);
   };
 
   const handleDelete = async (documentId, collectionId) => {
@@ -87,6 +143,7 @@ export default function DocumentList({ documents, onDelete, onExtractTables }) {
       <table className="w-full table-fixed">
         <thead className="bg-gray-800">
           <tr>
+            <th className="w-10 px-4"></th>
             <th className="w-[25%] px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Document Name</th>
             <th className="w-[15%] px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Upload Date</th>
             <th className="w-[15%] px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Tables</th>
@@ -96,7 +153,13 @@ export default function DocumentList({ documents, onDelete, onExtractTables }) {
         </thead>
         <tbody className="bg-gray-900 divide-y divide-gray-700">
           {documents.map((document) => (
-            <tr key={document.id} className="hover:bg-gray-800 transition-colors">
+            <Fragment key={document.id}>
+            <tr className="hover:bg-gray-800 transition-colors">
+              <td className="px-4 py-4">
+                <button onClick={() => toggleDocumentExpansion(document.id, document.collectionId)} className="p-1 rounded-full hover:bg-gray-700">
+                    {expandedDocuments.has(document.id) ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                </button>
+              </td>
               <td className="px-6 py-4 break-words">
                 <Tooltip title={document.name}>
                   <Link
@@ -150,6 +213,14 @@ export default function DocumentList({ documents, onDelete, onExtractTables }) {
                 </div>
               </td>
             </tr>
+            {expandedDocuments.has(document.id) && (
+                <tr>
+                    <td colSpan="6" className="p-0">
+                        <TableList tables={tables[document.id]} collectionId={document.collectionId} documentId={document.id}/>
+                    </td>
+                </tr>
+            )}
+            </Fragment>
           ))}
         </tbody>
       </table>
