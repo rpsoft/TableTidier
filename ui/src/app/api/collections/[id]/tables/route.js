@@ -3,6 +3,31 @@ import { auth } from '@/auth';
 import { Collection } from '@/database/collection.model';
 import { Table } from '@/database/table.model';
 import { canAccessCollection } from '@/lib/permissions';
+import * as cheerio from 'cheerio';
+
+// Function to strip style attributes from HTML content
+function stripStyleAttributes(htmlContent) {
+  try {
+    const $ = cheerio.load(htmlContent);
+    
+    // Remove style attributes from all elements
+    $('*').removeAttr('style');
+    
+    // Also remove other problematic styling attributes that might interfere
+    $('*').removeAttr('bgcolor');
+    $('*').removeAttr('color');
+    $('*').removeAttr('background');
+    
+    // Remove any inline CSS that might be in style tags
+    $('style').remove();
+    
+    return $.html();
+  } catch (error) {
+    console.error('Error stripping style attributes:', error);
+    // Return original content if stripping fails
+    return htmlContent;
+  }
+}
 
 export async function GET(request, { params }) {
   try {
@@ -75,9 +100,12 @@ export async function POST(request, { params }) {
       );
     }
 
+    // Strip style attributes and other problematic styling from the HTML
+    const cleanedHtmlContent = stripStyleAttributes(fileContent);
+
     const table = await Table.create({
       collectionId: resolvedParams.id,
-      htmlContent: fileContent,
+      htmlContent: cleanedHtmlContent,
       fileName: file.name,
       createdAt: new Date(),
     });

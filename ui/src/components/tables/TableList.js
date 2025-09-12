@@ -389,7 +389,7 @@ export default function TableList({ tables, onDelete }) {
               </td>
               <td className="px-6 py-4">
                 <div 
-                  className="text-sm text-gray-200 overflow-hidden max-h-20 [&_table]:w-full [&_table]:border-collapse [&_table]:border [&_table]:border-gray-600 [&_th]:bg-gray-700 [&_th]:text-gray-100 [&_th]:border [&_th]:border-gray-600 [&_th]:px-2 [&_th]:py-1 [&_th]:text-xs [&_th]:font-medium [&_td]:bg-gray-800 [&_td]:text-gray-200 [&_td]:border [&_td]:border-gray-600 [&_td]:px-2 [&_td]:py-1 [&_td]:text-xs"
+                  className="text-sm text-gray-200 overflow-hidden max-h-20"
                   dangerouslySetInnerHTML={{ __html: table.htmlContent }}
                 />
               </td>
