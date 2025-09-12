@@ -112,13 +112,18 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
       const tr = document.createElement('tr');
       
       row.forEach((cell, colIndex) => {
+        // Skip if cell is null or undefined
+        if (!cell) {
+          return;
+        }
+        
         // Skip merged cells - they are covered by other cells
         if (cell.isMerged) {
           return;
         }
         
         const cellElement = document.createElement(cell.tagName || 'td');
-        cellElement.innerHTML = cell.content;
+        cellElement.innerHTML = cell.content || '';
         
         if (cell.colspan > 1) cellElement.setAttribute('colspan', cell.colspan);
         if (cell.rowspan > 1) cellElement.setAttribute('rowspan', cell.rowspan);
@@ -289,8 +294,9 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
   // Handle cell double click for editing
   const handleCellDoubleClick = (row, col) => {
     const cell = tableData[row][col];
+    if (!cell) return;
     setEditingCell({ row, col });
-    setEditingValue(cell.content);
+    setEditingValue(cell.content || '');
   };
 
   // Save cell edit
@@ -421,7 +427,7 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
     
     // Also copy to clipboard as text
     const textData = copiedData.map(row => 
-      row.map(cell => cell.content).join('\t')
+      row.map(cell => cell?.content || '').join('\t')
     ).join('\n');
     
     navigator.clipboard.writeText(textData).catch(console.error);

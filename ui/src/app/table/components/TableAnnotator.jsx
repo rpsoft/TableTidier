@@ -58,17 +58,30 @@ export default function TableAnnotator({}) {
     const newSelectedCells = {};
     
     // Check if group has cells array, if not use concepts
-    const cells = group.cells || Object.entries(group.concepts).map(([key, concept]) => {
+    const cells = group.cells || Object.entries(group.concepts || {}).map(([key, concept]) => {
       const [row, col] = key.split('-').map(Number);
       return [row, col];
     });
 
-    cells.forEach(([row, col]) => {
+    // Filter out invalid cells and ensure they are valid arrays
+    const validCells = cells.filter(cell => 
+      Array.isArray(cell) && 
+      cell.length === 2 && 
+      typeof cell[0] === 'number' && 
+      typeof cell[1] === 'number' &&
+      !isNaN(cell[0]) && 
+      !isNaN(cell[1])
+    );
+
+    validCells.forEach(([row, col]) => {
       const key = `${row}-${col}`;
-      newSelectedCells[key] = {
-        tablePosition: [row, col],
-        content: state.tableNodes[row][col]
-      };
+      // Add additional safety checks for tableNodes access
+      if (state.tableNodes && state.tableNodes[row] && state.tableNodes[row][col] !== undefined) {
+        newSelectedCells[key] = {
+          tablePosition: [row, col],
+          content: state.tableNodes[row][col]
+        };
+      }
     });
 
     setValue("selectedCells", newSelectedCells);
@@ -99,10 +112,13 @@ export default function TableAnnotator({}) {
             category: conceptsCategory,
             concepts: selectedCellPositions.reduce((acc, [row, col]) => {
               const key = `${row}-${col}`;
-              acc[key] = {
-                content: state.tableNodes[row][col],
-                tablePosition: [row, col]
-              };
+              // Add safety checks for tableNodes access
+              if (state.tableNodes && state.tableNodes[row] && state.tableNodes[row][col] !== undefined) {
+                acc[key] = {
+                  content: state.tableNodes[row][col],
+                  tablePosition: [row, col]
+                };
+              }
               return acc;
             }, {})
           };
@@ -221,12 +237,16 @@ export default function TableAnnotator({}) {
             .sort((a, b) => {
               var A = a.split("-");
               var B = b.split("-");
+              // Add safety checks for array access
+              if (A.length < 2 || B.length < 2) return 0;
               return A[0] == B[0] ? A[1] >= B[1] : A[0] >= B[0];
             })
             .map((key) => {
+              const cell = state.selectedCells[key];
+              if (!cell || cell.content === undefined) return null;
               return (
                 <div key={"sel_" + key} className="m-4 mt-0 mb-0">
-                  {state.selectedCells[key].content}
+                  {cell.content}
                 </div>
               );
             })}
