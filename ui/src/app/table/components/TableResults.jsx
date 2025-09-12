@@ -12,7 +12,7 @@ export default function TableResults() {
 		return state.extractedData
 			.flatMap((row, rowIndex) => 
 				row.map((cell, colIndex) => {
-					if (!cell || !cell.concepts.length || !cell.cellData.trim()) return null;
+					if (!cell || !cell.concepts.length || !cell.cellData || !cell.cellData.trim()) return null;
 					
 					return {
 						value: cell.cellData,
@@ -157,33 +157,38 @@ export default function TableResults() {
 											<td key={"ex_" + e + "_" + c} className="max-w-[200px]">
 												{cell != null &&
 													cell.concepts.length > 0 &&
+													cell.cellData &&
 													cell.cellData.trim().length > 0 ? (
 													<div className="dropdown dropdown-hover dropdown-right">
 														<div
 															tabIndex={0}
 															role="button"
 															className="btn m-[1px] py-0 min-h-4 h-6 max-w-full truncate"
-															title={cell.cellData}
+															title={cell.cellData || ''}
 														>
-															{cell.cellData}
+															{cell.cellData || ''}
 														</div>
 														<ul
 															tabIndex={0}
 															className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
 														>
 															{cell.concepts.map((concept, op) => {
-																const conceptKey = `${e}-${c}-${concept.map( con => con.content ).join(" -> ")}`;
+																// Add safety checks for concept array and content
+																const conceptContent = Array.isArray(concept) 
+																	? concept.map(con => con?.content || '').filter(Boolean).join(" -> ")
+																	: '';
+																const conceptKey = `${e}-${c}-${conceptContent}`;
 																const isSelected = selectedConcepts.has(conceptKey);
-																const isEditing = editingGroup === concept.map( con => con.content ).join(" -> ");
+																const isEditing = editingGroup === conceptContent;
 																return (
 																	<li 
 																		key={`concept_${e}_${c}_${op}`} 
 																		className={`truncate flex items-center gap-2 ${isSelected ? 'bg-primary text-primary-content' : ''} ${isEditing ? 'cursor-pointer' : ''}`}
-																		title={concept.map( con => con.content ).join(" -> ")}
-																		onClick={() => isEditing && handleConceptClick(concept.map( con => con.content ).join(" -> "), e, c)}
+																		title={conceptContent}
+																		onClick={() => isEditing && handleConceptClick(conceptContent, e, c)}
 																	>
 																		{isSelected ? <Check size={16} /> : null}
-																		{concept.map( con => con.content ).join(" -> ")}
+																		{conceptContent}
 																	</li>
 																);
 															})}
