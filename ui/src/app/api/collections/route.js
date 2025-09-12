@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { Collection } from '@/database/collection.model';
+import { hasAdminAccess } from '@/lib/permissions';
 
 export async function GET() {
   try {
@@ -9,7 +10,12 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const collections = await Collection.find({ userId: session.user.email });
+    // Admin can see all collections, regular users only see their own
+    const query = hasAdminAccess(session) 
+      ? {} 
+      : { userId: session.user.email };
+    
+    const collections = await Collection.find(query);
     return NextResponse.json(collections);
   } catch (error) {
     console.error('Error fetching collections:', error);

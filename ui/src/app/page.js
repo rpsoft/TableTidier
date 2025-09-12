@@ -1,5 +1,6 @@
 "use client"
 import Header from "@/components/ui/header";
+import AdminIndicator from "@/components/AdminIndicator";
 import { SessionProvider } from 'next-auth/react';
 import Link from "next/link";
 import { useSession } from 'next-auth/react';
@@ -52,6 +53,7 @@ function Content() {
 
 	return (
 		<div className="max-w-6xl mx-auto">
+			<AdminIndicator />
 			<div className="text-center mb-12">
 				<h1 className="text-4xl font-bold mb-4 text-white">Welcome back, {session.user?.name}</h1>
 				<p className="text-xl mb-8 text-gray-300">Manage your collections and tables</p>

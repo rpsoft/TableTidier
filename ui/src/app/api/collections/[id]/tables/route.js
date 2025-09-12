@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { Collection } from '@/database/collection.model';
 import { Table } from '@/database/table.model';
+import { canAccessCollection } from '@/lib/permissions';
 
 export async function GET(request, { params }) {
   try {
@@ -13,11 +14,15 @@ export async function GET(request, { params }) {
     const resolvedParams = await params;
     const collection = await Collection.findOne({
       id: resolvedParams.id,
-      userId: session.user.email,
     });
 
     if (!collection) {
       return NextResponse.json({ error: 'Collection not found' }, { status: 404 });
+    }
+
+    // Check if user can access this collection
+    if (!canAccessCollection(session, collection.userId)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const tables = await Table.find({ collectionId: resolvedParams.id });
@@ -41,11 +46,15 @@ export async function POST(request, { params }) {
     const resolvedParams = await params;
     const collection = await Collection.findOne({
       id: resolvedParams.id,
-      userId: session.user.email,
     });
 
     if (!collection) {
       return NextResponse.json({ error: 'Collection not found' }, { status: 404 });
+    }
+
+    // Check if user can access this collection
+    if (!canAccessCollection(session, collection.userId)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const formData = await request.formData();
