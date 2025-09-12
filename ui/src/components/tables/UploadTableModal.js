@@ -5,6 +5,7 @@ import { useState } from 'react';
 export default function UploadTableModal({ isOpen, onClose, onUpload }) {
   const [file, setFile] = useState(null);
   const [error, setError] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
 
   if (!isOpen) return null;
 
@@ -28,6 +29,13 @@ export default function UploadTableModal({ isOpen, onClose, onUpload }) {
       return;
     }
 
+    if (isUploading) {
+      return; // Prevent multiple submissions
+    }
+
+    setIsUploading(true);
+    setError('');
+
     try {
       const fileContent = await file.text();
       if (!fileContent.includes('<table')) {
@@ -35,9 +43,11 @@ export default function UploadTableModal({ isOpen, onClose, onUpload }) {
         return;
       }
 
-      onUpload(file);
+      await onUpload(file);
     } catch (error) {
       setError('Error reading file');
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -55,7 +65,8 @@ export default function UploadTableModal({ isOpen, onClose, onUpload }) {
               id="file"
               accept=".html"
               onChange={handleFileChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+              disabled={isUploading}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
               required
             />
             {file && (
@@ -69,15 +80,23 @@ export default function UploadTableModal({ isOpen, onClose, onUpload }) {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-gray-800 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors font-medium"
+              disabled={isUploading}
+              className="px-4 py-2 text-gray-800 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors font-medium"
+              disabled={isUploading}
+              className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
-              Upload
+              {isUploading && (
+                <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              )}
+              {isUploading ? 'Uploading...' : 'Upload'}
             </button>
           </div>
         </form>

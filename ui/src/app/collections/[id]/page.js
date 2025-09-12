@@ -65,9 +65,13 @@ export default function CollectionPage() {
       if (response.ok) {
         fetchTables();
         setIsUploadModalOpen(false);
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Upload failed');
       }
     } catch (error) {
       console.error('Error uploading table:', error);
+      throw error; // Re-throw to let the modal handle the error display
     }
   };
 
