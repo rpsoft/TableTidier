@@ -14,6 +14,8 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
   const [editingValue, setEditingValue] = useState("");
   const [showHelpDialog, setShowHelpDialog] = useState(false);
   const [copiedCells, setCopiedCells] = useState(null);
+  const [history, setHistory] = useState([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
   const tableRef = useRef(null);
   const editingInputRef = useRef(null);
 
@@ -74,6 +76,9 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
     if (initialHtml) {
       const parsed = parseHtmlTable(initialHtml);
       setTableData(parsed);
+      // Initialize history with the initial state
+      setHistory([JSON.parse(JSON.stringify(parsed))]);
+      setHistoryIndex(0);
     }
   }, [initialHtml, parseHtmlTable]);
 
@@ -196,6 +201,7 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
       const newData = [...prev];
       newData[row] = [...newData[row]];
       newData[row][col] = { ...newData[row][col], content: editingValue };
+      addToHistory(newData);
       return newData;
     });
     
@@ -236,6 +242,39 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
     const html = convertToHtml(tableData);
     saveHtml(html);
   }, [tableData, convertToHtml, saveHtml]);
+
+  // Add state to history
+  const addToHistory = useCallback((newTableData) => {
+    const newHistory = history.slice(0, historyIndex + 1);
+    newHistory.push(JSON.parse(JSON.stringify(newTableData)));
+    
+    // Limit history to 50 states to prevent memory issues
+    if (newHistory.length > 50) {
+      newHistory.shift();
+    } else {
+      setHistoryIndex(historyIndex + 1);
+    }
+    
+    setHistory(newHistory);
+  }, [history, historyIndex]);
+
+  // Undo function
+  const undo = useCallback(() => {
+    if (historyIndex > 0) {
+      const newIndex = historyIndex - 1;
+      setHistoryIndex(newIndex);
+      setTableData(JSON.parse(JSON.stringify(history[newIndex])));
+    }
+  }, [history, historyIndex]);
+
+  // Redo function
+  const redo = useCallback(() => {
+    if (historyIndex < history.length - 1) {
+      const newIndex = historyIndex + 1;
+      setHistoryIndex(newIndex);
+      setTableData(JSON.parse(JSON.stringify(history[newIndex])));
+    }
+  }, [history, historyIndex]);
 
   // Copy selected cells
   const copyCells = useCallback(() => {
@@ -319,11 +358,12 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
         }
       }
       
+      addToHistory(newData);
       return newData;
     });
     
     closeContextMenu();
-  }, [copiedCells, selectedCells, closeContextMenu]);
+  }, [copiedCells, selectedCells, closeContextMenu, addToHistory]);
 
   // Handle keyboard shortcuts
   useEffect(() => {
@@ -357,11 +397,15 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
             break;
           case 'z':
             event.preventDefault();
-            // TODO: Implement undo functionality
+            if (event.shiftKey) {
+              redo();
+            } else {
+              undo();
+            }
             break;
           case 'y':
             event.preventDefault();
-            // TODO: Implement redo functionality
+            redo();
             break;
         }
       } else if (event.key === 'Delete' || event.key === 'Backspace') {
@@ -375,6 +419,7 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
               newData[row] = [...newData[row]];
               newData[row][col] = { ...newData[row][col], content: '' };
             });
+            addToHistory(newData);
             return newData;
           });
         }
@@ -383,7 +428,7 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [editingCell, selectedCells, tableData, handleSave, copyCells, pasteCells]);
+  }, [editingCell, selectedCells, tableData, handleSave, copyCells, pasteCells, undo, redo]);
 
   // Table operations
   const addRow = (position = 'after') => {
@@ -408,6 +453,7 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
     setTableData(prev => {
       const newData = [...prev];
       newData.splice(insertIndex, 0, newRow);
+      addToHistory(newData);
       return newData;
     });
     
@@ -425,7 +471,7 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
     const insertIndex = position === 'before' ? targetCol : targetCol + 1;
     
     setTableData(prev => {
-      return prev.map(row => {
+      const newData = prev.map(row => {
         const newRow = [...row];
         newRow.splice(insertIndex, 0, {
           content: '',
@@ -437,6 +483,8 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
         });
         return newRow;
       });
+      addToHistory(newData);
+      return newData;
     });
     
     closeContextMenu();
@@ -458,6 +506,7 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
       rowsToRemove.forEach(row => {
         newData.splice(row, 1);
       });
+      addToHistory(newData);
       return newData;
     });
     
@@ -477,13 +526,15 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
     const colsToRemove = Array.from(selectedCols).sort((a, b) => b - a);
     
     setTableData(prev => {
-      return prev.map(row => {
+      const newData = prev.map(row => {
         const newRow = [...row];
         colsToRemove.forEach(col => {
           newRow.splice(col, 1);
         });
         return newRow;
       });
+      addToHistory(newData);
+      return newData;
     });
     
     setSelectedCells(new Set());
@@ -542,6 +593,7 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
         }
       }
       
+      addToHistory(newData);
       return newData;
     });
     
@@ -587,6 +639,7 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
         }
       }
       
+      addToHistory(newData);
       return newData;
     });
     
@@ -645,6 +698,19 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
       {/* Toolbar */}
       <div className="flex flex-wrap gap-2 p-3 bg-white border-b border-gray-300 shadow-sm flex-shrink-0">
         <div className="flex items-center gap-2">
+          <button onClick={undo} className="btn btn-outline btn-sm text-gray-700 border-gray-400 hover:bg-gray-100" disabled={historyIndex <= 0}>
+            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+            </svg>
+            Undo
+          </button>
+          <button onClick={redo} className="btn btn-outline btn-sm text-gray-700 border-gray-400 hover:bg-gray-100" disabled={historyIndex >= history.length - 1}>
+            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 10h-10a8 8 0 00-8 8v2m18-10l-6-6m6 6l-6 6" />
+            </svg>
+            Redo
+          </button>
+          <div className="divider divider-horizontal"></div>
           <button onClick={handleSave} className="btn btn-primary btn-sm text-white">
             <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12" />
@@ -1038,6 +1104,14 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
                     <li className="flex items-start">
                       <span className="text-green-600 mr-2">•</span>
                       <span><strong className="text-gray-900">Delete/Backspace</strong> to clear selected cells</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-green-600 mr-2">•</span>
+                      <span><strong className="text-gray-900">Ctrl+Z</strong> to undo changes</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-green-600 mr-2">•</span>
+                      <span><strong className="text-gray-900">Ctrl+Shift+Z</strong> or <strong className="text-gray-900">Ctrl+Y</strong> to redo changes</span>
                     </li>
                   </ul>
                 </div>
