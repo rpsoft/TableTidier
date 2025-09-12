@@ -18,6 +18,7 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
   const [historyIndex, setHistoryIndex] = useState(-1);
   const tableRef = useRef(null);
   const editingInputRef = useRef(null);
+  const contextMenuRef = useRef(null);
 
   // Parse HTML table into 2D array with proper cell positioning
   const parseHtmlTable = useCallback((html) => {
@@ -223,15 +224,53 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
     setSelectionStart(null);
   };
 
+  // Calculate optimal position for context menu
+  const calculateMenuPosition = (clientX, clientY) => {
+    const menuWidth = 200; // Approximate width of the context menu
+    const menuHeight = 380; // Height accounting for all options with compact padding
+    const padding = 16; // Padding from viewport edges
+    
+    let x = clientX;
+    let y = clientY;
+    
+    // Check if menu would go off the right edge
+    if (x + menuWidth > window.innerWidth - padding) {
+      x = window.innerWidth - menuWidth - padding;
+    }
+    
+    // Check if menu would go off the bottom edge
+    const spaceBelow = window.innerHeight - clientY - padding;
+    const spaceAbove = clientY - padding;
+    
+    if (spaceBelow < menuHeight) {
+      // Not enough space below, try above
+      if (spaceAbove >= menuHeight) {
+        // Enough space above, position above cursor
+        y = clientY - menuHeight - 8; // 8px gap above cursor
+      } else {
+        // Not enough space above either, position at top with scroll
+        y = padding;
+      }
+    }
+    
+    // Ensure menu doesn't go off the left or top edges
+    x = Math.max(padding, x);
+    y = Math.max(padding, y);
+    
+    return { x, y };
+  };
+
   // Handle right click for context menu
   const handleContextMenu = (row, col, event) => {
     event.preventDefault();
     event.stopPropagation();
     
+    const position = calculateMenuPosition(event.clientX, event.clientY);
+    
     setContextMenu({
       show: true,
-      x: event.clientX,
-      y: event.clientY,
+      x: position.x,
+      y: position.y,
       cell: { row, col }
     });
     
@@ -727,6 +766,19 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
     return () => document.removeEventListener('click', handleClickOutside);
   }, [contextMenu.show]);
 
+  // Handle window resize to reposition context menu
+  useEffect(() => {
+    const handleResize = () => {
+      if (contextMenu.show) {
+        // Close context menu on resize to avoid positioning issues
+        closeContextMenu();
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [contextMenu.show]);
+
   // Close help dialog with Escape key
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -905,10 +957,13 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
       {/* Context Menu */}
       {contextMenu.show && (
         <div
-          className="fixed bg-white border border-gray-300 rounded-lg shadow-xl z-50 py-2 min-w-48"
+          ref={contextMenuRef}
+          className="fixed bg-white border border-gray-300 rounded-lg shadow-xl z-50 py-1 min-w-48 max-w-64"
           style={{
             left: contextMenu.x,
             top: contextMenu.y,
+            maxHeight: '85vh',
+            overflowY: 'auto'
           }}
         >
           <div className="px-3 py-1 text-xs font-semibold text-gray-700 uppercase tracking-wide">
@@ -917,7 +972,7 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
           
           <div className="px-1">
             <button
-              className="w-full px-3 py-2 text-left hover:bg-gray-100 rounded flex items-center gap-2 text-sm text-gray-800"
+              className="w-full px-3 py-1.5 text-left hover:bg-gray-100 rounded flex items-center gap-2 text-sm text-gray-800"
               onClick={() => addRow('before')}
             >
               <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -926,7 +981,7 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
               Insert Row Above
             </button>
             <button
-              className="w-full px-3 py-2 text-left hover:bg-gray-100 rounded flex items-center gap-2 text-sm text-gray-800"
+              className="w-full px-3 py-1.5 text-left hover:bg-gray-100 rounded flex items-center gap-2 text-sm text-gray-800"
               onClick={() => addRow('after')}
             >
               <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -935,7 +990,7 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
               Insert Row Below
             </button>
             <button
-              className="w-full px-3 py-2 text-left hover:bg-gray-100 rounded flex items-center gap-2 text-sm text-gray-800"
+              className="w-full px-3 py-1.5 text-left hover:bg-gray-100 rounded flex items-center gap-2 text-sm text-gray-800"
               onClick={() => addColumn('before')}
             >
               <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -944,7 +999,7 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
               Insert Column Left
             </button>
             <button
-              className="w-full px-3 py-2 text-left hover:bg-gray-100 rounded flex items-center gap-2 text-sm text-gray-800"
+              className="w-full px-3 py-1.5 text-left hover:bg-gray-100 rounded flex items-center gap-2 text-sm text-gray-800"
               onClick={() => addColumn('after')}
             >
               <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
