@@ -629,7 +629,7 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
     setTableData(prev => {
       const newData = [...prev];
       const mergedContent = positions
-        .map(p => newData[p.row][p.col].content)
+        .map(p => newData[p.row][p.col]?.content || '')
         .filter(content => content.trim())
         .join(' ');
       
@@ -674,11 +674,11 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
     const [row, col] = cellKey.split('-').map(Number);
     const cell = tableData[row][col];
     
-    if (cell.colspan <= 1 && cell.rowspan <= 1) return;
+    if ((cell?.colspan || 1) <= 1 && (cell?.rowspan || 1) <= 1) return;
     
     setTableData(prev => {
       const newData = [...prev];
-      const content = cell.content;
+      const content = cell?.content || '';
       
       // Reset the cell
       newData[row][col] = {
@@ -690,8 +690,8 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
       };
       
       // Add new cells to fill the space
-      for (let r = row; r < row + cell.rowspan; r++) {
-        for (let c = col; c < col + cell.colspan; c++) {
+      for (let r = row; r < row + (cell?.rowspan || 1); r++) {
+        for (let c = col; c < col + (cell?.colspan || 1); c++) {
           if (r !== row || c !== col) {
             if (!newData[r]) newData[r] = [];
             newData[r][c] = {
@@ -906,7 +906,7 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
                   const cellKey = `${rowIndex}-${colIndex}`;
                   const isSelected = selectedCells.has(cellKey);
                   const isEditing = editingCell?.row === rowIndex && editingCell?.col === colIndex;
-                  const isMerged = cell.isMerged;
+                  const isMerged = cell?.isMerged || false;
                   
                   // Skip rendering merged cells - they are covered by other cells
                   if (isMerged) {
@@ -924,11 +924,11 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
                           : 'hover:bg-gray-50 hover:border-gray-400'
                         }
                         ${isEditing ? 'bg-white border-blue-500 shadow-md' : ''}
-                        ${cell.colspan > 1 ? 'colspan-' + cell.colspan : ''}
-                        ${cell.rowspan > 1 ? 'rowspan-' + cell.rowspan : ''}
+                        ${(cell?.colspan || 1) > 1 ? 'colspan-' + (cell?.colspan || 1) : ''}
+                        ${(cell?.rowspan || 1) > 1 ? 'rowspan-' + (cell?.rowspan || 1) : ''}
                       `}
-                      colSpan={cell.colspan}
-                      rowSpan={cell.rowspan}
+                      colSpan={cell?.colspan || 1}
+                      rowSpan={cell?.rowspan || 1}
                       onClick={(e) => handleCellClick(rowIndex, colIndex, e)}
                       onMouseDown={(e) => handleMouseDown(rowIndex, colIndex, e)}
                       onMouseEnter={() => handleMouseEnter(rowIndex, colIndex)}
@@ -950,7 +950,7 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
                         <div 
                           className="w-full h-full min-h-6 text-sm leading-relaxed text-gray-900 font-medium"
                           dangerouslySetInnerHTML={{ 
-                            __html: cell.content || '<span class="text-gray-500 italic font-normal"></span>' 
+                            __html: (cell?.content || '') || '<span class="text-gray-500 italic font-normal"></span>' 
                           }}
                           onDoubleClick={() => handleCellDoubleClick(rowIndex, colIndex)}
                         />
