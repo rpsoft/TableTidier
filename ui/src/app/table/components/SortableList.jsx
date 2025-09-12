@@ -66,7 +66,7 @@ const SortableItem = ({ id, item, onEditGroup, editingGroup }) => {
               className="w-4 h-4 rounded-full border border-gray-300"
               style={{ backgroundColor: item.color }}
             />
-            <span className="text-sm">{item.category}</span>
+            <span className="text-sm text-gray-800">{item.category}</span>
           </div>
           <button 
             className="btn btn-xs"

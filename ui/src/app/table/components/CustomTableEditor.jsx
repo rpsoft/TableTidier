@@ -938,7 +938,7 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
                         <div 
                           className="w-full h-full min-h-6 text-sm leading-relaxed text-gray-900 font-medium"
                           dangerouslySetInnerHTML={{ 
-                            __html: (cell?.content || '') || '<span class="text-gray-500 italic font-normal"></span>' 
+                            __html: (cell?.content || '') || '<span class="text-gray-400 italic font-normal">Empty cell</span>' 
                           }}
                           onDoubleClick={() => handleCellDoubleClick(rowIndex, colIndex)}
                         />

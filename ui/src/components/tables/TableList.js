@@ -15,7 +15,7 @@ export default function TableList({ tables, onDelete }) {
   if (tables.length === 0) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-400">No tables in this collection yet. Upload one to get started!</p>
+        <p className="text-gray-300 text-lg">No tables in this collection yet. Upload one to get started!</p>
       </div>
     );
   }
@@ -367,10 +367,10 @@ export default function TableList({ tables, onDelete }) {
       <table className="w-full">
         <thead className="bg-gray-800">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Table Name</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Upload Date</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Preview</th>
-            <th className="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-100 uppercase tracking-wider">Table Name</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-100 uppercase tracking-wider">Upload Date</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-100 uppercase tracking-wider">Preview</th>
+            <th className="px-6 py-3 text-right text-xs font-medium text-gray-100 uppercase tracking-wider">Actions</th>
           </tr>
         </thead>
         <tbody className="bg-gray-900 divide-y divide-gray-700">
@@ -384,12 +384,12 @@ export default function TableList({ tables, onDelete }) {
                   {table.fileName}
                 </Link>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-gray-300">
+              <td className="px-6 py-4 whitespace-nowrap text-gray-200">
                 {formatDate(table.createdAt)}
               </td>
               <td className="px-6 py-4">
                 <div 
-                  className="text-sm text-gray-300 overflow-hidden max-h-20"
+                  className="text-sm text-gray-200 overflow-hidden max-h-20 [&_table]:w-full [&_table]:border-collapse [&_table]:border [&_table]:border-gray-600 [&_th]:bg-gray-700 [&_th]:text-gray-100 [&_th]:border [&_th]:border-gray-600 [&_th]:px-2 [&_th]:py-1 [&_th]:text-xs [&_th]:font-medium [&_td]:bg-gray-800 [&_td]:text-gray-200 [&_td]:border [&_td]:border-gray-600 [&_td]:px-2 [&_td]:py-1 [&_td]:text-xs"
                   dangerouslySetInnerHTML={{ __html: table.htmlContent }}
                 />
               </td>

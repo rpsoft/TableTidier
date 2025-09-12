@@ -9,10 +9,10 @@ export default function GroupedConcepts({ item }) {
   const pickerRef = useRef(null); // Ref to track the color picker
 
   return (
-    <div className="shrink-0 justify-center items-center text-white rounded-md p-1 relative w-full">
+    <div className="shrink-0 justify-center items-center text-gray-800 rounded-md p-1 relative w-full bg-white">
       <div className="h-56 overflow-y-scroll">
         {Object.entries(item.concepts).map(([key, concept], index) => (
-          <div key={`concept_${item.id}_${key}_${index}`}>{concept.content}</div>
+          <div key={`concept_${item.id}_${key}_${index}`} className="text-gray-700">{concept.content}</div>
         ))}
       </div>
     </div>

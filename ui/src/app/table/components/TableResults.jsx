@@ -163,14 +163,14 @@ export default function TableResults() {
 														<div
 															tabIndex={0}
 															role="button"
-															className="btn m-[1px] py-0 min-h-4 h-6 max-w-full truncate"
+															className="btn m-[1px] py-0 min-h-4 h-6 max-w-full truncate text-gray-900 bg-white hover:bg-gray-100"
 															title={cell.cellData || ''}
 														>
 															{cell.cellData || ''}
 														</div>
 														<ul
 															tabIndex={0}
-															className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
+															className="dropdown-content menu bg-white rounded-box z-[1] w-52 p-2 shadow-lg border border-gray-200"
 														>
 															{cell.concepts.map((concept, op) => {
 																// Add safety checks for concept array and content
@@ -183,7 +183,7 @@ export default function TableResults() {
 																return (
 																	<li 
 																		key={`concept_${e}_${c}_${op}`} 
-																		className={`truncate flex items-center gap-2 ${isSelected ? 'bg-primary text-primary-content' : ''} ${isEditing ? 'cursor-pointer' : ''}`}
+																		className={`truncate flex items-center gap-2 text-gray-800 hover:bg-gray-100 ${isSelected ? 'bg-blue-100 text-blue-900' : ''} ${isEditing ? 'cursor-pointer' : ''}`}
 																		title={conceptContent}
 																		onClick={() => isEditing && handleConceptClick(conceptContent, e, c)}
 																	>
