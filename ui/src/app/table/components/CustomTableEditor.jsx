@@ -12,6 +12,7 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
   const [contextMenu, setContextMenu] = useState({ show: false, x: 0, y: 0, cell: null });
   const [editingCell, setEditingCell] = useState(null);
   const [editingValue, setEditingValue] = useState("");
+  const [showHelpDialog, setShowHelpDialog] = useState(false);
   const tableRef = useRef(null);
   const editingInputRef = useRef(null);
 
@@ -508,6 +509,18 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
     return () => document.removeEventListener('click', handleClickOutside);
   }, [contextMenu.show]);
 
+  // Close help dialog with Escape key
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape' && showHelpDialog) {
+        setShowHelpDialog(false);
+      }
+    };
+    
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [showHelpDialog]);
+
   // Focus editing input when editing starts
   useEffect(() => {
     if (editingCell && editingInputRef.current) {
@@ -531,9 +544,9 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full flex flex-col" style={{ height: '75vh', maxHeight: '75vh', minHeight: '500px' }}>
       {/* Toolbar */}
-      <div className="flex flex-wrap gap-2 p-3 bg-white border-b border-gray-300 shadow-sm">
+      <div className="flex flex-wrap gap-2 p-3 bg-white border-b border-gray-300 shadow-sm flex-shrink-0">
         <div className="flex items-center gap-2">
           <button onClick={handleSave} className="btn btn-primary btn-sm text-white">
             <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -609,23 +622,35 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
           </button>
         </div>
         
-        {selectedCells.size > 0 && (
-          <div className="ml-auto flex items-center gap-2">
-            <span className="text-sm text-gray-700 font-medium">
-              {selectedCells.size} cell{selectedCells.size !== 1 ? 's' : ''} selected
-            </span>
-            <button 
-              onClick={() => setSelectedCells(new Set())} 
-              className="btn btn-ghost btn-sm text-gray-600 hover:bg-gray-100"
-            >
-              Clear Selection
-            </button>
-          </div>
-        )}
+        <div className="ml-auto flex items-center gap-2">
+          {selectedCells.size > 0 && (
+            <>
+              <span className="text-sm text-gray-700 font-medium">
+                {selectedCells.size} cell{selectedCells.size !== 1 ? 's' : ''} selected
+              </span>
+              <button 
+                onClick={() => setSelectedCells(new Set())} 
+                className="btn btn-ghost btn-sm text-gray-600 hover:bg-gray-100"
+              >
+                Clear Selection
+              </button>
+            </>
+          )}
+          <button 
+            onClick={() => setShowHelpDialog(true)} 
+            className="btn btn-ghost btn-sm text-gray-600 hover:bg-gray-100"
+            title="Show help instructions"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Show Help
+          </button>
+        </div>
       </div>
 
       {/* Table */}
-      <div className="overflow-auto max-h-96 border border-gray-200 rounded-lg">
+      <div className="flex-1 overflow-auto border border-gray-200 rounded-lg min-h-0">
         <table 
           ref={tableRef}
           className="table table-bordered w-full m-0"
@@ -696,40 +721,6 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
         </table>
       </div>
       
-      {/* Instructions */}
-      <div className="mt-4 p-4 bg-gray-50 border border-gray-300 rounded-lg">
-        <h4 className="text-sm font-semibold text-gray-800 mb-3">How to use:</h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <h5 className="text-xs font-semibold text-gray-800 mb-2">Selection:</h5>
-            <ul className="text-xs text-gray-700 space-y-1">
-              <li>• <strong className="text-gray-900">Click</strong> to select a single cell</li>
-              <li>• <strong className="text-gray-900">Ctrl+Click</strong> to select multiple cells</li>
-              <li>• <strong className="text-gray-900">Shift+Click</strong> to select a range of cells</li>
-              <li>• <strong className="text-gray-900">Drag</strong> to select multiple cells</li>
-              <li>• <strong className="text-gray-900">Ctrl+A</strong> to select all cells</li>
-            </ul>
-          </div>
-          <div>
-            <h5 className="text-xs font-semibold text-gray-800 mb-2">Editing:</h5>
-            <ul className="text-xs text-gray-700 space-y-1">
-              <li>• <strong className="text-gray-900">Double-click</strong> to edit cell content</li>
-              <li>• <strong className="text-gray-900">Enter</strong> to save edit</li>
-              <li>• <strong className="text-gray-900">Escape</strong> to cancel edit</li>
-              <li>• <strong className="text-gray-900">Tab</strong> to move to next cell</li>
-              <li>• <strong className="text-gray-900">Delete/Backspace</strong> to clear selected cells</li>
-            </ul>
-          </div>
-        </div>
-        <div className="mt-3 pt-3 border-t border-gray-300">
-          <h5 className="text-xs font-semibold text-gray-800 mb-2">Operations:</h5>
-          <ul className="text-xs text-gray-700 space-y-1">
-            <li>• <strong className="text-gray-900">Right-click</strong> for context menu with table operations</li>
-            <li>• <strong className="text-gray-900">Ctrl+S</strong> to save changes</li>
-            <li>• Use toolbar buttons for row/column operations</li>
-          </ul>
-        </div>
-      </div>
 
       {/* Context Menu */}
       {contextMenu.show && (
@@ -829,6 +820,138 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
               </svg>
               Split Cell
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Help Dialog */}
+      {showHelpDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-4xl max-h-[80vh] w-full mx-4 overflow-hidden">
+            {/* Dialog Header */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">Table Editor Help</h3>
+              <button
+                onClick={() => setShowHelpDialog(false)}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            {/* Dialog Content */}
+            <div className="p-6 overflow-y-auto max-h-[60vh]">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Selection */}
+                <div>
+                  <h4 className="text-base font-semibold text-gray-900 mb-4 flex items-center">
+                    <svg className="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+                    </svg>
+                    Selection
+                  </h4>
+                  <ul className="space-y-2 text-sm text-gray-700">
+                    <li className="flex items-start">
+                      <span className="text-blue-600 mr-2">•</span>
+                      <span><strong className="text-gray-900">Click</strong> to select a single cell</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-blue-600 mr-2">•</span>
+                      <span><strong className="text-gray-900">Ctrl+Click</strong> to select multiple cells</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-blue-600 mr-2">•</span>
+                      <span><strong className="text-gray-900">Shift+Click</strong> to select a range of cells</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-blue-600 mr-2">•</span>
+                      <span><strong className="text-gray-900">Drag</strong> to select multiple cells</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-blue-600 mr-2">•</span>
+                      <span><strong className="text-gray-900">Ctrl+A</strong> to select all cells</span>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Editing */}
+                <div>
+                  <h4 className="text-base font-semibold text-gray-900 mb-4 flex items-center">
+                    <svg className="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    Editing
+                  </h4>
+                  <ul className="space-y-2 text-sm text-gray-700">
+                    <li className="flex items-start">
+                      <span className="text-green-600 mr-2">•</span>
+                      <span><strong className="text-gray-900">Double-click</strong> to edit cell content</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-green-600 mr-2">•</span>
+                      <span><strong className="text-gray-900">Enter</strong> to save edit</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-green-600 mr-2">•</span>
+                      <span><strong className="text-gray-900">Escape</strong> to cancel edit</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-green-600 mr-2">•</span>
+                      <span><strong className="text-gray-900">Tab</strong> to move to next cell</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-green-600 mr-2">•</span>
+                      <span><strong className="text-gray-900">Delete/Backspace</strong> to clear selected cells</span>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Operations */}
+                <div className="lg:col-span-2">
+                  <h4 className="text-base font-semibold text-gray-900 mb-4 flex items-center">
+                    <svg className="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    Operations
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <ul className="space-y-2 text-sm text-gray-700">
+                      <li className="flex items-start">
+                        <span className="text-purple-600 mr-2">•</span>
+                        <span><strong className="text-gray-900">Right-click</strong> for context menu with table operations</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-purple-600 mr-2">•</span>
+                        <span><strong className="text-gray-900">Ctrl+S</strong> to save changes</span>
+                      </li>
+                    </ul>
+                    <ul className="space-y-2 text-sm text-gray-700">
+                      <li className="flex items-start">
+                        <span className="text-purple-600 mr-2">•</span>
+                        <span>Use toolbar buttons for row/column operations</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-purple-600 mr-2">•</span>
+                        <span>Merge and split cells for complex layouts</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Dialog Footer */}
+            <div className="flex justify-end p-4 border-t border-gray-200 bg-gray-50">
+              <button
+                onClick={() => setShowHelpDialog(false)}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+              >
+                Got it!
+              </button>
+            </div>
           </div>
         </div>
       )}
