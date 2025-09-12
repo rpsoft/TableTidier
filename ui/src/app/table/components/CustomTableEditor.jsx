@@ -19,7 +19,7 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
   const tableRef = useRef(null);
   const editingInputRef = useRef(null);
 
-  // Parse HTML table into 2D array
+  // Parse HTML table into 2D array with proper cell positioning
   const parseHtmlTable = useCallback((html) => {
     if (!html) return [];
     
@@ -30,17 +30,74 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
     if (!table) return [];
     
     const rows = Array.from(table.querySelectorAll('tr'));
-    return rows.map(row => {
+    const tableData = [];
+    
+    // First, determine the maximum number of columns needed
+    let maxCols = 0;
+    rows.forEach(row => {
       const cells = Array.from(row.querySelectorAll('td, th'));
-      return cells.map(cell => ({
-        content: cell.textContent || cell.innerHTML || '',
-        tagName: cell.tagName.toLowerCase(),
-        colspan: parseInt(cell.getAttribute('colspan') || '1'),
-        rowspan: parseInt(cell.getAttribute('rowspan') || '1'),
-        className: cell.className || '',
-        style: cell.getAttribute('style') || ''
-      }));
+      let colCount = 0;
+      cells.forEach(cell => {
+        const colspan = parseInt(cell.getAttribute('colspan') || '1');
+        colCount += colspan;
+      });
+      maxCols = Math.max(maxCols, colCount);
     });
+    
+    // Create a 2D grid to track cell positions
+    const grid = Array(rows.length).fill(null).map(() => Array(maxCols).fill(null));
+    
+    // Place cells in the grid, accounting for colspan/rowspan
+    rows.forEach((row, rowIndex) => {
+      const cells = Array.from(row.querySelectorAll('td, th'));
+      let colIndex = 0;
+      
+      cells.forEach(cell => {
+        const colspan = parseInt(cell.getAttribute('colspan') || '1');
+        const rowspan = parseInt(cell.getAttribute('rowspan') || '1');
+        
+        // Find the next available position in this row
+        while (colIndex < maxCols && grid[rowIndex][colIndex] !== null) {
+          colIndex++;
+        }
+        
+        const cellInfo = {
+          content: cell.textContent || cell.innerHTML || '',
+          tagName: cell.tagName.toLowerCase(),
+          colspan: colspan,
+          rowspan: rowspan,
+          className: cell.className || '',
+          style: cell.getAttribute('style') || '',
+          isMerged: false
+        };
+        
+        // Place the cell in the grid
+        grid[rowIndex][colIndex] = cellInfo;
+        
+        // Mark cells covered by this merged cell
+        for (let r = rowIndex; r < rowIndex + rowspan; r++) {
+          for (let c = colIndex; c < colIndex + colspan; c++) {
+            if (r !== rowIndex || c !== colIndex) {
+              if (r < grid.length && c < grid[r].length) {
+                grid[r][c] = {
+                  content: '',
+                  tagName: 'td',
+                  colspan: 1,
+                  rowspan: 1,
+                  className: '',
+                  style: '',
+                  isMerged: true
+                };
+              }
+            }
+          }
+        }
+        
+        colIndex += colspan;
+      });
+    });
+    
+    return grid;
   }, []);
 
   // Convert table data back to HTML
@@ -54,6 +111,11 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
       const tr = document.createElement('tr');
       
       row.forEach((cell, colIndex) => {
+        // Skip merged cells - they are covered by other cells
+        if (cell.isMerged) {
+          return;
+        }
+        
         const cellElement = document.createElement(cell.tagName || 'td');
         cellElement.innerHTML = cell.content;
         
@@ -304,7 +366,7 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
         if (selectedCells.has(cellKey)) {
           row.push(tableData[r][c]);
         } else {
-          row.push({ content: '', tagName: 'td', colspan: 1, rowspan: 1, className: '', style: '' });
+          row.push({ content: '', tagName: 'td', colspan: 1, rowspan: 1, className: '', style: '', isMerged: false });
         }
       }
       copiedData.push(row);
@@ -447,7 +509,8 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
       colspan: 1,
       rowspan: 1,
       className: '',
-      style: ''
+      style: '',
+      isMerged: false
     }));
     
     setTableData(prev => {
@@ -479,7 +542,8 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
           colspan: 1,
           rowspan: 1,
           className: '',
-          style: ''
+          style: '',
+          isMerged: false
         });
         return newRow;
       });
@@ -574,10 +638,11 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
         ...newData[minRow][minCol],
         content: mergedContent,
         colspan: maxCol - minCol + 1,
-        rowspan: maxRow - minRow + 1
+        rowspan: maxRow - minRow + 1,
+        isMerged: false
       };
       
-      // Clear other cells in the merged area
+      // Mark other cells in the merged area as merged
       for (let r = minRow; r <= maxRow; r++) {
         for (let c = minCol; c <= maxCol; c++) {
           if (r !== minRow || c !== minCol) {
@@ -587,7 +652,8 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
               colspan: 1,
               rowspan: 1,
               className: '',
-              style: ''
+              style: '',
+              isMerged: true
             };
           }
         }
@@ -619,7 +685,8 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
         ...cell,
         content: content,
         colspan: 1,
-        rowspan: 1
+        rowspan: 1,
+        isMerged: false
       };
       
       // Add new cells to fill the space
@@ -633,7 +700,8 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
               colspan: 1,
               rowspan: 1,
               className: '',
-              style: ''
+              style: '',
+              isMerged: false
             };
           }
         }
@@ -684,7 +752,7 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
       <div className="p-4 text-center text-gray-500">
         <p>No table data to display</p>
         <button 
-          onClick={() => setTableData([[{ content: '', tagName: 'td', colspan: 1, rowspan: 1, className: '', style: '' }]])}
+          onClick={() => setTableData([[{ content: '', tagName: 'td', colspan: 1, rowspan: 1, className: '', style: '', isMerged: false }]])}
           className="btn btn-primary mt-2"
         >
           Create New Table
@@ -838,6 +906,12 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
                   const cellKey = `${rowIndex}-${colIndex}`;
                   const isSelected = selectedCells.has(cellKey);
                   const isEditing = editingCell?.row === rowIndex && editingCell?.col === colIndex;
+                  const isMerged = cell.isMerged;
+                  
+                  // Skip rendering merged cells - they are covered by other cells
+                  if (isMerged) {
+                    return null;
+                  }
                   
                   return (
                     <td

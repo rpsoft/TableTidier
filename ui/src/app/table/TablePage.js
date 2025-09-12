@@ -282,6 +282,25 @@ export default function TablePage({ initialTableId }) {
               return; 
             }
 
+            // Update tableNodes with the new HTML content
+            try {
+              const tableContent = [htmlContent];
+              const tableNodes = Tabletools.contentToNodes(tableContent);
+              setValue("tableNodes", tableNodes);
+              
+              // Update extracted data if annotations exist
+              const annotations = state.annotations;
+              if (annotations && annotations.length > 0) {
+                setValue(
+                  "extractedData",
+                  Tabletools.annotationsToTable(tableNodes, annotations),
+                );
+              }
+            } catch (error) {
+              console.error('Error processing updated table:', error);
+              toast.error("Error processing updated table content.");
+            }
+
             // Attempt to save the changes via the backend
             const success = await saveTableChanges(); 
             console.log(">>> saveTableChanges returned:", success); // Debug Log 2

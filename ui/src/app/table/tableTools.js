@@ -43,30 +43,74 @@ const Tabletools = {
 	if (tableContent && tableContent[0]) {
 		const $ = cheerio.load(tableContent[0]);
 
-		function traverseNodes(node) {
-			var content = [];
-
-			node.children?.forEach((child) => {
-				// console.log(child.tagName);
-				if (child.tagName === "td" || child.tagName === "th") {
-					const childContent = $(child).text();
-					content = [...content, childContent];
-				}
-
-				var recContent = traverseNodes(child);
-				if (recContent.length > 0) content = [...content, recContent];
-			});
-
-			return content;
+		// Find the table element
+		const table = $("table")[0];
+		if (!table) {
+			return [
+				["table is empty or does not include a valid html <table> tag"],
+				["--- Here an extract of the document ---"],
+				[tableContent[0].slice(0, 300)+"..."]
+			];
 		}
 
-		var allnodes =  $("table")[0] ? traverseNodes($("table")[0]).flat() : [
-			["table is empty or does not include a valid html <table> tag"],
-			["--- Here an extract of the document ---"],
-			[tableContent[0].slice(0, 300)+"..."]
-		]
+		// Get all rows
+		const rows = $(table).find("tr").toArray();
+		const allnodes = [];
 
-		return allnodes
+		// First, determine the maximum number of columns needed
+		let maxCols = 0;
+		rows.forEach(row => {
+			const cells = $(row).find("td, th").toArray();
+			let colCount = 0;
+			cells.forEach(cell => {
+				const colspan = parseInt($(cell).attr('colspan') || '1');
+				colCount += colspan;
+			});
+			maxCols = Math.max(maxCols, colCount);
+		});
+
+		// Create a 2D grid to track cell positions
+		const grid = Array(rows.length).fill(null).map(() => Array(maxCols).fill(null));
+
+		// Place cells in the grid, accounting for colspan/rowspan
+		rows.forEach((row, rowIndex) => {
+			const cells = $(row).find("td, th").toArray();
+			let colIndex = 0;
+			
+			cells.forEach(cell => {
+				const colspan = parseInt($(cell).attr('colspan') || '1');
+				const rowspan = parseInt($(cell).attr('rowspan') || '1');
+				const cellContent = $(cell).text();
+				
+				// Find the next available position in this row
+				while (colIndex < maxCols && grid[rowIndex][colIndex] !== null) {
+					colIndex++;
+				}
+				
+				// Place the cell content in the grid
+				grid[rowIndex][colIndex] = cellContent;
+				
+				// Mark cells covered by this merged cell
+				for (let r = rowIndex; r < rowIndex + rowspan; r++) {
+					for (let c = colIndex; c < colIndex + colspan; c++) {
+						if (r !== rowIndex || c !== colIndex) {
+							if (r < grid.length && c < grid[r].length) {
+								grid[r][c] = ""; // Empty string for merged cells
+							}
+						}
+					}
+				}
+				
+				colIndex += colspan;
+			});
+		});
+
+		// Convert grid to the expected format
+		grid.forEach(row => {
+			allnodes.push(row);
+		});
+
+		return allnodes;
 
 	} else {
 		return [["table is empty or does not include a valid html <table> tag"]]
