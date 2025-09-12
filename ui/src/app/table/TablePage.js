@@ -234,7 +234,7 @@ export default function TablePage({ initialTableId }) {
                 className="btn btn-primary mb-4" 
                 onClick={() => setActiveTab("Edit Table")}
               >
-                <Edit2 className="mr-2" /> Edit Table HTML
+                <Edit2 className="mr-2" /> Edit Table
               </button>
             </div>
             <div className="overflow-x-auto">

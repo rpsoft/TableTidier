@@ -764,121 +764,42 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
   return (
     <div className="w-full flex flex-col" style={{ height: '75vh', maxHeight: '75vh', minHeight: '500px' }}>
       {/* Toolbar */}
-      <div className="flex flex-wrap gap-2 p-3 bg-white border-b border-gray-300 shadow-sm flex-shrink-0">
-        <div className="flex items-center gap-2">
-          <button onClick={undo} className="btn btn-outline btn-sm text-gray-700 border-gray-400 hover:bg-gray-100" disabled={historyIndex <= 0}>
-            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
-            </svg>
-            Undo
-          </button>
-          <button onClick={redo} className="btn btn-outline btn-sm text-gray-700 border-gray-400 hover:bg-gray-100" disabled={historyIndex >= history.length - 1}>
-            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 10h-10a8 8 0 00-8 8v2m18-10l-6-6m6 6l-6 6" />
-            </svg>
-            Redo
-          </button>
-          <div className="divider divider-horizontal"></div>
-          <button onClick={handleSave} className="btn btn-primary btn-sm text-white">
-            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12" />
-            </svg>
-            Save Changes
-          </button>
-        </div>
+      <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-white border-b border-gray-300 shadow-sm flex-shrink-0">
         
-        <div className="divider divider-horizontal"></div>
-        
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold text-gray-800">Rows:</span>
-          <button onClick={() => addRow('before')} className="btn btn-outline btn-sm text-gray-700 border-gray-400 hover:bg-gray-100">
-            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
-            Insert Above
-          </button>
-          <button onClick={() => addRow('after')} className="btn btn-outline btn-sm text-gray-700 border-gray-400 hover:bg-gray-100">
-            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
-            Insert Below
-          </button>
-          <button onClick={removeRow} className="btn btn-outline btn-sm text-red-700 border-red-400 hover:bg-red-50" disabled={selectedCells.size === 0}>
-            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-            Delete Row
-          </button>
-        </div>
-        
-        <div className="divider divider-horizontal"></div>
-        
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold text-gray-800">Columns:</span>
-          <button onClick={() => addColumn('before')} className="btn btn-outline btn-sm text-gray-700 border-gray-400 hover:bg-gray-100">
-            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
-            Insert Left
-          </button>
-          <button onClick={() => addColumn('after')} className="btn btn-outline btn-sm text-gray-700 border-gray-400 hover:bg-gray-100">
-            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
-            Insert Right
-          </button>
-          <button onClick={removeColumn} className="btn btn-outline btn-sm text-red-700 border-red-400 hover:bg-red-50" disabled={selectedCells.size === 0}>
-            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-            Delete Column
-          </button>
-        </div>
-        
-        <div className="divider divider-horizontal"></div>
-        
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold text-gray-800">Cells:</span>
-          <button onClick={copyCells} className="btn btn-outline btn-sm text-gray-700 border-gray-400 hover:bg-gray-100" disabled={selectedCells.size === 0}>
-            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-            </svg>
-            Copy
-          </button>
-          <button onClick={pasteCells} className="btn btn-outline btn-sm text-gray-700 border-gray-400 hover:bg-gray-100" disabled={!copiedCells || selectedCells.size === 0}>
-            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
-            Paste
-          </button>
-          <button onClick={mergeCells} className="btn btn-outline btn-sm text-gray-700 border-gray-400 hover:bg-gray-100" disabled={selectedCells.size < 2}>
-            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-            </svg>
-            Merge Cells
-          </button>
-          <button onClick={splitCell} className="btn btn-outline btn-sm text-gray-700 border-gray-400 hover:bg-gray-100" disabled={selectedCells.size !== 1}>
-            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-            </svg>
-            Split Cell
-          </button>
-        </div>
-        
-        <div className="ml-auto flex items-center gap-2">
+        {/* Right side - Status and actions */}
+        <div className="flex justify-end items-center gap-3 w-full">
+          <div className="flex items-center flex-grow gap-2">
+              <button onClick={undo} className="btn btn-outline btn-sm text-gray-700 border-gray-400 hover:bg-gray-100" disabled={historyIndex <= 0}>
+                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                </svg>
+                Undo
+              </button>
+              <button onClick={redo} className="btn btn-outline btn-sm text-gray-700 border-gray-400 hover:bg-gray-100" disabled={historyIndex >= history.length - 1}>
+                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 10h-10a8 8 0 00-8 8v2m18-10l-6-6m6 6l-6 6" />
+                </svg>
+                Redo
+              </button>
+            </div>
+
+          {/* Selection status */}
           {selectedCells.size > 0 && (
-            <>
-              <span className="text-sm text-gray-700 font-medium">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600 font-medium">
                 {selectedCells.size} cell{selectedCells.size !== 1 ? 's' : ''} selected
               </span>
               <button 
                 onClick={() => setSelectedCells(new Set())} 
                 className="btn btn-ghost btn-sm text-gray-600 hover:bg-gray-100"
+                title="Clear selection"
               >
-                Clear Selection
+                Clear
               </button>
-            </>
+            </div>
           )}
+
+          {/* Help button */}
           <button 
             onClick={() => setShowHelpDialog(true)} 
             className="btn btn-ghost btn-sm text-gray-600 hover:bg-gray-100"
@@ -887,9 +808,18 @@ export default function CustomTableEditor({ initialHtml, saveHtml }) {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            Show Help
+            Help
+          </button>
+
+          {/* Save button - prominently positioned on the right */}
+          <button onClick={handleSave} className="btn btn-primary btn-sm text-white shadow-sm">
+            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12" />
+            </svg>
+            Save Changes
           </button>
         </div>
+    
       </div>
 
       {/* Table */}
