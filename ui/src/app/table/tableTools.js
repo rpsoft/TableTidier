@@ -48,7 +48,7 @@ const Tabletools = {
 
 			node.children?.forEach((child) => {
 				// console.log(child.tagName);
-				if (child.tagName === "td") {
+				if (child.tagName === "td" || child.tagName === "th") {
 					const childContent = $(child).text();
 					content = [...content, childContent];
 				}
@@ -93,7 +93,7 @@ const Tabletools = {
 
 		return row.map((col, c) => {
 
-			// Ignoring header nodes.
+			// Skip cells that are already annotated
 			if ( conceptKeys.indexOf( r+"-"+c ) > -1 ){
 				return null
 			}

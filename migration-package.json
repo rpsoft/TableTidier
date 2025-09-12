@@ -1,0 +1,17 @@
+{
+  "name": "tabletidier-migration",
+  "version": "1.0.0",
+  "description": "Migration script for TableTidier annotation row indices",
+  "main": "migrate-annotations.js",
+  "scripts": {
+    "migrate": "node migrate-annotations.js",
+    "migrate-dry": "node migrate-annotations.js --dry-run"
+  },
+  "dependencies": {
+    "mongodb": "^6.0.0",
+    "cheerio": "^1.0.0-rc.12"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
