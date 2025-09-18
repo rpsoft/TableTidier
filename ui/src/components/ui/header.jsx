@@ -50,7 +50,16 @@ const Header = () => {
             	<div className="flex w-full">
 
 	                <div className="flex justify-between w-full ">
-						<div className='self-center text-md font-bold mx-2'><Link className='no-underline' href='/'>TableTidier</Link></div>
+						<div className='flex items-center gap-6'>
+							<div className='self-center text-md font-bold mx-2'><Link className='no-underline' href='/'>TableTidier</Link></div>
+							{status === "authenticated" && (
+								<nav className='flex gap-4'>
+									<Link href='/collections' className='text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium'>Collections</Link>
+									<Link href='/projects' className='text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium'>Projects</Link>
+									<Link href='/admin' className='text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium'>Admin</Link>
+								</nav>
+							)}
+						</div>
 	                    {status === "authenticated" ? ( // Check if user is authenticated
                             <div className='flex items-center'>
 	                            <Image src={session?.user?.image || "/next.svg"} alt={session?.user?.name} width={32} height={32} className='border-2 rounded-full h-8 w-8 bg-white mx-2' />
