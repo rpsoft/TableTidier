@@ -459,25 +459,33 @@ export default function ProjectPage() {
                 <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <h3 className="font-medium text-gray-900 mb-2">Inclusion Criteria</h3>
-                    <ul className="text-gray-600 space-y-1">
-                      {project.criteria.inclusion.map((criterion, index) => (
-                        <li key={index} className="flex items-start gap-2">
-                          <CheckCircle size={16} className="text-green-500 mt-0.5 flex-shrink-0" />
-                          {criterion}
-                        </li>
-                      ))}
-                    </ul>
+                    {project.criteria?.inclusion?.length > 0 ? (
+                      <ul className="text-gray-600 space-y-1">
+                        {project.criteria.inclusion.map((criterion, index) => (
+                          <li key={index} className="flex items-start gap-2">
+                            <CheckCircle size={16} className="text-green-500 mt-0.5 flex-shrink-0" />
+                            <span className="text-sm">{String(criterion)}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-gray-500 text-sm italic">No inclusion criteria defined</p>
+                    )}
                   </div>
                   <div>
                     <h3 className="font-medium text-gray-900 mb-2">Exclusion Criteria</h3>
-                    <ul className="text-gray-600 space-y-1">
-                      {project.criteria.exclusion.map((criterion, index) => (
-                        <li key={index} className="flex items-start gap-2">
-                          <XCircle size={16} className="text-red-500 mt-0.5 flex-shrink-0" />
-                          {criterion}
-                        </li>
-                      ))}
-                    </ul>
+                    {project.criteria?.exclusion?.length > 0 ? (
+                      <ul className="text-gray-600 space-y-1">
+                        {project.criteria.exclusion.map((criterion, index) => (
+                          <li key={index} className="flex items-start gap-2">
+                            <XCircle size={16} className="text-red-500 mt-0.5 flex-shrink-0" />
+                            <span className="text-sm">{String(criterion)}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-gray-500 text-sm italic">No exclusion criteria defined</p>
+                    )}
                   </div>
                 </div>
               )}
