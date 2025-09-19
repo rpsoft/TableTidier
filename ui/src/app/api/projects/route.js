@@ -16,7 +16,7 @@ export async function GET(request) {
     const projectUsers = await ProjectUser.find({ 
       userId: session.user.email,
       isActive: true 
-    }).populate('projectId');
+    });
 
     const projectIds = projectUsers.map(pu => pu.projectId);
     const projects = await Project.find({ 
@@ -39,7 +39,7 @@ export async function POST(request) {
     }
 
     const body = await request.json();
-    const { name, description, researchQuestion, criteria } = body;
+    const { name, description, researchQuestion, criteria, workflow } = body;
 
     if (!name) {
       return NextResponse.json({ error: 'Project name is required' }, { status: 400 });
@@ -51,6 +51,17 @@ export async function POST(request) {
       description,
       researchQuestion,
       criteria: criteria || { inclusion: [], exclusion: [] },
+      workflow: workflow || {
+        type: 'systematic-review',
+        currentStep: 'upload',
+        steps: [
+          { name: 'Document Upload', status: 'in-progress' },
+          { name: 'Document Screening', status: 'pending' },
+          { name: 'Data Extraction', status: 'pending' },
+          { name: 'Quality Assessment', status: 'pending' },
+          { name: 'Synthesis & Analysis', status: 'pending' },
+        ]
+      },
       createdBy: session.user.email,
     });
 

@@ -61,12 +61,12 @@ export default function CollectionsPage() {
   }
 
   return (
-  <div>
+  <div className="min-h-screen bg-gray-900">
 	  <Header />
 	    <div className="container mx-auto px-4 py-8">
 
 	      <div className="flex justify-between items-center mb-6">
-	        <h1 className="text-2xl font-bold">My Collections</h1>
+	        <h1 className="text-2xl font-bold text-white">My Collections</h1>
 	        <button
 	          onClick={() => setIsCreateModalOpen(true)}
 	          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"

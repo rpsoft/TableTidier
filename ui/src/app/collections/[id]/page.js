@@ -84,12 +84,12 @@ export default function CollectionPage() {
   }
 
   return (
-	  <div><Header />
+	  <div className="min-h-screen bg-gray-900"><Header />
 	    <div className="container mx-auto px-4 py-8">
 	      <div className="flex justify-between items-center mb-6">
 	        <div>
-	          <h1 className="text-2xl font-bold">{collection.name}</h1>
-	          <p className="text-gray-500">
+	          <h1 className="text-2xl font-bold text-white">{collection.name}</h1>
+	          <p className="text-gray-300">
 	            Created: {new Date(collection.createdAt).toLocaleDateString()}
 	          </p>
 	        </div>

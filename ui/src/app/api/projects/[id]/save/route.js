@@ -32,7 +32,7 @@ export async function POST(request, { params }) {
 
     switch (type) {
       case 'project':
-        result = await Project.findByIdAndUpdate(projectId, data, { new: true });
+        result = await Project.findOneAndUpdate({ id: projectId }, data, { new: true });
         break;
         
       case 'document':

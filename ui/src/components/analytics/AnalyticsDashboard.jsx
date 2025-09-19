@@ -23,10 +23,17 @@ export default function AnalyticsDashboard({ project, documents, users }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadAnalytics();
-  }, [project.id]);
+    if (project?.id) {
+      loadAnalytics();
+    }
+  }, [project?.id]);
 
   const loadAnalytics = async () => {
+    if (!project?.id) {
+      console.error('No project ID available for analytics');
+      return;
+    }
+
     try {
       setLoading(true);
       const response = await fetch(`/api/analytics?projectId=${project.id}`);
@@ -35,6 +42,8 @@ export default function AnalyticsDashboard({ project, documents, users }) {
         if (data.success) {
           setAnalytics(data.analytics);
         }
+      } else {
+        console.error('Failed to fetch analytics:', response.status, response.statusText);
       }
     } catch (error) {
       console.error('Error loading analytics:', error);
@@ -211,6 +220,34 @@ export default function AnalyticsDashboard({ project, documents, users }) {
     };
   };
 
+  // Loading state
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto p-6">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading analytics...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (!project?.id) {
+    return (
+      <div className="max-w-7xl mx-auto p-6">
+        <div className="text-center py-12">
+          <AlertCircle className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">No Project Selected</h3>
+          <p className="text-gray-600">Please select a project to view analytics.</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Calculate metrics
   const metrics = calculateProgressMetrics();
   const userActivity = calculateUserActivity();
   const timeSeriesData = calculateTimeSeriesData();

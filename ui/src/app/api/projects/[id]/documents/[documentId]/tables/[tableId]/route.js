@@ -12,7 +12,7 @@ export async function GET(request, { params }) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { id: projectId, documentId, tableId } = params;
+    const { id: projectId, documentId, tableId } = await params;
     
     // Check if user has access to this project
     const projectUser = await ProjectUser.findOne({
@@ -56,7 +56,7 @@ export async function PUT(request, { params }) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { id: projectId, documentId, tableId } = params;
+    const { id: projectId, documentId, tableId } = await params;
     
     // Check if user has editing access to this project
     const projectUser = await ProjectUser.findOne({
@@ -141,7 +141,7 @@ export async function DELETE(request, { params }) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { id: projectId, documentId, tableId } = params;
+    const { id: projectId, documentId, tableId } = await params;
     
     // Check if user has admin access to this project
     const projectUser = await ProjectUser.findOne({

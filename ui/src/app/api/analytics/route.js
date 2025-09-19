@@ -29,7 +29,7 @@ export async function GET(request) {
     }
 
     // Get project data
-    const project = await Project.findById(projectId);
+    const project = await Project.findOne({ id: projectId });
     if (!project) {
       return NextResponse.json({ error: 'Project not found' }, { status: 404 });
     }

@@ -145,25 +145,25 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-900">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-gray-800 border-b border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-              <p className="text-gray-600 mt-1">Manage users, departments, and system settings</p>
+              <h1 className="text-2xl font-bold text-white">Admin Dashboard</h1>
+              <p className="text-gray-300 mt-1">Manage users, departments, and system settings</p>
             </div>
             <div className="flex items-center gap-2">
-              <Shield size={20} className="text-blue-600" />
-              <span className="text-sm font-medium text-gray-700">Admin Access</span>
+              <Shield size={20} className="text-blue-400" />
+              <span className="text-sm font-medium text-gray-300">Admin Access</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Navigation Tabs */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-gray-800 border-b border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <nav className="flex space-x-8">
             {[
@@ -176,8 +176,8 @@ export default function AdminPage() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm ${
                   activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'border-blue-500 text-blue-400'
+                    : 'border-transparent text-gray-300 hover:text-white hover:border-gray-500'
                 }`}
               >
                 <tab.icon size={16} />
@@ -191,19 +191,20 @@ export default function AdminPage() {
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {activeTab === 'users' && (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-lg font-semibold text-gray-900">User Management</h2>
-              <button
-                onClick={() => setShowUserModal(true)}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
-              >
-                <UserPlus size={16} />
-                Add User
-              </button>
-            </div>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="space-y-6">
+              <div className="flex justify-between items-center">
+                <h2 className="text-lg font-semibold text-gray-900">User Management</h2>
+                <button
+                  onClick={() => setShowUserModal(true)}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
+                >
+                  <UserPlus size={16} />
+                  Add User
+                </button>
+              </div>
 
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
@@ -296,21 +297,23 @@ export default function AdminPage() {
                 </table>
               </div>
             </div>
+            </div>
           </div>
         )}
 
         {activeTab === 'departments' && (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-lg font-semibold text-gray-900">Department Management</h2>
-              <button
-                onClick={() => setShowDepartmentModal(true)}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
-              >
-                <Plus size={16} />
-                Add Department
-              </button>
-            </div>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="space-y-6">
+              <div className="flex justify-between items-center">
+                <h2 className="text-lg font-semibold text-gray-900">Department Management</h2>
+                <button
+                  onClick={() => setShowDepartmentModal(true)}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
+                >
+                  <Plus size={16} />
+                  Add Department
+                </button>
+              </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {departments.map((department) => (
@@ -350,14 +353,17 @@ export default function AdminPage() {
                 </div>
               ))}
             </div>
+            </div>
           </div>
         )}
 
         {activeTab === 'settings' && (
-          <div className="text-center py-12">
-            <Settings size={48} className="mx-auto text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">System Settings</h3>
-            <p className="text-gray-600">System settings will be implemented here</p>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="text-center py-12">
+              <Settings size={48} className="mx-auto text-gray-400 mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">System Settings</h3>
+              <p className="text-gray-600">System settings will be implemented here</p>
+            </div>
           </div>
         )}
       </div>

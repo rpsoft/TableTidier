@@ -28,6 +28,28 @@ const projectSchema = new mongoose.Schema({
     enum: ['draft', 'active', 'completed', 'archived'],
     default: 'draft',
   },
+  workflow: {
+    type: {
+      type: String,
+      enum: ['systematic-review', 'scoping-review', 'rapid-review', 'meta-analysis', 'narrative-review'],
+      default: 'systematic-review',
+    },
+    currentStep: {
+      type: String,
+      enum: ['upload', 'screening', 'extraction', 'quality-assessment', 'synthesis', 'completed'],
+      default: 'upload',
+    },
+    steps: [{
+      name: String,
+      status: {
+        type: String,
+        enum: ['pending', 'in-progress', 'completed'],
+        default: 'pending',
+      },
+      completedAt: Date,
+      assignedTo: String,
+    }],
+  },
   createdBy: {
     type: String,
     required: true,

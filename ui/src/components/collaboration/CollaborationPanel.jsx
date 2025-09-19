@@ -17,7 +17,7 @@ import {
   Trash2
 } from 'lucide-react';
 
-export default function CollaborationPanel({ project, currentUser, onUpdate }) {
+export default function CollaborationPanel({ project, currentUser, onUpdate, className = "" }) {
   const [activeTab, setActiveTab] = useState('comments');
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
@@ -26,6 +26,8 @@ export default function CollaborationPanel({ project, currentUser, onUpdate }) {
   const [assignments, setAssignments] = useState([]);
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState(null);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   const loadComments = async () => {
     try {
@@ -88,6 +90,23 @@ export default function CollaborationPanel({ project, currentUser, onUpdate }) {
     loadTasks();
     loadNotifications();
   }, [project.id]);
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showNotifications && !event.target.closest('[data-notification-dropdown]')) {
+        setShowNotifications(false);
+      }
+      if (showSettings && !event.target.closest('[data-settings-dropdown]')) {
+        setShowSettings(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showNotifications, showSettings]);
 
   const handleAddComment = async () => {
     if (!newComment.trim()) return;
@@ -236,24 +255,142 @@ export default function CollaborationPanel({ project, currentUser, onUpdate }) {
     }
   };
 
+  const markAllNotificationsAsRead = async () => {
+    try {
+      const unreadNotifications = notifications.filter(n => !n.read);
+      const response = await fetch(`/api/collaboration/notifications/mark-all-read`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          projectId: project.id,
+          notificationIds: unreadNotifications.map(n => n.id)
+        })
+      });
+
+      if (response.ok) {
+        setNotifications(prev => prev.map(notification => ({ ...notification, read: true })));
+      }
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+    }
+  };
+
+  const handleNotificationClick = (notification) => {
+    markNotificationAsRead(notification.id);
+    if (notification.actionUrl) {
+      window.open(notification.actionUrl, '_blank');
+    }
+    setShowNotifications(false);
+  };
+
+  const handleSettingsClick = () => {
+    setShowSettings(!showSettings);
+  };
+
+  const handleNotificationBellClick = () => {
+    setShowNotifications(!showNotifications);
+  };
+
   return (
-    <div className="h-full flex flex-col bg-white border-l border-gray-200">
-      {/* Header */}
+    <div className={`h-full flex flex-col bg-white ${className}`}>
+      {/* Notification Header */}
       <div className="p-4 border-b border-gray-200">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">Collaboration</h2>
-          <div className="flex items-center gap-2">
-            <div className="relative">
-              <Bell size={20} className="text-gray-600" />
+        <div className="flex items-center justify-end gap-2">
+          <div className="relative" data-notification-dropdown>
+            <button 
+              onClick={handleNotificationBellClick}
+              className="p-2 text-gray-600 hover:text-gray-900 relative"
+            >
+              <Bell size={20} />
               {notifications.filter(n => !n.read).length > 0 && (
                 <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
                   {notifications.filter(n => !n.read).length}
                 </div>
               )}
-            </div>
-            <button className="p-2 text-gray-600 hover:text-gray-900">
+            </button>
+            
+            {/* Notifications Dropdown */}
+            {showNotifications && (
+              <div className="absolute right-0 top-full mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                <div className="p-4 border-b border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-medium text-gray-900">Notifications</h3>
+                    {notifications.filter(n => !n.read).length > 0 && (
+                      <button
+                        onClick={markAllNotificationsAsRead}
+                        className="text-sm text-blue-600 hover:text-blue-800"
+                      >
+                        Mark all as read
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <div className="max-h-64 overflow-y-auto">
+                  {notifications.length > 0 ? (
+                    notifications.map((notification) => (
+                      <div
+                        key={notification.id}
+                        onClick={() => handleNotificationClick(notification)}
+                        className={`p-3 border-b border-gray-100 cursor-pointer hover:bg-gray-50 ${
+                          !notification.read ? 'bg-blue-50' : ''
+                        }`}
+                      >
+                        <div className="flex items-start gap-3">
+                          {getNotificationIcon(notification.type)}
+                          <div className="flex-1">
+                            <h4 className="font-medium text-gray-900 text-sm">{notification.title}</h4>
+                            <p className="text-sm text-gray-600 mt-1">{notification.message}</p>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {new Date(notification.timestamp).toLocaleString()}
+                            </p>
+                          </div>
+                          {!notification.read && (
+                            <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="p-4 text-center text-gray-500">
+                      <Bell size={24} className="mx-auto text-gray-400 mb-2" />
+                      <p className="text-sm">No notifications</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+          
+          <div className="relative" data-settings-dropdown>
+            <button 
+              onClick={handleSettingsClick}
+              className="p-2 text-gray-600 hover:text-gray-900"
+            >
               <Settings size={20} />
             </button>
+            
+            {/* Settings Dropdown */}
+            {showSettings && (
+              <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                <div className="py-2">
+                  <button className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100">
+                    Notification Preferences
+                  </button>
+                  <button className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100">
+                    Collaboration Settings
+                  </button>
+                  <button className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100">
+                    Privacy Settings
+                  </button>
+                  <hr className="my-1" />
+                  <button className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100">
+                    Help & Support
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
