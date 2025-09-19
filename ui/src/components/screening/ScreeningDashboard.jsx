@@ -14,17 +14,18 @@ import {
   BarChart3
 } from 'lucide-react';
 
-export default function ScreeningDashboard({ projectId, onDocumentSelect }) {
-  const [documents, setDocuments] = useState([]);
+export default function ScreeningDashboard({ projectId, documents = [], onDocumentSelect }) {
   const [filteredDocuments, setFilteredDocuments] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [sortBy, setSortBy] = useState('title');
+  const [sortBy, setSortBy] = useState('uploadedAt');
 
   useEffect(() => {
-    fetchDocuments();
-  }, [projectId]);
+    if (documents.length === 0) {
+      fetchDocuments();
+    }
+  }, [projectId, documents.length]);
 
   useEffect(() => {
     filterDocuments();
@@ -83,6 +84,8 @@ export default function ScreeningDashboard({ projectId, onDocumentSelect }) {
           const aStatus = a.screening?.[a.screening.length - 1]?.decision || 'pending';
           const bStatus = b.screening?.[b.screening.length - 1]?.decision || 'pending';
           return aStatus.localeCompare(bStatus);
+        case 'uploadedAt':
+          return new Date(b.uploadedAt) - new Date(a.uploadedAt);
         default:
           return 0;
       }
@@ -311,6 +314,7 @@ export default function ScreeningDashboard({ projectId, onDocumentSelect }) {
               onChange={(e) => setSortBy(e.target.value)}
               className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
+              <option value="uploadedAt">Sort by Upload Date</option>
               <option value="title">Sort by Title</option>
               <option value="authors">Sort by Authors</option>
               <option value="year">Sort by Year</option>

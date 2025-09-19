@@ -211,6 +211,7 @@ export default function ScreeningPage() {
         {view === 'dashboard' ? (
           <ScreeningDashboard
             projectId={params.id}
+            documents={documents}
             onDocumentSelect={handleDocumentSelect}
           />
         ) : (
