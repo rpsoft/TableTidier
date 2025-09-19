@@ -604,14 +604,34 @@ export default function ProjectPage() {
                     canReturn
                   });
                   
+                  // Define step routes
+                  const getStepRoute = (stepName) => {
+                    const stepRoutes = {
+                      'Document Upload': `/projects/${params.id}/upload`,
+                      'Document Screening': `/projects/${params.id}/screening`,
+                      'Data Extraction': `/projects/${params.id}/extraction`,
+                      'Quality Assessment': `/projects/${params.id}/quality`,
+                      'Statistical Analysis': `/projects/${params.id}/analysis`,
+                      'Synthesis & Analysis': `/projects/${params.id}/synthesis`,
+                    };
+                    return stepRoutes[stepName] || '#';
+                  };
+
+                  const stepRoute = getStepRoute(actualStep.name);
+                  const isClickable = stepRoute !== '#';
+
                   return (
-                    <div key={index} className={`flex items-center p-4 rounded-lg border transition-all ${
-                      isCompleted 
-                        ? 'bg-green-50 border-green-200' 
-                        : isInProgress
-                        ? 'bg-blue-50 border-blue-200'
-                        : 'bg-gray-50 border-gray-200'
-                    }`}>
+                    <Link 
+                      key={index} 
+                      href={stepRoute}
+                      className={`flex items-center p-4 rounded-lg border transition-all ${
+                        isCompleted 
+                          ? 'bg-green-50 border-green-200 hover:bg-green-100' 
+                          : isInProgress
+                          ? 'bg-blue-50 border-blue-200 hover:bg-blue-100'
+                          : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+                      } ${isClickable ? 'cursor-pointer' : 'cursor-default'}`}
+                    >
                       <div className="flex-shrink-0">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
                           isCompleted 
@@ -664,7 +684,11 @@ export default function ProjectPage() {
                       <div className="ml-4 flex items-center gap-2">
                         {canReturn && (
                           <button
-                            onClick={() => returnToWorkflowStep(index)}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              returnToWorkflowStep(index);
+                            }}
                             className="px-3 py-1 text-xs bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
                             title="Return to this step"
                           >
@@ -673,7 +697,11 @@ export default function ProjectPage() {
                         )}
                         {canAdvance && (
                           <button
-                            onClick={() => advanceWorkflowStep(index)}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              advanceWorkflowStep(index);
+                            }}
                             className="px-3 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
                             title="Complete this step and advance"
                           >
@@ -682,7 +710,11 @@ export default function ProjectPage() {
                         )}
                         {isPending && index > 0 && (
                           <button
-                            onClick={() => returnToWorkflowStep(index)}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              returnToWorkflowStep(index);
+                            }}
                             className="px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
                             title="Start this step"
                           >
@@ -690,7 +722,7 @@ export default function ProjectPage() {
                           </button>
                         )}
                       </div>
-                    </div>
+                    </Link>
                   );
                 }) || (
                   <div className="text-center text-gray-500 py-8">

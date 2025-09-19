@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
+import Link from 'next/link';
 import ScreeningDashboard from '@/components/screening/ScreeningDashboard';
 import ScreeningInterface from '@/components/screening/ScreeningInterface';
 import { ArrowLeft, Users, BarChart3 } from 'lucide-react';
@@ -36,7 +37,8 @@ export default function ScreeningPage() {
 
       if (documentsResponse.ok) {
         const documentsData = await documentsResponse.json();
-        setDocuments(documentsData);
+        // Sort documents in reverse order (newest first)
+        setDocuments(documentsData.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt)));
       }
     } catch (error) {
       console.error('Error fetching project data:', error);
@@ -120,10 +122,6 @@ export default function ScreeningPage() {
     }
   };
 
-  const handleBackToDashboard = () => {
-    setView('dashboard');
-    setSelectedDocument(null);
-  };
 
   if (loading) {
     return (
@@ -154,12 +152,21 @@ export default function ScreeningPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
-              <button
-                onClick={handleBackToDashboard}
-                className="p-2 text-gray-600 hover:text-gray-900"
-              >
-                <ArrowLeft size={20} />
-              </button>
+              {view === 'dashboard' ? (
+                <Link
+                  href={`/projects/${params.id}`}
+                  className="p-2 text-gray-600 hover:text-gray-900"
+                >
+                  <ArrowLeft size={20} />
+                </Link>
+              ) : (
+                <button
+                  onClick={() => setView('dashboard')}
+                  className="p-2 text-gray-600 hover:text-gray-900"
+                >
+                  <ArrowLeft size={20} />
+                </button>
+              )}
               <div>
                 <h1 className="text-xl font-semibold text-gray-900">
                   {project.name} - Screening

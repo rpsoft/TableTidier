@@ -3,14 +3,13 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Database, FileText, CheckCircle, Clock, Edit3 } from 'lucide-react';
+import { ArrowLeft, BarChart3, FileText, CheckCircle, Clock, TrendingUp } from 'lucide-react';
 
-export default function ExtractionDashboard({ projectId }) {
+export default function AnalysisDashboard({ projectId }) {
   const params = useParams();
   const [project, setProject] = useState(null);
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedDocument, setSelectedDocument] = useState(null);
 
   useEffect(() => {
     fetchProjectData();
@@ -31,13 +30,12 @@ export default function ExtractionDashboard({ projectId }) {
     }
   };
 
-  const getExtractionStatus = (document) => {
-    if (document.extractedData?.length > 0) {
+  const getAnalysisStatus = (document) => {
+    if (document.statisticalAnalysis?.completed) {
       return 'completed';
     }
-    if (document.screening?.length > 0) {
-      const latestScreening = document.screening[document.screening.length - 1];
-      return latestScreening.decision === 'included' ? 'pending' : 'not-applicable';
+    if (document.qualityAssessment?.overallScore > 0) {
+      return 'pending';
     }
     return 'not-applicable';
   };
@@ -63,7 +61,7 @@ export default function ExtractionDashboard({ projectId }) {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading extraction dashboard...</p>
+          <p className="mt-4 text-gray-600">Loading analysis dashboard...</p>
         </div>
       </div>
     );
@@ -82,16 +80,9 @@ export default function ExtractionDashboard({ projectId }) {
     );
   }
 
-  const includedDocuments = documents.filter(doc => {
-    if (doc.screening?.length > 0) {
-      const latestScreening = doc.screening[doc.screening.length - 1];
-      return latestScreening.decision === 'included';
-    }
-    return false;
-  });
-
-  const extractedCount = includedDocuments.filter(doc => getExtractionStatus(doc) === 'completed').length;
-  const pendingCount = includedDocuments.filter(doc => getExtractionStatus(doc) === 'pending').length;
+  const assessedDocuments = documents.filter(doc => doc.qualityAssessment?.overallScore > 0);
+  const analyzedCount = assessedDocuments.filter(doc => getAnalysisStatus(doc) === 'completed').length;
+  const pendingCount = assessedDocuments.filter(doc => getAnalysisStatus(doc) === 'pending').length;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -107,18 +98,18 @@ export default function ExtractionDashboard({ projectId }) {
                 <ArrowLeft size={24} />
               </Link>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Data Extraction</h1>
+                <h1 className="text-2xl font-bold text-gray-900">Statistical Analysis</h1>
                 <p className="text-gray-600 mt-1">{project.name}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <span className="text-sm text-gray-500">
-                {extractedCount} of {includedDocuments.length} documents extracted
+                {analyzedCount} of {assessedDocuments.length} documents analyzed
               </span>
               <div className="w-32 bg-gray-200 rounded-full h-2">
                 <div 
                   className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${includedDocuments.length > 0 ? (extractedCount / includedDocuments.length) * 100 : 0}%` }}
+                  style={{ width: `${assessedDocuments.length > 0 ? (analyzedCount / assessedDocuments.length) * 100 : 0}%` }}
                 ></div>
               </div>
             </div>
@@ -129,21 +120,21 @@ export default function ExtractionDashboard({ projectId }) {
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Extraction Statistics */}
+          {/* Analysis Statistics */}
           <div className="lg:col-span-1 space-y-6">
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Extraction Progress</h2>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Analysis Progress</h2>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Included Documents</span>
+                  <span className="text-gray-600">Assessed Documents</span>
                   <span className="text-2xl font-bold text-blue-600">
-                    {includedDocuments.length}
+                    {assessedDocuments.length}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Extracted</span>
+                  <span className="text-gray-600">Analyzed</span>
                   <span className="text-2xl font-bold text-green-600">
-                    {extractedCount}
+                    {analyzedCount}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
@@ -155,33 +146,44 @@ export default function ExtractionDashboard({ projectId }) {
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">Progress</span>
                   <span className="text-lg font-semibold text-gray-900">
-                    {includedDocuments.length > 0 ? Math.round((extractedCount / includedDocuments.length) * 100) : 0}%
+                    {assessedDocuments.length > 0 ? Math.round((analyzedCount / assessedDocuments.length) * 100) : 0}%
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Extraction Guidelines */}
+            {/* Analysis Tools */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Extraction Guidelines</h3>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li className="flex items-start gap-2">
-                  <CheckCircle size={16} className="text-green-500 mt-0.5 flex-shrink-0" />
-                  <span>Extract data from included documents only</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle size={16} className="text-green-500 mt-0.5 flex-shrink-0" />
-                  <span>Focus on study characteristics and outcomes</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle size={16} className="text-green-500 mt-0.5 flex-shrink-0" />
-                  <span>Ensure consistency across extractions</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle size={16} className="text-green-500 mt-0.5 flex-shrink-0" />
-                  <span>Use predefined extraction templates</span>
-                </li>
-              </ul>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Analysis Tools</h3>
+              <div className="space-y-3">
+                <button className="w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <BarChart3 size={20} className="text-blue-500" />
+                    <div>
+                      <h4 className="font-medium text-gray-900">Meta-Analysis</h4>
+                      <p className="text-sm text-gray-500">Statistical synthesis of effect sizes</p>
+                    </div>
+                  </div>
+                </button>
+                <button className="w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <TrendingUp size={20} className="text-green-500" />
+                    <div>
+                      <h4 className="font-medium text-gray-900">Forest Plot</h4>
+                      <p className="text-sm text-gray-500">Visual representation of study effects</p>
+                    </div>
+                  </div>
+                </button>
+                <button className="w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <BarChart3 size={20} className="text-purple-500" />
+                    <div>
+                      <h4 className="font-medium text-gray-900">Funnel Plot</h4>
+                      <p className="text-sm text-gray-500">Assessment of publication bias</p>
+                    </div>
+                  </div>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -189,13 +191,13 @@ export default function ExtractionDashboard({ projectId }) {
           <div className="lg:col-span-2">
             <div className="bg-white rounded-lg shadow-sm border border-gray-200">
               <div className="p-6 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-900">Documents Ready for Extraction</h2>
+                <h2 className="text-lg font-semibold text-gray-900">Documents Ready for Analysis</h2>
               </div>
               <div className="p-6">
-                {includedDocuments.length > 0 ? (
+                {assessedDocuments.length > 0 ? (
                   <div className="space-y-3">
-                    {includedDocuments.map((document) => {
-                      const status = getExtractionStatus(document);
+                    {assessedDocuments.map((document) => {
+                      const status = getAnalysisStatus(document);
                       return (
                         <div key={document.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
                           <div className="flex items-center gap-3">
@@ -210,16 +212,15 @@ export default function ExtractionDashboard({ projectId }) {
                           <div className="flex items-center gap-2">
                             {getStatusIcon(status)}
                             <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(status)}`}>
-                              {status === 'completed' ? 'Extracted' : 
+                              {status === 'completed' ? 'Analyzed' : 
                                status === 'pending' ? 'Pending' : 'Not Applicable'}
                             </span>
                             {status === 'pending' && (
                               <button
-                                onClick={() => setSelectedDocument(document)}
                                 className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
-                                title="Start extraction"
+                                title="Start analysis"
                               >
-                                <Edit3 size={16} />
+                                <BarChart3 size={16} />
                               </button>
                             )}
                           </div>
@@ -229,14 +230,14 @@ export default function ExtractionDashboard({ projectId }) {
                   </div>
                 ) : (
                   <div className="text-center py-12">
-                    <Database size={48} className="mx-auto text-gray-400 mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">No documents ready for extraction</h3>
-                    <p className="text-gray-500 mb-4">Complete the screening process first to include documents</p>
+                    <BarChart3 size={48} className="mx-auto text-gray-400 mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No documents ready for analysis</h3>
+                    <p className="text-gray-500 mb-4">Complete the quality assessment process first</p>
                     <Link
-                      href={`/projects/${params.id}/screening`}
+                      href={`/projects/${params.id}/quality`}
                       className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                     >
-                      Go to Screening
+                      Go to Quality Assessment
                     </Link>
                   </div>
                 )}
