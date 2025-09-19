@@ -17,14 +17,22 @@ export default function SynthesisDashboard({ projectId }) {
 
   const fetchProjectData = async () => {
     try {
-      const response = await fetch(`/api/projects/${params.id}`);
-      if (response.ok) {
-        const data = await response.json();
-        setProject(data);
-        setDocuments(data.documents || []);
+      const [projectResponse, documentsResponse] = await Promise.all([
+        fetch(`/api/projects/${params.id}`),
+        fetch(`/api/projects/${params.id}/documents`)
+      ]);
+
+      if (projectResponse.ok) {
+        const projectData = await projectResponse.json();
+        setProject(projectData);
+      }
+
+      if (documentsResponse.ok) {
+        const documentsData = await documentsResponse.json();
+        setDocuments(documentsData);
       }
     } catch (error) {
-      console.error('Error fetching project:', error);
+      console.error('Error fetching project data:', error);
     } finally {
       setLoading(false);
     }

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Database, FileText, CheckCircle, Clock, Edit3 } from 'lucide-react';
+import { ArrowLeft, Database, FileText, CheckCircle, Clock, Edit3, X } from 'lucide-react';
 
 export default function ExtractionDashboard({ projectId }) {
   const params = useParams();
@@ -11,6 +11,7 @@ export default function ExtractionDashboard({ projectId }) {
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedDocument, setSelectedDocument] = useState(null);
+  const [showExtractionModal, setShowExtractionModal] = useState(false);
 
   useEffect(() => {
     fetchProjectData();
@@ -18,14 +19,22 @@ export default function ExtractionDashboard({ projectId }) {
 
   const fetchProjectData = async () => {
     try {
-      const response = await fetch(`/api/projects/${params.id}`);
-      if (response.ok) {
-        const data = await response.json();
-        setProject(data);
-        setDocuments(data.documents || []);
+      const [projectResponse, documentsResponse] = await Promise.all([
+        fetch(`/api/projects/${params.id}`),
+        fetch(`/api/projects/${params.id}/documents`)
+      ]);
+
+      if (projectResponse.ok) {
+        const projectData = await projectResponse.json();
+        setProject(projectData);
+      }
+
+      if (documentsResponse.ok) {
+        const documentsData = await documentsResponse.json();
+        setDocuments(documentsData);
       }
     } catch (error) {
-      console.error('Error fetching project:', error);
+      console.error('Error fetching project data:', error);
     } finally {
       setLoading(false);
     }
@@ -215,7 +224,10 @@ export default function ExtractionDashboard({ projectId }) {
                             </span>
                             {status === 'pending' && (
                               <button
-                                onClick={() => setSelectedDocument(document)}
+                                onClick={() => {
+                                  setSelectedDocument(document);
+                                  setShowExtractionModal(true);
+                                }}
                                 className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
                                 title="Start extraction"
                               >
@@ -245,6 +257,142 @@ export default function ExtractionDashboard({ projectId }) {
           </div>
         </div>
       </div>
+
+      {/* Extraction Modal */}
+      {showExtractionModal && selectedDocument && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">Data Extraction</h2>
+                <p className="text-sm text-gray-600 mt-1">{selectedDocument.fileName}</p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowExtractionModal(false);
+                  setSelectedDocument(null);
+                }}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X size={24} />
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+              <div className="space-y-6">
+                {/* Document Preview */}
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-3">Document Preview</h3>
+                  <div className="border border-gray-200 rounded-lg p-4 bg-gray-50 max-h-64 overflow-y-auto">
+                    <div className="prose prose-sm max-w-none">
+                      <div dangerouslySetInnerHTML={{ __html: selectedDocument.content || 'No content available' }} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Extraction Form */}
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-3">Extract Data</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Study Title
+                      </label>
+                      <input
+                        type="text"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Enter study title"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Authors
+                      </label>
+                      <input
+                        type="text"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Enter authors (comma-separated)"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Publication Year
+                      </label>
+                      <input
+                        type="number"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Enter publication year"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Study Design
+                      </label>
+                      <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Select study design</option>
+                        <option value="randomized-controlled-trial">Randomized Controlled Trial</option>
+                        <option value="cohort-study">Cohort Study</option>
+                        <option value="case-control">Case-Control Study</option>
+                        <option value="cross-sectional">Cross-Sectional Study</option>
+                        <option value="systematic-review">Systematic Review</option>
+                        <option value="meta-analysis">Meta-Analysis</option>
+                        <option value="other">Other</option>
+                      </select>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Sample Size
+                      </label>
+                      <input
+                        type="number"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Enter sample size"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Key Findings
+                      </label>
+                      <textarea
+                        rows={4}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Enter key findings"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200">
+              <button
+                onClick={() => {
+                  setShowExtractionModal(false);
+                  setSelectedDocument(null);
+                }}
+                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  // TODO: Implement save extraction data
+                  setShowExtractionModal(false);
+                  setSelectedDocument(null);
+                }}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Save Extraction
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

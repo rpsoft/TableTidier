@@ -557,22 +557,22 @@ export default function ProjectPage() {
                       {(project.workflow?.steps || []).length || 5} steps
                     </span>
                   </div>
-                  <span className="text-sm text-gray-500">
+                  {/* <span className="text-sm text-gray-500">
                     Current Step: {project.workflow?.currentStep?.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Upload'}
-                  </span>
+                  </span> */}
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                {/* <div className="w-full bg-gray-200 rounded-full h-2">
                   <div 
                     className="bg-blue-600 h-2 rounded-full transition-all duration-300"
                     style={{ 
                       width: `${Math.min(100, Math.round(((project.statistics?.screenedDocuments || 0) + (project.statistics?.includedDocuments || 0)) / Math.max(project.statistics?.totalDocuments || 1, 1) * 100))}%` 
                     }}
                   ></div>
-                </div>
-                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                </div> */}
+                {/* <div className="flex justify-between text-xs text-gray-500 mt-1">
                   <span>0%</span>
                   <span>100%</span>
-                </div>
+                </div> */}
               </div>
 
               {/* Workflow Steps */}
@@ -760,7 +760,7 @@ export default function ProjectPage() {
               </div>
 
               {/* Quick Actions */}
-              <div className="mt-6 pt-4 border-t border-gray-200">
+              {/* <div className="mt-6 pt-4 border-t border-gray-200">
                 <div className="flex flex-wrap gap-2">
                   <button
                     onClick={() => setShowUploadModal(true)}
@@ -781,7 +781,7 @@ export default function ProjectPage() {
                     View Analytics
                   </button>
                 </div>
-              </div>
+              </div> */}
             </div>
 
             {/* PRISMA Flow */}

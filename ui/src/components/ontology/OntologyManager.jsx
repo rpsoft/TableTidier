@@ -196,7 +196,7 @@ export default function OntologyManager({ project, documents = [], onConceptMapp
       if (data.success && data.mapping) {
         // Convert AI response to our expected format
         const concept = {
-          id: data.mapping.mappedConcept.id || `concept_${Date.now()}`,
+          id: data.mapping.mappedConcept.id || `concept_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
           name: data.mapping.mappedConcept.name,
           definition: data.mapping.mappedConcept.definition || 'No definition available',
           semanticType: data.mapping.mappedConcept.semanticType || 'Unknown',
@@ -233,7 +233,7 @@ export default function OntologyManager({ project, documents = [], onConceptMapp
 
   const handleConceptMapping = (originalText, mappedConcept) => {
     const newMapping = {
-      id: `mapping_${Date.now()}`,
+      id: `mapping_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       originalText,
       mappedConcept,
       confidence: mappedConcept.confidence,
