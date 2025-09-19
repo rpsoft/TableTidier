@@ -4,6 +4,7 @@ import { Document } from '@/database/document.model';
 import { ProjectUser } from '@/database/projectUser.model';
 import { AuditLog } from '@/database/audit.model';
 import * as cheerio from 'cheerio';
+import { processPDF } from '@/lib/pdf-processor';
 
 // GET /api/projects/[id]/documents - Get all documents for a project
 export async function GET(request, { params }) {
@@ -67,41 +68,53 @@ export async function POST(request, { params }) {
     }
 
     // Validate file type
-    if (!file.name.endsWith('.html') && !file.name.endsWith('.htm')) {
-      return NextResponse.json({ error: 'Only HTML files are supported' }, { status: 400 });
+    if (!file.name.endsWith('.html') && !file.name.endsWith('.htm') && !file.name.endsWith('.pdf')) {
+      return NextResponse.json({ error: 'Only HTML and PDF files are supported' }, { status: 400 });
     }
 
-    const fileContent = await file.text();
+    let fileContent, metadata, tables, text;
     
-    // Parse HTML content
-    const $ = cheerio.load(fileContent);
-    
-    // Extract metadata
-    const metadata = {
-      title: $('title').text() || $('h1').first().text() || file.name,
-      authors: extractAuthors($),
-      journal: extractJournal($),
-      year: extractYear($),
-      doi: extractDOI($),
-      abstract: extractAbstract($),
-      keywords: extractKeywords($),
-    };
+    if (file.name.endsWith('.pdf')) {
+      // Process PDF file
+      const pdfData = await processPDF(file);
+      fileContent = pdfData.content;
+      metadata = pdfData.metadata;
+      tables = pdfData.tables;
+      text = pdfData.text;
+    } else {
+      // Parse HTML content
+      const $ = cheerio.load(await file.text());
+      
+      // Extract metadata
+      metadata = {
+        title: $('title').text() || $('h1').first().text() || file.name,
+        authors: extractAuthors($),
+        journal: extractJournal($),
+        year: extractYear($),
+        doi: extractDOI($),
+        abstract: extractAbstract($),
+        keywords: extractKeywords($),
+        source: 'upload',
+        sourceId: null,
+        searchQuery: null,
+      };
 
-    // Extract tables
-    const tables = [];
-    $('table').each((index, table) => {
-      const tableData = parseTable($, $(table));
-      tables.push({
-        id: `table_${Date.now()}_${index}`,
-        headers: tableData.headers,
-        rows: tableData.rows,
-        annotations: { columns: {}, rows: {} },
-        htmlContent: $(table).html(),
+      // Extract tables
+      tables = [];
+      $('table').each((index, table) => {
+        const tableData = parseTable($, $(table));
+        tables.push({
+          id: `table_${Date.now()}_${index}`,
+          headers: tableData.headers,
+          rows: tableData.rows,
+          annotations: { columns: {}, rows: {} },
+          htmlContent: $(table).html(),
+        });
       });
-    });
 
-    // Extract text sections
-    const text = extractTextSections($);
+      // Extract text sections
+      text = extractTextSections($);
+    }
 
     // Create document
     const document = new Document({
@@ -112,6 +125,8 @@ export async function POST(request, { params }) {
       text,
       tables,
       uploadedBy: session.user.email,
+      acquisitionMethod: 'upload',
+      acquisitionSource: 'upload',
     });
 
     await document.save();

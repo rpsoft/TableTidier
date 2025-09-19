@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Upload, FileText, CheckCircle, XCircle, Clock } from 'lucide-react';
-import UploadDocumentModal from '@/components/projects/UploadDocumentModal';
+import DocumentAcquisitionModal from '@/components/projects/DocumentAcquisitionModal';
 
 export default function UploadDashboard({ projectId }) {
   const params = useParams();
@@ -98,7 +98,7 @@ export default function UploadDashboard({ projectId }) {
                 <ArrowLeft size={24} />
               </Link>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Document Upload</h1>
+                <h1 className="text-2xl font-bold text-gray-900">Document Acquisition</h1>
                 <p className="text-gray-600 mt-1">{project.name}</p>
               </div>
             </div>
@@ -107,7 +107,7 @@ export default function UploadDashboard({ projectId }) {
               className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               <Upload size={20} />
-              Upload Documents
+              Acquire Documents
             </button>
           </div>
         </div>
@@ -146,27 +146,49 @@ export default function UploadDashboard({ projectId }) {
               </div>
             </div>
 
-            {/* Upload Guidelines */}
+            {/* Acquisition Guidelines */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Upload Guidelines</h3>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li className="flex items-start gap-2">
-                  <CheckCircle size={16} className="text-green-500 mt-0.5 flex-shrink-0" />
-                  <span>Supported formats: HTML, PDF, DOCX</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle size={16} className="text-green-500 mt-0.5 flex-shrink-0" />
-                  <span>Maximum file size: 10MB per document</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle size={16} className="text-green-500 mt-0.5 flex-shrink-0" />
-                  <span>Multiple files can be uploaded at once</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle size={16} className="text-green-500 mt-0.5 flex-shrink-0" />
-                  <span>Documents will be automatically processed</span>
-                </li>
-              </ul>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Acquisition Options</h3>
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-medium text-gray-900 mb-2">File Upload</h4>
+                  <ul className="space-y-1 text-sm text-gray-600">
+                    <li className="flex items-start gap-2">
+                      <CheckCircle size={16} className="text-green-500 mt-0.5 flex-shrink-0" />
+                      <span>Supported formats: HTML, PDF</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle size={16} className="text-green-500 mt-0.5 flex-shrink-0" />
+                      <span>Maximum file size: 10MB per document</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle size={16} className="text-green-500 mt-0.5 flex-shrink-0" />
+                      <span>Multiple files supported</span>
+                    </li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-medium text-gray-900 mb-2">API Search</h4>
+                  <ul className="space-y-1 text-sm text-gray-600">
+                    <li className="flex items-start gap-2">
+                      <CheckCircle size={16} className="text-green-500 mt-0.5 flex-shrink-0" />
+                      <span>PubMed/MEDLINE (free)</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle size={16} className="text-green-500 mt-0.5 flex-shrink-0" />
+                      <span>ClinicalTrials.gov (free)</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle size={16} className="text-blue-500 mt-0.5 flex-shrink-0" />
+                      <span>Cochrane Library (auth required)</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle size={16} className="text-blue-500 mt-0.5 flex-shrink-0" />
+                      <span>Embase (subscription required)</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -211,7 +233,7 @@ export default function UploadDashboard({ projectId }) {
                       onClick={() => setShowUploadModal(true)}
                       className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                     >
-                      Upload Documents
+                      Acquire Documents
                     </button>
                   </div>
                 )}
@@ -221,8 +243,8 @@ export default function UploadDashboard({ projectId }) {
         </div>
       </div>
 
-      {/* Upload Modal */}
-      <UploadDocumentModal
+      {/* Document Acquisition Modal */}
+      <DocumentAcquisitionModal
         isOpen={showUploadModal}
         onClose={() => setShowUploadModal(false)}
         onUpload={handleDocumentUpload}

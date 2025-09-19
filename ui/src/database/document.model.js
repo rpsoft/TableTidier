@@ -27,6 +27,9 @@ const documentSchema = new mongoose.Schema({
     doi: String,
     abstract: String,
     keywords: [String],
+    source: String, // 'upload', 'pubmed', 'clinicaltrials', 'cochrane', 'embase'
+    sourceId: String, // Original ID from the source system
+    searchQuery: String, // Query used to find this document
   },
   // Parsed document structure
   text: [{
@@ -91,6 +94,17 @@ const documentSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  // Document acquisition information
+  acquisitionMethod: {
+    type: String,
+    enum: ['upload', 'api'],
+    default: 'upload',
+  },
+  acquisitionSource: {
+    type: String,
+    enum: ['upload', 'pubmed', 'clinicaltrials', 'cochrane', 'embase'],
+  },
+  acquisitionQuery: String, // Search query used for API acquisition
   createdAt: {
     type: Date,
     default: Date.now,

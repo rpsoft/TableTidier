@@ -107,6 +107,13 @@ const Header = () => {
                                     Table Editor
                                 </Link>
                                 <Link 
+                                    href="/settings/api" 
+                                    className="flex items-center gap-2 px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
+                                >
+                                    <Settings size={16} />
+                                    API Settings
+                                </Link>
+                                <Link 
                                     href="/admin" 
                                     className="flex items-center gap-2 px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
                                 >
@@ -185,6 +192,13 @@ const Header = () => {
                             >
                                 <BarChart3 size={16} />
                                 Table Editor
+                            </Link>
+                            <Link 
+                                href="/settings/api" 
+                                className="flex items-center gap-2 px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
+                            >
+                                <Settings size={16} />
+                                API Settings
                             </Link>
                             <Link 
                                 href="/admin" 

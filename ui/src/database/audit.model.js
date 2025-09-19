@@ -22,6 +22,7 @@ const auditLogSchema = new mongoose.Schema({
       'project_created',
       'project_updated',
       'document_uploaded',
+      'document_acquired',
       'document_screened',
       'data_extracted',
       'annotation_created',
@@ -29,6 +30,9 @@ const auditLogSchema = new mongoose.Schema({
       'user_assigned',
       'role_changed',
       'conflict_resolved',
+      'api_search_performed',
+      'api_key_configured',
+      'settings_updated',
     ],
   },
   details: {
